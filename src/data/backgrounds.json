@@ -1,0 +1,50 @@
+[
+  {
+    "id": "soldado",
+    "nome": "Soldado",
+    "pericia": "Intimidação",
+    "descricao": "Serviu nas tropas do reino antes de se tornar aventureiro.",
+    "itemInicial": "pocao_vida_inicial",
+    "ouroInicial": 15
+  },
+  {
+    "id": "nobre",
+    "nome": "Nobre",
+    "pericia": "Persuasão",
+    "descricao": "Cresceu entre riquezas, mas busca glória própria.",
+    "itemInicial": "anel_simples",
+    "ouroInicial": 60
+  },
+  {
+    "id": "criminoso",
+    "nome": "Criminoso",
+    "pericia": "Furtividade",
+    "descricao": "Conhece os becos escuros e a arte de passar despercebido.",
+    "itemInicial": "adaga_enferrujada",
+    "ouroInicial": 20
+  },
+  {
+    "id": "eremita",
+    "nome": "Eremita",
+    "pericia": "Sobrevivência",
+    "descricao": "Viveu anos isolado, estudando ervas e a natureza.",
+    "itemInicial": "erva",
+    "ouroInicial": 10
+  },
+  {
+    "id": "andarilho_do_povo",
+    "nome": "Andarilho do Povo",
+    "pericia": "Empatia",
+    "descricao": "Viajou de vila em vila, sempre disposto a ajudar.",
+    "itemInicial": "pao",
+    "ouroInicial": 25
+  },
+  {
+    "id": "sabio",
+    "nome": "Sábio",
+    "pericia": "Conhecimento Arcano",
+    "descricao": "Dedicou a vida ao estudo de textos antigos e magia.",
+    "itemInicial": "pergaminho_arcano",
+    "ouroInicial": 20
+  }
+]

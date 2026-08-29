@@ -1,0 +1,287 @@
+{
+  "meta": {
+    "n_players_engine": 1000000,
+    "n_pulls_engine": 400,
+    "n_players_beginner": 1000000,
+    "tempo_total_s": 88.46516418457031
+  },
+  "engine_stats": {
+    "primeiro_lendario": {
+      "media": 37.561702,
+      "p99": 48.0,
+      "max": 50,
+      "pct_nao_obteve_em_150": 0.0
+    },
+    "primeiro_featured_evento": {
+      "media": 56.320706,
+      "p99": 92.0,
+      "max": 99,
+      "pct_nao_obteve_em_150": 0.0,
+      "limite_pior_caso_teorico": 100
+    },
+    "pct_hardpity_em_150_pulls": 0.2366,
+    "roster_assumido": {
+      "Comum": 20,
+      "Incomum": 15,
+      "Raro": 10,
+      "Epico": 6,
+      "Lendario": 4
+    }
+  },
+  "banner_iniciante": {
+    "pct_rare_plus_within_10_pulls": 100.0,
+    "pct_epic_plus_within_10_pulls": 49.965900000000005,
+    "pct_epic_plus_within_20_pulls": 100.0,
+    "pct_legendary_within_40_pulls": 100.0
+  },
+  "economia": {
+    "conservador": {
+      "casual": {
+        "renda_early_semana": 450.0,
+        "renda_steady_semana": 450.0,
+        "pulls_semana_early": 4.5,
+        "pulls_semana_steady": 4.5,
+        "buckets_recorrentes_semanais": {
+          "diario": 180.0,
+          "masmorras": 180.0,
+          "eventos": 90.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 0.0,
+          "exploracao": 0.0,
+          "conquistas": 0.0
+        },
+        "lump_total": 0.0,
+        "pulls_mes1_estimado": 19.35,
+        "pulls_mes_regime_estimado": 19.349999999999998,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.01213080288867685,
+        "media_personagens_novos_mes_regime": 0.18457416999999998,
+        "media_duplicatas_mes_regime": 18.81542583,
+        "media_personagens_novos_mes1": 15.972484,
+        "media_duplicatas_mes1": 3.0275160000000003
+      },
+      "ativo": {
+        "renda_early_semana": 750.0,
+        "renda_steady_semana": 600.0,
+        "pulls_semana_early": 7.5,
+        "pulls_semana_steady": 6.0,
+        "buckets_recorrentes_semanais": {
+          "diario": 240.0,
+          "masmorras": 240.0,
+          "eventos": 120.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 270.0,
+          "exploracao": 90.0,
+          "conquistas": 90.0
+        },
+        "lump_total": 450.0,
+        "pulls_mes1_estimado": 30.3,
+        "pulls_mes_regime_estimado": 25.799999999999997,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.016599675100503752,
+        "media_personagens_novos_mes_regime": 0.25257518,
+        "media_duplicatas_mes_regime": 25.74742482,
+        "media_personagens_novos_mes1": 22.971438,
+        "media_duplicatas_mes1": 7.028562000000001
+      },
+      "dedicado": {
+        "renda_early_semana": 1050.0,
+        "renda_steady_semana": 862.5,
+        "pulls_semana_early": 10.5,
+        "pulls_semana_steady": 8.625,
+        "buckets_recorrentes_semanais": {
+          "diario": 345.0,
+          "masmorras": 345.0,
+          "eventos": 172.5
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 337.5,
+          "exploracao": 112.5,
+          "conquistas": 112.5
+        },
+        "lump_total": 562.5,
+        "pulls_mes1_estimado": 42.7125,
+        "pulls_mes_regime_estimado": 37.0875,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.0236217850386522,
+        "media_personagens_novos_mes_regime": 0.35943390999999997,
+        "media_duplicatas_mes_regime": 36.64056609,
+        "media_personagens_novos_mes1": 29.600954,
+        "media_duplicatas_mes1": 13.399045999999998
+      }
+    },
+    "equilibrado": {
+      "casual": {
+        "renda_early_semana": 600.0,
+        "renda_steady_semana": 600.0,
+        "pulls_semana_early": 6.0,
+        "pulls_semana_steady": 6.0,
+        "buckets_recorrentes_semanais": {
+          "diario": 240.0,
+          "masmorras": 240.0,
+          "eventos": 120.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 0.0,
+          "exploracao": 0.0,
+          "conquistas": 0.0
+        },
+        "lump_total": 0.0,
+        "pulls_mes1_estimado": 25.8,
+        "pulls_mes_regime_estimado": 25.799999999999997,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.016599675100503752,
+        "media_personagens_novos_mes_regime": 0.25257518,
+        "media_duplicatas_mes_regime": 25.74742482,
+        "media_personagens_novos_mes1": 20.647441,
+        "media_duplicatas_mes1": 5.352558999999999
+      },
+      "ativo": {
+        "renda_early_semana": 1000.0,
+        "renda_steady_semana": 800.0,
+        "pulls_semana_early": 10.0,
+        "pulls_semana_steady": 8.0,
+        "buckets_recorrentes_semanais": {
+          "diario": 320.0,
+          "masmorras": 320.0,
+          "eventos": 160.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 360.0,
+          "exploracao": 120.0,
+          "conquistas": 120.0
+        },
+        "lump_total": 600.0,
+        "pulls_mes1_estimado": 40.4,
+        "pulls_mes_regime_estimado": 34.4,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.021706713058522453,
+        "media_personagens_novos_mes_regime": 0.33029062,
+        "media_duplicatas_mes_regime": 33.66970938,
+        "media_personagens_novos_mes1": 28.07428,
+        "media_duplicatas_mes1": 11.925719999999998
+      },
+      "dedicado": {
+        "renda_early_semana": 1400.0,
+        "renda_steady_semana": 1150.0,
+        "pulls_semana_early": 14.0,
+        "pulls_semana_steady": 11.5,
+        "buckets_recorrentes_semanais": {
+          "diario": 460.0,
+          "masmorras": 460.0,
+          "eventos": 230.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 450.0,
+          "exploracao": 150.0,
+          "conquistas": 150.0
+        },
+        "lump_total": 750.0,
+        "pulls_mes1_estimado": 56.95,
+        "pulls_mes_regime_estimado": 49.449999999999996,
+        "pct_hardpity_mes1": 0.0232,
+        "pct_hardpity_mes_regime": 0.031281706136554455,
+        "media_personagens_novos_mes_regime": 0.47600707,
+        "media_duplicatas_mes_regime": 48.52399293,
+        "media_personagens_novos_mes1": 35.167698,
+        "media_duplicatas_mes1": 21.832302
+      }
+    },
+    "generoso": {
+      "casual": {
+        "renda_early_semana": 750.0,
+        "renda_steady_semana": 750.0,
+        "pulls_semana_early": 7.5,
+        "pulls_semana_steady": 7.5,
+        "buckets_recorrentes_semanais": {
+          "diario": 300.0,
+          "masmorras": 300.0,
+          "eventos": 150.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 0.0,
+          "exploracao": 0.0,
+          "conquistas": 0.0
+        },
+        "lump_total": 0.0,
+        "pulls_mes1_estimado": 32.25,
+        "pulls_mes_regime_estimado": 32.25,
+        "pct_hardpity_mes1": 0.0,
+        "pct_hardpity_mes_regime": 0.020429978025315876,
+        "media_personagens_novos_mes_regime": 0.31086176,
+        "media_duplicatas_mes_regime": 31.68913824,
+        "media_personagens_novos_mes1": 24.06401,
+        "media_duplicatas_mes1": 7.93599
+      },
+      "ativo": {
+        "renda_early_semana": 1250.0,
+        "renda_steady_semana": 1000.0,
+        "pulls_semana_early": 12.5,
+        "pulls_semana_steady": 10.0,
+        "buckets_recorrentes_semanais": {
+          "diario": 400.0,
+          "masmorras": 400.0,
+          "eventos": 200.0
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 450.0,
+          "exploracao": 150.0,
+          "conquistas": 150.0
+        },
+        "lump_total": 750.0,
+        "pulls_mes1_estimado": 50.5,
+        "pulls_mes_regime_estimado": 43.0,
+        "pct_hardpity_mes1": 0.0222,
+        "pct_hardpity_mes_regime": 0.02745181895073001,
+        "media_personagens_novos_mes_regime": 0.41772049,
+        "media_duplicatas_mes_regime": 42.58227951,
+        "media_personagens_novos_mes1": 32.663721,
+        "media_duplicatas_mes1": 17.336278999999998
+      },
+      "dedicado": {
+        "renda_early_semana": 1750.0,
+        "renda_steady_semana": 1437.5,
+        "pulls_semana_early": 17.5,
+        "pulls_semana_steady": 14.375,
+        "buckets_recorrentes_semanais": {
+          "diario": 575.0,
+          "masmorras": 575.0,
+          "eventos": 287.5
+        },
+        "bonus_unicos_total_semanas1a3": {
+          "quests": 562.5,
+          "exploracao": 187.5,
+          "conquistas": 187.5
+        },
+        "lump_total": 937.5,
+        "pulls_mes1_estimado": 71.1875,
+        "pulls_mes_regime_estimado": 61.8125,
+        "pct_hardpity_mes1": 0.025799999999999997,
+        "pct_hardpity_mes_regime": 0.03957929171336527,
+        "media_personagens_novos_mes_regime": 0.60229466,
+        "media_duplicatas_mes_regime": 61.39770534,
+        "media_personagens_novos_mes1": 39.362197,
+        "media_duplicatas_mes1": 31.637802999999998
+      }
+    }
+  },
+  "bonus_pontual_300": {
+    "casual": {
+      "pulls_semana_normal": 6.0,
+      "pulls_semana_com_bonus": 9.0,
+      "semanas_economizadas_para_50_pulls": 2.7777777777777786
+    },
+    "ativo": {
+      "pulls_semana_normal": 8.0,
+      "pulls_semana_com_bonus": 11.0,
+      "semanas_economizadas_para_50_pulls": 1.7045454545454541
+    },
+    "dedicado": {
+      "pulls_semana_normal": 11.5,
+      "pulls_semana_com_bonus": 14.5,
+      "semanas_economizadas_para_50_pulls": 0.8995502248875562
+    }
+  }
+}

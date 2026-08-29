@@ -1,0 +1,69 @@
+[
+  {
+    "id": "receita_pocao_vida_m",
+    "nome": "Poção de Vida Média",
+    "resultadoId": "pocao_vida_m",
+    "ingredientes": [
+      {
+        "itemId": "erva",
+        "quantidade": 3
+      },
+      {
+        "itemId": "gema",
+        "quantidade": 1
+      }
+    ]
+  },
+  {
+    "id": "receita_pocao_mana_m",
+    "nome": "Poção de Mana Média",
+    "resultadoId": "pocao_mana_m",
+    "ingredientes": [
+      {
+        "itemId": "erva_rara",
+        "quantidade": 2
+      },
+      {
+        "itemId": "gema",
+        "quantidade": 1
+      }
+    ]
+  },
+  {
+    "id": "receita_elmo_comum",
+    "nome": "Forjar Elmo de Ferro",
+    "resultadoId": "elmo_comum",
+    "ingredientes": [
+      {
+        "itemId": "minerio",
+        "quantidade": 4
+      },
+      {
+        "itemId": "madeira",
+        "quantidade": 1
+      }
+    ]
+  },
+  {
+    "id": "receita_escudo_comum",
+    "nome": "Forjar Escudo de Madeira",
+    "resultadoId": "escudo_comum",
+    "ingredientes": [
+      {
+        "itemId": "madeira",
+        "quantidade": 5
+      }
+    ]
+  },
+  {
+    "id": "receita_antidoto",
+    "nome": "Preparar Antídoto",
+    "resultadoId": "antidoto",
+    "ingredientes": [
+      {
+        "itemId": "erva",
+        "quantidade": 2
+      }
+    ]
+  }
+]

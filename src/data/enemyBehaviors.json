@@ -1,0 +1,80 @@
+{
+  "agressor": {
+    "nome": "Agressor",
+    "descricao": "Avança sobre o alvo mais vulnerável (menor HP atual).",
+    "coragem": "alta",
+    "foge": false
+  },
+  "cacador": {
+    "nome": "Caçador",
+    "descricao": "Procura o membro do time com menor defesa — o mais isolado taticamente.",
+    "coragem": "media",
+    "foge": false
+  },
+  "atirador": {
+    "nome": "Atirador",
+    "descricao": "Mira a maior ameaça (maior poder de ataque do time).",
+    "coragem": "media",
+    "foge": false
+  },
+  "fanatico": {
+    "nome": "Fanático",
+    "descricao": "Não recua nunca. Ataca o alvo com mais HP, tentando abater o mais resistente.",
+    "coragem": "maxima",
+    "foge": false
+  },
+  "comandante": {
+    "nome": "Comandante",
+    "descricao": "Coragem máxima. Mira quem está prestes a agir, tentando quebrar o ritmo do time.",
+    "coragem": "maxima",
+    "foge": false
+  },
+  "covarde": {
+    "nome": "Covarde",
+    "descricao": "Hesita e recua quando um aliado cai ou o próprio HP fica crítico.",
+    "coragem": "baixa",
+    "foge": true
+  },
+  "defensor": {
+    "nome": "Defensor",
+    "descricao": "Protege o aliado mais ferido, aumentando a defesa dele. Sem aliados para proteger, ataca normalmente.",
+    "coragem": "alta",
+    "foge": false
+  },
+  "controlador": {
+    "nome": "Controlador",
+    "descricao": "Aplica uma condição de veneno no membro do time com menor defesa antes de recorrer a ataques diretos.",
+    "coragem": "media",
+    "foge": false
+  },
+  "suporte": {
+    "nome": "Suporte",
+    "descricao": "Cura o aliado mais ferido quando possível. Sem ninguém para curar, ataca o alvo com menos HP.",
+    "coragem": "media",
+    "foge": false
+  },
+  "conjurador": {
+    "nome": "Conjurador",
+    "descricao": "Sempre ataca com magia, ignorando parte da defesa do alvo mais frágil.",
+    "coragem": "alta",
+    "foge": false
+  },
+  "ladrao": {
+    "nome": "Ladrão",
+    "descricao": "Rouba ouro do grupo antes de recorrer a ataques diretos — o furto só acontece uma vez por batalha.",
+    "coragem": "baixa",
+    "foge": false
+  },
+  "invocador": {
+    "nome": "Invocador",
+    "descricao": "Convoca um reforço para a batalha uma vez por combate, antes de voltar a atacar normalmente.",
+    "coragem": "alta",
+    "foge": false
+  },
+  "aleatorio": {
+    "nome": "Instável",
+    "descricao": "Sem padrão de comportamento reconhecível — ataca um alvo qualquer.",
+    "coragem": "media",
+    "foge": false
+  }
+}

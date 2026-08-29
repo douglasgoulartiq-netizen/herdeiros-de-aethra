@@ -1,0 +1,39 @@
+{
+  "elementos": [
+    { "id": "fisico", "nome": "Físico", "icone": "⚔️", "cor": "#c9c9c9" },
+    { "id": "fogo", "nome": "Fogo", "icone": "🔥", "cor": "#ff6b3d" },
+    { "id": "agua", "nome": "Água", "icone": "💧", "cor": "#4fa3ff" },
+    { "id": "gelo", "nome": "Gelo", "icone": "❄️", "cor": "#9fe8ff" },
+    { "id": "natureza", "nome": "Natureza", "icone": "🌿", "cor": "#6fcf5c" },
+    { "id": "terra", "nome": "Terra", "icone": "⛰️", "cor": "#b08d57" },
+    { "id": "raio", "nome": "Raio", "icone": "⚡", "cor": "#f5e34e" },
+    { "id": "vento", "nome": "Vento", "icone": "🌪️", "cor": "#bdf5e0" },
+    { "id": "radiante", "nome": "Radiante", "icone": "✨", "cor": "#fff3b0" },
+    { "id": "sombrio", "nome": "Sombrio", "icone": "🌑", "cor": "#8a5cf5" },
+    { "id": "arcano", "nome": "Arcano", "icone": "🔮", "cor": "#c58aff" },
+    { "id": "veneno", "nome": "Veneno", "icone": "☠️", "cor": "#8fd14f" }
+  ],
+  "_comentario_niveis": "Cada elemento tem até 4 listas: forteIntensa/forte (vantagem intensa/normal ao atacar o elemento listado) e fracoIntensa/fraco (resistência intensa/normal ao SOFRER do elemento listado). Um elemento nunca precisa listar a si mesmo — ataque e defesa do MESMO elemento são sempre imunidade total (ver ElementSystem.js), sobrepondo qualquer entrada da matriz.",
+  "matriz": {
+    "fisico": { "forteIntensa": [], "forte": [], "fracoIntensa": [], "fraco": [] },
+    "fogo": { "forteIntensa": ["gelo"], "forte": ["natureza"], "fracoIntensa": ["agua"], "fraco": ["terra"] },
+    "agua": { "forteIntensa": ["fogo"], "forte": ["terra"], "fracoIntensa": ["raio"], "fraco": ["natureza"] },
+    "gelo": { "forteIntensa": ["agua"], "forte": ["vento"], "fracoIntensa": ["fogo"], "fraco": ["terra"] },
+    "natureza": { "forteIntensa": ["agua"], "forte": ["terra"], "fracoIntensa": ["fogo"], "fraco": ["veneno"] },
+    "terra": { "forteIntensa": ["raio"], "forte": ["fogo"], "fracoIntensa": ["agua"], "fraco": ["natureza"] },
+    "raio": { "forteIntensa": ["agua"], "forte": [], "fracoIntensa": ["terra"], "fraco": [] },
+    "vento": { "forteIntensa": ["veneno"], "forte": [], "fracoIntensa": ["gelo"], "fraco": [] },
+    "radiante": { "forteIntensa": ["sombrio"], "forte": [], "fracoIntensa": ["arcano"], "fraco": [] },
+    "sombrio": { "forteIntensa": ["radiante"], "forte": [], "fracoIntensa": [], "fraco": [] },
+    "arcano": { "forteIntensa": [], "forte": [], "fracoIntensa": [], "fraco": [] },
+    "veneno": { "forteIntensa": [], "forte": [], "fracoIntensa": ["natureza"], "fraco": [] }
+  },
+  "multiplicadores": {
+    "vantagem_intensa": 1.5,
+    "vantagem": 1.25,
+    "neutro": 1.0,
+    "resistencia": 0.75,
+    "resistencia_intensa": 0.5,
+    "imune": 0
+  }
+}

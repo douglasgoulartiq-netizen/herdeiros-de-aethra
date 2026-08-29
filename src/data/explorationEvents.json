@@ -1,0 +1,44 @@
+[
+  {
+    "id": "viajante_perdido",
+    "tipo": "escolha",
+    "icone": "🧳",
+    "titulo": "Viajante Perdido",
+    "texto": "No meio do caminho, você encontra um viajante confuso, sem saber para onde ir.",
+    "opcoes": [
+      { "id": "ajudar", "rotulo": "Ajudar a encontrar o caminho", "textoResultado": "Grato pela ajuda, o viajante compartilha um pouco do que carrega antes de seguir viagem.", "ouro": 12, "reputacaoFaccao": 2 },
+      { "id": "ignorar", "rotulo": "Seguir seu caminho", "textoResultado": "Você segue em frente, deixando o viajante se virar sozinho.", "ouro": 0, "reputacaoFaccao": 0 }
+    ]
+  },
+  {
+    "id": "santuario_esquecido",
+    "tipo": "escolha",
+    "icone": "🕯️",
+    "titulo": "Santuário Esquecido",
+    "texto": "Entre as pedras cobertas de musgo, um pequeno santuário ainda recebe oferendas de quem passa por aqui.",
+    "opcoes": [
+      { "id": "doar", "rotulo": "Deixar uma oferenda (10 ouro)", "textoResultado": "Uma sensação de paz toma conta de você. As pessoas da região respeitam quem honra o santuário.", "ouro": -10, "reputacaoFaccao": 3, "custoOuroMinimo": 10 },
+      { "id": "seguir", "rotulo": "Seguir sem parar", "textoResultado": "Você segue em frente sem se demorar.", "ouro": 0, "reputacaoFaccao": 0 }
+    ]
+  },
+  {
+    "id": "pegadas_estranhas",
+    "tipo": "escolha",
+    "icone": "👣",
+    "titulo": "Pegadas Estranhas",
+    "texto": "Um rastro incomum se afasta da trilha principal, sumindo entre a vegetação densa.",
+    "opcoes": [
+      { "id": "investigar", "rotulo": "Investigar o rastro", "sorte": true, "textoSucesso": "O rastro leva a um pequeno esconderijo esquecido, com algumas moedas perdidas.", "ouroSucesso": 18, "textoFalha": "O rastro só leva a um espinheiro — você perde um pouco de tempo (e um pouco de ouro num buraco escondido).", "ouroFalha": -6, "chanceSucesso": 0.6 },
+      { "id": "ignorar", "rotulo": "Manter-se na trilha", "textoResultado": "Prudência acima de curiosidade — você segue pela trilha principal.", "ouro": 0, "reputacaoFaccao": 0 }
+    ]
+  },
+  {
+    "id": "bolsa_esquecida",
+    "tipo": "achado",
+    "icone": "👛",
+    "titulo": "Achado no Caminho",
+    "texto": "Meio enterrada na terra do caminho, uma bolsa esquecida por algum viajante chama sua atenção.",
+    "textoResultado": "Dentro dela, algumas moedas — o dono já deve estar longe demais para procurar.",
+    "ouro": 15
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "corajoso",
+    "nome": "Corajoso",
+    "descricao": "+3 de iniciativa em batalha quando o HP está em 30% ou menos."
+  },
+  {
+    "id": "cauteloso",
+    "nome": "Cauteloso",
+    "descricao": "+20% de defesa no primeiro turno de cada batalha."
+  },
+  {
+    "id": "ganancioso",
+    "nome": "Ganancioso",
+    "descricao": "+10% de chance de item raro ou melhor em drops, mas começa com 20% menos ouro."
+  }
+]

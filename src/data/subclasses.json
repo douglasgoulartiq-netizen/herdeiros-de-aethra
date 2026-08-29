@@ -1,0 +1,53 @@
+{
+  "_comentario": "Caminhos do Herdeiro: subclasses por família de classe. Escolhida uma vez no nível 10 (ver NIVEL_ESCOLHA_SUBCLASSE em TalentSystem.js) — permanente, não pode trocar depois. Guerreiro (task #93) é a primeira classe com subclasses de verdade; Mago (task #94) vem em seguida. As outras 6 famílias de classe ainda não têm nenhuma subclasse (decisão do usuário: 'profundo em 2 classes primeiro').",
+  "subclasses": [
+    {
+      "id": "guerreiro_devastador",
+      "classeId": "guerreiro",
+      "nome": "Devastador",
+      "icone": "🪓",
+      "nivelRequerido": 10,
+      "descricao": "Golpes pesados que rompem armadura e derrubam quem já está exposto. Prioriza dano bruto e ignorar defesa sobre sobrevivência."
+    },
+    {
+      "id": "guerreiro_sentinela",
+      "classeId": "guerreiro",
+      "nome": "Sentinela",
+      "icone": "🛡️",
+      "nivelRequerido": 10,
+      "descricao": "Absorve o golpe que era pra acertar o time e devolve com juros. Prioriza proteger aliados e punir quem ataca."
+    },
+    {
+      "id": "guerreiro_vendaval",
+      "classeId": "guerreiro",
+      "nome": "Vendaval",
+      "icone": "🌪️",
+      "nivelRequerido": 10,
+      "descricao": "Golpes rápidos e encadeados, movendo-se mais rápido que a própria arma. Prioriza velocidade e crítico sobre um único golpe forte."
+    },
+    {
+      "id": "mago_piromante",
+      "classeId": "mago",
+      "nome": "Piromante",
+      "icone": "🔥",
+      "nivelRequerido": 10,
+      "descricao": "Canaliza Chama pura, deixando um rastro de queimaduras atrás de cada conjuração. Prioriza dano contínuo e área sobre um único alvo."
+    },
+    {
+      "id": "mago_criomante",
+      "classeId": "mago",
+      "nome": "Criomante",
+      "icone": "❄️",
+      "nivelRequerido": 10,
+      "descricao": "Congela o inimigo antes que ele perceba — controla o ritmo da batalha imobilizando quem mais ameaça o time. Prioriza controle sobre dano puro."
+    },
+    {
+      "id": "mago_tecelao_do_eter",
+      "classeId": "mago",
+      "nome": "Tecelão do Éter",
+      "icone": "🔮",
+      "nivelRequerido": 10,
+      "descricao": "Manipula o Éter bruto sem filtrar por um elemento só — instável, poderoso, difícil de prever até pra quem o conjura. Prioriza dano puro de pico."
+    }
+  ]
+}

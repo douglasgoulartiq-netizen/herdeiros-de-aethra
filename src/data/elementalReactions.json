@@ -1,0 +1,93 @@
+{
+  "_comentario": "Matriz de reações elementais (Caminhos do Herdeiro): cada entrada descreve o que acontece quando um golpe de `elementoGatilho` (null = qualquer elemento) acerta um alvo que já está com o estado `estadoConsumido` (ver elementalStates.json) ativo. A reação SEMPRE consome (remove) o estado do alvo e nunca se acumula com ela mesma no mesmo golpe. Só é verificada por ElementalReactionSystem.verificarReacaoElemental(), chamada pelo motor de combate (CombatSystem.js) só quando FLAGS.reacoesElementais estiver ligada — com a flag desligada, ou sem nenhum estado ativo no alvo (o que é sempre o caso enquanto nenhuma habilidade nova declarar `aplicaEstado`), combate nenhum muda em nada.",
+  "reacoes": [
+    {
+      "id": "congelamento",
+      "nome": "Congelamento",
+      "icone": "🥶",
+      "estadoConsumido": "molhado",
+      "elementoGatilho": "gelo",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.3,
+      "aplicaEstado": "congelado",
+      "descricao": "Um golpe de Geada contra um alvo Molhado o congela por inteiro: dano bônus e o alvo fica Congelado (perde a próxima ação)."
+    },
+    {
+      "id": "evaporacao",
+      "nome": "Evaporação",
+      "icone": "💨",
+      "estadoConsumido": "molhado",
+      "elementoGatilho": "fogo",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.3,
+      "areaAplicaEstado": "precisao_reduzida",
+      "areaDuracao": 1,
+      "descricao": "Um golpe de Chama contra um alvo Molhado vira vapor na hora: remove Molhado, causa dano adicional e cria uma nuvem que reduz a precisão de todas as unidades do mesmo lado do alvo neste turno."
+    },
+    {
+      "id": "conducao",
+      "nome": "Condução",
+      "icone": "⚡💧",
+      "estadoConsumido": "molhado",
+      "elementoGatilho": "raio",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.25,
+      "propagaDano": true,
+      "propagaPercent": 0.4,
+      "descricao": "Um golpe de Raio contra um alvo Molhado conduz a corrente pela água: dano bônus no alvo e uma fração desse dano salta para outro inimigo vivo do mesmo lado."
+    },
+    {
+      "id": "estilhacar",
+      "nome": "Estilhaçar",
+      "icone": "❄️💥",
+      "estadoConsumido": "congelado",
+      "elementoGatilho": null,
+      "requerTipoFisico": true,
+      "danoBonusPercent": 0.5,
+      "garanteCritico": true,
+      "descricao": "Qualquer golpe físico contra um alvo Congelado estilhaça o gelo: crítico garantido e dano extra, mas remove o Congelado (o alvo volta a agir no turno seguinte)."
+    },
+    {
+      "id": "ruptura",
+      "nome": "Ruptura",
+      "icone": "🛡️💥",
+      "estadoConsumido": "exposto",
+      "elementoGatilho": null,
+      "requerTipoFisico": true,
+      "danoBonusPercent": 0.2,
+      "ignoraDefesaRestante": true,
+      "descricao": "Um golpe físico contra um alvo Exposto rompe de vez a armadura rachada: ignora o resto da defesa efetiva neste golpe."
+    },
+    {
+      "id": "combustao_raiz",
+      "nome": "Combustão da Raiz",
+      "icone": "🔥🌱",
+      "estadoConsumido": "enraizado",
+      "elementoGatilho": "fogo",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.3,
+      "aplicaEstado": "incendiado",
+      "descricao": "Chama liberta à força quem está Enraizado, queimando as raízes: dano bônus e o alvo fica Incendiado."
+    },
+    {
+      "id": "distorcao_corrompido",
+      "nome": "Distorção",
+      "icone": "🌀",
+      "estadoConsumido": "corrompido",
+      "elementoGatilho": "arcano",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.45,
+      "descricao": "Éter puro contra um alvo Corrompido pelo Umbral desestabiliza a corrupção: dano bastante ampliado."
+    },
+    {
+      "id": "distorcao_instavel",
+      "nome": "Distorção",
+      "icone": "🌀",
+      "estadoConsumido": "instavel",
+      "elementoGatilho": "sombrio",
+      "requerTipoFisico": false,
+      "danoBonusPercent": 0.45,
+      "descricao": "Umbral contra um alvo saturado de Éter bruto (Instável) causa o mesmo colapso, na direção oposta: dano bastante ampliado."
+    }
+  ]
+}

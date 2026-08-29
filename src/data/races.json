@@ -1,0 +1,70 @@
+[
+  {
+    "id": "humano",
+    "nome": "Humano",
+    "bonus": {
+      "FOR": 1,
+      "DES": 1,
+      "CON": 1,
+      "INT": 1
+    },
+    "traco": "adaptavel",
+    "descricaoTraco": "Versátil: ganha 5% de XP extra em todas as batalhas.",
+    "descricao": "Adaptáveis e ambiciosos, encontrados em toda parte do reino."
+  },
+  {
+    "id": "elfo",
+    "nome": "Elfo",
+    "bonus": {
+      "DES": 2,
+      "INT": 1
+    },
+    "traco": "visao_aguçada",
+    "descricaoTraco": "Visão aguçada: maior chance de encontrar baús escondidos e +2 de iniciativa em batalha.",
+    "descricao": "Ágeis e perceptivos, vivem em harmonia com as florestas antigas."
+  },
+  {
+    "id": "anao",
+    "nome": "Anão",
+    "bonus": {
+      "CON": 2,
+      "FOR": 1
+    },
+    "traco": "resistente",
+    "descricaoTraco": "Resistente: efeitos negativos (veneno, lentidão) duram 1 turno a menos.",
+    "descricao": "Robustos mineradores das montanhas, difíceis de derrubar."
+  },
+  {
+    "id": "orc",
+    "nome": "Orc",
+    "bonus": {
+      "FOR": 2,
+      "CON": 1
+    },
+    "traco": "furia_orc",
+    "descricaoTraco": "Fúria do Orc: causa 30% de dano extra quando o HP está abaixo de 30%.",
+    "descricao": "Guerreiros orgulhosos e ferozes em combate."
+  },
+  {
+    "id": "halfling",
+    "nome": "Halfling",
+    "bonus": {
+      "DES": 2,
+      "INT": 1
+    },
+    "traco": "sortudo",
+    "descricaoTraco": "Sortudo: uma vez por batalha, re-rola automaticamente um resultado de dado igual a 1.",
+    "descricao": "Pequenos, rápidos e surpreendentemente sortudos."
+  },
+  {
+    "id": "draconato",
+    "nome": "Draconato",
+    "bonus": {
+      "INT": 2,
+      "FOR": 1
+    },
+    "traco": "sopro_elemental",
+    "descricaoTraco": "Sopro Elemental: habilidade extra de dano em área, disponível uma vez por batalha.",
+    "descricao": "Descendentes de dragões, carregam magia élemental no sangue."
+  }
+]

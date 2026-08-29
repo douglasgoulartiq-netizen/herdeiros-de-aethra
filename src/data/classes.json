@@ -1,0 +1,253 @@
+[
+  {
+    "id": "guerreiro",
+    "nome": "Guerreiro",
+    "descricao": "Combatente de linha de frente, forte e resistente. Vive de golpes pesados e aguenta o troco: alta vida, dano físico consistente e uma defesa que segura a linha quando o time mais precisa.",
+    "iconeArma": "espada",
+    "atributosBase": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 7,
+      "INT": 3
+    },
+    "crescimento": {
+      "FOR": 3,
+      "DES": 1,
+      "CON": 2,
+      "INT": 0
+    },
+    "vidaBase": 34,
+    "manaBase": 5,
+    "habilidades": [
+      {
+        "id": "golpe_poderoso",
+        "nome": "Golpe Poderoso",
+        "descricao": "Causa 150% do dano físico normal.",
+        "custoMP": 0,
+        "cooldown": 2,
+        "tipo": "dano_fisico",
+        "multiplicador": 1.5
+      },
+      {
+        "id": "grito_de_guerra",
+        "nome": "Grito de Guerra",
+        "descricao": "+30% de defesa por 2 turnos.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "buff_defesa",
+        "duracao": 2,
+        "valor": 0.3
+      }
+    ],
+    "icone": "⚔️"
+  },
+  {
+    "id": "mago",
+    "nome": "Mago",
+    "descricao": "Artilharia mágica de longo alcance. Frágil de corpo, mas capaz de eliminar grupos inteiros de inimigos com dano elemental em área — o segredo é nunca deixar o mago ser alcançado.",
+    "iconeArma": "cajado",
+    "atributosBase": {
+      "FOR": 3,
+      "DES": 5,
+      "CON": 4,
+      "INT": 9
+    },
+    "crescimento": {
+      "FOR": 0,
+      "DES": 1,
+      "CON": 1,
+      "INT": 3
+    },
+    "vidaBase": 22,
+    "manaBase": 26,
+    "habilidades": [
+      {
+        "id": "bola_de_fogo",
+        "nome": "Bola de Fogo",
+        "descricao": "Dano mágico em área baseado em Inteligência.",
+        "custoMP": 10,
+        "cooldown": 0,
+        "tipo": "dano_magico",
+        "multiplicador": 2.0,
+        "elemento": "fogo"
+      },
+      {
+        "id": "escudo_arcano",
+        "nome": "Escudo Arcano",
+        "descricao": "Reduz o dano recebido pela metade por 2 turnos.",
+        "custoMP": 8,
+        "cooldown": 3,
+        "tipo": "buff_defesa",
+        "duracao": 2,
+        "valor": 0.5
+      }
+    ],
+    "icone": "🔮"
+  },
+  {
+    "id": "ladino",
+    "nome": "Ladino",
+    "descricao": "Rápido e letal, aposta tudo em precisão e crítico em vez de força bruta. Também é a classe mais preparada pra escapar de uma batalha perdida, quando bater não é mais a melhor opção.",
+    "iconeArma": "adaga",
+    "atributosBase": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "crescimento": {
+      "FOR": 1,
+      "DES": 3,
+      "CON": 1,
+      "INT": 0
+    },
+    "vidaBase": 26,
+    "manaBase": 8,
+    "habilidades": [
+      {
+        "id": "ataque_furtivo",
+        "nome": "Ataque Furtivo",
+        "descricao": "Dano baseado em Destreza com chance de crítico dobrada.",
+        "custoMP": 0,
+        "cooldown": 2,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.8
+      },
+      {
+        "id": "fuga_agil",
+        "nome": "Fuga Ágil",
+        "descricao": "Garante fuga bem-sucedida da batalha.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "fuga"
+      }
+    ],
+    "icone": "🗡️"
+  },
+  {
+    "id": "clerigo",
+    "nome": "Clérigo",
+    "descricao": "O suporte do time: mantém o grupo de pé com cura confiável e ainda causa dano relevante, principalmente contra mortos-vivos. Equilíbrio entre sobrevivência e utilidade.",
+    "iconeArma": "maca",
+    "atributosBase": {
+      "FOR": 6,
+      "DES": 4,
+      "CON": 6,
+      "INT": 7
+    },
+    "crescimento": {
+      "FOR": 1,
+      "DES": 0,
+      "CON": 2,
+      "INT": 2
+    },
+    "vidaBase": 28,
+    "manaBase": 20,
+    "habilidades": [
+      {
+        "id": "cura",
+        "nome": "Cura",
+        "descricao": "Recupera HP baseado em Inteligência.",
+        "custoMP": 8,
+        "cooldown": 0,
+        "tipo": "cura",
+        "multiplicador": 2.2
+      },
+      {
+        "id": "luz_sagrada",
+        "nome": "Luz Sagrada",
+        "descricao": "Dano extra, especialmente contra mortos-vivos.",
+        "custoMP": 10,
+        "cooldown": 2,
+        "tipo": "dano_magico",
+        "multiplicador": 1.7,
+        "elemento": "radiante"
+      }
+    ],
+    "icone": "✨"
+  },
+  {
+    "id": "barbaro",
+    "nome": "Bárbaro",
+    "descricao": "Toda ofensiva, sem meio-termo: o maior dano bruto do jogo, à custa de defesa quando a fúria toma conta. Ideal pra quem prefere acabar a luta rápido a se preocupar em sobreviver a ela.",
+    "iconeArma": "machado",
+    "atributosBase": {
+      "FOR": 9,
+      "DES": 4,
+      "CON": 8,
+      "INT": 2
+    },
+    "crescimento": {
+      "FOR": 3,
+      "DES": 0,
+      "CON": 2,
+      "INT": 0
+    },
+    "vidaBase": 36,
+    "manaBase": 4,
+    "habilidades": [
+      {
+        "id": "furia",
+        "nome": "Fúria",
+        "descricao": "Dobra o dano do próximo ataque, mas reduz a defesa em 20% por 1 turno.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "buff_ataque",
+        "duracao": 1,
+        "valor": 1.0
+      },
+      {
+        "id": "investida",
+        "nome": "Investida",
+        "descricao": "Dano físico que ignora parte da defesa inimiga.",
+        "custoMP": 0,
+        "cooldown": 2,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.4
+      }
+    ],
+    "icone": "🪓"
+  },
+  {
+    "id": "patrulheiro",
+    "nome": "Patrulheiro",
+    "descricao": "Versátil e tático: ataca à distância com boa chance de crítico e ainda controla o ritmo da batalha atrasando os inimigos mais rápidos. Bom equilíbrio entre ataque e controle.",
+    "iconeArma": "arco",
+    "atributosBase": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "crescimento": {
+      "FOR": 1,
+      "DES": 2,
+      "CON": 1,
+      "INT": 1
+    },
+    "vidaBase": 27,
+    "manaBase": 10,
+    "habilidades": [
+      {
+        "id": "tiro_certeiro",
+        "nome": "Tiro Certeiro",
+        "descricao": "Ataque à distância com chance de crítico aumentada.",
+        "custoMP": 0,
+        "cooldown": 2,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.6
+      },
+      {
+        "id": "armadilha",
+        "nome": "Armadilha",
+        "descricao": "Reduz a velocidade (iniciativa) do inimigo.",
+        "custoMP": 5,
+        "cooldown": 3,
+        "tipo": "debuff_velocidade",
+        "duracao": 3,
+        "valor": 0.4
+      }
+    ],
+    "icone": "🏹"
+  }
+]

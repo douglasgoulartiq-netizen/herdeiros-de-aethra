@@ -1,0 +1,89 @@
+[
+  {
+    "id": "guarda_segredo_tesouro",
+    "contexto": "npc",
+    "npcId": "npc_guarda",
+    "pericia": "Persuasão",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "textoOferta": "Perguntar se ela sabe de algum tesouro esquecido perto da masmorra. (Teste de Persuasão)",
+    "textoSucesso": "Helena hesita, depois sorri: \"Você parece de confiança.\" Ela entrega uma parte do que recolheu de um saqueador.",
+    "textoFalha": "Helena dá de ombros: \"Segredo é segredo, aventureiro.\"",
+    "recompensaOuroSucesso": 25,
+    "unicoPorPersonagem": true
+  },
+  {
+    "id": "anciao_memoria_colar",
+    "contexto": "npc",
+    "npcId": "npc_anciao",
+    "pericia": "Empatia",
+    "atributo": "INT",
+    "dificuldade": 11,
+    "textoOferta": "Ouvir com atenção pra tentar lembrar onde ele viu o colar pela última vez. (Teste de Empatia)",
+    "textoSucesso": "Seus olhos brilham: \"Agora me lembro... perto de uma pedra partida ao norte.\" Ele te recompensa pela paciência.",
+    "textoFalha": "Ele suspira: \"Foi há tanto tempo... não consigo lembrar direito.\"",
+    "recompensaOuroSucesso": 15,
+    "unicoPorPersonagem": true
+  },
+  {
+    "id": "cacador_dica_lobos",
+    "contexto": "npc",
+    "npcId": "npc_cacador",
+    "pericia": "Sobrevivência",
+    "atributo": "CON",
+    "dificuldade": 10,
+    "textoOferta": "Trocar figurinha sobre rastros de lobo e pontos fracos da matilha. (Teste de Sobrevivência)",
+    "textoSucesso": "Elric aprova sua leitura dos rastros e te dá suprimentos extras.",
+    "textoFalha": "Elric balança a cabeça: \"Ainda tem muito o que aprender sobre o mato.\"",
+    "recompensaOuroSucesso": 15,
+    "unicoPorPersonagem": true
+  },
+  {
+    "id": "bau_compartimento_secreto",
+    "contexto": "bau",
+    "pericia": "Furtividade",
+    "atributo": "DES",
+    "dificuldade": 11,
+    "textoSucesso": "Seus dedos ágeis encontram um compartimento escondido — tinha mais aqui!",
+    "textoFalha": "Nada além do óbvio desta vez.",
+    "bonusLootSucesso": true
+  },
+  {
+    "id": "coleta_extra_sobrevivencia",
+    "contexto": "no",
+    "pericia": "Sobrevivência",
+    "atributo": "CON",
+    "dificuldade": 10,
+    "textoSucesso": "Você sabe exatamente onde procurar e colhe o dobro do material!",
+    "textoFalha": "Coleta normal.",
+    "bonusColetaSucesso": true
+  },
+  {
+    "id": "ruina_esquecida_exploracao",
+    "contexto": "exploracao",
+    "pericia": "Conhecimento Arcano",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "icone": "🏛️",
+    "titulo": "Ruína Esquecida",
+    "texto": "Meio soterradas pela vegetação, pedras talhadas denunciam uma construção muito mais antiga que qualquer coisa nos arredores.",
+    "textoOferta": "Reconhecer os símbolos antigos e vasculhar as ruínas em busca de algo de valor. (Teste de Conhecimento Arcano)",
+    "textoSucesso": "Entre os escombros, você encontra um punhado de moedas antigas — ainda aceitas em qualquer lugar da região.",
+    "textoFalha": "Você vasculha as ruínas, mas o tempo já levou tudo que valia a pena.",
+    "recompensaOuroSucesso": 20
+  },
+  {
+    "id": "sinal_de_perigo_exploracao",
+    "contexto": "exploracao",
+    "pericia": "Furtividade",
+    "atributo": "DES",
+    "dificuldade": 11,
+    "icone": "⚠️",
+    "titulo": "Sinal de Perigo",
+    "texto": "Um cheiro estranho no ar e galhos quebrados sugerem que algo — ou alguém — passou por aqui recentemente, e não faz muito tempo.",
+    "textoOferta": "Seguir os sinais com cautela, sem chamar atenção, para ver o que os deixou. (Teste de Furtividade)",
+    "textoSucesso": "Você segue os sinais até um esconderijo abandonado às pressas, com alguns suprimentos deixados para trás.",
+    "textoFalha": "Os sinais somem entre as pedras — o que quer que fosse, já se foi.",
+    "recompensaOuroSucesso": 16
+  }
+]

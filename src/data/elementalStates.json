@@ -1,0 +1,90 @@
+{
+  "_comentario": "Estados elementais 'preparados' (Caminhos do Herdeiro): diferente da matriz de vantagem/resistência de elements.json (que é sempre instantânea, golpe a golpe), um estado FICA no alvo por `duracaoPadrao` turnos e muda como ele reage a golpes seguintes — é o que permite reações (ver elementalReactions.json). Só é aplicado por habilidades que declarem `aplicaEstado` (ver src/data/talents/*.json) — nenhuma habilidade already existente no jogo aplica estado nenhum, então isso não muda combate nenhum que já existia (FLAGS.reacoesElementais também precisa estar ligada, ver featureFlags.js).",
+  "estados": [
+    {
+      "id": "molhado",
+      "nome": "Molhado",
+      "icone": "💧",
+      "elementoOrigem": "agua",
+      "duracaoPadrao": 3,
+      "descricao": "Encharcado. Golpes de Geada causam muito mais dano; golpes de Chama causam um pouco menos (a água absorve parte do calor).",
+      "modificadorDanoRecebido": { "gelo": 1.4, "fogo": 0.8 }
+    },
+    {
+      "id": "congelado",
+      "nome": "Congelado",
+      "icone": "🧊",
+      "elementoOrigem": "gelo",
+      "duracaoPadrao": 2,
+      "descricao": "Preso em gelo: perde a ação neste turno. O próximo golpe físico recebido quebra o gelo (Estilhaçar) — crítico garantido e dano bônus, mas remove o estado.",
+      "controlaTurno": true
+    },
+    {
+      "id": "incendiado",
+      "nome": "Incendiado",
+      "icone": "🔥",
+      "elementoOrigem": "fogo",
+      "duracaoPadrao": 3,
+      "descricao": "Em chamas: sofre dano a cada turno e recebe 30% menos cura enquanto durar.",
+      "danoPorTurnoPercentHpMax": 0.06,
+      "modificadorCuraRecebida": 0.7
+    },
+    {
+      "id": "exposto",
+      "nome": "Exposto",
+      "icone": "💥",
+      "elementoOrigem": "terra",
+      "duracaoPadrao": 2,
+      "descricao": "Armadura rachada: defesa efetiva reduzida. O próximo golpe físico recebido causa Ruptura, ignorando o resto da defesa.",
+      "modificadorDefesa": 0.75
+    },
+    {
+      "id": "corrompido",
+      "nome": "Corrompido",
+      "icone": "🌑",
+      "elementoOrigem": "sombrio",
+      "duracaoPadrao": 3,
+      "descricao": "Tomado pelo Umbral: recebe mais dano Sombrio e sua cura recebida é reduzida à metade.",
+      "modificadorDanoRecebido": { "sombrio": 1.25 },
+      "modificadorCuraRecebida": 0.5
+    },
+    {
+      "id": "enraizado",
+      "nome": "Enraizado",
+      "icone": "🌱",
+      "elementoOrigem": "natureza",
+      "duracaoPadrao": 2,
+      "descricao": "Preso por raízes vivas: velocidade drasticamente reduzida. Chama liberta o alvo à força (Combustão da Raiz), causando dano e deixando-o Incendiado.",
+      "modificadorVelocidade": 0.4
+    },
+    {
+      "id": "eletrizado",
+      "nome": "Eletrizado",
+      "icone": "⚡",
+      "elementoOrigem": "raio",
+      "duracaoPadrao": 2,
+      "descricao": "Carregado de eletricidade: o próximo golpe recebido de qualquer tipo faísca para outro inimigo vivo por perto, causando uma fração do dano.",
+      "propagaCentelha": true,
+      "centelhaPercent": 0.4
+    },
+    {
+      "id": "instavel",
+      "nome": "Instável",
+      "icone": "🔮",
+      "elementoOrigem": "arcano",
+      "duracaoPadrao": 2,
+      "descricao": "Saturado de Éter bruto: recebe mais dano de qualquer elemento, especialmente Arcano/Umbral.",
+      "modificadorDanoRecebido": { "arcano": 1.3, "sombrio": 1.15 },
+      "modificadorDanoRecebidoGeral": 1.15
+    },
+    {
+      "id": "precisao_reduzida",
+      "nome": "Ofuscado",
+      "icone": "🌫️",
+      "elementoOrigem": null,
+      "duracaoPadrao": 1,
+      "descricao": "Visão prejudicada por vapor/fumaça: chance maior de errar o próprio ataque neste turno.",
+      "penalidadeD20": 3
+    }
+  ]
+}

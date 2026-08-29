@@ -1,0 +1,464 @@
+[
+  {
+    "id": "slime",
+    "nome": "Slime",
+    "chefe": false,
+    "teaser": "Uma massa gelatinosa se move devagar entre as árvores.",
+    "lore": "Slimes nascem de resíduos mágicos deixados por feitiços mal descartados. Individualmente inofensivos, mas raramente andam sozinhos — onde há um, costuma haver uma ninhada inteira se alastrando pelo solo da floresta."
+  },
+  {
+    "id": "morcego",
+    "nome": "Morcego",
+    "chefe": false,
+    "teaser": "Um bater de asas ecoa entre os galhos altos.",
+    "lore": "Morcegos-sombra caçam por eco e pelo cheiro de medo. Vivem em bandos nos ocos de árvores antigas e evitam luz direta — por isso raramente são vistos durante o dia, apenas ouvidos."
+  },
+  {
+    "id": "lobo",
+    "nome": "Lobo",
+    "chefe": false,
+    "teaser": "Olhos amarelos observam da escuridão da mata.",
+    "lore": "Lobos da floresta caçam em pequenos grupos e coordenam ataques ao membro mais isolado da presa. Viajantes experientes sabem: se avistar um, provavelmente há outros dois por perto, fora de vista."
+  },
+  {
+    "id": "goblin",
+    "nome": "Goblin",
+    "chefe": false,
+    "teaser": "Uma silhueta pequena e ágil espia por trás de uma moita.",
+    "lore": "Goblins são oportunistas antes de tudo — preferem emboscar e fugir a lutar até o fim. Vivem em pequenos bandos organizados em torno de quem tem a arma mais afiada, não necessariamente o mais forte."
+  },
+  {
+    "id": "bandido",
+    "nome": "Bandido",
+    "chefe": false,
+    "teaser": "Um vulto encapuzado bloqueia a passagem na estrada.",
+    "lore": "Nem todo bandido nasceu criminoso — muitos são camponeses desesperados que a guerra ou a fome empurraram pra estrada. Isso não os torna menos perigosos: a desesperança costuma deixar as mãos mais rápidas no gatilho."
+  },
+  {
+    "id": "esqueleto",
+    "nome": "Esqueleto",
+    "chefe": false,
+    "teaser": "Ossos se remexem sob os escombros de uma cripta esquecida.",
+    "lore": "Restos mortais reanimados por magia sombria residual, presos a masmorras antigas onde morreram. Não sentem dor nem hesitação — só param quando destruídos ou quando a magia que os sustenta finalmente se esvai."
+  },
+  {
+    "id": "aranha_gigante",
+    "nome": "Aranha Gigante",
+    "chefe": false,
+    "teaser": "Fios de teia grossos como cordas cobrem o teto da caverna.",
+    "lore": "Aranhas gigantes tecem teias capazes de prender um humano adulto e injetam um veneno que paralisa lentamente. Preferem esperar a presa se debater até se cansar a atacar de frente."
+  },
+  {
+    "id": "orc_selvagem",
+    "nome": "Orc Selvagem",
+    "chefe": false,
+    "teaser": "Um grunhido grave ressoa das profundezas da masmorra.",
+    "lore": "Orcs selvagens vivem à margem dos clãs orcs organizados, expulsos ou fugidos, sobrevivendo sozinhos ou em pares. A solidão os tornou mais imprevisíveis e mais violentos que seus parentes de clã."
+  },
+  {
+    "id": "dragao_jovem",
+    "nome": "Dragão Jovem",
+    "chefe": true,
+    "teaser": "O calor no ar aumenta muito antes de qualquer coisa aparecer.",
+    "lore": "Ainda longe da maturidade, um Dragão Jovem já é capaz de incendiar uma vila inteira em minutos. Este exemplar fez uma masmorra abandonada de seu covil, e não tolera intrusos em seu território."
+  },
+  {
+    "id": "javali",
+    "nome": "Javali",
+    "chefe": false,
+    "teaser": "Um resfolegar pesado vem de trás da vegetação rasteira.",
+    "lore": "Javalis selvagens são territoriais e atacam qualquer coisa que se aproxime demais de sua ninhada, sem aviso nem hesitação. Sua investida em linha reta é temida por quem já cruzou uma estrada com um por perto."
+  },
+  {
+    "id": "lobo_sombrio",
+    "nome": "Lobo Sombrio",
+    "chefe": false,
+    "teaser": "Uma sombra mais escura que a própria noite se move entre as árvores.",
+    "lore": "Diz-se que Lobos Sombrios nascem quando um lobo comum morre em solo amaldiçoado e volta a andar movido por pura fome sombria. Caçam em silêncio absoluto — o primeiro sinal costuma ser tarde demais."
+  },
+  {
+    "id": "sapo_venenoso",
+    "nome": "Sapo Venenoso",
+    "chefe": false,
+    "teaser": "Um coaxar estranhamente alto ecoa perto da água parada.",
+    "lore": "A pele deste sapo secreta uma toxina que causa náusea só de contato. Predadores locais aprenderam a evitá-lo há gerações — o mesmo conselho vale para viajantes desavisados."
+  },
+  {
+    "id": "harpia",
+    "nome": "Harpia",
+    "chefe": false,
+    "teaser": "Um grito agudo corta o vento acima da estrada.",
+    "lore": "Harpias fazem ninho em penhascos ao longo das estradas e mergulham sobre viajantes solitários, atacando de cima onde é mais difícil revidar. Costumam evitar grupos numerosos."
+  },
+  {
+    "id": "touro_selvagem",
+    "nome": "Touro Selvagem",
+    "chefe": false,
+    "teaser": "O chão treme levemente sob passos pesados se aproximando.",
+    "lore": "Touros selvagens que escaparam de criações abandonadas voltaram a viver soltos nas estradas, mais agressivos que o gado comum e sem medo algum de humanos armados."
+  },
+  {
+    "id": "lodo_negro",
+    "nome": "Lodo Negro",
+    "chefe": false,
+    "teaser": "Uma mancha viscosa e escura se arrasta lentamente pelo chão da floresta.",
+    "lore": "Diferente do slime comum, o Lodo Negro é feito de matéria orgânica em decomposição impregnada de magia venenosa. Extremamente lento, mas seu toque corrói tecido e metal com a mesma facilidade."
+  },
+  {
+    "id": "caranguejo_gigante",
+    "nome": "Caranguejo Gigante",
+    "chefe": false,
+    "teaser": "Algo grande se move logo abaixo da superfície da água.",
+    "lore": "Caranguejos gigantes das águas costeiras têm uma casca capaz de deter uma lâmina comum. Preferem esperar submersos e emergir só quando a presa já está ao alcance das garras."
+  },
+  {
+    "id": "urso_ancestral",
+    "nome": "Urso Ancestral",
+    "chefe": false,
+    "teaser": "Um rugido profundo faz os pássaros da floresta alçarem voo em pânico.",
+    "lore": "Ursos ancestrais guardam segredos da floresta antiga que nenhum druida documentou por completo. Vivem por décadas em um mesmo território e reconhecem cada trilha, cada intruso, cada mudança."
+  },
+  {
+    "id": "pirata_naufrago",
+    "nome": "Pirata Náufrago",
+    "chefe": false,
+    "teaser": "Restos de um naufrágio recente boiam perto da costa.",
+    "lore": "Sobreviventes de naufrágios que se recusaram a voltar pra terra firme, agora vivendo de saque em saque ao longo do litoral. Rápidos com a lâmina e mais rápidos ainda pra fugir com o que roubaram."
+  },
+  {
+    "id": "druida_corrompido",
+    "nome": "Druida Corrompido",
+    "chefe": false,
+    "teaser": "Plantas ao redor parecem murchar e reviver ao mesmo tempo, de forma antinatural.",
+    "lore": "Um druida que se aprofundou demais em magia proibida, perdendo o equilíbrio que a Ordem prega. Ainda cura e protege a natureza ao seu redor — mas agora por meios que a Ordem chamaria de heresia."
+  },
+  {
+    "id": "escorpiao_gigante",
+    "nome": "Escorpião Gigante",
+    "chefe": false,
+    "teaser": "Um rastro largo demais pra ser de um escorpião comum corta a areia.",
+    "lore": "Nas dunas mais profundas do deserto, escorpiões crescem além do natural, alimentados por décadas de calor extremo e escassez. Seu ferrão carrega veneno o bastante pra imobilizar uma presa muito maior que eles."
+  },
+  {
+    "id": "grifo_jovem",
+    "nome": "Grifo Jovem",
+    "chefe": false,
+    "teaser": "Uma sombra enorme cruza a estrada por um instante e desaparece.",
+    "lore": "Metade águia, metade leão, o Grifo Jovem ainda está aprendendo a caçar sozinho — o que o torna imprevisível: ora ataca sem hesitar, ora foge ao menor sinal de resistência séria."
+  },
+  {
+    "id": "necromante_errante",
+    "nome": "Necromante Errante",
+    "chefe": false,
+    "teaser": "Um cheiro de terra revirada precede uma figura encapuzada.",
+    "lore": "Expulso de toda cidade que já tentou viver, o Necromante Errante viaja reanimando o que encontra pelo caminho pra se proteger — um exército pequeno e descartável, sempre pronto pra ser reposto."
+  },
+  {
+    "id": "serpente_marinha",
+    "nome": "Serpente Marinha",
+    "chefe": false,
+    "teaser": "A água se agita em um padrão longo demais pra ser onda natural.",
+    "lore": "Serpentes marinhas raramente se aventuram perto da costa, mas quando o fazem é porque a caça em alto mar ficou escassa — e uma serpente faminta não hesita diante de embarcações pequenas."
+  },
+  {
+    "id": "troll_das_cavernas",
+    "nome": "Troll das Cavernas",
+    "chefe": false,
+    "teaser": "Um cheiro de mofo e carne velha enche o corredor da masmorra.",
+    "lore": "Trolls das cavernas regeneram ferimentos com uma velocidade que aterroriza aventureiros de primeira viagem. A lenda diz que só fogo ou um golpe verdadeiramente decisivo impede a regeneração."
+  },
+  {
+    "id": "golem_de_pedra",
+    "nome": "Golem de Pedra",
+    "chefe": false,
+    "teaser": "Rachaduras luminosas piscam ao longo de uma estátua que não deveria se mover.",
+    "lore": "Construídos por magos antigos como guardiões eternos, Golens de Pedra continuam cumprindo ordens que seus criadores morreram há séculos sem revogar. Lentos, mas praticamente impossíveis de deter na força bruta."
+  },
+  {
+    "id": "gargula",
+    "nome": "Gárgula",
+    "chefe": false,
+    "teaser": "Uma estátua no teto da masmorra pisca — e não devia ser capaz disso.",
+    "lore": "Gárgulas ficam imóveis por décadas, indistinguíveis de decoração de pedra comum, até que algo desperta seu instinto de guardiã. Combinam magia élfica esquecida com um corpo praticamente indestrutível em repouso."
+  },
+  {
+    "id": "wyvern",
+    "nome": "Wyvern",
+    "chefe": false,
+    "teaser": "Um grito estridente anuncia algo grande se aproximando pelo ar.",
+    "lore": "Parentes menores dos dragões, Wyverns não cospem fogo, mas compensam com velocidade e um ferrão na cauda carregado de veneno paralisante. Caçam em território aberto, onde podem usar o vento a seu favor."
+  },
+  {
+    "id": "senhor_da_cinza",
+    "nome": "Senhor da Cinza",
+    "chefe": false,
+    "teaser": "O ar fica seco e quente muito antes de qualquer coisa se revelar.",
+    "lore": "Um comandante que sobreviveu ao colapso de sua própria legião, carregando as cinzas de seus soldados caídos como lembrete e como arma. Comanda o que resta com uma disciplina fria, quase ritual."
+  },
+  {
+    "id": "arauto_das_cinzas",
+    "nome": "Arauto das Cinzas",
+    "chefe": true,
+    "teaser": "Cinzas quentes caem do teto da masmorra como uma chuva impossível.",
+    "lore": "O que resta de uma antiga ordem de guerreiros consumida por seu próprio fogo ritual, o Arauto das Cinzas não lidera exércitos — ele É o que sobrou de um. Encontrá-lo é encontrar o fim de uma história muito mais antiga que esta masmorra."
+  },
+  {
+    "id": "rato_gigante",
+    "nome": "Rato Gigante",
+    "chefe": false,
+    "teaser": "Algo pequeno e rápido demais corre por entre as raízes.",
+    "lore": "Ratos gigantes vivem em ninhadas enormes sob as raízes da floresta e raramente representam perigo sozinhos — o problema é que raramente estão sozinhos."
+  },
+  {
+    "id": "abelha_titan",
+    "nome": "Abelha Titã",
+    "chefe": false,
+    "teaser": "Um zumbido grave demais pra ser de inseto comum vibra no ar.",
+    "lore": "Abelhas titã defendem colmeias do tamanho de uma casa, e seu ferrão injeta veneno o bastante pra derrubar um javali adulto. Quem mexe numa, mexe com a colmeia inteira."
+  },
+  {
+    "id": "corvo_ceifador",
+    "nome": "Corvo Ceifador",
+    "chefe": false,
+    "teaser": "Um bando de corvos anormalmente grandes observa da copa das árvores mortas.",
+    "lore": "Diz-se que Corvos Ceifadores aparecem onde alguém está prestes a morrer na estrada — na prática, são apenas rápidos o bastante pra chegar primeiro que os outros necrófagos, e a lenda cuidou do resto."
+  },
+  {
+    "id": "cristal_ecoante",
+    "nome": "Cristal Ecoante",
+    "chefe": false,
+    "teaser": "Um brilho fraco pulsa dentro da rocha, no ritmo de uma respiração que não deveria existir.",
+    "lore": "Formações de cristal que absorveram magia residual das minas por séculos, até ganharem uma vontade rudimentar de proteger o veio mineral ao seu redor. Imóveis até serem provocados."
+  },
+  {
+    "id": "wisp_radiante",
+    "nome": "Wisp Radiante",
+    "chefe": false,
+    "teaser": "Uma pequena luz flutua baixo sobre a trilha, quase gentil demais pra ser hostil.",
+    "lore": "Wisps radiantes nascem nos pontos onde a luz do sol nunca deixou de tocar o solo das Colinas Douradas. Preferem curar o que consideram seu antes de qualquer coisa — inclusive outros monstros da região."
+  },
+  {
+    "id": "sentinela_dourada",
+    "nome": "Sentinela Dourada",
+    "chefe": false,
+    "teaser": "Uma armadura vazia, banhada de luz, se ergue sozinha no topo da colina.",
+    "lore": "Erguidas por um culto solar esquecido para guardar as Colinas Douradas, as Sentinelas Douradas continuam de posto muito depois de seus criadores terem virado pó, imunes a fadiga e a dúvida."
+  },
+  {
+    "id": "gralha_tempestuosa",
+    "nome": "Gralha Tempestuosa",
+    "chefe": false,
+    "teaser": "Um bando denso de aves negras corta o vento em formação perfeita demais.",
+    "lore": "Gralhas tempestuosas viajam sempre à frente de frentes de vento forte na Planície Ventosa, e aprenderam a usar as próprias rajadas para atacar de ângulos que nenhuma presa consegue prever."
+  },
+  {
+    "id": "verme_das_dunas",
+    "nome": "Verme das Dunas",
+    "chefe": false,
+    "teaser": "A areia se move em ondas, como se algo enorme nadasse logo abaixo da superfície.",
+    "lore": "Vermes das dunas passam a vida inteira sob a areia de Karn, emergindo só para se alimentar. Sentem vibração de passos a dezenas de metros de distância — ficar parado não ajuda."
+  },
+  {
+    "id": "arraia_relampago",
+    "nome": "Arraia Relâmpago",
+    "chefe": false,
+    "teaser": "A água ao redor chispa com pequenos clarões antes de qualquer coisa aparecer.",
+    "lore": "Arraias relâmpago acumulam carga elétrica nadando contra as correntes do Recife das Tempestades, e a descarregam de uma vez em qualquer coisa que se aproxime demais de seus filhotes."
+  },
+  {
+    "id": "enguia_eletrica",
+    "nome": "Enguia Elétrica",
+    "chefe": false,
+    "teaser": "Um choque leve percorre a água antes que a enguia sequer seja vista.",
+    "lore": "Enguias elétricas do recife aprenderam a usar descargas fracas pra atordoar e roubar o que reluz de náufragos e mergulhadores distraídos, fugindo antes de qualquer reação."
+  },
+  {
+    "id": "sentinela_arcana",
+    "nome": "Sentinela Arcana",
+    "chefe": false,
+    "teaser": "Símbolos élficos gravados no ar pulsam em um padrão que não deveria se sustentar sozinho.",
+    "lore": "Restos de um sistema de defesa arcano das Ruínas de Aethra Antiga, ainda conjurando feitiços de proteção para uma cidade que não existe mais há séculos."
+  },
+  {
+    "id": "espectro_arcano",
+    "nome": "Espectro Arcano",
+    "chefe": false,
+    "teaser": "Uma silhueta translúcida se dobra de um jeito que nenhum corpo vivo conseguiria.",
+    "lore": "O que sobra de um mago élfico que morreu tentando salvar Aethra Antiga, o Espectro Arcano ainda tenta reunir aliados ao seu redor — ecos de si mesmo, tão vazios quanto ele."
+  },
+  {
+    "id": "lobo_gelido",
+    "nome": "Lobo Gélido",
+    "chefe": false,
+    "teaser": "Uma nuvem de vapor gelado sai da bruma antes da própria criatura.",
+    "lore": "Lobos gélidos se adaptaram ao frio perpétuo do Pântano da Bruma há gerações, com presas capazes de congelar um ferimento no instante da mordida."
+  },
+  {
+    "id": "bruxa_da_bruma",
+    "nome": "Bruxa da Bruma",
+    "chefe": false,
+    "teaser": "Uma figura encurvada tece formas de gelo no ar com as próprias mãos.",
+    "lore": "Exilada por praticar magia gélida proibida, a Bruxa da Bruma vive isolada no pântano há tanto tempo que já não distingue mais aliado de intruso — e convoca espíritos gélidos para garantir que ninguém chegue perto o bastante pra descobrir."
+  },
+  {
+    "id": "construto_arcano",
+    "nome": "Construto Arcano",
+    "chefe": false,
+    "teaser": "Um gigante de pedra e runas se ergue devagar, como se estivesse acordando de um sono de séculos.",
+    "lore": "O guardião mais avançado que os magos de Aethra Antiga conseguiram construir antes da queda da cidade, posicionado nos Confins do reino como última linha de defesa que ninguém mais lembra ter erguido."
+  },
+  {
+    "id": "carrasco_de_cinzas",
+    "nome": "Carrasco de Cinzas",
+    "chefe": false,
+    "teaser": "O calor se torna insuportável segundos antes de qualquer coisa se revelar na escuridão.",
+    "lore": "Último executor de uma ordem militar extinta que se autoimolou em um ritual de poder, o Carrasco de Cinzas continua cumprindo sentenças de uma corte que não julga nada há gerações."
+  },
+  {
+    "id": "guardiao_das_raizes",
+    "nome": "Guardião das Raízes Antigas",
+    "chefe": true,
+    "teaser": "Uma silhueta coberta de musgo se ergue entre as árvores mais antigas da floresta, bloqueando a trilha.",
+    "lore": "Nascido da própria floresta há mais tempo do que qualquer aldeão consegue lembrar, o Guardião das Raízes Antigas não ataca por maldade — apenas nunca perdoou quem já feriu suas árvores."
+  },
+  {
+    "id": "devoradora_de_sombras",
+    "nome": "Devoradora de Sombras",
+    "chefe": true,
+    "teaser": "Um vulto mais rápido que qualquer sombra normal risca entre os troncos retorcidos do bosque.",
+    "lore": "Ninguém sabe se a Devoradora de Sombras já foi humana. O que se sabe é que ela caça sozinha, em silêncio absoluto, e só é vista por quem já não tem tempo de fugir."
+  },
+  {
+    "id": "paladino_do_sol_poente",
+    "nome": "Paladino do Sol Poente",
+    "chefe": true,
+    "teaser": "Uma figura em armadura dourada observa o vale do alto da colina, brilhando mesmo sob nuvens.",
+    "lore": "Último remanescente de um culto solar extinto, o Paladino do Sol Poente ainda acredita estar cumprindo uma cruzada sagrada — mesmo sem exército, sem templo e sem ninguém mais pra liderar."
+  },
+  {
+    "id": "bruxa_do_lodo_eterno",
+    "nome": "Bruxa do Lodo Eterno",
+    "chefe": true,
+    "teaser": "A água parada borbulha sem vento, e um cheiro adocicado demais avisa que algo está observando.",
+    "lore": "Exilada no pântano por praticar magia proibida, a Bruxa do Lodo Eterno moldou o próprio veneno da terra em feitiços que nenhum grimório documentou — e não pretende compartilhar a fórmula."
+  },
+  {
+    "id": "capita_mare_negra",
+    "nome": "Capitã Maré-Negra",
+    "chefe": true,
+    "teaser": "Os destroços de um navio se remexem, e uma figura encapuzada emerge da espuma com uma lâmina na mão.",
+    "lore": "Sobrevivente do pior naufrágio que a Costa da Aurora já viu, a Capitã Maré-Negra decidiu que, se o mar levou tudo dela, ela levaria tudo de quem passasse por ali."
+  },
+  {
+    "id": "tirano_do_charco",
+    "nome": "Tirano do Charco",
+    "chefe": true,
+    "teaser": "Uma massa disforme e enorme se ergue lentamente da lama, pingando um líquido escuro.",
+    "lore": "O Tirano do Charco cresceu absorvendo tudo que se afogou no brejo por gerações — animais, viajantes, até outros slimes menores. Não tem pressa, porque nunca precisou ter."
+  },
+  {
+    "id": "colosso_das_pedras_cinzentas",
+    "nome": "Colosso das Pedras Cinzentas",
+    "chefe": true,
+    "teaser": "Uma formação rochosa no meio do vale se move devagar, e pedras soltas rolam encosta abaixo sozinhas.",
+    "lore": "O Colosso das Pedras Cinzentas dormiu tanto tempo sob o vale que comerciantes construíram estradas inteiras sobre suas costas sem perceber — até o dia em que ele decidiu se levantar."
+  },
+  {
+    "id": "matriarca_ursina",
+    "nome": "Matriarca Ursina",
+    "chefe": true,
+    "teaser": "Um rugido profundo faz o chão vibrar antes de qualquer coisa aparecer entre as árvores milenares.",
+    "lore": "Maior e mais velha que qualquer urso ancestral da região, a Matriarca Ursina protege gerações de filhotes na Floresta Ancestral com uma fúria que nenhum druida ousa testar duas vezes."
+  },
+  {
+    "id": "grifo_alfa_dos_ventos",
+    "nome": "Grifo Alfa dos Ventos",
+    "chefe": true,
+    "teaser": "Uma sombra enorme cruza a planície repetidas vezes, alto demais pra qualquer flecha alcançar.",
+    "lore": "Líder do bando de grifos que domina os céus da Planície Ventosa, o Grifo Alfa nunca pousa perto de estranhos — prefere atacar em mergulhos que ninguém consegue prever a tempo."
+  },
+  {
+    "id": "rainha_escorpiao_de_karn",
+    "nome": "Rainha Escorpião de Karn",
+    "chefe": true,
+    "teaser": "A areia ao redor treme em ondas coordenadas, como se dezenas de patas se movessem juntas logo abaixo.",
+    "lore": "Nenhum escorpião gigante das dunas de Karn nasce sem antes prestar contas à Rainha — a maior, mais velha e mais paciente de todas, que comanda o enxame de baixo da areia escaldante."
+  },
+  {
+    "id": "serpente_da_tempestade_eterna",
+    "nome": "Serpente da Tempestade Eterna",
+    "chefe": true,
+    "teaser": "Relâmpagos cortam o céu sem nuvem alguma acima do recife, num padrão longo demais pra ser natural.",
+    "lore": "A Serpente da Tempestade Eterna vive há tanto tempo entre os relâmpagos do recife que já não distingue mais a própria fúria da tempestade que a alimenta — e convoca a tormenta pra lutar ao seu lado."
+  },
+  {
+    "id": "cavaleiro_caido_de_aethra",
+    "nome": "Cavaleiro Caído de Aethra",
+    "chefe": true,
+    "teaser": "Uma armadura enferrujada se move sozinha entre as fundações caídas, como se ainda montasse guarda.",
+    "lore": "Morto defendendo Aethra numa guerra que a história já esqueceu, o Cavaleiro Caído continua patrulhando terras que não existem mais, incapaz de aceitar que o reino que jurou proteger já não precisa dele."
+  },
+  {
+    "id": "troll_anciao_do_eco",
+    "nome": "Troll Ancião do Eco",
+    "chefe": true,
+    "teaser": "Um gemido grave ecoa pela caverna, seguido de um cheiro de mofo antigo demais pra ser recente.",
+    "lore": "Mais velho que qualquer troll das cavernas comuns, o Troll Ancião do Eco regenera ferimentos numa velocidade que desafia a lógica — décadas de batalhas o ensinaram que só é preciso sobreviver mais que o adversário."
+  },
+  {
+    "id": "guardiao_arcano_das_ruinas",
+    "nome": "Guardião Arcano das Ruínas",
+    "chefe": true,
+    "teaser": "Símbolos élficos gravados em colunas caídas voltam a brilhar, um por um, à medida que você se aproxima.",
+    "lore": "Erguido para proteger o coração mágico de Aethra Antiga, o Guardião Arcano continua cumprindo a última ordem que recebeu séculos atrás — mesmo que a cidade que deveria proteger não seja mais que ruína."
+  },
+  {
+    "id": "rei_petrificado",
+    "nome": "Rei Petrificado",
+    "chefe": true,
+    "teaser": "Uma estátua real, coroa e tudo, ocupa o centro do bosque petrificado — e a coroa acabou de se mexer.",
+    "lore": "Amaldiçoado junto com toda sua corte por uma magia esquecida séculos atrás, o Rei Petrificado continua reinando sobre um bosque de árvores igualmente petrificadas, o único súdito que lhe resta."
+  },
+  {
+    "id": "senhor_das_chamas_errantes",
+    "nome": "Senhor das Chamas Errantes",
+    "chefe": true,
+    "teaser": "O ar treme de calor muito antes de qualquer silhueta aparecer entre as dunas ardentes.",
+    "lore": "Consumido pelo próprio fogo ritual junto com a legião que comandava, o Senhor das Chamas Errantes vaga pelo deserto ardente incapaz de se apagar, incendiando tudo que ainda confunde com inimigo."
+  },
+  {
+    "id": "matriarca_wyvern_das_falesias",
+    "nome": "Matriarca Wyvern das Falésias",
+    "chefe": true,
+    "teaser": "Um grito estridente ecoa pelos penhascos, seguido de uma sombra enorme cortando o vento.",
+    "lore": "Mais velha e maior que qualquer wyvern comum, a Matriarca governa todos os ninhos das Falésias do Fim havia gerações — e nenhum invasor que chegou perto da prole voltou pra contar a história."
+  },
+  {
+    "id": "matriarca_da_bruma_eterna",
+    "nome": "Matriarca da Bruma Eterna",
+    "chefe": true,
+    "teaser": "A névoa perpétua do pântano se adensa ao redor de uma figura imóvel, como se a obedecesse.",
+    "lore": "A Matriarca da Bruma Eterna comanda cada troll e lodo do Pântano da Bruma como se fossem filhos — e não hesita em envolver a todos numa névoa gélida protetora quando um deles está em perigo."
+  },
+  {
+    "id": "senhor_sombrio_da_montanha",
+    "nome": "Senhor Sombrio da Montanha",
+    "chefe": true,
+    "teaser": "A escuridão no topo da montanha parece mais densa que o resto da noite, e nada mais se move perto dela.",
+    "lore": "Ninguém sabe se o Senhor Sombrio nasceu junto com a montanha ou se a conquistou séculos atrás — só que golens, trolls e gárgulas de toda a região respondem à sua vontade sem hesitar."
+  },
+  {
+    "id": "dragao_anciao_das_cinzas",
+    "nome": "Dragão Ancião das Cinzas",
+    "chefe": true,
+    "teaser": "O calor no covil aumenta a níveis insuportáveis muito antes de qualquer coisa se revelar.",
+    "lore": "Mãe do Dragão Jovem que guarda a masmorra logo abaixo, o Dragão Ancião das Cinzas patrulha a terra arrasada ao redor do covil e não perdoa quem se aproxima demais da prole."
+  },
+  {
+    "id": "imperador_arcano_dos_confins",
+    "nome": "Imperador Arcano dos Confins",
+    "chefe": true,
+    "teaser": "No topo do Trono de Cinzas, uma figura coroada de energia arcana observa sua chegada sem se mover.",
+    "lore": "O que resta do último imperador de Aethra Antiga, transformado em algo mais que humano pela mesma magia que destruiu seu próprio reino. Governa os Confins como governou a cidade — sozinho, e para sempre."
+  }
+]

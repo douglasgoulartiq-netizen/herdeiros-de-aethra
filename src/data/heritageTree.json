@@ -1,0 +1,55 @@
+{
+  "_comentario": "Caminhos do Herdeiro (task #92): Árvore de Herança. Por decisão explícita do usuário, usa o ELENCO E OS EVENTOS REAIS do jogo (chefes de src/data/monsters.json, facções de src/data/worldStateVariables.json, Despertar de Arma Secreta de src/systems/AwakeningSystem.js) em vez de personagens fictícios novos. Cada nó só fica disponível depois que o evento narrativo dele realmente aconteceu na partida (ver atendeGatilhoHeranca em TalentSystem.js) — e, ao contrário de talento de classe/subclasse, uma escolha de herança nunca pode ser desfeita (resetarTalentos nunca mexe em `heranca`). Esta é uma lista inicial pequena e real, prova de que o motor funciona ponta a ponta com conteúdo de verdade — mais nós (ligados às árvores de Guerreiro/Mago e a outros chefes/facções/marcos do Bestiário) são esperados nas próximas fases, não só nesta.",
+  "nos": [
+    {
+      "id": "heranca_folego_do_dragao_jovem",
+      "nome": "Fôlego do Dragão Jovem",
+      "icone": "🐲",
+      "descricao": "Você derrotou o Dragão Jovem que ameaçava a masmorra — parte daquele fogo antigo ficou com você. +3 INT permanente.",
+      "gatilho": { "tipo": "chefeDerrotado", "monstroId": "dragao_jovem" },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": { "tipo": "bonusAtributo", "atributo": "INT", "valor": 3 }
+    },
+    {
+      "id": "heranca_raizes_que_resistem",
+      "nome": "Raízes que Resistem",
+      "icone": "🌳",
+      "descricao": "Sobreviver ao Guardião das Raízes Antigas ensinou seu corpo a aguentar o que viria depois. +3 de defesa permanente.",
+      "gatilho": { "tipo": "chefeDerrotado", "monstroId": "guardiao_das_raizes" },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": { "tipo": "bonusAtributo", "atributo": "defesaFlat", "valor": 3 }
+    },
+    {
+      "id": "heranca_favor_da_folha_verde",
+      "nome": "Favor dos Guardiões da Folha Verde",
+      "icone": "🌿",
+      "descricao": "A confiança dos Guardiões da Folha Verde te fortalece — eles compartilham parte de sua resistência natural. +2 CON permanente.",
+      "gatilho": { "tipo": "reputacaoFaccao", "facaoId": "guardioes_da_folha", "minimo": 60 },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": { "tipo": "bonusAtributo", "atributo": "CON", "valor": 2 }
+    },
+    {
+      "id": "heranca_orgulho_dos_ventos_dourados",
+      "nome": "Orgulho do Clã dos Ventos Dourados",
+      "icone": "🌾",
+      "descricao": "Provar valor em combate junto ao Clã dos Ventos Dourados deixou você mais forte nos golpes. +2 FOR permanente.",
+      "gatilho": { "tipo": "reputacaoFaccao", "facaoId": "cla_dos_ventos_dourados", "minimo": 60 },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": { "tipo": "bonusAtributo", "atributo": "FOR", "valor": 2 }
+    },
+    {
+      "id": "heranca_eco_de_arma_secreta",
+      "nome": "Eco de uma Arma Secreta",
+      "icone": "✨",
+      "descricao": "Ver um dos seus convocados despertar a própria Arma Secreta deixou um eco de poder em você também. +2 DES permanente.",
+      "gatilho": { "tipo": "armaSecretaDespertada" },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": { "tipo": "bonusAtributo", "atributo": "DES", "valor": 2 }
+    }
+  ]
+}

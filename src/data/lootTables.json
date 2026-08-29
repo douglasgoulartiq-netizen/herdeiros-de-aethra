@@ -1,0 +1,1188 @@
+{
+  "slime": {
+    "chanceDrop": 0.55,
+    "pool": [
+      {
+        "itemId": "erva",
+        "peso": 40
+      },
+      {
+        "itemId": "gema",
+        "peso": 10
+      },
+      {
+        "itemId": "pocao_vida_p",
+        "peso": 25
+      },
+      {
+        "itemId": "pocao_mana_p",
+        "peso": 15
+      }
+    ]
+  },
+  "morcego": {
+    "chanceDrop": 0.5,
+    "pool": [
+      {
+        "itemId": "erva",
+        "peso": 35
+      },
+      {
+        "itemId": "pocao_mana_p",
+        "peso": 25
+      },
+      {
+        "itemId": "adaga_comum",
+        "peso": 5
+      }
+    ]
+  },
+  "lobo": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "madeira",
+        "peso": 30
+      },
+      {
+        "itemId": "pocao_vida_p",
+        "peso": 25
+      },
+      {
+        "itemId": "botas_comum",
+        "peso": 15
+      },
+      {
+        "itemId": "erva_rara",
+        "peso": 8
+      }
+    ]
+  },
+  "goblin": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "adaga_comum",
+        "peso": 20
+      },
+      {
+        "itemId": "minerio",
+        "peso": 25
+      },
+      {
+        "itemId": "pocao_vida_p",
+        "peso": 25
+      },
+      {
+        "itemId": "escudo_comum",
+        "peso": 10
+      }
+    ]
+  },
+  "bandido": {
+    "chanceDrop": 0.65,
+    "pool": [
+      {
+        "itemId": "adaga_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "armadura_comum",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      },
+      {
+        "itemId": "anel_simples",
+        "peso": 10
+      },
+      {
+        "itemId": "gema",
+        "peso": 12
+      }
+    ]
+  },
+  "esqueleto": {
+    "chanceDrop": 0.65,
+    "pool": [
+      {
+        "itemId": "espada_comum",
+        "peso": 18
+      },
+      {
+        "itemId": "elmo_comum",
+        "peso": 18
+      },
+      {
+        "itemId": "minerio",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_mana_m",
+        "peso": 15
+      },
+      {
+        "itemId": "pergaminho_fuga",
+        "peso": 8
+      }
+    ]
+  },
+  "aranha_gigante": {
+    "chanceDrop": 0.65,
+    "pool": [
+      {
+        "itemId": "cajado_incomum",
+        "peso": 14
+      },
+      {
+        "itemId": "botas_incomum",
+        "peso": 16
+      },
+      {
+        "itemId": "gema",
+        "peso": 18
+      },
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      },
+      {
+        "itemId": "erva_rara",
+        "peso": 10
+      }
+    ]
+  },
+  "orc_selvagem": {
+    "chanceDrop": 0.75,
+    "pool": [
+      {
+        "itemId": "machado_incomum",
+        "peso": 18
+      },
+      {
+        "itemId": "armadura_incomum",
+        "peso": 16
+      },
+      {
+        "itemId": "escudo_incomum",
+        "peso": 14
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 12
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 10
+      },
+      {
+        "itemId": "anel_forca",
+        "peso": 5
+      }
+    ]
+  },
+  "dragao_jovem": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "espada_lendario",
+        "peso": 8
+      },
+      {
+        "itemId": "cajado_lendario",
+        "peso": 6
+      },
+      {
+        "itemId": "machado_lendario",
+        "peso": 6
+      },
+      {
+        "itemId": "arco_lendario",
+        "peso": 6
+      },
+      {
+        "itemId": "amuleto_arcano",
+        "peso": 10
+      },
+      {
+        "itemId": "armadura_epico",
+        "peso": 14
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 30
+      }
+    ]
+  },
+  "bau_comum": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "pocao_vida_p",
+        "peso": 30
+      },
+      {
+        "itemId": "pocao_mana_p",
+        "peso": 25
+      },
+      {
+        "itemId": "erva",
+        "peso": 20
+      },
+      {
+        "itemId": "minerio",
+        "peso": 20
+      },
+      {
+        "itemId": "escudo_comum",
+        "peso": 5
+      }
+    ]
+  },
+  "bau_raro": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "espada_raro",
+        "peso": 12
+      },
+      {
+        "itemId": "cajado_raro",
+        "peso": 12
+      },
+      {
+        "itemId": "armadura_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "botas_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "anel_destreza",
+        "peso": 10
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 16
+      }
+    ]
+  },
+  "bau_epico": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "arco_epico",
+        "peso": 15
+      },
+      {
+        "itemId": "maca_epico",
+        "peso": 15
+      },
+      {
+        "itemId": "elmo_epico",
+        "peso": 15
+      },
+      {
+        "itemId": "amuleto_vida",
+        "peso": 20
+      },
+      {
+        "itemId": "escudo_epico",
+        "peso": 15
+      },
+      {
+        "itemId": "pergaminho_arcano",
+        "peso": 20
+      }
+    ]
+  },
+  "bau_lendario": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "armadura_lendario",
+        "peso": 15
+      },
+      {
+        "itemId": "elmo_lendario",
+        "peso": 12
+      },
+      {
+        "itemId": "botas_lendario",
+        "peso": 12
+      },
+      {
+        "itemId": "escudo_lendario",
+        "peso": 15
+      },
+      {
+        "itemId": "amuleto_arcano",
+        "peso": 10
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 16
+      }
+    ]
+  },
+  "javali": {
+    "chanceDrop": 0.5,
+    "pool": [
+      {
+        "itemId": "madeira",
+        "peso": 30
+      },
+      {
+        "itemId": "erva",
+        "peso": 25
+      },
+      {
+        "itemId": "pocao_vida_p",
+        "peso": 30
+      },
+      {
+        "itemId": "adaga_comum",
+        "peso": 10
+      }
+    ]
+  },
+  "lobo_sombrio": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      },
+      {
+        "itemId": "botas_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "erva_rara",
+        "peso": 10
+      },
+      {
+        "itemId": "adaga_incomum",
+        "peso": 10
+      },
+      {
+        "itemId": "gema",
+        "peso": 15
+      }
+    ]
+  },
+  "sapo_venenoso": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "antidoto",
+        "peso": 30
+      },
+      {
+        "itemId": "erva_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_mana_m",
+        "peso": 20
+      },
+      {
+        "itemId": "cajado_incomum",
+        "peso": 10
+      }
+    ]
+  },
+  "harpia": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "arco_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "botas_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "gema",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      }
+    ]
+  },
+  "touro_selvagem": {
+    "chanceDrop": 0.65,
+    "pool": [
+      {
+        "itemId": "machado_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "armadura_incomum",
+        "peso": 18
+      },
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 10
+      }
+    ]
+  },
+  "lodo_negro": {
+    "chanceDrop": 0.6,
+    "pool": [
+      {
+        "itemId": "pocao_mana_m",
+        "peso": 20
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 10
+      },
+      {
+        "itemId": "escudo_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "antidoto",
+        "peso": 20
+      }
+    ]
+  },
+  "caranguejo_gigante": {
+    "chanceDrop": 0.65,
+    "pool": [
+      {
+        "itemId": "escudo_incomum",
+        "peso": 18
+      },
+      {
+        "itemId": "armadura_incomum",
+        "peso": 15
+      },
+      {
+        "itemId": "gema",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_m",
+        "peso": 20
+      }
+    ]
+  },
+  "urso_ancestral": {
+    "chanceDrop": 0.7,
+    "pool": [
+      {
+        "itemId": "machado_raro",
+        "peso": 12
+      },
+      {
+        "itemId": "armadura_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      },
+      {
+        "itemId": "erva_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 12
+      }
+    ]
+  },
+  "pirata_naufrago": {
+    "chanceDrop": 0.7,
+    "pool": [
+      {
+        "itemId": "espada_raro",
+        "peso": 12
+      },
+      {
+        "itemId": "anel_simples",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 12
+      },
+      {
+        "itemId": "botas_raro",
+        "peso": 10
+      }
+    ]
+  },
+  "druida_corrompido": {
+    "chanceDrop": 0.7,
+    "pool": [
+      {
+        "itemId": "cajado_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "pergaminho_arcano",
+        "peso": 20
+      },
+      {
+        "itemId": "amuleto_vida",
+        "peso": 8
+      },
+      {
+        "itemId": "pocao_mana_m",
+        "peso": 20
+      }
+    ]
+  },
+  "escorpiao_gigante": {
+    "chanceDrop": 0.72,
+    "pool": [
+      {
+        "itemId": "adaga_raro",
+        "peso": 14
+      },
+      {
+        "itemId": "armadura_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "antidoto",
+        "peso": 20
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 12
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "grifo_jovem": {
+    "chanceDrop": 0.72,
+    "pool": [
+      {
+        "itemId": "arco_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "botas_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 18
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 12
+      }
+    ]
+  },
+  "necromante_errante": {
+    "chanceDrop": 0.75,
+    "pool": [
+      {
+        "itemId": "cajado_epico",
+        "peso": 10
+      },
+      {
+        "itemId": "pergaminho_arcano",
+        "peso": 20
+      },
+      {
+        "itemId": "amuleto_vida",
+        "peso": 10
+      },
+      {
+        "itemId": "pocao_mana_m",
+        "peso": 18
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      }
+    ]
+  },
+  "serpente_marinha": {
+    "chanceDrop": 0.75,
+    "pool": [
+      {
+        "itemId": "escudo_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "armadura_raro",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 18
+      },
+      {
+        "itemId": "anel_destreza",
+        "peso": 10
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 12
+      }
+    ]
+  },
+  "troll_das_cavernas": {
+    "chanceDrop": 0.78,
+    "pool": [
+      {
+        "itemId": "machado_epico",
+        "peso": 12
+      },
+      {
+        "itemId": "armadura_epico",
+        "peso": 10
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 18
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      }
+    ]
+  },
+  "golem_de_pedra": {
+    "chanceDrop": 0.8,
+    "pool": [
+      {
+        "itemId": "escudo_epico",
+        "peso": 14
+      },
+      {
+        "itemId": "armadura_epico",
+        "peso": 14
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 20
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 18
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      }
+    ]
+  },
+  "gargula": {
+    "chanceDrop": 0.8,
+    "pool": [
+      {
+        "itemId": "espada_epico",
+        "peso": 12
+      },
+      {
+        "itemId": "elmo_epico",
+        "peso": 14
+      },
+      {
+        "itemId": "escudo_epico",
+        "peso": 12
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      }
+    ]
+  },
+  "wyvern": {
+    "chanceDrop": 0.85,
+    "pool": [
+      {
+        "itemId": "arco_epico",
+        "peso": 12
+      },
+      {
+        "itemId": "botas_epico",
+        "peso": 14
+      },
+      {
+        "itemId": "armadura_epico",
+        "peso": 12
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 20
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      },
+      {
+        "itemId": "anel_forca",
+        "peso": 8
+      }
+    ]
+  },
+  "senhor_da_cinza": {
+    "chanceDrop": 0.9,
+    "pool": [
+      {
+        "itemId": "machado_lendario",
+        "peso": 6
+      },
+      {
+        "itemId": "cajado_lendario",
+        "peso": 6
+      },
+      {
+        "itemId": "armadura_epico",
+        "peso": 16
+      },
+      {
+        "itemId": "amuleto_vida",
+        "peso": 14
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 24
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 24
+      }
+    ]
+  },
+  "arauto_das_cinzas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "espada_lendario",
+        "peso": 10
+      },
+      {
+        "itemId": "arco_lendario",
+        "peso": 8
+      },
+      {
+        "itemId": "armadura_lendario",
+        "peso": 10
+      },
+      {
+        "itemId": "amuleto_arcano",
+        "peso": 10
+      },
+      {
+        "itemId": "elmo_lendario",
+        "peso": 10
+      },
+      {
+        "itemId": "botas_lendario",
+        "peso": 8
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 24
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 20
+      }
+    ]
+  },
+  "guardiao_das_raizes": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "coracao_de_carvalho",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "devoradora_de_sombras": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "presas_da_devoradora",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "paladino_do_sol_poente": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "martelo_do_sol_poente",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "bruxa_do_lodo_eterno": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cajado_do_lodo_eterno",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "capita_mare_negra": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "adaga_da_mare_negra",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "tirano_do_charco": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "viscera_toxica",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "colosso_das_pedras_cinzentas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "nucleo_do_colosso",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "matriarca_ursina": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "garras_da_matriarca",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "grifo_alfa_dos_ventos": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "arco_do_grifo_alfa",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "rainha_escorpiao_de_karn": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "ferrao_da_rainha_de_karn",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "serpente_da_tempestade_eterna": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cajado_da_tempestade_eterna",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "cavaleiro_caido_de_aethra": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "lamina_do_cavaleiro_caido",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "troll_anciao_do_eco": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "pele_regenerativa",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "guardiao_arcano_das_ruinas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "amuleto_do_guardiao_arcano",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "rei_petrificado": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "couraca_do_rei_petrificado",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "senhor_das_chamas_errantes": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "machado_das_chamas_errantes",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "matriarca_wyvern_das_falesias": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "arco_da_matriarca_wyvern",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "matriarca_da_bruma_eterna": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "anel_da_bruma_eterna",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "senhor_sombrio_da_montanha": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "espada_do_senhor_sombrio",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "dragao_anciao_das_cinzas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "escama_do_dragao_anciao",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "imperador_arcano_dos_confins": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cetro_do_imperador_arcano",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  }
+}

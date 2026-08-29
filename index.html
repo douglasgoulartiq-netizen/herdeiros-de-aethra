@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Herdeiros de Aethra - RPG</title>
+<link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game-canvas" width="960" height="640"></canvas>
+
+    <div id="hud" class="hidden">
+      <div id="hud-bars">
+        <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra"><div id="hud-hp" class="barra-fill hp"></div></div></div>
+        <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra"><div id="hud-mp" class="barra-fill mp"></div></div></div>
+        <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra"><div id="hud-xp" class="barra-fill xp"></div></div></div>
+      </div>
+      <div id="hud-info"></div>
+      <div id="hud-clima"></div>
+      <div id="hud-salvo" class="hidden"></div>
+      <div id="hud-buttons">
+        <button data-action="inventario">Inventário (I)</button>
+        <button data-action="missoes">Missões (M)</button>
+        <button data-action="forja">Forja (F)</button>
+        <button data-action="gacha">Time (G)</button>
+        <button data-action="arvore">Habilidades (T)</button>
+        <button data-action="caminhos" id="btn-caminhos" class="hidden">🌌 Caminhos do Herdeiro (H)</button>
+        <button data-action="compendio">Compêndio (C)</button>
+        <button data-action="viagem">Viagem Rápida (V)</button>
+        <button data-action="atlas">🗺️ Atlas (U)</button>
+        <button data-action="sair_masmorra" title="Retorna à superfície de dentro de uma masmorra">🚪 Sair da Masmorra</button>
+        <button data-action="diario">Diário (D)</button>
+        <button data-action="descansar" title="Recupera todo o HP e MP do time inteiro">💤 Descansar (R)</button>
+        <button data-action="salvar">Salvar (S)</button>
+        <button data-action="auto" id="btn-auto">▶ Automático (P)</button>
+        <button data-action="acessibilidade">Acessibilidade</button>
+      </div>
+    </div>
+
+    <div id="mensagem-topo" class="hidden"></div>
+
+    <div id="touch-controls" class="hidden">
+      <div id="touch-dpad">
+        <button id="touch-up" class="touch-btn dpad-up" aria-label="Cima">▲</button>
+        <button id="touch-left" class="touch-btn dpad-left" aria-label="Esquerda">◀</button>
+        <button id="touch-right" class="touch-btn dpad-right" aria-label="Direita">▶</button>
+        <button id="touch-down" class="touch-btn dpad-down" aria-label="Baixo">▼</button>
+      </div>
+      <button id="touch-acao" class="touch-btn touch-acao" aria-label="Interagir">E</button>
+    </div>
+
+    <div id="screen-boot" class="tela">
+      <h1>Herdeiros de Aethra</h1>
+      <p class="subtitulo">Um RPG de mundo aberto inspirado em D&D</p>
+      <button id="btn-novo-jogo">Nova Aventura</button>
+      <button id="btn-continuar" class="hidden">Continuar Aventura</button>
+      <button id="btn-ng-plus" class="hidden" title="Reinicia com um personagem novo, mas mantém seu roster de invocação — monstros ficam mais fortes (e rendem mais)."></button>
+      <button id="btn-acessibilidade" style="margin-top:10px;">⚙️ Acessibilidade</button>
+      <div id="painel-login" style="margin-top:14px;"></div>
+      <p style="margin-top:24px;font-size:0.8em;color:#8a7a5c;max-width:420px;text-align:center;">
+        No computador: setas do teclado para mover · E para interagir (NPCs, baús, nós de coleta, masmorra)
+        · I inventário · M missões · F forja · G time · T habilidades · S salvar · P automático · Esc fechar janelas<br/>
+        No celular: use o direcional e o botão "E" que aparecem na tela.
+      </p>
+    </div>
+
+    <div id="screen-criacao" class="tela hidden"></div>
+
+    <div id="screen-batalha" class="tela hidden"></div>
+
+    <div id="modal-overlay" class="hidden">
+      <div id="modal-conteudo"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

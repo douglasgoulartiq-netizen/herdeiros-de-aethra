@@ -1,0 +1,1274 @@
+[
+  {
+    "id": "slime",
+    "nome": "Slime",
+    "nivel": 1,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_slime",
+    "hp": 20,
+    "atk": 4,
+    "defesa": 1,
+    "vel": 5,
+    "xp": 8,
+    "ouroMin": 3,
+    "ouroMax": 6,
+    "elemento": "natureza",
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "morcego",
+    "nome": "Morcego",
+    "nivel": 1,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_morcego",
+    "hp": 16,
+    "atk": 5,
+    "defesa": 1,
+    "vel": 11,
+    "xp": 9,
+    "ouroMin": 2,
+    "ouroMax": 5,
+    "elemento": "sombrio",
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "lobo",
+    "nome": "Lobo",
+    "nivel": 2,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_lobo",
+    "hp": 28,
+    "atk": 7,
+    "defesa": 2,
+    "vel": 9,
+    "xp": 14,
+    "ouroMin": 5,
+    "ouroMax": 10,
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "goblin",
+    "nome": "Goblin",
+    "nivel": 2,
+    "bioma": [
+      "floresta",
+      "estrada"
+    ],
+    "sprite": "mob_goblin",
+    "hp": 24,
+    "atk": 6,
+    "defesa": 2,
+    "vel": 7,
+    "xp": 12,
+    "ouroMin": 6,
+    "ouroMax": 12,
+    "arquetipo": "covarde"
+  },
+  {
+    "id": "bandido",
+    "nome": "Bandido",
+    "nivel": 3,
+    "bioma": [
+      "estrada",
+      "floresta"
+    ],
+    "sprite": "mob_bandido",
+    "hp": 32,
+    "atk": 9,
+    "defesa": 3,
+    "vel": 8,
+    "xp": 19,
+    "ouroMin": 10,
+    "ouroMax": 20,
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "esqueleto",
+    "nome": "Esqueleto",
+    "nivel": 3,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_esqueleto",
+    "hp": 30,
+    "atk": 8,
+    "defesa": 4,
+    "vel": 5,
+    "xp": 18,
+    "ouroMin": 7,
+    "ouroMax": 14,
+    "elemento": "sombrio",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "aranha_gigante",
+    "nome": "Aranha Gigante",
+    "nivel": 3,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_aranha_gigante",
+    "hp": 34,
+    "atk": 9,
+    "defesa": 3,
+    "vel": 8,
+    "xp": 20,
+    "ouroMin": 8,
+    "ouroMax": 15,
+    "elemento": "veneno",
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "orc_selvagem",
+    "nome": "Orc Selvagem",
+    "nivel": 4,
+    "bioma": [
+      "masmorra",
+      "floresta"
+    ],
+    "sprite": "mob_orc_selvagem",
+    "hp": 45,
+    "atk": 12,
+    "defesa": 5,
+    "vel": 6,
+    "xp": 30,
+    "ouroMin": 15,
+    "ouroMax": 25,
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "dragao_jovem",
+    "nome": "Dragão Jovem",
+    "nivel": 6,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_dragao_jovem",
+    "hp": 120,
+    "atk": 20,
+    "defesa": 8,
+    "vel": 7,
+    "xp": 150,
+    "ouroMin": 80,
+    "ouroMax": 150,
+    "chefe": true,
+    "elemento": "fogo",
+    "arquetipo": "comandante"
+  },
+  {
+    "id": "javali",
+    "nome": "Javali",
+    "nivel": 2,
+    "bioma": [
+      "floresta",
+      "estrada"
+    ],
+    "sprite": "mob_javali",
+    "hp": 34,
+    "atk": 7,
+    "defesa": 2,
+    "vel": 8,
+    "xp": 18,
+    "ouroMin": 6,
+    "ouroMax": 12,
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "lobo_sombrio",
+    "nome": "Lobo Sombrio",
+    "nivel": 4,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_lobo_sombrio",
+    "hp": 52,
+    "atk": 11,
+    "defesa": 4,
+    "vel": 10,
+    "xp": 30,
+    "ouroMin": 12,
+    "ouroMax": 22,
+    "elemento": "sombrio",
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "sapo_venenoso",
+    "nome": "Sapo Venenoso",
+    "nivel": 5,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_sapo_venenoso",
+    "hp": 61,
+    "atk": 13,
+    "defesa": 4,
+    "vel": 6,
+    "xp": 36,
+    "ouroMin": 15,
+    "ouroMax": 26,
+    "elemento": "veneno",
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "harpia",
+    "nome": "Harpia",
+    "nivel": 5,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_harpia",
+    "hp": 58,
+    "atk": 12,
+    "defesa": 3,
+    "vel": 13,
+    "xp": 34,
+    "ouroMin": 14,
+    "ouroMax": 25,
+    "elemento": "vento",
+    "arquetipo": "atirador"
+  },
+  {
+    "id": "touro_selvagem",
+    "nome": "Touro Selvagem",
+    "nivel": 6,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_touro_selvagem",
+    "hp": 70,
+    "atk": 15,
+    "defesa": 6,
+    "vel": 7,
+    "xp": 42,
+    "ouroMin": 18,
+    "ouroMax": 30,
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "lodo_negro",
+    "nome": "Lodo Negro",
+    "nivel": 6,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_lodo_negro",
+    "hp": 75,
+    "atk": 13,
+    "defesa": 7,
+    "vel": 3,
+    "xp": 40,
+    "ouroMin": 16,
+    "ouroMax": 28,
+    "elemento": "veneno",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "caranguejo_gigante",
+    "nome": "Caranguejo Gigante",
+    "nivel": 6,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_caranguejo_gigante",
+    "hp": 72,
+    "atk": 13,
+    "defesa": 8,
+    "vel": 5,
+    "xp": 40,
+    "ouroMin": 16,
+    "ouroMax": 28,
+    "elemento": "agua",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "urso_ancestral",
+    "nome": "Urso Ancestral",
+    "nivel": 7,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_urso_ancestral",
+    "hp": 79,
+    "atk": 17,
+    "defesa": 7,
+    "vel": 8,
+    "xp": 48,
+    "ouroMin": 20,
+    "ouroMax": 34,
+    "elemento": "natureza",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "pirata_naufrago",
+    "nome": "Pirata Náufrago",
+    "nivel": 8,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_pirata_naufrago",
+    "hp": 88,
+    "atk": 19,
+    "defesa": 6,
+    "vel": 9,
+    "xp": 54,
+    "ouroMin": 22,
+    "ouroMax": 38,
+    "elemento": "agua",
+    "arquetipo": "ladrao"
+  },
+  {
+    "id": "druida_corrompido",
+    "nome": "Druida Corrompido",
+    "nivel": 8,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_druida_corrompido",
+    "hp": 82,
+    "atk": 20,
+    "defesa": 5,
+    "vel": 8,
+    "xp": 56,
+    "ouroMin": 22,
+    "ouroMax": 38,
+    "elemento": "natureza",
+    "arquetipo": "suporte"
+  },
+  {
+    "id": "escorpiao_gigante",
+    "nome": "Escorpião Gigante",
+    "nivel": 9,
+    "bioma": [
+      "deserto"
+    ],
+    "sprite": "mob_escorpiao_gigante",
+    "hp": 97,
+    "atk": 21,
+    "defesa": 9,
+    "vel": 7,
+    "xp": 60,
+    "ouroMin": 25,
+    "ouroMax": 42,
+    "elemento": "veneno",
+    "arquetipo": "controlador"
+  },
+  {
+    "id": "grifo_jovem",
+    "nome": "Grifo Jovem",
+    "nivel": 9,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_grifo_jovem",
+    "hp": 95,
+    "atk": 22,
+    "defesa": 7,
+    "vel": 14,
+    "xp": 60,
+    "ouroMin": 25,
+    "ouroMax": 42,
+    "elemento": "vento",
+    "arquetipo": "atirador"
+  },
+  {
+    "id": "necromante_errante",
+    "nome": "Necromante Errante",
+    "nivel": 10,
+    "bioma": [
+      "deserto",
+      "masmorra"
+    ],
+    "sprite": "mob_necromante_errante",
+    "hp": 106,
+    "atk": 23,
+    "defesa": 8,
+    "vel": 8,
+    "xp": 66,
+    "ouroMin": 28,
+    "ouroMax": 46,
+    "elemento": "sombrio",
+    "arquetipo": "invocador",
+    "invocacao": {
+      "id": "esqueleto_convocado",
+      "nome": "Esqueleto Invocado",
+      "sprite": "mob_esqueleto",
+      "hp": 30,
+      "atk": 10,
+      "defesa": 3,
+      "vel": 6,
+      "elemento": "sombrio",
+      "xp": 6,
+      "ouroMin": 0,
+      "ouroMax": 2
+    }
+  },
+  {
+    "id": "serpente_marinha",
+    "nome": "Serpente Marinha",
+    "nivel": 10,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_serpente_marinha",
+    "hp": 110,
+    "atk": 24,
+    "defesa": 9,
+    "vel": 10,
+    "xp": 66,
+    "ouroMin": 28,
+    "ouroMax": 46,
+    "elemento": "agua",
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "troll_das_cavernas",
+    "nome": "Troll das Cavernas",
+    "nivel": 11,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_troll_das_cavernas",
+    "hp": 115,
+    "atk": 25,
+    "defesa": 10,
+    "vel": 5,
+    "xp": 72,
+    "ouroMin": 30,
+    "ouroMax": 50,
+    "elemento": "terra",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "golem_de_pedra",
+    "nome": "Golem de Pedra",
+    "nivel": 12,
+    "bioma": [
+      "masmorra",
+      "deserto"
+    ],
+    "sprite": "mob_golem_de_pedra",
+    "hp": 124,
+    "atk": 27,
+    "defesa": 16,
+    "vel": 3,
+    "xp": 78,
+    "ouroMin": 32,
+    "ouroMax": 54,
+    "elemento": "terra",
+    "arquetipo": "defensor"
+  },
+  {
+    "id": "gargula",
+    "nome": "Gárgula",
+    "nivel": 13,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_gargula",
+    "hp": 130,
+    "atk": 29,
+    "defesa": 14,
+    "vel": 8,
+    "xp": 84,
+    "ouroMin": 35,
+    "ouroMax": 58,
+    "elemento": "terra",
+    "arquetipo": "conjurador"
+  },
+  {
+    "id": "wyvern",
+    "nome": "Wyvern",
+    "nivel": 14,
+    "bioma": [
+      "masmorra",
+      "estrada"
+    ],
+    "sprite": "mob_wyvern",
+    "hp": 142,
+    "atk": 31,
+    "defesa": 12,
+    "vel": 12,
+    "xp": 90,
+    "ouroMin": 38,
+    "ouroMax": 62,
+    "elemento": "vento",
+    "arquetipo": "atirador"
+  },
+  {
+    "id": "senhor_da_cinza",
+    "nome": "Senhor da Cinza",
+    "nivel": 15,
+    "bioma": [
+      "masmorra",
+      "deserto"
+    ],
+    "sprite": "mob_senhor_da_cinza",
+    "hp": 180,
+    "atk": 35,
+    "defesa": 14,
+    "vel": 9,
+    "xp": 140,
+    "ouroMin": 60,
+    "ouroMax": 100,
+    "elemento": "fogo",
+    "arquetipo": "comandante"
+  },
+  {
+    "id": "arauto_das_cinzas",
+    "nome": "Arauto das Cinzas",
+    "nivel": 16,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_arauto_das_cinzas",
+    "hp": 260,
+    "atk": 40,
+    "defesa": 16,
+    "vel": 9,
+    "xp": 220,
+    "ouroMin": 110,
+    "ouroMax": 190,
+    "chefe": true,
+    "elemento": "fogo",
+    "arquetipo": "comandante"
+  },
+  {
+    "id": "rato_gigante",
+    "nome": "Rato Gigante",
+    "nivel": 1,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_rato_gigante",
+    "hp": 16,
+    "atk": 3,
+    "defesa": 1,
+    "vel": 6,
+    "xp": 6,
+    "ouroMin": 2,
+    "ouroMax": 4,
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "abelha_titan",
+    "nome": "Abelha Titã",
+    "nivel": 2,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_abelha_titan",
+    "hp": 22,
+    "atk": 6,
+    "defesa": 1,
+    "vel": 10,
+    "xp": 11,
+    "ouroMin": 5,
+    "ouroMax": 9,
+    "elemento": "veneno",
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "corvo_ceifador",
+    "nome": "Corvo Ceifador",
+    "nivel": 3,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_corvo_ceifador",
+    "hp": 30,
+    "atk": 9,
+    "defesa": 2,
+    "vel": 10,
+    "xp": 19,
+    "ouroMin": 9,
+    "ouroMax": 17,
+    "elemento": "sombrio",
+    "arquetipo": "atirador"
+  },
+  {
+    "id": "cristal_ecoante",
+    "nome": "Cristal Ecoante",
+    "nivel": 4,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_cristal_ecoante",
+    "hp": 50,
+    "atk": 9,
+    "defesa": 7,
+    "vel": 3,
+    "xp": 27,
+    "ouroMin": 11,
+    "ouroMax": 19,
+    "elemento": "terra",
+    "arquetipo": "defensor"
+  },
+  {
+    "id": "wisp_radiante",
+    "nome": "Wisp Radiante",
+    "nivel": 5,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_wisp_radiante",
+    "hp": 52,
+    "atk": 10,
+    "defesa": 3,
+    "vel": 9,
+    "xp": 33,
+    "ouroMin": 13,
+    "ouroMax": 23,
+    "elemento": "radiante",
+    "arquetipo": "suporte"
+  },
+  {
+    "id": "sentinela_dourada",
+    "nome": "Sentinela Dourada",
+    "nivel": 6,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_sentinela_dourada",
+    "hp": 76,
+    "atk": 14,
+    "defesa": 10,
+    "vel": 6,
+    "xp": 41,
+    "ouroMin": 17,
+    "ouroMax": 29,
+    "elemento": "radiante",
+    "arquetipo": "defensor"
+  },
+  {
+    "id": "gralha_tempestuosa",
+    "nome": "Gralha Tempestuosa",
+    "nivel": 7,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_gralha_tempestuosa",
+    "hp": 83,
+    "atk": 18,
+    "defesa": 6,
+    "vel": 13,
+    "xp": 47,
+    "ouroMin": 19,
+    "ouroMax": 32,
+    "elemento": "vento",
+    "arquetipo": "atirador"
+  },
+  {
+    "id": "verme_das_dunas",
+    "nome": "Verme das Dunas",
+    "nivel": 8,
+    "bioma": [
+      "deserto"
+    ],
+    "sprite": "mob_verme_das_dunas",
+    "hp": 92,
+    "atk": 19,
+    "defesa": 7,
+    "vel": 5,
+    "xp": 53,
+    "ouroMin": 22,
+    "ouroMax": 37,
+    "elemento": "terra",
+    "arquetipo": "agressor"
+  },
+  {
+    "id": "arraia_relampago",
+    "nome": "Arraia Relâmpago",
+    "nivel": 9,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_arraia_relampago",
+    "hp": 93,
+    "atk": 20,
+    "defesa": 6,
+    "vel": 9,
+    "xp": 59,
+    "ouroMin": 24,
+    "ouroMax": 41,
+    "elemento": "raio",
+    "arquetipo": "controlador"
+  },
+  {
+    "id": "enguia_eletrica",
+    "nome": "Enguia Elétrica",
+    "nivel": 9,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_enguia_eletrica",
+    "hp": 89,
+    "atk": 19,
+    "defesa": 5,
+    "vel": 11,
+    "xp": 58,
+    "ouroMin": 24,
+    "ouroMax": 40,
+    "elemento": "raio",
+    "arquetipo": "ladrao"
+  },
+  {
+    "id": "sentinela_arcana",
+    "nome": "Sentinela Arcana",
+    "nivel": 10,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_sentinela_arcana",
+    "hp": 104,
+    "atk": 22,
+    "defesa": 8,
+    "vel": 7,
+    "xp": 65,
+    "ouroMin": 27,
+    "ouroMax": 45,
+    "elemento": "arcano",
+    "arquetipo": "conjurador"
+  },
+  {
+    "id": "espectro_arcano",
+    "nome": "Espectro Arcano",
+    "nivel": 10,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_espectro_arcano",
+    "hp": 101,
+    "atk": 21,
+    "defesa": 7,
+    "vel": 8,
+    "xp": 65,
+    "ouroMin": 27,
+    "ouroMax": 45,
+    "elemento": "arcano",
+    "arquetipo": "invocador",
+    "invocacao": {
+      "id": "eco_arcano",
+      "nome": "Eco Arcano",
+      "sprite": "mob_espectro_arcano",
+      "hp": 24,
+      "atk": 9,
+      "defesa": 2,
+      "vel": 8,
+      "elemento": "arcano",
+      "xp": 5,
+      "ouroMin": 0,
+      "ouroMax": 2
+    }
+  },
+  {
+    "id": "lobo_gelido",
+    "nome": "Lobo Gélido",
+    "nivel": 11,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_lobo_gelido",
+    "hp": 113,
+    "atk": 24,
+    "defesa": 9,
+    "vel": 11,
+    "xp": 71,
+    "ouroMin": 29,
+    "ouroMax": 48,
+    "elemento": "gelo",
+    "arquetipo": "cacador"
+  },
+  {
+    "id": "bruxa_da_bruma",
+    "nome": "Bruxa da Bruma",
+    "nivel": 12,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_bruxa_da_bruma",
+    "hp": 121,
+    "atk": 26,
+    "defesa": 8,
+    "vel": 8,
+    "xp": 77,
+    "ouroMin": 31,
+    "ouroMax": 52,
+    "elemento": "gelo",
+    "arquetipo": "invocador",
+    "invocacao": {
+      "id": "espirito_gelido",
+      "nome": "Espírito Gélido",
+      "sprite": "mob_bruxa_da_bruma",
+      "hp": 26,
+      "atk": 10,
+      "defesa": 2,
+      "vel": 7,
+      "elemento": "gelo",
+      "xp": 5,
+      "ouroMin": 0,
+      "ouroMax": 2
+    }
+  },
+  {
+    "id": "construto_arcano",
+    "nome": "Construto Arcano",
+    "nivel": 16,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_construto_arcano",
+    "hp": 275,
+    "atk": 39,
+    "defesa": 20,
+    "vel": 4,
+    "xp": 215,
+    "ouroMin": 105,
+    "ouroMax": 175,
+    "elemento": "arcano",
+    "arquetipo": "defensor"
+  },
+  {
+    "id": "carrasco_de_cinzas",
+    "nome": "Carrasco de Cinzas",
+    "nivel": 17,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_carrasco_de_cinzas",
+    "hp": 295,
+    "atk": 43,
+    "defesa": 16,
+    "vel": 9,
+    "xp": 235,
+    "ouroMin": 118,
+    "ouroMax": 198,
+    "elemento": "fogo",
+    "arquetipo": "fanatico"
+  },
+  {
+    "id": "guardiao_das_raizes",
+    "nome": "Guardião das Raízes Antigas",
+    "nivel": 5,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_guardiao_das_raizes",
+    "hp": 95,
+    "atk": 16,
+    "defesa": 7,
+    "vel": 5,
+    "xp": 67,
+    "ouroMin": 26,
+    "ouroMax": 44,
+    "chefe": true,
+    "elemento": "natureza",
+    "arquetipo": "defensor",
+    "fala": "\"Estas raízes bebem da mesma água que você. Vá em paz, ou vire adubo.\""
+  },
+  {
+    "id": "devoradora_de_sombras",
+    "nome": "Devoradora de Sombras",
+    "nivel": 7,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_devoradora_de_sombras",
+    "hp": 121,
+    "atk": 21,
+    "defesa": 10,
+    "vel": 13,
+    "xp": 93,
+    "ouroMin": 36,
+    "ouroMax": 62,
+    "chefe": true,
+    "elemento": "sombrio",
+    "arquetipo": "cacador",
+    "fala": "\"Você não me viu chegar. Ninguém vê.\""
+  },
+  {
+    "id": "paladino_do_sol_poente",
+    "nome": "Paladino do Sol Poente",
+    "nivel": 8,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_paladino_do_sol_poente",
+    "hp": 135,
+    "atk": 24,
+    "defesa": 11,
+    "vel": 7,
+    "xp": 107,
+    "ouroMin": 42,
+    "ouroMax": 70,
+    "chefe": true,
+    "elemento": "radiante",
+    "arquetipo": "comandante",
+    "fala": "\"Ajoelhe-se diante da luz, ou seja purificado por ela.\""
+  },
+  {
+    "id": "bruxa_do_lodo_eterno",
+    "nome": "Bruxa do Lodo Eterno",
+    "nivel": 9,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_bruxa_do_lodo_eterno",
+    "hp": 148,
+    "atk": 26,
+    "defesa": 12,
+    "vel": 6,
+    "xp": 120,
+    "ouroMin": 47,
+    "ouroMax": 79,
+    "chefe": true,
+    "elemento": "veneno",
+    "arquetipo": "conjurador",
+    "fala": "\"O pântano não perdoa. Eu só ajudo ele a lembrar disso.\""
+  },
+  {
+    "id": "capita_mare_negra",
+    "nome": "Capitã Maré-Negra",
+    "nivel": 10,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_capita_mare_negra",
+    "hp": 161,
+    "atk": 28,
+    "defesa": 13,
+    "vel": 10,
+    "xp": 133,
+    "ouroMin": 52,
+    "ouroMax": 88,
+    "chefe": true,
+    "elemento": "agua",
+    "arquetipo": "ladrao",
+    "fala": "\"Relaxa. Eu só quero o que reluz — e sua vida não reluz tanto assim.\""
+  },
+  {
+    "id": "tirano_do_charco",
+    "nome": "Tirano do Charco",
+    "nivel": 7,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_tirano_do_charco",
+    "hp": 121,
+    "atk": 21,
+    "defesa": 10,
+    "vel": 4,
+    "xp": 93,
+    "ouroMin": 36,
+    "ouroMax": 62,
+    "chefe": true,
+    "elemento": "veneno",
+    "arquetipo": "fanatico",
+    "fala": "\"Não corro. Nunca precisei.\""
+  },
+  {
+    "id": "colosso_das_pedras_cinzentas",
+    "nome": "Colosso das Pedras Cinzentas",
+    "nivel": 8,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_colosso_das_pedras_cinzentas",
+    "hp": 135,
+    "atk": 24,
+    "defesa": 11,
+    "vel": 4,
+    "xp": 107,
+    "ouroMin": 42,
+    "ouroMax": 70,
+    "chefe": true,
+    "elemento": "terra",
+    "arquetipo": "controlador",
+    "fala": "\"Vocês constroem em cima de mim há gerações. Chega.\""
+  },
+  {
+    "id": "matriarca_ursina",
+    "nome": "Matriarca Ursina",
+    "nivel": 10,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_matriarca_ursina",
+    "hp": 161,
+    "atk": 28,
+    "defesa": 13,
+    "vel": 8,
+    "xp": 133,
+    "ouroMin": 52,
+    "ouroMax": 88,
+    "chefe": true,
+    "elemento": "natureza",
+    "arquetipo": "agressor",
+    "fala": "\"Chegou perto demais da minha ninhada. Isso não tem volta.\""
+  },
+  {
+    "id": "grifo_alfa_dos_ventos",
+    "nome": "Grifo Alfa dos Ventos",
+    "nivel": 11,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_grifo_alfa_dos_ventos",
+    "hp": 175,
+    "atk": 31,
+    "defesa": 15,
+    "vel": 14,
+    "xp": 147,
+    "ouroMin": 57,
+    "ouroMax": 97,
+    "chefe": true,
+    "elemento": "vento",
+    "arquetipo": "atirador",
+    "fala": "\"Lá embaixo vocês nem veem a tempestade chegar. Eu sou a tempestade.\""
+  },
+  {
+    "id": "rainha_escorpiao_de_karn",
+    "nome": "Rainha Escorpião de Karn",
+    "nivel": 12,
+    "bioma": [
+      "deserto"
+    ],
+    "sprite": "mob_rainha_escorpiao_de_karn",
+    "hp": 188,
+    "atk": 33,
+    "defesa": 16,
+    "vel": 7,
+    "xp": 160,
+    "ouroMin": 62,
+    "ouroMax": 106,
+    "chefe": true,
+    "elemento": "fogo",
+    "arquetipo": "controlador",
+    "fala": "\"Minhas irmãs já provaram seu sangue. Agora é minha vez.\""
+  },
+  {
+    "id": "serpente_da_tempestade_eterna",
+    "nome": "Serpente da Tempestade Eterna",
+    "nivel": 13,
+    "bioma": [
+      "aguas"
+    ],
+    "sprite": "mob_serpente_da_tempestade_eterna",
+    "hp": 201,
+    "atk": 36,
+    "defesa": 17,
+    "vel": 9,
+    "xp": 173,
+    "ouroMin": 68,
+    "ouroMax": 114,
+    "chefe": true,
+    "elemento": "raio",
+    "arquetipo": "invocador",
+    "fala": "\"O céu já era meu antes de qualquer marinheiro desenhar um mapa.\""
+  },
+  {
+    "id": "cavaleiro_caido_de_aethra",
+    "nome": "Cavaleiro Caído de Aethra",
+    "nivel": 10,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_cavaleiro_caido_de_aethra",
+    "hp": 161,
+    "atk": 28,
+    "defesa": 13,
+    "vel": 6,
+    "xp": 133,
+    "ouroMin": 52,
+    "ouroMax": 88,
+    "chefe": true,
+    "elemento": "sombrio",
+    "arquetipo": "comandante",
+    "fala": "\"Jurei defender este reino até a morte. A morte só não foi o fim que eu esperava.\""
+  },
+  {
+    "id": "troll_anciao_do_eco",
+    "nome": "Troll Ancião do Eco",
+    "nivel": 12,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_troll_anciao_do_eco",
+    "hp": 188,
+    "atk": 33,
+    "defesa": 16,
+    "vel": 5,
+    "xp": 160,
+    "ouroMin": 62,
+    "ouroMax": 106,
+    "chefe": true,
+    "elemento": "terra",
+    "arquetipo": "fanatico",
+    "fala": "\"Corte o quanto quiser. Eu tenho mais tempo que você.\""
+  },
+  {
+    "id": "guardiao_arcano_das_ruinas",
+    "nome": "Guardião Arcano das Ruínas",
+    "nivel": 13,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_guardiao_arcano_das_ruinas",
+    "hp": 201,
+    "atk": 36,
+    "defesa": 17,
+    "vel": 7,
+    "xp": 173,
+    "ouroMin": 68,
+    "ouroMax": 114,
+    "chefe": true,
+    "elemento": "arcano",
+    "arquetipo": "conjurador",
+    "fala": "\"Aethra Antiga caiu. Minhas ordens, não.\""
+  },
+  {
+    "id": "rei_petrificado",
+    "nome": "Rei Petrificado",
+    "nivel": 14,
+    "bioma": [
+      "deserto"
+    ],
+    "sprite": "mob_rei_petrificado",
+    "hp": 215,
+    "atk": 38,
+    "defesa": 18,
+    "vel": 4,
+    "xp": 187,
+    "ouroMin": 73,
+    "ouroMax": 123,
+    "chefe": true,
+    "elemento": "terra",
+    "arquetipo": "defensor",
+    "fala": "\"Fui rei de carne. Agora sou rei de pedra. Nenhuma lâmina muda isso.\""
+  },
+  {
+    "id": "senhor_das_chamas_errantes",
+    "nome": "Senhor das Chamas Errantes",
+    "nivel": 15,
+    "bioma": [
+      "deserto"
+    ],
+    "sprite": "mob_senhor_das_chamas_errantes",
+    "hp": 228,
+    "atk": 40,
+    "defesa": 19,
+    "vel": 9,
+    "xp": 200,
+    "ouroMin": 78,
+    "ouroMax": 132,
+    "chefe": true,
+    "elemento": "fogo",
+    "arquetipo": "agressor",
+    "fala": "\"Fui general. Agora sou incêndio. Corre a mesma diferença.\""
+  },
+  {
+    "id": "matriarca_wyvern_das_falesias",
+    "nome": "Matriarca Wyvern das Falésias",
+    "nivel": 16,
+    "bioma": [
+      "estrada"
+    ],
+    "sprite": "mob_matriarca_wyvern_das_falesias",
+    "hp": 241,
+    "atk": 43,
+    "defesa": 21,
+    "vel": 13,
+    "xp": 213,
+    "ouroMin": 83,
+    "ouroMax": 141,
+    "chefe": true,
+    "elemento": "vento",
+    "arquetipo": "atirador",
+    "fala": "\"Cada ninho aqui é meu. Cada penhasco é meu. Você é só de passagem.\""
+  },
+  {
+    "id": "matriarca_da_bruma_eterna",
+    "nome": "Matriarca da Bruma Eterna",
+    "nivel": 14,
+    "bioma": [
+      "floresta"
+    ],
+    "sprite": "mob_matriarca_da_bruma_eterna",
+    "hp": 215,
+    "atk": 38,
+    "defesa": 18,
+    "vel": 6,
+    "xp": 187,
+    "ouroMin": 73,
+    "ouroMax": 123,
+    "chefe": true,
+    "elemento": "gelo",
+    "arquetipo": "suporte",
+    "fala": "\"A névoa cuida de quem é meu. Você não é.\""
+  },
+  {
+    "id": "senhor_sombrio_da_montanha",
+    "nome": "Senhor Sombrio da Montanha",
+    "nivel": 17,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_senhor_sombrio_da_montanha",
+    "hp": 255,
+    "atk": 45,
+    "defesa": 22,
+    "vel": 8,
+    "xp": 227,
+    "ouroMin": 88,
+    "ouroMax": 150,
+    "chefe": true,
+    "elemento": "sombrio",
+    "arquetipo": "comandante",
+    "fala": "\"Todo golem e troll aqui responde a mim. Em breve, você também vai entender por quê.\""
+  },
+  {
+    "id": "dragao_anciao_das_cinzas",
+    "nome": "Dragão Ancião das Cinzas",
+    "nivel": 18,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_dragao_anciao_das_cinzas",
+    "hp": 268,
+    "atk": 48,
+    "defesa": 23,
+    "vel": 8,
+    "xp": 240,
+    "ouroMin": 94,
+    "ouroMax": 158,
+    "chefe": true,
+    "elemento": "fogo",
+    "arquetipo": "comandante",
+    "fala": "\"O jovem que vive na masmorra abaixo é meu filhote. Você já devia estar com medo do suficiente.\""
+  },
+  {
+    "id": "imperador_arcano_dos_confins",
+    "nome": "Imperador Arcano dos Confins",
+    "nivel": 20,
+    "bioma": [
+      "masmorra"
+    ],
+    "sprite": "mob_imperador_arcano_dos_confins",
+    "hp": 294,
+    "atk": 53,
+    "defesa": 26,
+    "vel": 10,
+    "xp": 267,
+    "ouroMin": 104,
+    "ouroMax": 176,
+    "chefe": true,
+    "elemento": "arcano",
+    "arquetipo": "comandante",
+    "fala": "\"Aethra caiu, se ergueu e caiu de novo, e eu vi tudo do meu trono de cinzas. Você é só mais um capítulo curto.\""
+  }
+]

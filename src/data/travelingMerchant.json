@@ -1,0 +1,63 @@
+[
+  {
+    "id": "lamina_da_estrada_longa",
+    "nome": "Lâmina da Estrada Longa",
+    "tipo": "arma",
+    "subtipo": "espada",
+    "classeRecomendada": "guerreiro",
+    "raridade": "raro",
+    "icone": "espada",
+    "dano": 20,
+    "atributo": "FOR",
+    "valor": 150,
+    "descricao": "Forjada por um ferreiro que nunca ficou parado num lugar só. Só encontrada com mercadores itinerantes."
+  },
+  {
+    "id": "cajado_das_encruzilhadas",
+    "nome": "Cajado das Encruzilhadas",
+    "tipo": "arma",
+    "subtipo": "cajado",
+    "classeRecomendada": "mago",
+    "raridade": "raro",
+    "icone": "cajado",
+    "dano": 18,
+    "atributo": "INT",
+    "valor": 150,
+    "descricao": "Diz-se que já passou por mais estradas do que qualquer arcanista da Ordem. Só encontrado com mercadores itinerantes."
+  },
+  {
+    "id": "manto_do_viajante",
+    "nome": "Manto do Viajante",
+    "tipo": "armadura",
+    "subtipo": "armadura",
+    "slot": "peito",
+    "raridade": "raro",
+    "icone": "armadura",
+    "defesa": 12,
+    "valor": 120,
+    "descricao": "Leve o bastante pra longas caminhadas, resistente o bastante pra sobreviver a elas. Só encontrado com mercadores itinerantes."
+  },
+  {
+    "id": "bussola_do_destino",
+    "nome": "Bússola do Destino",
+    "tipo": "acessorio",
+    "slot": "anel",
+    "raridade": "raro",
+    "icone": "anel",
+    "bonusAtributo": { "DES": 3 },
+    "valor": 140,
+    "descricao": "Sempre aponta pro próximo lugar interessante. +3 de Destreza. Só encontrada com mercadores itinerantes."
+  },
+  {
+    "id": "elixir_do_mercador",
+    "nome": "Elixir do Mercador",
+    "tipo": "consumivel",
+    "subtipo": "cura",
+    "raridade": "raro",
+    "icone": "pocao_vida",
+    "curaHP": 60,
+    "curaMP": 30,
+    "valor": 55,
+    "descricao": "Receita de família, guardada a sete chaves. Recupera 60 de HP e 30 de MP. Só encontrado com mercadores itinerantes."
+  }
+]

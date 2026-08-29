@@ -1,0 +1,3741 @@
+[
+  {
+    "id": "ashryn_folhaferrea",
+    "nome": "Ashryn Folhaférrea",
+    "raridade": "comum",
+    "racaId": "elfo",
+    "classeId": "barbaro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Elfa que trocou o arco pelos punhos, jurando defender a floresta com fúria bruta.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 4,
+      "CON": 8,
+      "INT": 2
+    },
+    "hpMax": 60,
+    "mpMax": 8,
+    "habilidade": {
+      "id": "impeto_selvagem",
+      "nome": "Ímpeto Selvagem",
+      "descricao": "Aumenta o dano do próximo ataque em 60%.",
+      "custoMP": 0,
+      "cooldown": 3,
+      "tipo": "buff_ataque",
+      "duracao": 1,
+      "valor": 0.6
+    },
+    "sprite": "gacha_ashryn_folhaferrea.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Punhos de Vontade Firme",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Ashryn Folhaférrea como digna herdeira das florestas antigas, Punhos de Vontade Firme se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Ímpeto Selvagem\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ashryn se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "brokk_runamente",
+    "nome": "Brokk Runamente",
+    "raridade": "comum",
+    "racaId": "anao",
+    "classeId": "mago",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anão arquivista que gravou runas élficas em sua própria pele para canalizar magia.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 5,
+      "CON": 4,
+      "INT": 9
+    },
+    "hpMax": 34,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "runas_de_gelo",
+      "nome": "Runas de Gelo",
+      "descricao": "Conjura fragmentos de gelo rúnico que causam dano mágico.",
+      "custoMP": 9,
+      "cooldown": 1,
+      "tipo": "dano_magico",
+      "multiplicador": 1.8
+    },
+    "sprite": "gacha_brokk_runamente.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Grimório de Vontade Firme",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Brokk Runamente, Grimório de Vontade Firme se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Runas de Gelo\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Brokk se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "pippa_escudoleve",
+    "nome": "Pippa Escudoleve",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "guerreiro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Pequena halfling que carrega um escudo do tamanho de sua própria história de bravura.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 7,
+      "INT": 3
+    },
+    "hpMax": 55,
+    "mpMax": 11,
+    "habilidade": {
+      "id": "postura_inabalavel",
+      "nome": "Postura Inabalável",
+      "descricao": "+25% de defesa por 2 turnos.",
+      "custoMP": 0,
+      "cooldown": 3,
+      "tipo": "buff_defesa",
+      "duracao": 2,
+      "valor": 0.25
+    },
+    "sprite": "gacha_pippa_escudoleve.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Lâmina de Ferro Desperto",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Pippa Escudoleve finalmente se recusa a se esconder, Lâmina de Ferro Desperto se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Postura Inabalável\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Pippa se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "ghrol_punho_de_luz",
+    "nome": "Ghrol Punho de Luz",
+    "raridade": "comum",
+    "racaId": "orc",
+    "classeId": "clerigo",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Orc que abandonou a guerra pela fé, curando os feridos com punhos antes usados para atacar.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 4,
+      "CON": 6,
+      "INT": 7
+    },
+    "hpMax": 46,
+    "mpMax": 34,
+    "habilidade": {
+      "id": "bencao_da_terra_vermelha",
+      "nome": "Bênção da Terra Vermelha",
+      "descricao": "Recupera HP baseado em Inteligência.",
+      "custoMP": 9,
+      "cooldown": 1,
+      "tipo": "cura",
+      "multiplicador": 2.0
+    },
+    "sprite": "gacha_ghrol_punho_de_luz.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Relicário de Brasa Contida",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Ghrol Punho de Luz sem mais amarras, Relicário de Brasa Contida se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção da Terra Vermelha\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ghrol se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "vexahl_escamasfurtivas",
+    "nome": "Vexahl Escamasfurtivas",
+    "raridade": "comum",
+    "racaId": "draconato",
+    "classeId": "ladino",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Draconato de escamas foscas, treinado para desaparecer entre sombras apesar do porte.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "hpMax": 38,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "corte_de_garras",
+      "nome": "Corte de Garras",
+      "descricao": "Dano baseado em Destreza com chance de crítico aumentada.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico_des",
+      "multiplicador": 1.7
+    },
+    "sprite": "gacha_vexahl_escamasfurtivas.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Adaga de Vontade Firme",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Vexahl Escamasfurtivas finalmente ferve até a superfície, Adaga de Vontade Firme se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Corte de Garras\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vexahl se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "rowan_trilhaverde",
+    "nome": "Rowan Trilhaverde",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "patrulheiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Batedor humano que conhece cada trilha entre as vilas do reino de Aethra.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "hpMax": 42,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "rede_de_espinhos",
+      "nome": "Rede de Espinhos",
+      "descricao": "Reduz a velocidade (iniciativa) do inimigo.",
+      "custoMP": 6,
+      "cooldown": 3,
+      "tipo": "debuff_velocidade",
+      "duracao": 2,
+      "valor": 0.35
+    },
+    "sprite": "gacha_rowan_trilhaverde.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Arco de Ferro Desperto",
+      "narrativa": "Quando a determinação obstinada de Rowan Trilhaverde atravessa o limite que separa mortais de lendas, Arco de Ferro Desperto se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Rede de Espinhos\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Rowan se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "dura_passoleve",
+    "nome": "Dura Passo-Leve",
+    "raridade": "comum",
+    "racaId": "anao",
+    "classeId": "ladino",
+    "facaoId": "forja_dos_anoes_cinzentos",
+    "descricao": "Anã ágil que aprendeu a se mover em silêncio pelas minas mais profundas.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "hpMax": 38,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "golpe_nas_sombras_da_mina",
+      "nome": "Golpe nas Sombras da Mina",
+      "descricao": "Dano baseado em Destreza com chance de crítico aumentada.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico_des",
+      "multiplicador": 1.7
+    },
+    "sprite": "gacha_dura_passoleve.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Adaga de Brasa Contida",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Dura Passo-Leve, Adaga de Brasa Contida se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Golpe nas Sombras da Mina\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Dura se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "tobin_vistalonga",
+    "nome": "Tobin Vista-Longa",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "patrulheiro",
+    "facaoId": "caravana_de_karn",
+    "descricao": "Halfling de vista afiada, guia informal de caravanas pelos campos de Aethra.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "hpMax": 42,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "laco_do_cacador",
+      "nome": "Laço do Caçador",
+      "descricao": "Reduz a velocidade (iniciativa) do inimigo.",
+      "custoMP": 6,
+      "cooldown": 3,
+      "tipo": "debuff_velocidade",
+      "duracao": 2,
+      "valor": 0.35
+    },
+    "sprite": "gacha_tobin_vistalonga.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Arco de Vontade Firme",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Tobin Vista-Longa finalmente se recusa a se esconder, Arco de Vontade Firme se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Laço do Caçador\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Tobin se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "lyanthe_orvalho_sagrado",
+    "nome": "Lyanthe Orvalho Sagrado",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "clerigo",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Sacerdotisa élfica que reza aos espíritos da floresta antes de cada batalha.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 5,
+      "CON": 7,
+      "INT": 8
+    },
+    "hpMax": 53,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "orvalho_da_vida",
+      "nome": "Orvalho da Vida",
+      "descricao": "Recupera HP baseado em Inteligência.",
+      "custoMP": 9,
+      "cooldown": 1,
+      "tipo": "cura",
+      "multiplicador": 2.3
+    },
+    "sprite": "gacha_lyanthe_orvalho_sagrado.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Relicário de Raiz Profunda",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Lyanthe Orvalho Sagrado como digna herdeira das florestas antigas, Relicário de Raiz Profunda se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Orvalho da Vida\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Lyanthe se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "zurgash_olho_de_tempestade",
+    "nome": "Zurgash Olho de Tempestade",
+    "raridade": "incomum",
+    "racaId": "orc",
+    "classeId": "mago",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Orc xamã que domou tempestades para lutar ao lado dos seus.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 40,
+    "mpMax": 50,
+    "habilidade": {
+      "id": "tempestade_verde",
+      "nome": "Tempestade Verde",
+      "descricao": "Dano mágico em área baseado em Inteligência.",
+      "custoMP": 11,
+      "cooldown": 1,
+      "tipo": "dano_magico",
+      "multiplicador": 2.1
+    },
+    "sprite": "gacha_zurgash_olho_de_tempestade.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Aço Ancestral",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Zurgash Olho de Tempestade sem mais amarras, Grimório de Aço Ancestral se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Tempestade Verde\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Zurgash se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "kaethrys_escamas_de_aco",
+    "nome": "Kaethrys Escamas de Aço",
+    "raridade": "incomum",
+    "racaId": "draconato",
+    "classeId": "guerreiro",
+    "facaoId": "forja_dos_anoes_cinzentos",
+    "descricao": "Guerreiro draconato cujas escamas já pararam lâminas de aço encantado.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 8,
+      "INT": 3
+    },
+    "hpMax": 63,
+    "mpMax": 12,
+    "habilidade": {
+      "id": "investida_das_escamas",
+      "nome": "Investida das Escamas",
+      "descricao": "Causa dano físico aumentado.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico",
+      "multiplicador": 1.7
+    },
+    "sprite": "gacha_kaethrys_escamas_de_aco.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Lâmina de Eco da Tempestade",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Kaethrys Escamas de Aço finalmente ferve até a superfície, Lâmina de Eco da Tempestade se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Investida das Escamas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Kaethrys se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "marec_coracao_de_ferro",
+    "nome": "Marec Coração de Ferro",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "barbaro",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Ex-soldado humano que encontrou na fúria descontrolada sua última vocação.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 5,
+      "CON": 9,
+      "INT": 2
+    },
+    "hpMax": 68,
+    "mpMax": 9,
+    "habilidade": {
+      "id": "sangue_fervente",
+      "nome": "Sangue Fervente",
+      "descricao": "Aumenta bastante o dano do próximo ataque, mas reduz a defesa.",
+      "custoMP": 0,
+      "cooldown": 3,
+      "tipo": "buff_ataque",
+      "duracao": 1,
+      "valor": 0.8
+    },
+    "sprite": "gacha_marec_coracao_de_ferro.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Punhos de Raiz Profunda",
+      "narrativa": "Quando a determinação obstinada de Marec Coração de Ferro atravessa o limite que separa mortais de lendas, Punhos de Raiz Profunda se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Sangue Fervente\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Marec se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "fendrel_passo_de_pedra",
+    "nome": "Fendrel Passo de Pedra",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "patrulheiro",
+    "facaoId": "forja_dos_anoes_cinzentos",
+    "descricao": "Batedor anão que rastreia inimigos pelas cavernas com precisão implacável.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 9,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 49,
+    "mpMax": 22,
+    "habilidade": {
+      "id": "flecha_da_montanha",
+      "nome": "Flecha da Montanha",
+      "descricao": "Ataque à distância com chance de crítico bastante aumentada.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico_des",
+      "multiplicador": 1.9
+    },
+    "sprite": "gacha_fendrel_passo_de_pedra.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Arco de Eco da Tempestade",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Fendrel Passo de Pedra, Arco de Eco da Tempestade se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Flecha da Montanha\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Fendrel se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "wyn_faisca_curiosa",
+    "nome": "Wyn Faísca Curiosa",
+    "raridade": "incomum",
+    "racaId": "halfling",
+    "classeId": "mago",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Halfling curiosa que aprendeu magia arcana estudando pergaminhos roubados.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 40,
+    "mpMax": 50,
+    "habilidade": {
+      "id": "faisca_encantada",
+      "nome": "Faísca Encantada",
+      "descricao": "Dano mágico em área baseado em Inteligência.",
+      "custoMP": 11,
+      "cooldown": 1,
+      "tipo": "dano_magico",
+      "multiplicador": 2.1
+    },
+    "sprite": "gacha_wyn_faisca_curiosa.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Raiz Profunda",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Wyn Faísca Curiosa finalmente se recusa a se esconder, Grimório de Raiz Profunda se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Faísca Encantada\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Wyn se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "ignara_chama_sagrada",
+    "nome": "Ignara Chama Sagrada",
+    "raridade": "raro",
+    "racaId": "draconato",
+    "classeId": "clerigo",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Clériga draconata cujo sopro se tornou uma chama purificadora sob a bênção dos deuses.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 8,
+      "INT": 9
+    },
+    "hpMax": 60,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "chama_purificadora",
+      "nome": "Chama Purificadora",
+      "descricao": "Recupera uma grande quantidade de HP baseado em Inteligência.",
+      "custoMP": 12,
+      "cooldown": 1,
+      "tipo": "cura",
+      "multiplicador": 2.6
+    },
+    "sprite": "gacha_ignara_chama_sagrada.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Relicário de Vento Cortante",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Ignara Chama Sagrada finalmente ferve até a superfície, Relicário de Vento Cortante se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Chama Purificadora\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ignara se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "krusha_lamina_silenciosa",
+    "nome": "Krusha Lâmina Silenciosa",
+    "raridade": "raro",
+    "racaId": "orc",
+    "classeId": "ladino",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Orc que rejeitou a força bruta de seu povo em favor da precisão letal.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 12,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 49,
+    "mpMax": 20,
+    "habilidade": {
+      "id": "emboscada_brutal",
+      "nome": "Emboscada Brutal",
+      "descricao": "Dano baseado em Destreza com chance de crítico muito aumentada.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico_des",
+      "multiplicador": 2.1
+    },
+    "sprite": "gacha_krusha_lamina_silenciosa.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Adaga de Sombra Absoluta",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Krusha Lâmina Silenciosa sem mais amarras, Adaga de Sombra Absoluta se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Emboscada Brutal\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Krusha se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "aelric_lamina_do_vento",
+    "nome": "Aelric Lâmina do Vento",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "guerreiro",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Guerreiro élfico cuja espada se move rápido demais para o olho acompanhar.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 6,
+      "CON": 9,
+      "INT": 4
+    },
+    "hpMax": 71,
+    "mpMax": 14,
+    "habilidade": {
+      "id": "danca_das_laminas",
+      "nome": "Dança das Lâminas",
+      "descricao": "Causa dano físico bastante aumentado.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico",
+      "multiplicador": 1.9
+    },
+    "sprite": "gacha_aelric_lamina_do_vento.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Lâmina de Sombra Absoluta",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Aelric Lâmina do Vento como digna herdeira das florestas antigas, Lâmina de Sombra Absoluta se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Dança das Lâminas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Aelric se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "cassian_arauto_arcano",
+    "nome": "Cassian Arauto Arcano",
+    "raridade": "raro",
+    "racaId": "humano",
+    "classeId": "mago",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Estudioso humano da Academia Arcana de Aethra, mestre em explosões de energia pura.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 6,
+      "CON": 5,
+      "INT": 12
+    },
+    "hpMax": 44,
+    "mpMax": 58,
+    "habilidade": {
+      "id": "explosao_arcana",
+      "nome": "Explosão Arcana",
+      "descricao": "Dano mágico em área muito acima do normal.",
+      "custoMP": 13,
+      "cooldown": 1,
+      "tipo": "dano_magico",
+      "multiplicador": 2.4
+    },
+    "sprite": "gacha_cassian_arauto_arcano.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Grimório de Fogo Sagrado",
+      "narrativa": "Quando a determinação obstinada de Cassian Arauto Arcano atravessa o limite que separa mortais de lendas, Grimório de Fogo Sagrado se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Explosão Arcana\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Cassian se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "grimnir_punho_de_granito",
+    "nome": "Grimnir Punho de Granito",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "barbaro",
+    "facaoId": "forja_dos_anoes_cinzentos",
+    "descricao": "Anão lendário entre os clãs das montanhas, dizem que sua cólera racha pedra.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 5,
+      "CON": 10,
+      "INT": 3
+    },
+    "hpMax": 77,
+    "mpMax": 11,
+    "habilidade": {
+      "id": "colera_da_montanha",
+      "nome": "Cólera da Montanha",
+      "descricao": "Dobra o dano do próximo ataque, mas reduz a defesa por 1 turno.",
+      "custoMP": 0,
+      "cooldown": 3,
+      "tipo": "buff_ataque",
+      "duracao": 1,
+      "valor": 1.0
+    },
+    "sprite": "gacha_grimnir_punho_de_granito.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Punhos de Fogo Sagrado",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Grimnir Punho de Granito, Punhos de Fogo Sagrado se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Cólera da Montanha\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Grimnir se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "zephyrion_furia_draconiana",
+    "nome": "Zephyrion Fúria Draconiana",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "barbaro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Descendente direto de um dragão ancião, sua fúria em combate é quase incontrolável.",
+    "atributos": {
+      "FOR": 14,
+      "DES": 6,
+      "CON": 12,
+      "INT": 3
+    },
+    "hpMax": 90,
+    "mpMax": 12,
+    "habilidade": {
+      "id": "investida_do_dragao",
+      "nome": "Investida do Dragão",
+      "descricao": "Dano físico que ignora parte da defesa inimiga.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_ignora_defesa",
+      "multiplicador": 1.8
+    },
+    "sprite": "gacha_zephyrion_furia_draconiana.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Punhos de Mil Ecos",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Zephyrion Fúria Draconiana finalmente ferve até a superfície, Punhos de Mil Ecos se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Investida do Dragão\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Zephyrion se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "mordak_quebramuralhas",
+    "nome": "Mordak Quebra-Muralhas",
+    "raridade": "epico",
+    "racaId": "orc",
+    "classeId": "guerreiro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc campeão que já derrubou os portões de três fortalezas sozinho.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 8,
+      "CON": 10,
+      "INT": 4
+    },
+    "hpMax": 81,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "golpe_devastador",
+      "nome": "Golpe Devastador",
+      "descricao": "Causa dano físico devastador.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico",
+      "multiplicador": 2.2
+    },
+    "sprite": "gacha_mordak_quebramuralhas.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Lâmina de Mil Ecos",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Mordak Quebra-Muralhas sem mais amarras, Lâmina de Mil Ecos se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe Devastador\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Mordak se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "selene_sombraveloz",
+    "nome": "Selene Sombraveloz",
+    "raridade": "epico",
+    "racaId": "humano",
+    "classeId": "ladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Assassina humana famosa nas cidades de Aethra por nunca deixar testemunhas... nem marcas.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 14,
+      "CON": 6,
+      "INT": 6
+    },
+    "hpMax": 57,
+    "mpMax": 24,
+    "habilidade": {
+      "id": "mil_cortes",
+      "nome": "Mil Cortes",
+      "descricao": "Uma sequência de golpes velozes baseados em Destreza, com alta chance de crítico.",
+      "custoMP": 0,
+      "cooldown": 2,
+      "tipo": "dano_fisico_des",
+      "multiplicador": 2.3
+    },
+    "sprite": "gacha_selene_sombraveloz.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Adaga de Fúria dos Ancestrais",
+      "narrativa": "Quando a determinação obstinada de Selene Sombraveloz atravessa o limite que separa mortais de lendas, Adaga de Fúria dos Ancestrais se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Mil Cortes\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Selene se tornou.",
+      "bonusAtributos": {
+        "DES": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "nyxandra_voz_da_tempestade",
+    "nome": "Nyxandra, Voz da Tempestade Eterna",
+    "raridade": "lendario",
+    "racaId": "draconato",
+    "classeId": "mago",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconata que fundiu magia arcana ao sangue de seus ancestrais, tornando-se lenda viva.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 7,
+      "INT": 16
+    },
+    "hpMax": 59,
+    "mpMax": 78,
+    "habilidade": {
+      "id": "juizo_dos_ancestrais_draconicos",
+      "nome": "Juízo dos Ancestrais Dracônicos",
+      "descricao": "Invoca o poder de dragões ancestrais para um dano mágico devastador em área.",
+      "custoMP": 18,
+      "cooldown": 2,
+      "tipo": "dano_magico",
+      "multiplicador": 3.0
+    },
+    "sprite": "gacha_nyxandra_voz_da_tempestade.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Grimório de Juízo Final",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Nyxandra, Voz da Tempestade Eterna finalmente ferve até a superfície, Grimório de Juízo Final se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Juízo dos Ancestrais Dracônicos\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Nyxandra se tornou.",
+      "bonusAtributos": {
+        "INT": 3,
+        "DES": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "thorgrid_forja_sagrada",
+    "nome": "Thorgrid, a Última Forja Sagrada",
+    "raridade": "lendario",
+    "racaId": "anao",
+    "classeId": "clerigo",
+    "facaoId": "forja_dos_anoes_cinzentos",
+    "descricao": "A última das clérigas-forjadoras anãs, capaz de curar feridas com o calor de sua fé.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 7,
+      "CON": 10,
+      "INT": 12
+    },
+    "hpMax": 79,
+    "mpMax": 59,
+    "habilidade": {
+      "id": "bencao_da_forja_eterna",
+      "nome": "Bênção da Forja Eterna",
+      "descricao": "Recupera uma quantidade enorme de HP baseado em Inteligência.",
+      "custoMP": 16,
+      "cooldown": 2,
+      "tipo": "cura",
+      "multiplicador": 3.2
+    },
+    "sprite": "gacha_thorgrid_forja_sagrada.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Relicário de Juízo Final",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Thorgrid, a Última Forja Sagrada, Relicário de Juízo Final se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção da Forja Eterna\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Thorgrid se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_sylvaine_punho_de_aco",
+    "nome": "Sylvaine Punho de Aço",
+    "raridade": "comum",
+    "racaId": "elfo",
+    "classeId": "guerreiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 7,
+      "INT": 3
+    },
+    "hpMax": 55,
+    "mpMax": 11,
+    "habilidade": {
+      "id": "golpe_de_punho_de_aco_novo",
+      "nome": "Golpe de Punho de Aço",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.2).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.2
+    },
+    "sprite": "gacha_novo_sylvaine_punho_de_aco.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Lâmina de Brasa Contida",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Sylvaine Punho de Aço como digna herdeira das florestas antigas, Lâmina de Brasa Contida se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe de Punho de Aço\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sylvaine se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_thrain_passo_de_nevoa",
+    "nome": "Thrain Passo de Névoa",
+    "raridade": "comum",
+    "racaId": "anao",
+    "classeId": "mago",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 5,
+      "CON": 4,
+      "INT": 9
+    },
+    "hpMax": 34,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "rajada_de_passo_de_nevoa_novo",
+      "nome": "Rajada de Passo de Névoa",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.44).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.44,
+      "elemento": "gelo"
+    },
+    "sprite": "gacha_novo_thrain_passo_de_nevoa.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Grimório de Brasa Contida",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Thrain Passo de Névoa, Grimório de Brasa Contida se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Rajada de Passo de Névoa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Thrain se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_mellow_sussurro_verde",
+    "nome": "Mellow Sussurro Verde",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "ladino",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "hpMax": 38,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "investida_de_sussurro_verde_novo",
+      "nome": "Investida de Sussurro Verde",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.28).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.28
+    },
+    "sprite": "gacha_novo_mellow_sussurro_verde.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Adaga de Vontade Firme",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Mellow Sussurro Verde finalmente se recusa a se esconder, Adaga de Vontade Firme se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Investida de Sussurro Verde\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Mellow se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_vurg_faisca_perdida",
+    "nome": "Vurg Faísca Perdida",
+    "raridade": "comum",
+    "racaId": "orc",
+    "classeId": "clerigo",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 4,
+      "CON": 6,
+      "INT": 7
+    },
+    "hpMax": 46,
+    "mpMax": 34,
+    "habilidade": {
+      "id": "bencao_de_faisca_perdida_novo",
+      "nome": "Bênção de Faísca Perdida",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.52).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.52
+    },
+    "sprite": "gacha_novo_vurg_faisca_perdida.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Relicário de Vontade Firme",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Vurg Faísca Perdida sem mais amarras, Relicário de Vontade Firme se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção de Faísca Perdida\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vurg se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_voldrak_trilha_dos_ventos",
+    "nome": "Voldrak Trilha dos Ventos",
+    "raridade": "comum",
+    "racaId": "draconato",
+    "classeId": "barbaro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 4,
+      "CON": 8,
+      "INT": 2
+    },
+    "hpMax": 60,
+    "mpMax": 8,
+    "habilidade": {
+      "id": "furia_de_trilha_dos_ventos_novo",
+      "nome": "Fúria de Trilha dos Ventos",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.4).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.4
+    },
+    "sprite": "gacha_novo_voldrak_trilha_dos_ventos.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Punhos de Brasa Contida",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Voldrak Trilha dos Ventos finalmente ferve até a superfície, Punhos de Brasa Contida se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Trilha dos Ventos\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Voldrak se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_ivane_marca_do_trovao",
+    "nome": "Ivane Marca do Trovão",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "patrulheiro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "hpMax": 42,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "investida_de_marca_do_trovao_novo",
+      "nome": "Investida de Marca do Trovão",
+      "descricao": "Habilidade de patrulheiro: dano fisico des (valor base 1.28).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.28
+    },
+    "sprite": "gacha_novo_ivane_marca_do_trovao.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Arco de Brasa Contida",
+      "narrativa": "Quando a determinação obstinada de Ivane Marca do Trovão atravessa o limite que separa mortais de lendas, Arco de Brasa Contida se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Investida de Marca do Trovão\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ivane se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_caelith_sombra_dourada",
+    "nome": "Caelith Sombra Dourada",
+    "raridade": "comum",
+    "racaId": "elfo",
+    "classeId": "mago",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 5,
+      "CON": 4,
+      "INT": 9
+    },
+    "hpMax": 34,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "explosao_de_sombra_dourada_novo",
+      "nome": "Explosão de Sombra Dourada",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.44).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.44,
+      "elemento": "sombrio"
+    },
+    "sprite": "gacha_novo_caelith_sombra_dourada.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Grimório de Brasa Contida",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Caelith Sombra Dourada como digna herdeira das florestas antigas, Grimório de Brasa Contida se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Explosão de Sombra Dourada\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Caelith se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_vorik_sussurro_da_nevoa",
+    "nome": "Vorik Sussurro da Névoa",
+    "raridade": "comum",
+    "racaId": "anao",
+    "classeId": "ladino",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "hpMax": 38,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "corte_agil_de_sussurro_da_nevoa_novo",
+      "nome": "Corte Ágil de Sussurro da Névoa",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.28).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.28
+    },
+    "sprite": "gacha_novo_vorik_sussurro_da_nevoa.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Adaga de Brasa Contida",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Vorik Sussurro da Névoa, Adaga de Brasa Contida se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Corte Ágil de Sussurro da Névoa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vorik se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_tobber_coracao_fervente",
+    "nome": "Tobber Coração Fervente",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "clerigo",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 4,
+      "CON": 6,
+      "INT": 7
+    },
+    "hpMax": 46,
+    "mpMax": 34,
+    "habilidade": {
+      "id": "toque_de_coracao_fervente_novo",
+      "nome": "Toque de Coração Fervente",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.52).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.52
+    },
+    "sprite": "gacha_novo_tobber_coracao_fervente.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Relicário de Ferro Desperto",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Tobber Coração Fervente finalmente se recusa a se esconder, Relicário de Ferro Desperto se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Toque de Coração Fervente\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Tobber se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_grosk_guarda_da_bruma",
+    "nome": "Grosk Guarda da Bruma",
+    "raridade": "comum",
+    "racaId": "orc",
+    "classeId": "barbaro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 4,
+      "CON": 8,
+      "INT": 2
+    },
+    "hpMax": 60,
+    "mpMax": 8,
+    "habilidade": {
+      "id": "impeto_de_guarda_da_bruma_novo",
+      "nome": "Ímpeto de Guarda da Bruma",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.4).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.4
+    },
+    "sprite": "gacha_novo_grosk_guarda_da_bruma.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Punhos de Brasa Contida",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Grosk Guarda da Bruma sem mais amarras, Punhos de Brasa Contida se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Ímpeto de Guarda da Bruma\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Grosk se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_corvinax_coracao_gelido",
+    "nome": "Corvinax Coração Gélido",
+    "raridade": "comum",
+    "racaId": "draconato",
+    "classeId": "patrulheiro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "hpMax": 42,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "laco_de_coracao_gelido_novo",
+      "nome": "Laço de Coração Gélido",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.24).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.24
+    },
+    "sprite": "gacha_novo_corvinax_coracao_gelido.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Arco de Brasa Contida",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Corvinax Coração Gélido finalmente ferve até a superfície, Arco de Brasa Contida se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Laço de Coração Gélido\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Corvinax se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_garrick_coracao_de_bronze",
+    "nome": "Garrick Coração de Bronze",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "guerreiro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 7,
+      "INT": 3
+    },
+    "hpMax": 55,
+    "mpMax": 11,
+    "habilidade": {
+      "id": "guarda_de_coracao_de_bronze_novo",
+      "nome": "Guarda de Coração de Bronze",
+      "descricao": "Habilidade de guerreiro: buff defesa (valor base 0.18).",
+      "tipo": "buff_defesa",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 2,
+      "valor": 0.18
+    },
+    "sprite": "gacha_novo_garrick_coracao_de_bronze.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Lâmina de Brasa Contida",
+      "narrativa": "Quando a determinação obstinada de Garrick Coração de Bronze atravessa o limite que separa mortais de lendas, Lâmina de Brasa Contida se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Guarda de Coração de Bronze\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Garrick se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_eryndor_chama_contida",
+    "nome": "Eryndor Chama Contida",
+    "raridade": "comum",
+    "racaId": "elfo",
+    "classeId": "ladino",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 4,
+      "INT": 4
+    },
+    "hpMax": 38,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "ataque_de_chama_contida_novo",
+      "nome": "Ataque de Chama Contida",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.28).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.28
+    },
+    "sprite": "gacha_novo_eryndor_chama_contida.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Adaga de Vontade Firme",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Eryndor Chama Contida como digna herdeira das florestas antigas, Adaga de Vontade Firme se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Ataque de Chama Contida\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Eryndor se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_runna_ecos_do_passado",
+    "nome": "Runna Ecos do Passado",
+    "raridade": "comum",
+    "racaId": "anao",
+    "classeId": "clerigo",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 4,
+      "CON": 6,
+      "INT": 7
+    },
+    "hpMax": 46,
+    "mpMax": 34,
+    "habilidade": {
+      "id": "luz_de_ecos_do_passado_novo",
+      "nome": "Luz de Ecos do Passado",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.52).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.52
+    },
+    "sprite": "gacha_novo_runna_ecos_do_passado.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Relicário de Vontade Firme",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Runna Ecos do Passado, Relicário de Vontade Firme se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Luz de Ecos do Passado\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Runna se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_merric_lamina_do_meio_dia",
+    "nome": "Merric Lâmina do Meio-Dia",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "barbaro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 4,
+      "CON": 8,
+      "INT": 2
+    },
+    "hpMax": 60,
+    "mpMax": 8,
+    "habilidade": {
+      "id": "furia_de_lamina_do_meio_dia_novo",
+      "nome": "Fúria de Lâmina do Meio-Dia",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.4).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.4
+    },
+    "sprite": "gacha_novo_merric_lamina_do_meio_dia.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Punhos de Ferro Desperto",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Merric Lâmina do Meio-Dia finalmente se recusa a se esconder, Punhos de Ferro Desperto se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Lâmina do Meio-Dia\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Merric se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_ghazak_coracao_selvagem",
+    "nome": "Ghazak Coração Selvagem",
+    "raridade": "comum",
+    "racaId": "orc",
+    "classeId": "patrulheiro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 8,
+      "CON": 5,
+      "INT": 4
+    },
+    "hpMax": 42,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "armadilha_de_coracao_selvagem_novo",
+      "nome": "Armadilha de Coração Selvagem",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.24).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.24
+    },
+    "sprite": "gacha_novo_ghazak_coracao_selvagem.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Arco de Vontade Firme",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Ghazak Coração Selvagem sem mais amarras, Arco de Vontade Firme se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Armadilha de Coração Selvagem\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ghazak se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_aurexia_escamas_de_prata",
+    "nome": "Aurexia Escamas de Prata",
+    "raridade": "comum",
+    "racaId": "draconato",
+    "classeId": "guerreiro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 7,
+      "INT": 3
+    },
+    "hpMax": 55,
+    "mpMax": 11,
+    "habilidade": {
+      "id": "investida_de_escamas_de_prata_novo",
+      "nome": "Investida de Escamas de Prata",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.2).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.2
+    },
+    "sprite": "gacha_novo_aurexia_escamas_de_prata.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Lâmina de Ferro Desperto",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Aurexia Escamas de Prata finalmente ferve até a superfície, Lâmina de Ferro Desperto se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Investida de Escamas de Prata\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Aurexia se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.15
+    }
+  },
+  {
+    "id": "novo_bastian_lamina_silenciosa",
+    "nome": "Bastian Lâmina Silenciosa",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "mago",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 39,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "feitico_de_lamina_silenciosa_novo",
+      "nome": "Feitiço de Lâmina Silenciosa",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.8).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.8,
+      "elemento": "gelo"
+    },
+    "sprite": "gacha_novo_bastian_lamina_silenciosa.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Aço Ancestral",
+      "narrativa": "Quando a determinação obstinada de Bastian Lâmina Silenciosa atravessa o limite que separa mortais de lendas, Grimório de Aço Ancestral se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Feitiço de Lâmina Silenciosa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Bastian se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_elowen_manto_do_vento_norte",
+    "nome": "Elowen Manto do Vento Norte",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "clerigo",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 5,
+      "CON": 7,
+      "INT": 8
+    },
+    "hpMax": 53,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "bencao_de_manto_do_vento_norte_novo",
+      "nome": "Bênção de Manto do Vento Norte",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.9).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.9
+    },
+    "sprite": "gacha_novo_elowen_manto_do_vento_norte.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Relicário de Raiz Profunda",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Elowen Manto do Vento Norte como digna herdeira das florestas antigas, Relicário de Raiz Profunda se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção de Manto do Vento Norte\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Elowen se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_kelda_ecos_da_tempestade",
+    "nome": "Kelda Ecos da Tempestade",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "barbaro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 5,
+      "CON": 9,
+      "INT": 2
+    },
+    "hpMax": 69,
+    "mpMax": 9,
+    "habilidade": {
+      "id": "investida_de_ecos_da_tempestade_novo",
+      "nome": "Investida de Ecos da Tempestade",
+      "descricao": "Habilidade de barbaro: dano ignora defesa (valor base 1.3).",
+      "tipo": "dano_ignora_defesa",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.3
+    },
+    "sprite": "gacha_novo_kelda_ecos_da_tempestade.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Punhos de Eco da Tempestade",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Kelda Ecos da Tempestade, Punhos de Eco da Tempestade se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Investida de Ecos da Tempestade\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Kelda se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_poppy_lamina_da_aurora",
+    "nome": "Poppy Lâmina da Aurora",
+    "raridade": "incomum",
+    "racaId": "halfling",
+    "classeId": "patrulheiro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 9,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 48,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "investida_de_lamina_da_aurora_novo",
+      "nome": "Investida de Lâmina da Aurora",
+      "descricao": "Habilidade de patrulheiro: dano fisico des (valor base 1.6).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.6
+    },
+    "sprite": "gacha_novo_poppy_lamina_da_aurora.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Arco de Aço Ancestral",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Poppy Lâmina da Aurora finalmente se recusa a se esconder, Arco de Aço Ancestral se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Investida de Lâmina da Aurora\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Poppy se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_kazra_grito_silencioso",
+    "nome": "Kazra Grito Silencioso",
+    "raridade": "incomum",
+    "racaId": "orc",
+    "classeId": "guerreiro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 8,
+      "INT": 3
+    },
+    "hpMax": 63,
+    "mpMax": 13,
+    "habilidade": {
+      "id": "golpe_de_grito_silencioso_novo",
+      "nome": "Golpe de Grito Silencioso",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.5).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.5
+    },
+    "sprite": "gacha_novo_kazra_grito_silencioso.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Lâmina de Aço Ancestral",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Kazra Grito Silencioso sem mais amarras, Lâmina de Aço Ancestral se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe de Grito Silencioso\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Kazra se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_sethara_lamina_errante",
+    "nome": "Sethara Lâmina Errante",
+    "raridade": "incomum",
+    "racaId": "draconato",
+    "classeId": "mago",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 39,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "rajada_de_lamina_errante_novo",
+      "nome": "Rajada de Lâmina Errante",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.8).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.8,
+      "elemento": "sombrio"
+    },
+    "sprite": "gacha_novo_sethara_lamina_errante.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Raiz Profunda",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Sethara Lâmina Errante finalmente ferve até a superfície, Grimório de Raiz Profunda se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Rajada de Lâmina Errante\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sethara se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_sanna_canto_da_tempestade",
+    "nome": "Sanna Canto da Tempestade",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "ladino",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 44,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "investida_de_canto_da_tempestade_novo",
+      "nome": "Investida de Canto da Tempestade",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.6).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.6
+    },
+    "sprite": "gacha_novo_sanna_canto_da_tempestade.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Adaga de Eco da Tempestade",
+      "narrativa": "Quando a determinação obstinada de Sanna Canto da Tempestade atravessa o limite que separa mortais de lendas, Adaga de Eco da Tempestade se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Investida de Canto da Tempestade\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sanna se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_aravel_manto_de_cinzas",
+    "nome": "Aravel Manto de Cinzas",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "barbaro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 5,
+      "CON": 9,
+      "INT": 2
+    },
+    "hpMax": 69,
+    "mpMax": 9,
+    "habilidade": {
+      "id": "furia_de_manto_de_cinzas_novo",
+      "nome": "Fúria de Manto de Cinzas",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.5).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.5
+    },
+    "sprite": "gacha_novo_aravel_manto_de_cinzas.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Punhos de Eco da Tempestade",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Aravel Manto de Cinzas como digna herdeira das florestas antigas, Punhos de Eco da Tempestade se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Manto de Cinzas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Aravel se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_sifrid_sombra_do_penhasco",
+    "nome": "Sifrid Sombra do Penhasco",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "patrulheiro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 9,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 48,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "armadilha_de_sombra_do_penhasco_novo",
+      "nome": "Armadilha de Sombra do Penhasco",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.3).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.3
+    },
+    "sprite": "gacha_novo_sifrid_sombra_do_penhasco.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Arco de Eco da Tempestade",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Sifrid Sombra do Penhasco, Arco de Eco da Tempestade se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Armadilha de Sombra do Penhasco\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sifrid se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_cobb_aco_sereno",
+    "nome": "Cobb Aço Sereno",
+    "raridade": "incomum",
+    "racaId": "halfling",
+    "classeId": "guerreiro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 8,
+      "INT": 3
+    },
+    "hpMax": 63,
+    "mpMax": 13,
+    "habilidade": {
+      "id": "corte_de_aco_sereno_novo",
+      "nome": "Corte de Aço Sereno",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.5).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.5
+    },
+    "sprite": "gacha_novo_cobb_aco_sereno.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Lâmina de Aço Ancestral",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Cobb Aço Sereno finalmente se recusa a se esconder, Lâmina de Aço Ancestral se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Corte de Aço Sereno\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Cobb se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_rhaska_grito_da_tempestade",
+    "nome": "Rhaska Grito da Tempestade",
+    "raridade": "incomum",
+    "racaId": "orc",
+    "classeId": "mago",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 39,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "explosao_de_grito_da_tempestade_novo",
+      "nome": "Explosão de Grito da Tempestade",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.8).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.8,
+      "elemento": "arcano"
+    },
+    "sprite": "gacha_novo_rhaska_grito_da_tempestade.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Raiz Profunda",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Rhaska Grito da Tempestade sem mais amarras, Grimório de Raiz Profunda se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Explosão de Grito da Tempestade\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Rhaska se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_ashkaris_chama_errante",
+    "nome": "Ashkaris Chama Errante",
+    "raridade": "incomum",
+    "racaId": "draconato",
+    "classeId": "ladino",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 44,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "corte_agil_de_chama_errante_novo",
+      "nome": "Corte Ágil de Chama Errante",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.6).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.6
+    },
+    "sprite": "gacha_novo_ashkaris_chama_errante.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Adaga de Eco da Tempestade",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Ashkaris Chama Errante finalmente ferve até a superfície, Adaga de Eco da Tempestade se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Corte Ágil de Chama Errante\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ashkaris se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_edmund_faisca_do_amanhecer",
+    "nome": "Edmund Faísca do Amanhecer",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "clerigo",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 5,
+      "CON": 7,
+      "INT": 8
+    },
+    "hpMax": 53,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "toque_de_faisca_do_amanhecer_novo",
+      "nome": "Toque de Faísca do Amanhecer",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.9).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.9
+    },
+    "sprite": "gacha_novo_edmund_faisca_do_amanhecer.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Relicário de Aço Ancestral",
+      "narrativa": "Quando a determinação obstinada de Edmund Faísca do Amanhecer atravessa o limite que separa mortais de lendas, Relicário de Aço Ancestral se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Toque de Faísca do Amanhecer\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Edmund se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_sylvaine_sombra_do_deserto",
+    "nome": "Sylvaine Sombra do Deserto",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "patrulheiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 9,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 48,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "laco_de_sombra_do_deserto_novo",
+      "nome": "Laço de Sombra do Deserto",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.3).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.3
+    },
+    "sprite": "gacha_novo_sylvaine_sombra_do_deserto.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Arco de Aço Ancestral",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Sylvaine Sombra do Deserto como digna herdeira das florestas antigas, Arco de Aço Ancestral se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Laço de Sombra do Deserto\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sylvaine se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_thrain_voz_das_raizes",
+    "nome": "Thrain Voz das Raízes",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "guerreiro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 8,
+      "INT": 3
+    },
+    "hpMax": 63,
+    "mpMax": 13,
+    "habilidade": {
+      "id": "guarda_de_voz_das_raizes_novo",
+      "nome": "Guarda de Voz das Raízes",
+      "descricao": "Habilidade de guerreiro: buff defesa (valor base 0.22).",
+      "tipo": "buff_defesa",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 2,
+      "valor": 0.22
+    },
+    "sprite": "gacha_novo_thrain_voz_das_raizes.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Lâmina de Aço Ancestral",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Thrain Voz das Raízes, Lâmina de Aço Ancestral se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Guarda de Voz das Raízes\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Thrain se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_mellow_faisca_selvagem",
+    "nome": "Mellow Faísca Selvagem",
+    "raridade": "incomum",
+    "racaId": "halfling",
+    "classeId": "mago",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 6,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 39,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "feitico_de_faisca_selvagem_novo",
+      "nome": "Feitiço de Faísca Selvagem",
+      "descricao": "Habilidade de mago: dano magico (valor base 1.8).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 1.8,
+      "elemento": "fogo"
+    },
+    "sprite": "gacha_novo_mellow_faisca_selvagem.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Grimório de Raiz Profunda",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Mellow Faísca Selvagem finalmente se recusa a se esconder, Grimório de Raiz Profunda se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Feitiço de Faísca Selvagem\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Mellow se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_vurg_folego_de_cinzas",
+    "nome": "Vurg Fôlego de Cinzas",
+    "raridade": "incomum",
+    "racaId": "orc",
+    "classeId": "ladino",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 44,
+    "mpMax": 18,
+    "habilidade": {
+      "id": "ataque_de_folego_de_cinzas_novo",
+      "nome": "Ataque de Fôlego de Cinzas",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.6).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.6
+    },
+    "sprite": "gacha_novo_vurg_folego_de_cinzas.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Adaga de Eco da Tempestade",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Vurg Fôlego de Cinzas sem mais amarras, Adaga de Eco da Tempestade se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Ataque de Fôlego de Cinzas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vurg se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_voldrak_ferro_frio",
+    "nome": "Voldrak Ferro Frio",
+    "raridade": "incomum",
+    "racaId": "draconato",
+    "classeId": "clerigo",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 5,
+      "CON": 7,
+      "INT": 8
+    },
+    "hpMax": 53,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "luz_de_ferro_frio_novo",
+      "nome": "Luz de Ferro Frio",
+      "descricao": "Habilidade de clerigo: cura (valor base 1.9).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 1.9
+    },
+    "sprite": "gacha_novo_voldrak_ferro_frio.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Relicário de Eco da Tempestade",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Voldrak Ferro Frio finalmente ferve até a superfície, Relicário de Eco da Tempestade se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Luz de Ferro Frio\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Voldrak se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_ivane_vigia_das_fronteiras",
+    "nome": "Ivane Vigia das Fronteiras",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "barbaro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 5,
+      "CON": 9,
+      "INT": 2
+    },
+    "hpMax": 69,
+    "mpMax": 9,
+    "habilidade": {
+      "id": "investida_de_vigia_das_fronteiras_novo",
+      "nome": "Investida de Vigia das Fronteiras",
+      "descricao": "Habilidade de barbaro: dano ignora defesa (valor base 1.3).",
+      "tipo": "dano_ignora_defesa",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.3
+    },
+    "sprite": "gacha_novo_ivane_vigia_das_fronteiras.png",
+    "despertar": {
+      "nivelRequerido": 15,
+      "nomeArma": "Punhos de Eco da Tempestade",
+      "narrativa": "Quando a determinação obstinada de Ivane Vigia das Fronteiras atravessa o limite que separa mortais de lendas, Punhos de Eco da Tempestade se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Investida de Vigia das Fronteiras\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ivane se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.2
+    }
+  },
+  {
+    "id": "novo_caelith_olhar_de_bronze",
+    "nome": "Caelith Olhar de Bronze",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "guerreiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 6,
+      "CON": 9,
+      "INT": 4
+    },
+    "hpMax": 72,
+    "mpMax": 14,
+    "habilidade": {
+      "id": "golpe_de_olhar_de_bronze_novo",
+      "nome": "Golpe de Olhar de Bronze",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.8).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.8
+    },
+    "sprite": "gacha_novo_caelith_olhar_de_bronze.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Lâmina de Vento Cortante",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Caelith Olhar de Bronze como digna herdeira das florestas antigas, Lâmina de Vento Cortante se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe de Olhar de Bronze\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Caelith se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_vorik_nevoa_da_aurora",
+    "nome": "Vorik Névoa da Aurora",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "mago",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 6,
+      "CON": 5,
+      "INT": 12
+    },
+    "hpMax": 44,
+    "mpMax": 57,
+    "habilidade": {
+      "id": "rajada_de_nevoa_da_aurora_novo",
+      "nome": "Rajada de Névoa da Aurora",
+      "descricao": "Habilidade de mago: dano magico (valor base 2.16).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 2.16,
+      "elemento": "natureza"
+    },
+    "sprite": "gacha_novo_vorik_nevoa_da_aurora.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Grimório de Fogo Sagrado",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Vorik Névoa da Aurora, Grimório de Fogo Sagrado se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Rajada de Névoa da Aurora\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vorik se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_tobber_coracao_de_pedra",
+    "nome": "Tobber Coração de Pedra",
+    "raridade": "raro",
+    "racaId": "halfling",
+    "classeId": "ladino",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 12,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 49,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "investida_de_coracao_de_pedra_novo",
+      "nome": "Investida de Coração de Pedra",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.92).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.92
+    },
+    "sprite": "gacha_novo_tobber_coracao_de_pedra.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Adaga de Vento Cortante",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Tobber Coração de Pedra finalmente se recusa a se esconder, Adaga de Vento Cortante se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Investida de Coração de Pedra\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Tobber se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_grosk_escudo_de_bronze",
+    "nome": "Grosk Escudo de Bronze",
+    "raridade": "raro",
+    "racaId": "orc",
+    "classeId": "clerigo",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 8,
+      "INT": 9
+    },
+    "hpMax": 60,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "bencao_de_escudo_de_bronze_novo",
+      "nome": "Bênção de Escudo de Bronze",
+      "descricao": "Habilidade de clerigo: cura (valor base 2.28).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 2.28
+    },
+    "sprite": "gacha_novo_grosk_escudo_de_bronze.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Relicário de Fogo Sagrado",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Grosk Escudo de Bronze sem mais amarras, Relicário de Fogo Sagrado se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção de Escudo de Bronze\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Grosk se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_corvinax_olhar_distante",
+    "nome": "Corvinax Olhar Distante",
+    "raridade": "raro",
+    "racaId": "draconato",
+    "classeId": "barbaro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 5,
+      "CON": 10,
+      "INT": 3
+    },
+    "hpMax": 78,
+    "mpMax": 10,
+    "habilidade": {
+      "id": "furia_de_olhar_distante_novo",
+      "nome": "Fúria de Olhar Distante",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.6).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.6
+    },
+    "sprite": "gacha_novo_corvinax_olhar_distante.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Punhos de Fogo Sagrado",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Corvinax Olhar Distante finalmente ferve até a superfície, Punhos de Fogo Sagrado se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Olhar Distante\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Corvinax se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_garrick_espinho_frio",
+    "nome": "Garrick Espinho Frio",
+    "raridade": "raro",
+    "racaId": "humano",
+    "classeId": "patrulheiro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 55,
+    "mpMax": 23,
+    "habilidade": {
+      "id": "investida_de_espinho_frio_novo",
+      "nome": "Investida de Espinho Frio",
+      "descricao": "Habilidade de patrulheiro: dano fisico des (valor base 1.92).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.92
+    },
+    "sprite": "gacha_novo_garrick_espinho_frio.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Arco de Fogo Sagrado",
+      "narrativa": "Quando a determinação obstinada de Garrick Espinho Frio atravessa o limite que separa mortais de lendas, Arco de Fogo Sagrado se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Investida de Espinho Frio\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Garrick se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_eryndor_punho_da_mare",
+    "nome": "Eryndor Punho da Maré",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "mago",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 6,
+      "CON": 5,
+      "INT": 12
+    },
+    "hpMax": 44,
+    "mpMax": 57,
+    "habilidade": {
+      "id": "explosao_de_punho_da_mare_novo",
+      "nome": "Explosão de Punho da Maré",
+      "descricao": "Habilidade de mago: dano magico (valor base 2.16).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 2.16,
+      "elemento": "raio"
+    },
+    "sprite": "gacha_novo_eryndor_punho_da_mare.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Grimório de Sombra Absoluta",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Eryndor Punho da Maré como digna herdeira das florestas antigas, Grimório de Sombra Absoluta se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Explosão de Punho da Maré\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Eryndor se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_runna_sombra_silenciosa",
+    "nome": "Runna Sombra Silenciosa",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "ladino",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 12,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 49,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "corte_agil_de_sombra_silenciosa_novo",
+      "nome": "Corte Ágil de Sombra Silenciosa",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.92).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.92
+    },
+    "sprite": "gacha_novo_runna_sombra_silenciosa.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Adaga de Vento Cortante",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Runna Sombra Silenciosa, Adaga de Vento Cortante se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Corte Ágil de Sombra Silenciosa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Runna se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_merric_escudo_vivo",
+    "nome": "Merric Escudo Vivo",
+    "raridade": "raro",
+    "racaId": "halfling",
+    "classeId": "clerigo",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 8,
+      "INT": 9
+    },
+    "hpMax": 60,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "toque_de_escudo_vivo_novo",
+      "nome": "Toque de Escudo Vivo",
+      "descricao": "Habilidade de clerigo: cura (valor base 2.28).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 2.28
+    },
+    "sprite": "gacha_novo_merric_escudo_vivo.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Relicário de Fogo Sagrado",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Merric Escudo Vivo finalmente se recusa a se esconder, Relicário de Fogo Sagrado se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Toque de Escudo Vivo\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Merric se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_ghazak_pedra_que_anda",
+    "nome": "Ghazak Pedra que Anda",
+    "raridade": "raro",
+    "racaId": "orc",
+    "classeId": "barbaro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 5,
+      "CON": 10,
+      "INT": 3
+    },
+    "hpMax": 78,
+    "mpMax": 10,
+    "habilidade": {
+      "id": "impeto_de_pedra_que_anda_novo",
+      "nome": "Ímpeto de Pedra que Anda",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.6).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.6
+    },
+    "sprite": "gacha_novo_ghazak_pedra_que_anda.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Punhos de Sombra Absoluta",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Ghazak Pedra que Anda sem mais amarras, Punhos de Sombra Absoluta se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Ímpeto de Pedra que Anda\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ghazak se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_aurexia_guardia_das_mares",
+    "nome": "Aurexia Guardiã das Marés",
+    "raridade": "raro",
+    "racaId": "draconato",
+    "classeId": "patrulheiro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 55,
+    "mpMax": 23,
+    "habilidade": {
+      "id": "laco_de_guardia_das_mares_novo",
+      "nome": "Laço de Guardiã das Marés",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.36).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.36
+    },
+    "sprite": "gacha_novo_aurexia_guardia_das_mares.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Arco de Fogo Sagrado",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Aurexia Guardiã das Marés finalmente ferve até a superfície, Arco de Fogo Sagrado se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Laço de Guardiã das Marés\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Aurexia se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_bastian_chama_do_norte",
+    "nome": "Bastian Chama do Norte",
+    "raridade": "raro",
+    "racaId": "humano",
+    "classeId": "guerreiro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 6,
+      "CON": 9,
+      "INT": 4
+    },
+    "hpMax": 72,
+    "mpMax": 14,
+    "habilidade": {
+      "id": "guarda_de_chama_do_norte_novo",
+      "nome": "Guarda de Chama do Norte",
+      "descricao": "Habilidade de guerreiro: buff defesa (valor base 0.26).",
+      "tipo": "buff_defesa",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 2,
+      "valor": 0.26
+    },
+    "sprite": "gacha_novo_bastian_chama_do_norte.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Lâmina de Vento Cortante",
+      "narrativa": "Quando a determinação obstinada de Bastian Chama do Norte atravessa o limite que separa mortais de lendas, Lâmina de Vento Cortante se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Guarda de Chama do Norte\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Bastian se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_elowen_fogo_contido",
+    "nome": "Elowen Fogo Contido",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "ladino",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 12,
+      "CON": 5,
+      "INT": 5
+    },
+    "hpMax": 49,
+    "mpMax": 21,
+    "habilidade": {
+      "id": "ataque_de_fogo_contido_novo",
+      "nome": "Ataque de Fogo Contido",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 1.92).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.92
+    },
+    "sprite": "gacha_novo_elowen_fogo_contido.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Adaga de Vento Cortante",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Elowen Fogo Contido como digna herdeira das florestas antigas, Adaga de Vento Cortante se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Ataque de Fogo Contido\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Elowen se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_kelda_voz_serena",
+    "nome": "Kelda Voz Serena",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "clerigo",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 5,
+      "CON": 8,
+      "INT": 9
+    },
+    "hpMax": 60,
+    "mpMax": 44,
+    "habilidade": {
+      "id": "luz_de_voz_serena_novo",
+      "nome": "Luz de Voz Serena",
+      "descricao": "Habilidade de clerigo: cura (valor base 2.28).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 2.28
+    },
+    "sprite": "gacha_novo_kelda_voz_serena.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Relicário de Vento Cortante",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Kelda Voz Serena, Relicário de Vento Cortante se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Luz de Voz Serena\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Kelda se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_poppy_ferro_ardente",
+    "nome": "Poppy Ferro Ardente",
+    "raridade": "raro",
+    "racaId": "halfling",
+    "classeId": "barbaro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 5,
+      "CON": 10,
+      "INT": 3
+    },
+    "hpMax": 78,
+    "mpMax": 10,
+    "habilidade": {
+      "id": "furia_de_ferro_ardente_novo",
+      "nome": "Fúria de Ferro Ardente",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.6).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.6
+    },
+    "sprite": "gacha_novo_poppy_ferro_ardente.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Punhos de Sombra Absoluta",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Poppy Ferro Ardente finalmente se recusa a se esconder, Punhos de Sombra Absoluta se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Ferro Ardente\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Poppy se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_kazra_punho_silencioso",
+    "nome": "Kazra Punho Silencioso",
+    "raridade": "raro",
+    "racaId": "orc",
+    "classeId": "patrulheiro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 6,
+      "DES": 10,
+      "CON": 6,
+      "INT": 5
+    },
+    "hpMax": 55,
+    "mpMax": 23,
+    "habilidade": {
+      "id": "armadilha_de_punho_silencioso_novo",
+      "nome": "Armadilha de Punho Silencioso",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.36).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.36
+    },
+    "sprite": "gacha_novo_kazra_punho_silencioso.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Arco de Vento Cortante",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Kazra Punho Silencioso sem mais amarras, Arco de Vento Cortante se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Armadilha de Punho Silencioso\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Kazra se tornou.",
+      "bonusAtributos": {
+        "DES": 1,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_sethara_andarilho_do_trovao",
+    "nome": "Sethara Andarilho do Trovão",
+    "raridade": "raro",
+    "racaId": "draconato",
+    "classeId": "guerreiro",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 6,
+      "CON": 9,
+      "INT": 4
+    },
+    "hpMax": 72,
+    "mpMax": 14,
+    "habilidade": {
+      "id": "investida_de_andarilho_do_trovao_novo",
+      "nome": "Investida de Andarilho do Trovão",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 1.8).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.8
+    },
+    "sprite": "gacha_novo_sethara_andarilho_do_trovao.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Lâmina de Vento Cortante",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Sethara Andarilho do Trovão finalmente ferve até a superfície, Lâmina de Vento Cortante se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Investida de Andarilho do Trovão\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sethara se tornou.",
+      "bonusAtributos": {
+        "FOR": 1,
+        "CON": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_sanna_sussurro_do_vento",
+    "nome": "Sanna Sussurro do Vento",
+    "raridade": "raro",
+    "racaId": "humano",
+    "classeId": "mago",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 6,
+      "CON": 5,
+      "INT": 12
+    },
+    "hpMax": 44,
+    "mpMax": 57,
+    "habilidade": {
+      "id": "feitico_de_sussurro_do_vento_novo",
+      "nome": "Feitiço de Sussurro do Vento",
+      "descricao": "Habilidade de mago: dano magico (valor base 2.16).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 2.16,
+      "elemento": "natureza"
+    },
+    "sprite": "gacha_novo_sanna_sussurro_do_vento.png",
+    "despertar": {
+      "nivelRequerido": 18,
+      "nomeArma": "Grimório de Vento Cortante",
+      "narrativa": "Quando a determinação obstinada de Sanna Sussurro do Vento atravessa o limite que separa mortais de lendas, Grimório de Vento Cortante se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Feitiço de Sussurro do Vento\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sanna se tornou.",
+      "bonusAtributos": {
+        "INT": 1,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.25
+    }
+  },
+  {
+    "id": "novo_aravel_voz_do_trovao",
+    "nome": "Aravel Voz do Trovão",
+    "raridade": "epico",
+    "racaId": "elfo",
+    "classeId": "clerigo",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 9,
+      "INT": 10
+    },
+    "hpMax": 69,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "bencao_de_voz_do_trovao_novo",
+      "nome": "Bênção de Voz do Trovão",
+      "descricao": "Habilidade de clerigo: cura (valor base 2.85).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 2.85
+    },
+    "sprite": "gacha_novo_aravel_voz_do_trovao.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Relicário de Fúria dos Ancestrais",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Aravel Voz do Trovão como digna herdeira das florestas antigas, Relicário de Fúria dos Ancestrais se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção de Voz do Trovão\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Aravel se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_sifrid_andarilho_das_ruinas",
+    "nome": "Sifrid Andarilho das Ruínas",
+    "raridade": "epico",
+    "racaId": "anao",
+    "classeId": "barbaro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 14,
+      "DES": 6,
+      "CON": 12,
+      "INT": 3
+    },
+    "hpMax": 90,
+    "mpMax": 12,
+    "habilidade": {
+      "id": "investida_de_andarilho_das_ruinas_novo",
+      "nome": "Investida de Andarilho das Ruínas",
+      "descricao": "Habilidade de barbaro: dano ignora defesa (valor base 1.95).",
+      "tipo": "dano_ignora_defesa",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 1.95
+    },
+    "sprite": "gacha_novo_sifrid_andarilho_das_ruinas.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Punhos de Fúria dos Ancestrais",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Sifrid Andarilho das Ruínas, Punhos de Fúria dos Ancestrais se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Investida de Andarilho das Ruínas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sifrid se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_cobb_furia_silenciosa",
+    "nome": "Cobb Fúria Silenciosa",
+    "raridade": "epico",
+    "racaId": "halfling",
+    "classeId": "patrulheiro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 12,
+      "CON": 8,
+      "INT": 6
+    },
+    "hpMax": 63,
+    "mpMax": 27,
+    "habilidade": {
+      "id": "investida_de_furia_silenciosa_novo",
+      "nome": "Investida de Fúria Silenciosa",
+      "descricao": "Habilidade de patrulheiro: dano fisico des (valor base 2.4).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.4
+    },
+    "sprite": "gacha_novo_cobb_furia_silenciosa.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Arco de Fúria dos Ancestrais",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Cobb Fúria Silenciosa finalmente se recusa a se esconder, Arco de Fúria dos Ancestrais se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Investida de Fúria Silenciosa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Cobb se tornou.",
+      "bonusAtributos": {
+        "DES": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_rhaska_ruido_da_tormenta",
+    "nome": "Rhaska Ruído da Tormenta",
+    "raridade": "epico",
+    "racaId": "orc",
+    "classeId": "guerreiro",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 8,
+      "CON": 10,
+      "INT": 4
+    },
+    "hpMax": 82,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "golpe_de_ruido_da_tormenta_novo",
+      "nome": "Golpe de Ruído da Tormenta",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 2.25).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.25
+    },
+    "sprite": "gacha_novo_rhaska_ruido_da_tormenta.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Lâmina de Granito Eterno",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Rhaska Ruído da Tormenta sem mais amarras, Lâmina de Granito Eterno se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe de Ruído da Tormenta\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Rhaska se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_ashkaris_voz_da_montanha",
+    "nome": "Ashkaris Voz da Montanha",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "mago",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 14
+    },
+    "hpMax": 51,
+    "mpMax": 66,
+    "habilidade": {
+      "id": "rajada_de_voz_da_montanha_novo",
+      "nome": "Rajada de Voz da Montanha",
+      "descricao": "Habilidade de mago: dano magico (valor base 2.7).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 2.7,
+      "elemento": "raio"
+    },
+    "sprite": "gacha_novo_ashkaris_voz_da_montanha.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Grimório de Mil Ecos",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Ashkaris Voz da Montanha finalmente ferve até a superfície, Grimório de Mil Ecos se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Rajada de Voz da Montanha\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ashkaris se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_edmund_andarilha_solitaria",
+    "nome": "Edmund Andarilha Solitária",
+    "raridade": "epico",
+    "racaId": "humano",
+    "classeId": "ladino",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 14,
+      "CON": 6,
+      "INT": 6
+    },
+    "hpMax": 57,
+    "mpMax": 24,
+    "habilidade": {
+      "id": "investida_de_andarilha_solitaria_novo",
+      "nome": "Investida de Andarilha Solitária",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 2.4).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.4
+    },
+    "sprite": "gacha_novo_edmund_andarilha_solitaria.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Adaga de Mil Ecos",
+      "narrativa": "Quando a determinação obstinada de Edmund Andarilha Solitária atravessa o limite que separa mortais de lendas, Adaga de Mil Ecos se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Investida de Andarilha Solitária\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Edmund se tornou.",
+      "bonusAtributos": {
+        "DES": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_sylvaine_guardiao_das_encostas",
+    "nome": "Sylvaine Guardião das Encostas",
+    "raridade": "epico",
+    "racaId": "elfo",
+    "classeId": "barbaro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 14,
+      "DES": 6,
+      "CON": 12,
+      "INT": 3
+    },
+    "hpMax": 90,
+    "mpMax": 12,
+    "habilidade": {
+      "id": "furia_de_guardiao_das_encostas_novo",
+      "nome": "Fúria de Guardião das Encostas",
+      "descricao": "Habilidade de barbaro: buff ataque (valor base 0.75).",
+      "tipo": "buff_ataque",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 1,
+      "valor": 0.75
+    },
+    "sprite": "gacha_novo_sylvaine_guardiao_das_encostas.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Punhos de Mil Ecos",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Sylvaine Guardião das Encostas como digna herdeira das florestas antigas, Punhos de Mil Ecos se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Fúria de Guardião das Encostas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Sylvaine se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_thrain_trilha_escura",
+    "nome": "Thrain Trilha Escura",
+    "raridade": "epico",
+    "racaId": "anao",
+    "classeId": "patrulheiro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 12,
+      "CON": 8,
+      "INT": 6
+    },
+    "hpMax": 63,
+    "mpMax": 27,
+    "habilidade": {
+      "id": "armadilha_de_trilha_escura_novo",
+      "nome": "Armadilha de Trilha Escura",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.45).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.45
+    },
+    "sprite": "gacha_novo_thrain_trilha_escura.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Arco de Granito Eterno",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Thrain Trilha Escura, Arco de Granito Eterno se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Armadilha de Trilha Escura\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Thrain se tornou.",
+      "bonusAtributos": {
+        "DES": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_mellow_vigia_silenciosa",
+    "nome": "Mellow Vigia Silenciosa",
+    "raridade": "epico",
+    "racaId": "halfling",
+    "classeId": "guerreiro",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 12,
+      "DES": 8,
+      "CON": 10,
+      "INT": 4
+    },
+    "hpMax": 82,
+    "mpMax": 16,
+    "habilidade": {
+      "id": "corte_de_vigia_silenciosa_novo",
+      "nome": "Corte de Vigia Silenciosa",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 2.25).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.25
+    },
+    "sprite": "gacha_novo_mellow_vigia_silenciosa.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Lâmina de Fúria dos Ancestrais",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Mellow Vigia Silenciosa finalmente se recusa a se esconder, Lâmina de Fúria dos Ancestrais se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Corte de Vigia Silenciosa\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Mellow se tornou.",
+      "bonusAtributos": {
+        "FOR": 2,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_vurg_passo_do_vendaval",
+    "nome": "Vurg Passo do Vendaval",
+    "raridade": "epico",
+    "racaId": "orc",
+    "classeId": "mago",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 14
+    },
+    "hpMax": 51,
+    "mpMax": 66,
+    "habilidade": {
+      "id": "explosao_de_passo_do_vendaval_novo",
+      "nome": "Explosão de Passo do Vendaval",
+      "descricao": "Habilidade de mago: dano magico (valor base 2.7).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 2.7,
+      "elemento": "veneno"
+    },
+    "sprite": "gacha_novo_vurg_passo_do_vendaval.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Grimório de Fúria dos Ancestrais",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Vurg Passo do Vendaval sem mais amarras, Grimório de Fúria dos Ancestrais se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Explosão de Passo do Vendaval\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vurg se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "DES": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_voldrak_escudo_da_alvorada",
+    "nome": "Voldrak Escudo da Alvorada",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "ladino",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 14,
+      "CON": 6,
+      "INT": 6
+    },
+    "hpMax": 57,
+    "mpMax": 24,
+    "habilidade": {
+      "id": "corte_agil_de_escudo_da_alvorada_novo",
+      "nome": "Corte Ágil de Escudo da Alvorada",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 2.4).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.4
+    },
+    "sprite": "gacha_novo_voldrak_escudo_da_alvorada.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Adaga de Fúria dos Ancestrais",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Voldrak Escudo da Alvorada finalmente ferve até a superfície, Adaga de Fúria dos Ancestrais se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Corte Ágil de Escudo da Alvorada\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Voldrak se tornou.",
+      "bonusAtributos": {
+        "DES": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_ivane_guarda_do_amanhecer",
+    "nome": "Ivane Guarda do Amanhecer",
+    "raridade": "epico",
+    "racaId": "humano",
+    "classeId": "clerigo",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 6,
+      "CON": 9,
+      "INT": 10
+    },
+    "hpMax": 69,
+    "mpMax": 51,
+    "habilidade": {
+      "id": "toque_de_guarda_do_amanhecer_novo",
+      "nome": "Toque de Guarda do Amanhecer",
+      "descricao": "Habilidade de clerigo: cura (valor base 2.85).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 2.85
+    },
+    "sprite": "gacha_novo_ivane_guarda_do_amanhecer.png",
+    "despertar": {
+      "nivelRequerido": 21,
+      "nomeArma": "Relicário de Fúria dos Ancestrais",
+      "narrativa": "Quando a determinação obstinada de Ivane Guarda do Amanhecer atravessa o limite que separa mortais de lendas, Relicário de Fúria dos Ancestrais se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Toque de Guarda do Amanhecer\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ivane se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "FOR": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.3
+    }
+  },
+  {
+    "id": "novo_caelith_marca_da_lua_cheia",
+    "nome": "Caelith Marca da Lua Cheia",
+    "raridade": "lendario",
+    "racaId": "elfo",
+    "classeId": "patrulheiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que domina o terreno tanto quanto domina o arco.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 14,
+      "CON": 9,
+      "INT": 7
+    },
+    "hpMax": 74,
+    "mpMax": 32,
+    "habilidade": {
+      "id": "laco_de_marca_da_lua_cheia_novo",
+      "nome": "Laço de Marca da Lua Cheia",
+      "descricao": "Habilidade de patrulheiro: debuff velocidade (valor base 0.54).",
+      "tipo": "debuff_velocidade",
+      "custoMP": 5,
+      "cooldown": 3,
+      "duracao": 3,
+      "valor": 0.54
+    },
+    "sprite": "gacha_novo_caelith_marca_da_lua_cheia.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Arco de Juízo Final",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Caelith Marca da Lua Cheia como digna herdeira das florestas antigas, Arco de Juízo Final se manifesta pela primeira vez — e a trilha que sempre seguiu se torna a trilha que os inimigos não conseguem escapar: \"Laço de Marca da Lua Cheia\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Caelith se tornou.",
+      "bonusAtributos": {
+        "DES": 3,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_vorik_espinho_do_deserto",
+    "nome": "Vorik Espinho do Deserto",
+    "raridade": "lendario",
+    "racaId": "anao",
+    "classeId": "guerreiro",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 14,
+      "DES": 9,
+      "CON": 12,
+      "INT": 5
+    },
+    "hpMax": 96,
+    "mpMax": 19,
+    "habilidade": {
+      "id": "guarda_de_espinho_do_deserto_novo",
+      "nome": "Guarda de Espinho do Deserto",
+      "descricao": "Habilidade de guerreiro: buff defesa (valor base 0.4).",
+      "tipo": "buff_defesa",
+      "custoMP": 0,
+      "cooldown": 3,
+      "duracao": 2,
+      "valor": 0.4
+    },
+    "sprite": "gacha_novo_vorik_espinho_do_deserto.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Lâmina de Juízo Final",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Vorik Espinho do Deserto, Lâmina de Juízo Final se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Guarda de Espinho do Deserto\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Vorik se tornou.",
+      "bonusAtributos": {
+        "FOR": 3,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_tobber_punho_gentil",
+    "nome": "Tobber Punho Gentil",
+    "raridade": "lendario",
+    "racaId": "halfling",
+    "classeId": "mago",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 7,
+      "INT": 16
+    },
+    "hpMax": 60,
+    "mpMax": 77,
+    "habilidade": {
+      "id": "feitico_de_punho_gentil_novo",
+      "nome": "Feitiço de Punho Gentil",
+      "descricao": "Habilidade de mago: dano magico (valor base 3.24).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 3.24,
+      "elemento": "vento"
+    },
+    "sprite": "gacha_novo_tobber_punho_gentil.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Grimório de Juízo Final",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Tobber Punho Gentil finalmente se recusa a se esconder, Grimório de Juízo Final se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Feitiço de Punho Gentil\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Tobber se tornou.",
+      "bonusAtributos": {
+        "INT": 3,
+        "DES": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_grosk_passo_firme",
+    "nome": "Grosk Passo Firme",
+    "raridade": "lendario",
+    "racaId": "orc",
+    "classeId": "ladino",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 16,
+      "CON": 7,
+      "INT": 7
+    },
+    "hpMax": 66,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "ataque_de_passo_firme_novo",
+      "nome": "Ataque de Passo Firme",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 2.88).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.88
+    },
+    "sprite": "gacha_novo_grosk_passo_firme.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Adaga de Juízo Final",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Grosk Passo Firme sem mais amarras, Adaga de Juízo Final se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Ataque de Passo Firme\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Grosk se tornou.",
+      "bonusAtributos": {
+        "DES": 3,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_corvinax_punho_de_vento",
+    "nome": "Corvinax Punho de Vento",
+    "raridade": "lendario",
+    "racaId": "draconato",
+    "classeId": "clerigo",
+    "facaoId": "confraria_do_farol",
+    "descricao": "Draconato de sangue ancestral, orgulhoso e implacável em batalha, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 7,
+      "CON": 10,
+      "INT": 12
+    },
+    "hpMax": 80,
+    "mpMax": 60,
+    "habilidade": {
+      "id": "luz_de_punho_de_vento_novo",
+      "nome": "Luz de Punho de Vento",
+      "descricao": "Habilidade de clerigo: cura (valor base 3.42).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 3.42
+    },
+    "sprite": "gacha_novo_corvinax_punho_de_vento.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Relicário de Forja do Início dos Tempos",
+      "narrativa": "Quando o sangue de dragão que corre nas veias de Corvinax Punho de Vento finalmente ferve até a superfície, Relicário de Forja do Início dos Tempos se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Luz de Punho de Vento\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Corvinax se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_garrick_passo_sombrio",
+    "nome": "Garrick Passo Sombrio",
+    "raridade": "lendario",
+    "racaId": "humano",
+    "classeId": "barbaro",
+    "facaoId": "cla_dos_ventos_dourados",
+    "descricao": "Humana ambiciosa, movida por uma causa maior que si mesma, que só encontra clareza no meio da fúria de batalha.",
+    "atributos": {
+      "FOR": 16,
+      "DES": 7,
+      "CON": 14,
+      "INT": 4
+    },
+    "hpMax": 105,
+    "mpMax": 14,
+    "habilidade": {
+      "id": "investida_de_passo_sombrio_novo",
+      "nome": "Investida de Passo Sombrio",
+      "descricao": "Habilidade de barbaro: dano ignora defesa (valor base 2.34).",
+      "tipo": "dano_ignora_defesa",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.34
+    },
+    "sprite": "gacha_novo_garrick_passo_sombrio.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Punhos de Forja do Início dos Tempos",
+      "narrativa": "Quando a determinação obstinada de Garrick Passo Sombrio atravessa o limite que separa mortais de lendas, Punhos de Forja do Início dos Tempos se manifesta pela primeira vez — e sua fúria em combate deixa de ser instinto cru e vira uma arma consciente: \"Investida de Passo Sombrio\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Garrick se tornou.",
+      "bonusAtributos": {
+        "FOR": 3,
+        "CON": 3
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_eryndor_marca_selvagem",
+    "nome": "Eryndor Marca Selvagem",
+    "raridade": "lendario",
+    "racaId": "elfo",
+    "classeId": "guerreiro",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Élfica de reflexos afiados e vínculo antigo com a natureza, que aprendeu a segurar a linha de frente antes de aprender a ler.",
+    "atributos": {
+      "FOR": 14,
+      "DES": 9,
+      "CON": 12,
+      "INT": 5
+    },
+    "hpMax": 96,
+    "mpMax": 19,
+    "habilidade": {
+      "id": "golpe_de_marca_selvagem_novo",
+      "nome": "Golpe de Marca Selvagem",
+      "descricao": "Habilidade de guerreiro: dano fisico (valor base 2.7).",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.7
+    },
+    "sprite": "gacha_novo_eryndor_marca_selvagem.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Lâmina de Juízo Final",
+      "narrativa": "Quando o sangue élfico ancestral finalmente reconhece Eryndor Marca Selvagem como digna herdeira das florestas antigas, Lâmina de Juízo Final se manifesta pela primeira vez — e cada golpe carrega o peso de uma disciplina que levou uma vida inteira pra forjar: \"Golpe de Marca Selvagem\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Eryndor se tornou.",
+      "bonusAtributos": {
+        "FOR": 3,
+        "CON": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_runna_chama_eterna",
+    "nome": "Runna Chama Eterna",
+    "raridade": "lendario",
+    "racaId": "anao",
+    "classeId": "mago",
+    "facaoId": "ordem_dos_arquivistas",
+    "descricao": "Anãa de disciplina forjada nas montanhas e paciência de pedra, que troca cautela por poder bruto a cada feitiço lançado.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 9,
+      "CON": 7,
+      "INT": 16
+    },
+    "hpMax": 60,
+    "mpMax": 77,
+    "habilidade": {
+      "id": "rajada_de_chama_eterna_novo",
+      "nome": "Rajada de Chama Eterna",
+      "descricao": "Habilidade de mago: dano magico (valor base 3.24).",
+      "tipo": "dano_magico",
+      "custoMP": 9,
+      "cooldown": 0,
+      "multiplicador": 3.24,
+      "elemento": "gelo"
+    },
+    "sprite": "gacha_novo_runna_chama_eterna.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Grimório de Juízo Final",
+      "narrativa": "No instante em que a linhagem dos anões da montanha desperta na forja interior de Runna Chama Eterna, Grimório de Juízo Final se manifesta pela primeira vez — e os feitiços que antes exigiam concentração agora fluem quase sem esforço: \"Rajada de Chama Eterna\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Runna se tornou.",
+      "bonusAtributos": {
+        "INT": 3,
+        "DES": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_merric_manto_de_escamas",
+    "nome": "Merric Manto de Escamas",
+    "raridade": "lendario",
+    "racaId": "halfling",
+    "classeId": "ladino",
+    "facaoId": "andarilhos_do_pantano",
+    "descricao": "Pequena e ágil, subestimada por quem nunca viu ela em combate, que resolve tudo antes que o inimigo perceba que a luta começou.",
+    "atributos": {
+      "FOR": 9,
+      "DES": 16,
+      "CON": 7,
+      "INT": 7
+    },
+    "hpMax": 66,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "investida_de_manto_de_escamas_novo",
+      "nome": "Investida de Manto de Escamas",
+      "descricao": "Habilidade de ladino: dano fisico des (valor base 2.88).",
+      "tipo": "dano_fisico_des",
+      "custoMP": 0,
+      "cooldown": 2,
+      "multiplicador": 2.88
+    },
+    "sprite": "gacha_novo_merric_manto_de_escamas.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Adaga de Forja do Início dos Tempos",
+      "narrativa": "Quando a coragem inesperada que sempre viveu escondida em Merric Manto de Escamas finalmente se recusa a se esconder, Adaga de Forja do Início dos Tempos se manifesta pela primeira vez — e os movimentos que antes eram só velocidade agora são pura precisão letal: \"Investida de Manto de Escamas\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Merric se tornou.",
+      "bonusAtributos": {
+        "DES": 3,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  },
+  {
+    "id": "novo_ghazak_punho_de_aco",
+    "nome": "Ghazak Punho de Aço",
+    "raridade": "lendario",
+    "racaId": "orc",
+    "classeId": "clerigo",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Orc de força bruta e lealdade absoluta a quem conquista seu respeito, que carrega a fé como escudo e a cura como arma.",
+    "atributos": {
+      "FOR": 10,
+      "DES": 7,
+      "CON": 10,
+      "INT": 12
+    },
+    "hpMax": 80,
+    "mpMax": 60,
+    "habilidade": {
+      "id": "bencao_de_punho_de_aco_novo",
+      "nome": "Bênção de Punho de Aço",
+      "descricao": "Habilidade de clerigo: cura (valor base 3.42).",
+      "tipo": "cura",
+      "custoMP": 8,
+      "cooldown": 0,
+      "multiplicador": 3.42
+    },
+    "sprite": "gacha_novo_ghazak_punho_de_aco.png",
+    "despertar": {
+      "nivelRequerido": 24,
+      "nomeArma": "Relicário de Juízo Final",
+      "narrativa": "Quando a fúria ancestral orc, contida por tanto tempo, se ergue em Ghazak Punho de Aço sem mais amarras, Relicário de Juízo Final se manifesta pela primeira vez — e a fé que sempre guiou suas mãos agora também guia o campo de batalha ao redor: \"Bênção de Punho de Aço\" nunca mais será apenas uma técnica aprendida. Agora é parte de quem Ghazak se tornou.",
+      "bonusAtributos": {
+        "INT": 2,
+        "FOR": 2
+      },
+      "bonusHabilidadeMultiplicador": 0.35
+    }
+  }
+]

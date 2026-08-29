@@ -1,0 +1,782 @@
+{
+  "guerreiro": [
+    {
+      "id": "guerreiro_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Corte Duplo",
+      "descricao": "Dois cortes rápidos e recorrentes: 130% do dano físico normal, recarga curta.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "corte_duplo",
+        "nome": "Corte Duplo",
+        "descricao": "Dois cortes rápidos que causam 130% do dano físico normal.",
+        "custoMP": 0,
+        "cooldown": 1,
+        "tipo": "dano_fisico",
+        "multiplicador": 1.3
+      }
+    },
+    {
+      "id": "guerreiro_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Corpo Rígido",
+      "descricao": "+2 de Constituição permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "CON",
+        "valor": 2
+      }
+    },
+    {
+      "id": "guerreiro_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Investida Brutal",
+      "descricao": "Dano físico que ignora parte da defesa inimiga.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "investida_brutal",
+        "nome": "Investida Brutal",
+        "descricao": "Investida que ignora quase toda a defesa do alvo.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.6
+      }
+    },
+    {
+      "id": "guerreiro_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Postura Firme",
+      "descricao": "+3 de defesa permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "defesaFlat",
+        "valor": 3
+      }
+    },
+    {
+      "id": "guerreiro_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Fúria Sangrenta",
+      "descricao": "Dobra o dano do próximo ataque com mais intensidade que o Grito de Guerra.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "furia_sangrenta",
+        "nome": "Fúria Sangrenta",
+        "descricao": "Aumenta muito o próximo ataque, à custa da defesa por 2 turnos.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "buff_ataque",
+        "duracao": 2,
+        "valor": 1.2
+      }
+    },
+    {
+      "id": "guerreiro_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Vitalidade de Guerra",
+      "descricao": "+12% de HP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "hpMaxPercent",
+        "valor": 0.12
+      }
+    },
+    {
+      "id": "guerreiro_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Golpe Devastador",
+      "descricao": "Um golpe massivo com 220% do dano físico normal.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "golpe_devastador",
+        "nome": "Golpe Devastador",
+        "descricao": "Golpe massivo que causa 220% do dano físico normal.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "dano_fisico",
+        "multiplicador": 2.2
+      }
+    },
+    {
+      "id": "guerreiro_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Instinto de Batalha",
+      "descricao": "+8% de chance de acerto crítico permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "critChance",
+        "valor": 0.08
+      }
+    }
+  ],
+  "mago": [
+    {
+      "id": "mago_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Lança de Gelo",
+      "descricao": "Dano mágico rápido e recorrente.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "lanca_de_gelo",
+        "nome": "Lança de Gelo",
+        "descricao": "Projétil gélido de dano mágico com recarga curta.",
+        "custoMP": 6,
+        "cooldown": 1,
+        "tipo": "dano_magico",
+        "multiplicador": 1.6,
+        "elemento": "gelo"
+      }
+    },
+    {
+      "id": "mago_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Mente Afiada",
+      "descricao": "+2 de Inteligência permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "INT",
+        "valor": 2
+      }
+    },
+    {
+      "id": "mago_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Raio Arcano",
+      "descricao": "Um feixe concentrado de dano mágico pesado.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "raio_arcano",
+        "nome": "Raio Arcano",
+        "descricao": "Feixe concentrado de energia arcana.",
+        "custoMP": 14,
+        "cooldown": 3,
+        "tipo": "dano_magico",
+        "multiplicador": 2.3,
+        "elemento": "arcano"
+      }
+    },
+    {
+      "id": "mago_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Reservas Arcanas",
+      "descricao": "+15% de MP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "mpMaxPercent",
+        "valor": 0.15
+      }
+    },
+    {
+      "id": "mago_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Explosão Arcana",
+      "descricao": "Dano mágico que rompe defesas mágicas do alvo.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "explosao_arcana",
+        "nome": "Explosão Arcana",
+        "descricao": "Explosão que ignora parte da defesa do alvo.",
+        "custoMP": 12,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.4,
+        "elemento": "arcano"
+      }
+    },
+    {
+      "id": "mago_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Ressonância Arcana",
+      "descricao": "+6% de chance de acerto crítico permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "critChance",
+        "valor": 0.06
+      }
+    },
+    {
+      "id": "mago_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Meteoro",
+      "descricao": "O feitiço mais poderoso do mago, com altíssimo dano.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "meteoro",
+        "nome": "Meteoro",
+        "descricao": "Invoca um meteoro devastador sobre o alvo.",
+        "custoMP": 20,
+        "cooldown": 5,
+        "tipo": "dano_magico",
+        "multiplicador": 3.0,
+        "elemento": "fogo"
+      }
+    },
+    {
+      "id": "mago_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Constituição Élfica",
+      "descricao": "+10% de HP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "hpMaxPercent",
+        "valor": 0.1
+      }
+    }
+  ],
+  "ladino": [
+    {
+      "id": "ladino_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Investida das Sombras",
+      "descricao": "Ataque rápido baseado em Destreza com recarga curta.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "investida_das_sombras",
+        "nome": "Investida das Sombras",
+        "descricao": "Ataque veloz baseado em Destreza.",
+        "custoMP": 0,
+        "cooldown": 1,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.4,
+        "elemento": "sombrio"
+      }
+    },
+    {
+      "id": "ladino_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Passos Leves",
+      "descricao": "+2 de Destreza permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "DES",
+        "valor": 2
+      }
+    },
+    {
+      "id": "ladino_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Lâminas Gêmeas",
+      "descricao": "Uma sequência de cortes com alta chance de crítico.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "laminas_gemeas",
+        "nome": "Lâminas Gêmeas",
+        "descricao": "Sequência de cortes rápidos baseados em Destreza.",
+        "custoMP": 0,
+        "cooldown": 2,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.9
+      }
+    },
+    {
+      "id": "ladino_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Reflexos Apurados",
+      "descricao": "+2 de defesa permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "defesaFlat",
+        "valor": 2
+      }
+    },
+    {
+      "id": "ladino_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Golpe Certeiro",
+      "descricao": "Ataque que ignora parte da defesa, mirando pontos fracos.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "golpe_certeiro",
+        "nome": "Golpe Certeiro",
+        "descricao": "Mira os pontos fracos do inimigo, ignorando parte da defesa.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.6
+      }
+    },
+    {
+      "id": "ladino_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Instinto Assassino",
+      "descricao": "+10% de chance de acerto crítico permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "critChance",
+        "valor": 0.1
+      }
+    },
+    {
+      "id": "ladino_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Execução Sombria",
+      "descricao": "Um ataque brutal baseado em Destreza para finalizar o alvo.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "execucao_sombria",
+        "nome": "Execução Sombria",
+        "descricao": "Ataque devastador baseado em Destreza.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 2.5,
+        "elemento": "sombrio"
+      }
+    },
+    {
+      "id": "ladino_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Fôlego de Ladrão",
+      "descricao": "+10% de HP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "hpMaxPercent",
+        "valor": 0.1
+      }
+    }
+  ],
+  "clerigo": [
+    {
+      "id": "clerigo_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Chama Sagrada",
+      "descricao": "Dano mágico sagrado com recarga curta.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "chama_sagrada",
+        "nome": "Chama Sagrada",
+        "descricao": "Fogo sagrado que causa dano mágico ao inimigo.",
+        "custoMP": 6,
+        "cooldown": 1,
+        "tipo": "dano_magico",
+        "multiplicador": 1.5,
+        "elemento": "radiante"
+      }
+    },
+    {
+      "id": "clerigo_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Bênção da Vitalidade",
+      "descricao": "+2 de Constituição permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "CON",
+        "valor": 2
+      }
+    },
+    {
+      "id": "clerigo_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Julgamento Divino",
+      "descricao": "Dano que ignora parte da defesa do alvo.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "julgamento_divino",
+        "nome": "Julgamento Divino",
+        "descricao": "Dano sagrado que ignora parte da defesa do inimigo.",
+        "custoMP": 10,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.5,
+        "elemento": "radiante"
+      }
+    },
+    {
+      "id": "clerigo_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Cura Maior",
+      "descricao": "Uma cura mais forte para os momentos mais difíceis.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "cura_maior",
+        "nome": "Cura Maior",
+        "descricao": "Recupera bastante HP, baseado em Inteligência.",
+        "custoMP": 14,
+        "cooldown": 2,
+        "tipo": "cura",
+        "multiplicador": 3.0
+      }
+    },
+    {
+      "id": "clerigo_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Explosão Radiante",
+      "descricao": "Uma explosão de luz sagrada com dano elevado.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "explosao_radiante",
+        "nome": "Explosão Radiante",
+        "descricao": "Explosão de luz sagrada que causa dano mágico elevado.",
+        "custoMP": 16,
+        "cooldown": 4,
+        "tipo": "dano_magico",
+        "multiplicador": 2.0,
+        "elemento": "radiante"
+      }
+    },
+    {
+      "id": "clerigo_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Vigor Celestial",
+      "descricao": "+12% de HP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "hpMaxPercent",
+        "valor": 0.12
+      }
+    },
+    {
+      "id": "clerigo_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Ira Celestial",
+      "descricao": "O feitiço ofensivo mais poderoso do clérigo.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "ira_celestial",
+        "nome": "Ira Celestial",
+        "descricao": "Convoca a fúria dos céus contra o inimigo.",
+        "custoMP": 20,
+        "cooldown": 5,
+        "tipo": "dano_magico",
+        "multiplicador": 2.8,
+        "elemento": "radiante"
+      }
+    },
+    {
+      "id": "clerigo_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Poço de Mana Sagrado",
+      "descricao": "+15% de MP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "mpMaxPercent",
+        "valor": 0.15
+      }
+    }
+  ],
+  "barbaro": [
+    {
+      "id": "barbaro_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Machado Girante",
+      "descricao": "Um golpe giratório rápido e recorrente.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "machado_girante",
+        "nome": "Machado Girante",
+        "descricao": "Golpe giratório que causa 140% do dano físico normal.",
+        "custoMP": 0,
+        "cooldown": 1,
+        "tipo": "dano_fisico",
+        "multiplicador": 1.4
+      }
+    },
+    {
+      "id": "barbaro_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Couro Endurecido",
+      "descricao": "+2 de Constituição permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "CON",
+        "valor": 2
+      }
+    },
+    {
+      "id": "barbaro_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Esmagar",
+      "descricao": "Um golpe pesado que ignora parte da defesa inimiga.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "esmagar",
+        "nome": "Esmagar",
+        "descricao": "Golpe pesado que ignora parte da defesa do inimigo.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.7
+      }
+    },
+    {
+      "id": "barbaro_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Pele de Pedra",
+      "descricao": "+3 de defesa permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "defesaFlat",
+        "valor": 3
+      }
+    },
+    {
+      "id": "barbaro_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Fúria Ancestral",
+      "descricao": "Uma fúria mais intensa que a Fúria comum.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "furia_ancestral",
+        "nome": "Fúria Ancestral",
+        "descricao": "Aumenta muito o próximo ataque, à custa da defesa por 2 turnos.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "buff_ataque",
+        "duracao": 2,
+        "valor": 1.3
+      }
+    },
+    {
+      "id": "barbaro_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Sangue Selvagem",
+      "descricao": "+15% de HP máximo permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "hpMaxPercent",
+        "valor": 0.15
+      }
+    },
+    {
+      "id": "barbaro_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Golpe Sísmico",
+      "descricao": "Um golpe descomunal que sacode o campo de batalha.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "golpe_sismico",
+        "nome": "Golpe Sísmico",
+        "descricao": "Golpe descomunal que causa 240% do dano físico normal.",
+        "custoMP": 0,
+        "cooldown": 4,
+        "tipo": "dano_fisico",
+        "multiplicador": 2.4,
+        "elemento": "terra"
+      }
+    },
+    {
+      "id": "barbaro_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Fúria Implacável",
+      "descricao": "+8% de chance de acerto crítico permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "critChance",
+        "valor": 0.08
+      }
+    }
+  ],
+  "patrulheiro": [
+    {
+      "id": "patrulheiro_t1_of",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "ofensiva",
+      "nome": "Flecha Dupla",
+      "descricao": "Duas flechas rápidas baseadas em Destreza.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "flecha_dupla",
+        "nome": "Flecha Dupla",
+        "descricao": "Duas flechas rápidas que causam 140% do dano baseado em Destreza.",
+        "custoMP": 0,
+        "cooldown": 1,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.4
+      }
+    },
+    {
+      "id": "patrulheiro_t1_sup",
+      "tier": 1,
+      "nivelRequerido": 3,
+      "ramo": "suporte",
+      "nome": "Olhos de Águia",
+      "descricao": "+2 de Destreza permanentemente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "DES",
+        "valor": 2
+      }
+    },
+    {
+      "id": "patrulheiro_t2_of",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "ofensiva",
+      "nome": "Chuva de Flechas",
+      "descricao": "Uma rajada de flechas com dano elevado.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "chuva_de_flechas",
+        "nome": "Chuva de Flechas",
+        "descricao": "Rajada de flechas baseada em Destreza.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 1.8
+      }
+    },
+    {
+      "id": "patrulheiro_t2_sup",
+      "tier": 2,
+      "nivelRequerido": 6,
+      "ramo": "suporte",
+      "nome": "Camuflagem",
+      "descricao": "+2 de defesa permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "defesaFlat",
+        "valor": 2
+      }
+    },
+    {
+      "id": "patrulheiro_t3_of",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "ofensiva",
+      "nome": "Tiro Perfurante",
+      "descricao": "Uma flecha que atravessa armaduras.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "tiro_perfurante",
+        "nome": "Tiro Perfurante",
+        "descricao": "Flecha que ignora parte da defesa do inimigo.",
+        "custoMP": 0,
+        "cooldown": 3,
+        "tipo": "dano_ignora_defesa",
+        "multiplicador": 1.6
+      }
+    },
+    {
+      "id": "patrulheiro_t3_sup",
+      "tier": 3,
+      "nivelRequerido": 9,
+      "ramo": "suporte",
+      "nome": "Armadilha Dupla",
+      "descricao": "Uma armadilha mais eficaz que reduz ainda mais a velocidade do alvo.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "armadilha_dupla",
+        "nome": "Armadilha Dupla",
+        "descricao": "Reduz fortemente a velocidade (iniciativa) do inimigo.",
+        "custoMP": 5,
+        "cooldown": 4,
+        "tipo": "debuff_velocidade",
+        "duracao": 3,
+        "valor": 0.5
+      }
+    },
+    {
+      "id": "patrulheiro_t4_of",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "ofensiva",
+      "nome": "Flecha Fatal",
+      "descricao": "O tiro mais poderoso do patrulheiro.",
+      "tipoConcedido": "ativa",
+      "habilidade": {
+        "id": "flecha_fatal",
+        "nome": "Flecha Fatal",
+        "descricao": "Tiro certeiro e devastador baseado em Destreza.",
+        "custoMP": 0,
+        "cooldown": 5,
+        "tipo": "dano_fisico_des",
+        "multiplicador": 2.6
+      }
+    },
+    {
+      "id": "patrulheiro_t4_sup",
+      "tier": 4,
+      "nivelRequerido": 12,
+      "ramo": "suporte",
+      "nome": "Precisão Mortal",
+      "descricao": "+10% de chance de acerto crítico permanente.",
+      "tipoConcedido": "passiva",
+      "efeito": {
+        "atributo": "critChance",
+        "valor": 0.1
+      }
+    }
+  ]
+}

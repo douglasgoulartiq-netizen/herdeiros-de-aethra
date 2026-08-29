@@ -1,0 +1,87 @@
+// Eventos aleatórios de exploração (melhoria pós-backlog): pequenos
+// encontros NÃO-combate ao caminhar pelo mundo aberto — viajante perdido,
+// santuário esquecido, ruína a vasculhar, sinal de perigo, achado no
+// caminho — pra dar textura ao mundo sem que TODO passo arriscado vire uma
+// luta. Alguns reaproveitam o teste de perícia d20 (ver SkillCheckSystem.js,
+// contexto "exploracao" em skillChecks.json) pro mesmo sabor de mesa de RPG
+// já usado em NPCs/baús/coleta; outros (src/data/explorationEvents.json) são
+// escolhas simples (ajudar/ignorar, achado instantâneo) sem d20 nenhum.
+// Rola numa chance BEM menor e independente do encontro de monstro (ver
+// EncounterSystem.js/main.js: verificarEncontroAleatorio) — os dois nunca
+// disparam no mesmo passo, pra não empilhar interrupções uma em cima da
+// outra.
+import { alterarReputacao } from "./WorldStateSystem.js";
+
+export function deveDispararEventoExploracao(chancePorPasso = 0.018) {
+  return Math.random() < chancePorPasso;
+}
+
+// Une os dois "bancos" de eventos — escolha/achado (explorationEvents.json)
+// e teste de perícia (skillChecks.json, contexto "exploracao") — num único
+// sorteio, pra quem chama não precisar saber de onde cada evento veio, só o
+// `tipo` já resolvido no objeto sorteado ("escolha" | "achado" |
+// "teste_pericia").
+export function sortearEventoExploracao(dadosEventos, dadosSkillChecks) {
+  const testes = (dadosSkillChecks || [])
+    .filter((sc) => sc.contexto === "exploracao")
+    .map((sc) => ({ ...sc, tipo: "teste_pericia" }));
+  const pool = [...(dadosEventos || []), ...testes];
+  if (!pool.length) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// Algumas opções de evento (ex.: doar ouro num santuário) exigem um valor
+// mínimo em caixa — a UI usa isto pra decidir se mostra o botão habilitado,
+// ANTES do jogador clicar (nunca deixa clicar e falhar silenciosamente).
+export function opcaoDisponivel(opcao, personagem) {
+  if (opcao.custoOuroMinimo && personagem.ouro < opcao.custoOuroMinimo) return false;
+  return true;
+}
+
+// Aplica a consequência de uma opção de evento tipo "escolha" (ver
+// explorationEvents.json). Muta `personagem` (ouro/reputação com a facção
+// do território atual, se aplicável) e retorna o texto de resultado + o
+// delta de ouro aplicado, pra UI mostrar como mensagem. `ok:false` sem
+// mutar nada quando a opção não existe ou não está disponível (custo
+// mínimo não atingido — ver opcaoDisponivel).
+export function aplicarEscolhaEvento(personagem, evento, opcaoId, dadosWorldState, facaoId = "vila") {
+  const opcao = (evento.opcoes || []).find((o) => o.id === opcaoId);
+  if (!opcao) return { ok: false };
+  if (!opcaoDisponivel(opcao, personagem)) return { ok: false };
+  // Opção "sorte" (ex.: "Pegadas Estranhas"/investigar): risco leve
+  // resolvido por sorteio puro, não por teste de perícia — não representa
+  // uma habilidade do personagem, só acaso de estar no lugar certo/errado
+  // na hora certa. Nunca deixa o ouro ficar negativo.
+  if (opcao.sorte) {
+    const sucesso = Math.random() < (opcao.chanceSucesso ?? 0.5);
+    const ouroDelta = sucesso ? (opcao.ouroSucesso || 0) : (opcao.ouroFalha || 0);
+    personagem.ouro = Math.max(0, personagem.ouro + ouroDelta);
+    return { ok: true, sucesso, texto: sucesso ? opcao.textoSucesso : opcao.textoFalha, ouroDelta };
+  }
+  const ouroDelta = opcao.ouro || 0;
+  personagem.ouro = Math.max(0, personagem.ouro + ouroDelta);
+  if (opcao.reputacaoFaccao) alterarReputacao(personagem, facaoId, opcao.reputacaoFaccao, dadosWorldState);
+  return { ok: true, texto: opcao.textoResultado, ouroDelta };
+}
+
+// Aplica um evento tipo "achado" (ver explorationEvents.json): recompensa
+// instantânea, sem escolha nenhuma — só flavor text + ouro.
+export function aplicarAchadoEvento(personagem, evento) {
+  const ouroDelta = evento.ouro || 0;
+  personagem.ouro += ouroDelta;
+  return { texto: evento.textoResultado, ouroDelta };
+}
+
+// Aplica o resultado de um teste de perícia de exploração (ver
+// SkillCheckSystem.js: realizarTeste — chamado por quem invoca esta
+// função, não aqui, pra este módulo não duplicar a lógica de d20). Só
+// concede recompensa em caso de sucesso, igual ao padrão já usado pelos
+// testes de NPC/baú/coleta.
+export function aplicarResultadoTesteExploracao(personagem, teste, resultado) {
+  let ouroDelta = 0;
+  if (resultado.sucesso && teste.recompensaOuroSucesso) {
+    ouroDelta = teste.recompensaOuroSucesso;
+    personagem.ouro += ouroDelta;
+  }
+  return { texto: resultado.sucesso ? teste.textoSucesso : teste.textoFalha, ouroDelta };
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "npc_fazendeiro",
+    "nome": "Fazendeiro Tobias",
+    "regiao": "vila",
+    "x": 6,
+    "y": 5,
+    "sprite": "npc_fazendeiro.png",
+    "dialogo": "Esses slimes estão destruindo minha colheita!"
+  },
+  {
+    "id": "npc_cacador",
+    "nome": "Caçador Elric",
+    "regiao": "vila",
+    "x": 10,
+    "y": 8,
+    "sprite": "npc_cacador.png",
+    "dialogo": "Os lobos andam ousados demais ultimamente..."
+  },
+  {
+    "id": "npc_anciao",
+    "nome": "Ancião Doran",
+    "regiao": "vila",
+    "x": 4,
+    "y": 10,
+    "sprite": "npc_anciao.png",
+    "dialogo": "Perdi um colar de família na floresta, há anos."
+  },
+  {
+    "id": "npc_guarda",
+    "nome": "Guarda Helena",
+    "regiao": "vila",
+    "x": 14,
+    "y": 6,
+    "sprite": "npc_guarda.png",
+    "dialogo": "Tome cuidado perto da masmorra antiga."
+  },
+  {
+    "id": "npc_mercador",
+    "nome": "Mercador Baltazar",
+    "regiao": "vila",
+    "x": 8,
+    "y": 12,
+    "sprite": "npc_mercador.png",
+    "dialogo": "Compro e vendo de tudo! Dê uma olhada."
+  }
+]
