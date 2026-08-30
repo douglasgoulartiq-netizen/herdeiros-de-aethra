@@ -21,7 +21,13 @@ import { aplicarParesRelacionamento } from "../systems/RivalrySystem.js";
 import { registrarProgressoDiario } from "../systems/DailyQuestSystem.js";
 import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
 import { animarDado, sleep, duracaoAnimacao } from "./DiceAnimation.js";
-import { somDadoParou, somDano, somCura, somBloqueioOuErro, destravarAudio } from "./SoundFX.js";
+import { somDadoParou, somDano, somCura, somBloqueioOuErro, destravarAudio, somRuptura } from "./SoundFX.js";
+// Mão de cards de batalha (ver src/ui/BattleCards.js e o trio
+// BattleForecast/TacticalAdvisor/BattleSettings): substitui a antiga fileira
+// de botões de texto do turno do jogador. Toda a decisão continua sendo do
+// jogador — os cards preveem, destacam e explicam, nunca jogam sozinhos.
+import { criarPainelDeCards } from "./BattleCards.js";
+import { animacoesReduzidas, dadoSomenteImportante } from "../systems/BattleSettings.js";
 
 // Tela de configuração da IA de auto-batalha (task #96) — reusa o mesmo
 // #modal-overlay/#modal-conteudo de GameUI.js/SkillTreeUI.js/TalentTreeUI.js,
@@ -101,6 +107,11 @@ function montarConfigAutoBatalha(personagem) {
 // mecânica ou dado de `classes.json`, é a mesma linguagem de papéis
 // (Defensor/Duelista/Atirador/Controlador/Suporte/Curandeiro/Especialista)
 // já usada nas diretrizes de combate tático deste projeto.
+// Fração da barra de ATB a partir da qual a intenção do inimigo já é fixada e
+// mostrada ao jogador (ver loopATB/registrarIntencao). 0.85 dá uma janela de
+// resposta perceptível sem "adivinhar" um plano com muita antecedência.
+const LIMIAR_INTENCAO_ANTECIPADA = 0.85;
+
 const PAPEL_POR_CLASSE = {
   guerreiro: { nome: "Defensor", icone: "🛡️" },
   mago: { nome: "Atirador", icone: "🎯" },
@@ -184,6 +195,24 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   let telegrafo = null; // { inimigo, plano } sendo exibido no momento, ou null
   let atacanteAtivo = null;
   let ultimoAutoAgendado = null;
+
+  // ---------------------------------------------------------------------
+  // MÃO DE CARDS (melhoria "cards de batalha"): estado da UI nova.
+  // ---------------------------------------------------------------------
+  // `intencoes`: inimigo -> { plano, faixa }. O plano é decidido UMA ÚNICA
+  // VEZ, no instante em que o inimigo entra na fila, e reusado tanto pela
+  // exibição da intenção quanto pelo telegraph e pela execução. Isso conserta
+  // um problema real que existia antes: decidirAcao() tem sorteios (ex.: o
+  // Ladrão rouba com 60% de chance), então chamá-la de novo para "mostrar a
+  // intenção" poderia mostrar uma coisa e executar outra.
+  let intencoes = new Map();
+  // Prévia ativa na arena (barra-fantasma de HP): { alvo, previsao } ou null.
+  let previaAtiva = null;
+  // Card armado no momento — usado só para destacar alvos/área na arena.
+  let cardArmado = null;
+  let painelCards = null;
+  const contextoTaticoEl = document.createElement("div");
+  contextoTaticoEl.id = "batalha-contexto-tatico";
   // Orquestração de animação (melhoria de jogabilidade: golpes visíveis em
   // combate — ver orquestrarAcao() mais abaixo): trava resolverTurno() contra
   // cliques duplos enquanto uma ação ainda está sendo animada (dado rolando,
@@ -288,6 +317,10 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   const logEl = screenEl.querySelector("#batalha-log");
   const acoesEl = screenEl.querySelector("#batalha-acoes");
   const retratosEl = screenEl.querySelector("#retratos-time");
+  // Faixa de contexto tático (intenção inimiga, fase de chefe, linha do tempo
+  // de iniciativa, dica de iniciante) — entra entre o log e as ações, que é
+  // onde o olho já está quando chega a vez do jogador.
+  screenEl.insertBefore(contextoTaticoEl, acoesEl);
 
   // Barra de retratos do time (redesenho de layout inspirado na composição
   // do print de referência que o usuário mandou: faixa de retratos no topo
@@ -445,7 +478,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     arena.appendChild(colInimigos);
     garantirFxLayer();
     garantirDadoLayer();
-    comEfeito.forEach(({ div, deltaHp, critico }) => spawnFloatingText(div, deltaHp, critico));
+    comEfeito.forEach(({ div, deltaHp, critico, relacao, ruptura }) => spawnFloatingText(div, deltaHp, critico, { relacao, ruptura }));
     comStatusNovo.forEach(({ div, statusNovos }) => statusNovos.forEach((tipo, i) => spawnStatusText(div, tipo, i)));
     // A entrada (fade/slide) só deve acontecer na abertura da tela — a
     // partir daqui os cards recriados nos próximos renders já entram "no
@@ -457,6 +490,10 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // não "vazar" pro próximo tick do ATB, que não tem relação nenhuma com
     // aquele golpe específico.
     fxPendente = null;
+    // Os cards da arena foram recriados do zero: a prévia (barra-fantasma,
+    // marcação de área, elo de combo) precisa ser repintada nos elementos
+    // novos, senão sumiria a cada tick do ATB.
+    atualizarPreviaNaArena();
   }
 
   function cardCombatente(c, indice) {
@@ -503,8 +540,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       <div class="nome-c">${c.nome}${c.chefe ? " 👑" : ""}${c.solo && !c.chefe ? ` <span title="Reforçado por estar sozinho contra o time (task #46)">💪</span>` : ""}${c.emboscada ? ` <span title="Emboscada: moradores hostis por sua reputação ruim com esta região">🗡️ Emboscada</span>` : ""}${ehAtivo ? " ⬅" : ""}${iconeTelegrafo}${badgeElemento(c)}${c.atordoado ? ` <span class="badge-atordoado" title="Atordoado: perde o turno e recebe dano extra">💫 Atordoado</span>` : ""}</div>
       ${badgeFormacao || badgePapel || badgeComportamento ? `<div class="formacao-linha">${badgeFormacao}${badgePapel}${badgeComportamento}</div>` : ""}
       <div class="sprite-wrap"><canvas width="96" height="96" class="sprite-canvas"></canvas></div>
-      <div class="barra"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div></div>
-      <div style="font-size:0.7em">${c.hp}/${c.hpMax} HP</div>
+      <div class="barra"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div><div class="barra-fantasma"><div class="fantasma-max"></div><div class="fantasma-esperado"></div><div class="fantasma-min"></div></div></div>
+      <div style="font-size:0.7em">${c.hp}/${c.hpMax} HP <span class="previa-hp-rotulo"></span></div>
       ${c.chefe && c.posturaMax ? `<div class="barra postura-barra" title="Postura: fraquezas elementais enchem mais rápido. Ao encher, o chefe fica atordoado."><div class="barra-fill postura${c.atordoado ? " cheia" : ""}" style="width:${Math.max(0, (c.postura / c.posturaMax) * 100)}%"></div></div>` : ""}
       ${c.isPlayer ? `<div class="barra"><div class="barra-fill mp" style="width:${Math.max(0, (c.mp / c.mpMax) * 100)}%"></div></div>` : ""}
       <div class="atb-barra"><div class="atb-fill" style="width:${Math.min(100, c.atb)}%"></div></div>
@@ -516,8 +553,21 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     ctx.imageSmoothingEnabled = false;
     if (img) ctx.drawImage(img, frame, 0, 64, 64, 16, 16, 64, 64);
     if (!c.isPlayer) {
+      // Item 66: trocar de alvo precisa recalcular a mão inteira na hora —
+      // dano, fraqueza, combo, execução e recomendação mudam todos juntos.
+      const selecionar = () => {
+        if (alvoSelecionado === c) return;
+        alvoSelecionado = c;
+        renderArena();
+        if (painelCards && atacanteAtivo && !telegrafo) painelCards.trocouAlvo(estadoParaCards());
+      };
       const btn = div.querySelector(".btn-alvo");
-      if (btn) btn.onclick = () => { alvoSelecionado = c; renderArena(); };
+      if (btn) btn.onclick = selecionar;
+      // O card inteiro do inimigo também seleciona (área de toque muito
+      // maior no celular, item 91) — o botão continua ali para quem usa
+      // teclado/leitor de tela.
+      const sprite = div.querySelector(".sprite-wrap");
+      if (sprite) sprite.onclick = selecionar;
     }
     if (deltaHp < 0 && !flashDesligado) sacudirArena(critico);
     // Status recém-aplicados desde a última renderização deste combatente
@@ -527,7 +577,11 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const statusNovos = tiposAtivos.filter((t) => !anteriores.has(t));
     statusAnteriorPorCombatente.set(c, new Set(tiposAtivos));
     elementoPorCombatente.set(c, div);
-    return { div, deltaHp, critico, statusNovos };
+    // `relacao`/`ruptura` viajam junto com o fx pendente pra que o número
+    // flutuante possa se diferenciar (itens 38-40): um golpe que explorou
+    // fraqueza, um que foi resistido e um que encheu postura não podem
+    // parecer a mesma coisa na tela.
+    return { div, deltaHp, critico, statusNovos, relacao: fx ? fx.relacao : null, ruptura: fx ? fx.ruptura : null };
   }
 
   // Posiciona um texto flutuante usando a posição real de um elemento na
@@ -549,12 +603,43 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
 
   // Número de dano/cura flutuante — crítico ganha destaque extra (maior,
   // dourado, leve giro) além do "+N"/"-N" normal.
-  function spawnFloatingText(cardDiv, deltaHp, critico = false) {
+  // Rótulo curto que acompanha o número quando o golpe teve uma natureza
+  // diferente de "acertou e pronto" (itens 38-40): fraqueza, resistência e
+  // ruptura precisam parecer coisas distintas, não a mesma cor vermelha.
+  const ROTULO_GOLPE = {
+    vantagem_intensa: { txt: "VULNERÁVEL!", cls: "vulneravel" },
+    vantagem: { txt: "VULNERÁVEL", cls: "vulneravel" },
+    resistencia: { txt: "RESISTIDO", cls: "resistido" },
+    resistencia_intensa: { txt: "MUITO RESISTIDO", cls: "resistido" },
+    imune: { txt: "IMUNE", cls: "resistido" },
+  };
+
+  function spawnFloatingText(cardDiv, deltaHp, critico = false, extras = {}) {
     const spriteWrap = cardDiv.querySelector(".sprite-wrap");
+    const rotulo = deltaHp < 0 && extras.relacao ? ROTULO_GOLPE[extras.relacao] : null;
     const el = document.createElement("div");
-    el.className = "dano-flutuante " + (deltaHp < 0 ? "dano" : "cura") + (critico && deltaHp < 0 ? " critico" : "");
+    el.className = "dano-flutuante " + (deltaHp < 0 ? "dano" : "cura")
+      + (critico && deltaHp < 0 ? " critico" : "")
+      + (rotulo && !critico ? ` ${rotulo.cls}` : "");
     el.textContent = (deltaHp > 0 ? "+" : "") + deltaHp + (critico && deltaHp < 0 ? "!" : "");
     if (deltaHp < 0) somDano(critico); else if (deltaHp > 0) somCura();
+    // Rótulo secundário (CRÍTICO! / VULNERÁVEL! / RESISTIDO) logo abaixo do
+    // número, com um leve atraso pra não competir com ele na leitura.
+    const textoSecundario = critico && deltaHp < 0 ? "CRÍTICO!" : rotulo ? rotulo.txt : null;
+    if (textoSecundario) {
+      const sub = document.createElement("div");
+      sub.className = `dano-flutuante sub-rotulo ${critico ? "critico" : rotulo ? rotulo.cls : ""}`;
+      sub.textContent = textoSecundario;
+      if (posicionarFlutuante(sub, spriteWrap, 0.55)) setTimeout(() => sub.remove(), duracaoAnimacao(950));
+    }
+    // Ruptura acumulada neste golpe (item 16/41), como um terceiro texto
+    // curto — só aparece quando houve ganho real de postura.
+    if (extras.ruptura && extras.ruptura > 0) {
+      const rup = document.createElement("div");
+      rup.className = "dano-flutuante sub-rotulo ruptura";
+      rup.textContent = `RUPTURA +${extras.ruptura}`;
+      if (posicionarFlutuante(rup, spriteWrap, 0.8)) setTimeout(() => rup.remove(), duracaoAnimacao(1000));
+    }
     // Item 84 de 100_melhorias.md: vibração tátil opcional em dano recebido/
     // crítico, só no celular (navigator.vibrate não existe em desktop) e só
     // se "reduzir efeitos" estiver desligado (mesma bandeira que já rege
@@ -596,6 +681,121 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     setTimeout(() => el.remove(), duracaoAnimacao(1100));
   }
 
+  // =====================================================================
+  // PRÉVIA VISUAL NA ARENA (itens 12, 13, 63, 64, 65, 67, 95)
+  //
+  // Desenha, sobre a barra de HP do alvo, o pedaço que o card em foco deve
+  // arrancar — em três camadas: máximo (hachurado, o "e se der tudo certo"),
+  // esperado (o centro da faixa) e mínimo (o piso). É a faixa de incerteza
+  // do item 13 desenhada em vez de escrita.
+  //
+  // Não redesenha a arena: manipula direto os elementos já em tela. Isso é o
+  // que permite a prévia acompanhar o mouse a 60fps sem recriar dezenas de
+  // canvas a cada movimento (item 82/90).
+  // =====================================================================
+  function limparPreviaNaArena() {
+    for (const el of elementoPorCombatente.values()) {
+      el.classList.remove("com-previa", "alvo-na-area", "alvo-principal", "aliado-na-area", "origem-combo");
+      const rotulo = el.querySelector(".previa-hp-rotulo");
+      if (rotulo) { rotulo.textContent = ""; rotulo.className = "previa-hp-rotulo"; }
+      const fantasma = el.querySelector(".barra-fantasma");
+      if (fantasma) {
+        fantasma.className = "barra-fantasma";
+        fantasma.querySelectorAll("div").forEach((seg) => { seg.style.width = "0%"; seg.style.right = "0%"; });
+      }
+    }
+  }
+
+  function pintarFantasma(alvo, { min, esperado, max, cura = false }) {
+    const el = elementoPorCombatente.get(alvo);
+    if (!el) return;
+    const fantasma = el.querySelector(".barra-fantasma");
+    const rotulo = el.querySelector(".previa-hp-rotulo");
+    if (!fantasma) return;
+    const hpPct = Math.max(0, Math.min(100, (alvo.hp / alvo.hpMax) * 100));
+    const emPct = (v) => Math.max(0, Math.min(100, (v / alvo.hpMax) * 100));
+    fantasma.className = `barra-fantasma${cura ? " fantasma-cura" : ""}`;
+    const segMax = fantasma.querySelector(".fantasma-max");
+    const segEsp = fantasma.querySelector(".fantasma-esperado");
+    const segMin = fantasma.querySelector(".fantasma-min");
+    if (cura) {
+      // Cura cresce a partir do fim da barra cheia, para a direita.
+      const larguraMax = Math.min(emPct(max), 100 - hpPct);
+      const larguraEsp = Math.min(emPct(esperado), 100 - hpPct);
+      const larguraMin = Math.min(emPct(min), 100 - hpPct);
+      [[segMax, larguraMax], [segEsp, larguraEsp], [segMin, larguraMin]].forEach(([seg, larg]) => {
+        if (!seg) return;
+        seg.style.right = `${Math.max(0, 100 - hpPct - larg)}%`;
+        seg.style.width = `${larg}%`;
+      });
+    } else {
+      [[segMax, emPct(max)], [segEsp, emPct(esperado)], [segMin, emPct(min)]].forEach(([seg, larg]) => {
+        if (!seg) return;
+        const largura = Math.min(larg, hpPct);
+        seg.style.right = `${100 - hpPct}%`;
+        seg.style.width = `${largura}%`;
+      });
+    }
+    el.classList.add("com-previa");
+    if (rotulo) {
+      if (cura) {
+        rotulo.className = "previa-hp-rotulo cura";
+        rotulo.textContent = `→ ${Math.min(alvo.hpMax, alvo.hp + min)}–${Math.min(alvo.hpMax, alvo.hp + max)}`;
+      } else {
+        const restaMin = Math.max(0, alvo.hp - max);
+        const restaMax = Math.max(0, alvo.hp - min);
+        const morte = restaMax <= 0;
+        rotulo.className = `previa-hp-rotulo${morte ? " morte" : ""}`;
+        rotulo.textContent = morte ? "→ 0 ☠" : `→ ${restaMin}–${restaMax}`;
+      }
+    }
+  }
+
+  function atualizarPreviaNaArena() {
+    limparPreviaNaArena();
+    // Item 23/67: com um card armado, a arena baixa a intensidade de tudo
+    // que NÃO é alvo daquele card — o alcance da ação fica visível no campo
+    // sem precisar de nenhum overlay novo.
+    arena.classList.toggle("arena-com-card-armado", !!cardArmado);
+    if (!previaAtiva || !previaAtiva.previsao) return;
+    const p = previaAtiva.previsao;
+
+    if (p.area) {
+      // Item 63/65: todos os alvos da área ficam marcados, cada um com sua
+      // própria faixa na barra.
+      for (const entrada of p.area.alvos) {
+        const el = elementoPorCombatente.get(entrada.alvo);
+        if (el) el.classList.add("alvo-na-area");
+        pintarFantasma(entrada.alvo, { min: entrada.min, esperado: entrada.esperado, max: entrada.max });
+      }
+      // Item 64: fogo amigo. Hoje nenhuma ação do jogo atinge aliados, mas o
+      // aviso já existe e dispara sozinho se alguma passar a atingir.
+      for (const aliado of p.area.aliadosNaArea) {
+        const el = elementoPorCombatente.get(aliado);
+        if (el) el.classList.add("aliado-na-area");
+      }
+      return;
+    }
+
+    if (p.cura && atacanteAtivo) {
+      pintarFantasma(atacanteAtivo, { min: p.cura.efetivaMin, esperado: p.cura.efetivaEsperada, max: p.cura.efetivaMax, cura: true });
+      return;
+    }
+
+    const alvo = previaAtiva.alvo;
+    if (!alvo || !alvo.vivo) return;
+    const el = elementoPorCombatente.get(alvo);
+    if (el) {
+      el.classList.add("alvo-principal");
+      // Item 95: quando o card encadeia uma reação/combo, o próprio alvo
+      // ganha o elo visual — é dele que vem o estado que o card vai consumir.
+      if (p.reacao || p.combo) el.classList.add("origem-combo");
+    }
+    if (p.dano && !p.dano.imune) {
+      pintarFantasma(alvo, { min: p.dano.min, esperado: p.dano.esperado, max: p.dano.max });
+    }
+  }
+
   function sacudirArena(forte = false) {
     arena.classList.remove("shake", "shake-forte");
     // força reflow para reiniciar a animação CSS mesmo se já estava tremendo
@@ -608,140 +808,137 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     logEl.scrollTop = logEl.scrollHeight;
   }
 
+  // =====================================================================
+  // TURNO DO JOGADOR — MÃO DE CARDS
+  //
+  // Antes: `acoesEl.innerHTML = ""` e uma fileira de <button> ("Atacar",
+  // "Golpe Poderoso (10 MP) [2]"), com uma linha de texto de prévia de dano
+  // por baixo de alguns deles.
+  //
+  // Agora: um painel de cards (ver BattleCards.js) que recebe o MESMO estado
+  // de batalha e devolve os mesmos quatro caminhos de execução que existiam
+  // antes (ataqueBasico / usarHabilidade / usarSoproElemental / defender /
+  // fugir / itens), mais dois novos e conservadores (trocar de linha na
+  // formação e o submenu de itens já existente). Nenhuma regra de combate
+  // mudou aqui: `resolverTurno` continua sendo o único caminho para
+  // executar uma ação, e o painel só decide QUAL função chamar.
+  // =====================================================================
+
+  function estadoParaCards() {
+    return {
+      batalha,
+      jogador: atacanteAtivo,
+      alvo: alvoSelecionado && alvoSelecionado.vivo ? alvoSelecionado : null,
+      aliados: combatentesTime,
+      inimigosVivos: inimigos.filter((i) => i.vivo),
+      intencoes,
+      temItens: personagem.inventario.some((i) => i.tipo === "consumivel"),
+      reposicionarBloqueado: false,
+    };
+  }
+
+  function garantirPainelCards() {
+    if (painelCards) return painelCards;
+    painelCards = criarPainelDeCards({
+      acoesEl,
+      contextoEl: contextoTaticoEl,
+      dados,
+      onJogar: executarCard,
+      onAbrirItens: () => {
+        const itensUsaveis = personagem.inventario.filter((i) => i.tipo === "consumivel");
+        if (itensUsaveis.length) mostrarSubmenuItens(itensUsaveis);
+      },
+      onPreverAlvo: (alvo, previsao) => {
+        previaAtiva = previsao ? { alvo, previsao } : null;
+        atualizarPreviaNaArena();
+      },
+      onSelecionarCard: (card) => {
+        cardArmado = card;
+        atualizarPreviaNaArena();
+      },
+    });
+    return painelCards;
+  }
+
+  // Traduz o card escolhido para a MESMA chamada de `batalha` que o botão
+  // equivalente fazia antes. Cada ramo aqui existia literalmente na versão
+  // com botões — nenhum ramo novo de regra foi criado.
+  function executarCard(card, previsao) {
+    const jogador = atacanteAtivo;
+    if (!jogador) return;
+    const alvo = alvoSelecionado;
+
+    if (card.tipo === "ataque") {
+      resolverTurno(() => batalha.ataqueBasico(jogador, alvo));
+      return;
+    }
+    if (card.tipo === "habilidade") {
+      const h = card.habilidade;
+      const destino = ["cura", "buff_defesa", "buff_ataque", "fuga"].includes(h.tipo) ? jogador : alvo;
+      resolverTurno(() => batalha.usarHabilidade(jogador, h, destino));
+      return;
+    }
+    if (card.tipo === "sopro") {
+      resolverTurno(() => batalha.usarSoproElemental(jogador));
+      return;
+    }
+    if (card.tipo === "defender") {
+      resolverTurno(() => {
+        jogador.defendendo = true;
+        batalha.registrar(`${jogador.nome} se prepara para defender: o próximo ataque inimigo só passa se o d20 do atacante superar sua defesa.`);
+        jogador.primeiroTurno = false;
+        jogador.atb = 0;
+      });
+      return;
+    }
+    if (card.tipo === "reposicionar") {
+      // Trocar de linha na formação. Consome o turno como qualquer outra
+      // ação (mesmo `primeiroTurno = false; atb = 0` de Defender) e só toca
+      // em `posicao`, que já é lido por formacaoReducaoDano()/escolherAlvoIA()
+      // — nada é persistido no personagem ao fim da batalha (finalizarBatalha
+      // só copia hp/mp de volta), então a formação escolhida fora do combate
+      // continua sendo a formação oficial do time.
+      resolverTurno(() => {
+        const destino = card.destino;
+        jogador.posicao = destino;
+        batalha.registrar(`${jogador.nome} muda de linha e assume a ${destino === "retaguarda" ? "retaguarda" : "frente"}.`);
+        jogador.primeiroTurno = false;
+        jogador.atb = 0;
+      });
+      return;
+    }
+    if (card.tipo === "fugir") {
+      resolverTurno(() => batalha.fugir(jogador));
+    }
+  }
+
   function renderAcoes() {
-    acoesEl.innerHTML = "";
     if (telegrafo) {
+      // Durante o telegraph o jogador não age (o motor de turnos já garante
+      // que uma vez pronta, a ação do jogador vem ANTES da do inimigo). O
+      // que mudou: a intenção continua visível na faixa de contexto depois
+      // daqui, então quando a vez do jogador chegar ele ainda vê o que vem.
       acoesEl.innerHTML = `<p class="telegrafo-inimigo">${textoTelegrafo(telegrafo)}</p>`;
+      if (painelCards) painelCards.invalidar();
+      renderContextoSemMao();
       return;
     }
     if (!atacanteAtivo) {
       acoesEl.innerHTML = "<p style='opacity:0.7'>Aguardando barra de iniciativa...</p>";
+      if (painelCards) painelCards.invalidar();
+      renderContextoSemMao();
       return;
     }
-    const jogador = atacanteAtivo;
     if (!alvoSelecionado || !alvoSelecionado.vivo) {
       alvoSelecionado = inimigos.find((i) => i.vivo) || null;
     }
-
-    const nomeAtivo = document.createElement("div");
-    nomeAtivo.style.cssText = "width:100%;font-weight:bold;margin-bottom:4px;";
-    nomeAtivo.textContent = `Ação de: ${jogador.nome}`;
-    acoesEl.appendChild(nomeAtivo);
-
-    // Prévia de combo elemental (melhoria de jogabilidade, ver
-    // COMBOS_ELEMENTAIS/verificarComboElemental em CombatSystem.js): se um
-    // ALIADO diferente do combatente ativo foi o último a acertar o alvo
-    // selecionado, e o elemento dele combina com o elemento de `jogador`,
-    // avisa ANTES de confirmar o ataque — sem isso, o combo só aparecia no
-    // log depois do golpe já ter sido resolvido.
-    if (alvoSelecionado && batalha.ultimoAtaqueAliado && batalha.ultimoAtaqueAliado.alvo === alvoSelecionado && batalha.ultimoAtaqueAliado.atacante !== jogador) {
-      const combo = comboDoisElementos(batalha.ultimoAtaqueAliado.elemento, jogador.elemento);
-      if (combo) {
-        const previa = document.createElement("p");
-        previa.className = "combo-preview";
-        previa.title = "Atacar este alvo agora encadeia o combo elemental.";
-        previa.innerHTML = `${combo.icone} Combo pronto contra <b>${alvoSelecionado.nome}</b>: <b>${combo.nome}</b>!`;
-        acoesEl.appendChild(previa);
-      }
-    }
-
-    // Prévia de dano (item 1 de 100_melhorias.md): mostra uma FAIXA (não o
-    // valor exato — isso continua vindo só da rolagem real) calculada por
-    // estimarFaixaDano(), que nunca decide o resultado, só lê o mesmo estado
-    // que rolarAtaque() já leria. Some sozinha se o alvo morrer/for trocado.
-    function elementoPreviaTexto(faixa) {
-      if (!faixa) return "";
-      if (faixa.imune) return ` <span class="dano-estimado imune">Alvo imune a este elemento — 0 de dano.</span>`;
-      const relacaoTxt = { vantagem_intensa: " (vantagem elemental intensa)", vantagem: " (vantagem elemental)", resistencia: " (resistência elemental)", resistencia_intensa: " (resistência elemental intensa)" }[faixa.relacaoElemental] || "";
-      return ` <span class="dano-estimado" title="Faixa estimada de dano contra o alvo selecionado; crítico dobra o valor.">🎯 ${faixa.min}–${faixa.max}${relacaoTxt} <span class="dano-estimado-critico">(crítico: ${faixa.minCritico}–${faixa.maxCritico})</span></span>`;
-    }
-
-    const btnAtacar = botao("Atacar", () => resolverTurno(() => batalha.ataqueBasico(jogador, alvoSelecionado)));
-    acoesEl.appendChild(btnAtacar);
-    if (alvoSelecionado && alvoSelecionado.vivo) {
-      const previaAtacar = document.createElement("p");
-      previaAtacar.className = "linha-previa-dano";
-      previaAtacar.innerHTML = elementoPreviaTexto(batalha.estimarFaixaDano(jogador, alvoSelecionado));
-      acoesEl.appendChild(previaAtacar);
-    }
-
-    jogador.habilidades.forEach((h) => {
-      const desabilitado = h.cooldownAtual > 0 || jogador.mp < h.custoMP;
-      const btn = botao(`${h.nome}${h.custoMP ? ` (${h.custoMP} MP)` : ""}${h.cooldownAtual > 0 ? ` [${h.cooldownAtual}]` : ""}`,
-        () => resolverTurno(() => {
-          const alvo = h.tipo === "cura" || h.tipo === "buff_defesa" || h.tipo === "buff_ataque" || h.tipo === "fuga" ? jogador : alvoSelecionado;
-          batalha.usarHabilidade(jogador, h, alvo);
-        }), desabilitado);
-      acoesEl.appendChild(btn);
-      // Só habilidades cuja fórmula é a mesma de rolarAtaque() (física) têm
-      // prévia confiável — dano_magico usa outra fórmula (INT direto) e não
-      // é replicada aqui só pra evitar mostrar um número que pode divergir.
-      if (!desabilitado && alvoSelecionado && alvoSelecionado.vivo && ["dano_fisico", "dano_fisico_des", "dano_ignora_defesa"].includes(h.tipo)) {
-        const opts = { multiplicador: h.multiplicador, elementoAtacante: h.elemento };
-        if (h.tipo === "dano_fisico_des") opts.atributoForcado = "DES";
-        if (h.tipo === "dano_ignora_defesa") { opts.ignoraDefesa = 999; opts.respeitaFormacao = false; }
-        const previaHab = document.createElement("p");
-        previaHab.className = "linha-previa-dano";
-        previaHab.innerHTML = elementoPreviaTexto(batalha.estimarFaixaDano(jogador, alvoSelecionado, opts));
-        acoesEl.appendChild(previaHab);
-      }
-    });
-
-    if (jogador.racaId === "draconato" && !jogador.sopro_usado) {
-      // Item 4 de 100_melhorias.md: prévia de quem será atingido por uma
-      // habilidade em área, antes de confirmar — Sopro Elemental atinge
-      // todos os inimigos vivos (ver usarSoproElemental em CombatSystem.js).
-      const vivosAgora = inimigos.filter((i) => i.vivo);
-      if (vivosAgora.length) {
-        const previaArea = document.createElement("p");
-        previaArea.className = "linha-previa-dano";
-        previaArea.innerHTML = `<span class="dano-estimado" title="Sopro Elemental atinge todos os inimigos vivos de uma vez.">💨 Atinge: ${vivosAgora.map((i) => i.nome).join(", ")}</span>`;
-        acoesEl.appendChild(previaArea);
-      }
-      acoesEl.appendChild(botao("Sopro Elemental (área)", () => resolverTurno(() => batalha.usarSoproElemental(jogador))));
-    }
-
-    // Pedido do jogador: usar poções/itens de cura em QUALQUER aliado vivo,
-    // não só no personagem principal — o estoque de itens continua sendo
-    // sempre o do principal (`personagem.inventario`, mochila compartilhada
-    // do time), mas agora "Usar Item" aparece no turno de qualquer
-    // combatente do time, e itens de cura/remoção de status pedem em qual
-    // aliado aplicar quando há mais de um vivo (ver mostrarSubmenuItens/
-    // mostrarSubmenuAlvoDoItem abaixo).
-    {
-      const itensUsaveis = personagem.inventario.filter((i) => i.tipo === "consumivel");
-      if (itensUsaveis.length) {
-        const btnItem = botao("Usar Item", () => mostrarSubmenuItens(itensUsaveis));
-        acoesEl.appendChild(btnItem);
-      }
-    }
-
-    acoesEl.appendChild(botao("Defender", () => resolverTurno(() => {
-      jogador.defendendo = true;
-      batalha.registrar(`${jogador.nome} se prepara para defender: o próximo ataque inimigo só passa se o d20 do atacante superar sua defesa.`);
-      jogador.primeiroTurno = false;
-      jogador.atb = 0;
-    })));
-
-    // Item 15 de 100_melhorias.md: só a ação irreversível de risco real
-    // (encerra a batalha pro time todo) pede uma confirmação — Atacar/
-    // Defender continuam com 1 clique, como já era, porque são reversíveis
-    // e frequentes. Confirmação inline (2 cliques), sem modal, pra não
-    // travar teclado/toque.
-    let fugirPendenteConfirmacao = false;
-    const btnFugir = botao(fugirPendenteConfirmacao ? "Confirmar fuga?" : "Fugir (time todo)", () => {
-      if (!fugirPendenteConfirmacao) {
-        fugirPendenteConfirmacao = true;
-        btnFugir.textContent = "Confirmar fuga?";
-        btnFugir.classList.add("perigo");
-        return;
-      }
-      resolverTurno(() => batalha.fugir(jogador));
-    });
-    acoesEl.appendChild(btnFugir);
+    garantirPainelCards().desenhar(estadoParaCards());
 
     // Modo automático: agenda a ação do combatente ativo sozinha, uma única
-    // vez por combatente (evita agendar de novo a cada re-render do mesmo turno).
+    // vez por combatente (evita agendar de novo a cada re-render do mesmo
+    // turno). Inalterado — a IA de auto-batalha continua sendo AutoBattleAI.js
+    // e NÃO usa o conselheiro tático dos cards: são dois sistemas
+    // independentes de propósito (um joga, o outro só sugere ao humano).
     if (autoPlayState.ativo && ultimoAutoAgendado !== atacanteAtivo) {
       ultimoAutoAgendado = atacanteAtivo;
       const alvoDaVez = atacanteAtivo;
@@ -749,6 +946,16 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         if (autoPlayState.ativo && atacanteAtivo === alvoDaVez) agirAutomaticamente();
       }, duracaoAnimacao(450));
     }
+  }
+
+  // A faixa de contexto (intenção/timeline/chefe) continua útil mesmo quando
+  // não é a vez do jogador — é justamente aí que ele lê o que vem por aí.
+  function renderContextoSemMao() {
+    if (!painelCards) garantirPainelCards();
+    const estado = estadoParaCards();
+    if (!estado.jogador) estado.jogador = combatentesTime.find((c) => c.vivo) || combatentesTime[0];
+    if (!estado.jogador) return;
+    painelCards.desenharContextoApenas(estado);
   }
 
   // A decisão em si (qual alvo, curar ou não, qual habilidade) mora em
@@ -876,14 +1083,40 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   async function orquestrarAcao(fn) {
     const seqRolagemAntes = batalha.rolagemSeq;
     const seqQuebraAntes = batalha.quebraSeq;
+    // Fotografia do estado ANTES da ação, para o resumo pós-ação (item 97)
+    // e para a barra de postura saber quanto de ruptura este golpe rendeu.
+    const hpAntesPorAlvo = new Map(batalha.todos().map((c) => [c, c.hp]));
+    const posturaAntesPorAlvo = new Map(batalha.todos().map((c) => [c, c.postura || 0]));
+    const estadosAntes = new Map(batalha.todos().map((c) => [c, new Set(c.statusEffects.map((s) => s.estadoId || s.tipo))]));
+
     const resultado = fn();
     const rolagem = batalha.ultimaRolagem && batalha.ultimaRolagem.seq > seqRolagemAntes ? batalha.ultimaRolagem : null;
 
-    if (rolagem) {
+    // Item 71: o d20 aparecia em TODA rolagem, o que transformava um ataque
+    // básico repetido em um segundo de espera a cada clique. Agora a
+    // animação é reservada para o que merece atenção — crítico, falha
+    // crítica, natural 20/1 e mecânica de chefe (quebra de postura). O
+    // jogador que quiser ver todos os dados desliga isso nas configurações
+    // da mão de cards.
+    const naturalVinte = rolagem && rolagem.d === 20;
+    const naturalUm = rolagem && rolagem.d === 1;
+    const vaiQuebrarPostura = batalha.ultimaQuebra && batalha.ultimaQuebra.seq > seqQuebraAntes;
+    const dadoImportante = !!(rolagem && (rolagem.critico || rolagem.erroTotal || naturalVinte || naturalUm || vaiQuebrarPostura));
+    if (rolagem && (!dadoSomenteImportante() || dadoImportante)) {
       garantirDadoLayer();
       somDadoParou(rolagem.critico);
       await animarDado(dadoLayer, rolagem.d, { critico: rolagem.critico, fumble: rolagem.erroTotal });
+    } else if (rolagem) {
+      // Sem a animação completa, o som curto de rolagem continua marcando
+      // que houve um dado — nunca "pula" o resultado em silêncio.
+      somDadoParou(rolagem.critico);
     }
+    // Itens 72/73: natural 20 e natural 1 ganham um momento próprio, curto.
+    if (naturalVinte || naturalUm) {
+      mostrarFaixaCentral(naturalVinte ? "NATURAL 20" : "NATURAL 1", naturalVinte ? "faixa-nat20" : "faixa-nat1");
+      await sleep(duracaoAnimacao(280));
+    }
+
     if (rolagem && rolagem.atacante && rolagem.alvo) {
       await animarGolpe(rolagem.atacante, rolagem.alvo, { erro: rolagem.erroTotal, bloqueado: rolagem.bloqueado });
       // Fx pendente (crítico + cor do elemento do golpe) pro próximo
@@ -892,8 +1125,28 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       // ganham a cor elemental, senão um "erro" sem dano nenhum herdaria a
       // borda colorida por engano.
       const elementoAtacante = rolagem.atacante.elemento;
-      const elInfo = !rolagem.erroTotal && !rolagem.bloqueado && dados.elements ? infoElemento(elementoAtacante, dados.elements) : null;
-      fxPendente = { alvo: rolagem.alvo, critico: rolagem.critico, corElemento: elInfo ? elInfo.cor : null };
+      const acertou = !rolagem.erroTotal && !rolagem.bloqueado;
+      const elInfo = acertou && dados.elements ? infoElemento(elementoAtacante, dados.elements) : null;
+      const relacao = acertou && dados.elements
+        ? relacaoElemental(elementoAtacante, rolagem.alvo.elemento || "fisico", dados.elements)
+        : null;
+      const ganhoRuptura = Math.max(0, (rolagem.alvo.postura || 0) - (posturaAntesPorAlvo.get(rolagem.alvo) || 0));
+      fxPendente = {
+        alvo: rolagem.alvo,
+        critico: rolagem.critico,
+        corElemento: elInfo ? elInfo.cor : null,
+        relacao: relacao && relacao !== "neutro" ? relacao : null,
+        ruptura: ganhoRuptura,
+      };
+      // Hit-stop de crítico (item 42): pausa MUITO curta (90ms) — o
+      // suficiente para o golpe "pesar", longe de travar o jogo.
+      if (rolagem.critico && acertou && !animacoesReduzidas()) {
+        arena.classList.remove("hit-stop");
+        void arena.offsetWidth;
+        arena.classList.add("hit-stop");
+        await sleep(duracaoAnimacao(90));
+        arena.classList.remove("hit-stop");
+      }
     }
     // Quebra de postura (chefe atordoado nesta mesma ação): um momento
     // visual à parte, mais demorado e vistoso que o flash de acerto comum —
@@ -907,12 +1160,65 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         spawnMissText(elQuebra, "💥 ATORDOADO!");
         setTimeout(() => elQuebra.classList.remove("quebra-postura"), duracaoAnimacao(700));
       }
+      // Item 41: faixa "POSTURA ROMPIDA" no centro da arena + som próprio.
+      mostrarFaixaCentral("POSTURA ROMPIDA", "faixa-ruptura");
+      somRuptura();
       await sleep(duracaoAnimacao(500));
     }
 
     renderArena();
     renderLog();
+    montarResumoPosAcao({ hpAntesPorAlvo, posturaAntesPorAlvo, estadosAntes, rolagem, quebra });
     return resultado;
+  }
+
+  // Faixa curta no centro da arena (POSTURA ROMPIDA, NATURAL 20, NATURAL 1).
+  // Some sozinha; nunca bloqueia clique (pointer-events: none no CSS).
+  function mostrarFaixaCentral(texto, classe) {
+    if (animacoesReduzidas() && classe !== "faixa-ruptura") return;
+    garantirFxLayer();
+    if (!fxLayer) return;
+    const el = document.createElement("div");
+    el.className = classe;
+    el.textContent = texto;
+    fxLayer.appendChild(el);
+    setTimeout(() => el.remove(), duracaoAnimacao(900));
+  }
+
+  // Item 97: resumo do que acabou de acontecer, em 2-4 fichas que somem em
+  // ~2s. Lido do DIFF de estado real (HP, postura, status), não de um texto
+  // paralelo — então nunca diverge do que o motor fez.
+  function montarResumoPosAcao({ hpAntesPorAlvo, posturaAntesPorAlvo, estadosAntes, rolagem, quebra }) {
+    if (!painelCards) return;
+    const partes = [];
+    let maiorDano = 0;
+    let alvoMaiorDano = null;
+    let curaTotal = 0;
+    for (const c of batalha.todos()) {
+      const antes = hpAntesPorAlvo.get(c);
+      if (antes == null) continue;
+      const delta = c.hp - antes;
+      if (delta < 0 && -delta > maiorDano) { maiorDano = -delta; alvoMaiorDano = c; }
+      if (delta > 0) curaTotal += delta;
+    }
+    if (maiorDano > 0) partes.push({ txt: `DANO ${maiorDano}`, cls: "" });
+    if (curaTotal > 0) partes.push({ txt: `CURA ${curaTotal}`, cls: "chip-vuln" });
+    if (rolagem && rolagem.critico) partes.push({ txt: "CRÍTICO", cls: "chip-critico" });
+    if (rolagem && rolagem.erroTotal) partes.push({ txt: "ERROU", cls: "chip-resist" });
+    if (rolagem && rolagem.bloqueado) partes.push({ txt: "BLOQUEADO", cls: "chip-resist" });
+    if (alvoMaiorDano) {
+      const ganho = (alvoMaiorDano.postura || 0) - (posturaAntesPorAlvo.get(alvoMaiorDano) || 0);
+      if (ganho > 0) partes.push({ txt: `RUPTURA +${ganho}`, cls: "chip-ruptura" });
+      const antes = estadosAntes.get(alvoMaiorDano) || new Set();
+      for (const s of alvoMaiorDano.statusEffects) {
+        const chave = s.estadoId || s.tipo;
+        if (antes.has(chave)) continue;
+        const nome = (s.def && s.def.nome) || (STATUS_INFO[s.tipo] && STATUS_INFO[s.tipo].label) || null;
+        if (nome) partes.push({ txt: nome.toUpperCase(), cls: "chip-status" });
+      }
+    }
+    if (quebra) partes.push({ txt: "POSTURA ROMPIDA", cls: "chip-ruptura" });
+    painelCards.mostrarResumo(partes.slice(0, 4));
   }
 
   async function resolverTurno(fn) {
@@ -934,6 +1240,13 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     ultimoAutoAgendado = null;
     turnoEmAndamento = false;
     if (acoesEl) acoesEl.classList.remove("acoes-bloqueadas");
+    // Item 5: a recomendação nunca pode ser permanente. Depois de QUALQUER
+    // ação (recarga que mudou, Éter gasto, status novo, inimigo que caiu), a
+    // avaliação da mão é descartada — a próxima leitura recalcula do zero,
+    // com o estado real.
+    previaAtiva = null;
+    cardArmado = null;
+    if (painelCards) painelCards.invalidar();
     posAcao();
   }
 
@@ -961,6 +1274,19 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // Um inimigo enfileirado pode morrer (atacado pelo jogador) antes de sua
     // própria vez chegar — descarta essas entradas em vez de telegrafar uma
     // ação de um combatente já derrotado.
+    //
+    // Quando esse inimigo TINHA uma intenção anunciada, isso é exatamente a
+    // promessa que o card de interrupção fez ao jogador ("abate o inimigo
+    // antes do golpe"). Antes, a ação simplesmente sumia em silêncio; agora o
+    // jogo diz que ela foi cancelada — sem isso, a única confirmação de que a
+    // leitura tática estava certa seria o jogador reparar numa ausência.
+    for (const morto of filaInimigos.filter((c) => !c.vivo)) {
+      if (intencoes.has(morto)) {
+        batalha.registrar(`⚡ ${morto.nome} cai antes de agir: a ação anunciada foi INTERROMPIDA!`);
+        if (painelCards) painelCards.mostrarResumo([{ txt: "⚡ INTERROMPIDO", cls: "chip-ruptura" }]);
+      }
+      intencoes.delete(morto);
+    }
     filaInimigos = filaInimigos.filter((c) => c.vivo);
     if (filaAcao.length) {
       // Estado elemental que controla o turno (hoje só Congelado — Caminhos
@@ -988,11 +1314,64 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     renderAcoes();
   }
 
+  // =====================================================================
+  // INTENÇÃO INIMIGA (itens 20, 21, 44, 45)
+  //
+  // O plano de cada inimigo é decidido UMA ÚNICA VEZ — no instante em que
+  // ele entra na fila, e não quando o telegraph aparece. Isso conserta um
+  // problema real da versão anterior: `decidirAcao()` contém sorteios (o
+  // arquétipo Ladrão rouba com 60% de chance, por exemplo), então chamá-la
+  // uma vez para exibir e outra para executar podia mostrar uma intenção e
+  // executar outra. Agora a intenção exibida é literalmente o plano que vai
+  // rodar — e é isso que torna honesto tudo que a mão de cards diz sobre
+  // "dano evitado", "melhor resposta" e "interrupção".
+  // =====================================================================
+  function registrarIntencao(inimigo) {
+    if (!inimigo || !inimigo.vivo) return;
+    const plano = batalha.decidirAcao(inimigo);
+    const faixa = batalha.estimarDanoIntencao(inimigo, plano);
+    intencoes.set(inimigo, { plano, faixa });
+    if (painelCards) painelCards.invalidar();
+  }
+
+  function limparIntencoesObsoletas() {
+    for (const inimigo of [...intencoes.keys()]) {
+      if (!inimigo.vivo || (!filaInimigos.includes(inimigo) && !(telegrafo && telegrafo.inimigo === inimigo))) {
+        intencoes.delete(inimigo);
+      }
+    }
+  }
+
+  // Uma ação telegrafada é CANCELADA quando o inimigo perde a capacidade de
+  // agir antes de executá-la. Não é um sistema novo: são exatamente as três
+  // condições que o motor de combate já respeita em decidirAcao() (morte,
+  // atordoamento por quebra de postura, e controle por estado elemental —
+  // hoje, Congelado). O que muda é que agora isso é VISÍVEL e previsível: a
+  // mão de cards consegue prometer "este card interrompe" porque a promessa
+  // é verificável aqui.
+  function motivoDeInterrupcao(inimigo) {
+    if (!inimigo.vivo) return { icone: "☠️", texto: "foi derrotado antes de agir" };
+    if (inimigo.chefe && inimigo.atordoado) return { icone: "💫", texto: "teve a postura quebrada e perdeu a ação" };
+    if (batalha.jogadorControladoPorEstado(inimigo)) return { icone: "🧊", texto: "está controlado e perdeu a ação" };
+    return null;
+  }
+
   // Prévia de intenção ("telegraph"): mostra o que o inimigo vai fazer (e em
   // quem) por um pequeno intervalo antes de executar de fato — dá ao
   // jogador uma janela pra reagir (ex.: usar Defender) antes do golpe.
   function iniciarTelegrafo(inimigo) {
-    const plano = batalha.decidirAcao(inimigo);
+    const registrada = intencoes.get(inimigo);
+    let plano = registrada ? registrada.plano : batalha.decidirAcao(inimigo);
+    // Guarda contra plano obsoleto: como a intenção agora é fixada antes de o
+    // inimigo estar pronto, o alvo escolhido pode ter morrido no meio-tempo.
+    // Sem isto, executarAcao() atacaria um combatente já derrotado (o
+    // fallback do motor só cobre `plano.alvo` nulo, não um alvo morto).
+    if (plano && plano.alvo && !plano.alvo.vivo) {
+      plano = batalha.decidirAcao(inimigo);
+      intencoes.set(inimigo, { plano, faixa: batalha.estimarDanoIntencao(inimigo, plano) });
+    } else if (!registrada) {
+      intencoes.set(inimigo, { plano, faixa: batalha.estimarDanoIntencao(inimigo, plano) });
+    }
     telegrafo = { inimigo, plano };
     renderArena();
     renderAcoes();
@@ -1005,8 +1384,25 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       // O inimigo já deve ter sido removido da fila, mas usa filter por
       // segurança caso a mesma referência apareça mais de uma vez.
       filaInimigos = filaInimigos.filter((c) => c !== inimigo);
+      intencoes.delete(inimigo);
+      if (painelCards) painelCards.invalidar();
       if (batalha.terminada) return;
-      if (inimigo.vivo) {
+      // INTERRUPÇÃO (itens 20/21): entre o telegraph aparecer e a ação sair,
+      // o jogador pode ter mudado o quadro. Se o inimigo perdeu a capacidade
+      // de agir nesse meio-tempo, a ação anunciada NÃO acontece — e o jogo
+      // diz isso em voz alta, em vez de a ação simplesmente sumir.
+      const interrupcao = motivoDeInterrupcao(inimigo);
+      if (interrupcao) {
+        if (inimigo.vivo) {
+          batalha.registrar(`${interrupcao.icone} ${inimigo.nome} ${interrupcao.texto}: a ação anunciada foi INTERROMPIDA!`);
+          // O turno perdido é consumido pelo próprio motor, com as mesmas
+          // regras de sempre (ver executarAcao/"atordoado"/"controlado_elemental").
+          batalha.executarAcao(inimigo, { tipo: inimigo.atordoado ? "atordoado" : "controlado_elemental", alvo: null });
+          if (painelCards) painelCards.mostrarResumo([{ txt: "⚡ INTERROMPIDO", cls: "chip-ruptura" }]);
+        }
+        renderArena();
+        renderLog();
+      } else if (inimigo.vivo) {
         await orquestrarAcao(() => {
           batalha.executarAcao(inimigo, plano);
           batalha.tickCooldowns(inimigo);
@@ -1034,8 +1430,20 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
           if (!filaAcao.includes(c)) filaAcao.push(c);
         } else if (!filaInimigos.includes(c)) {
           filaInimigos.push(c);
+          registrarIntencao(c);
         }
       }
+      // Intenção ANTECIPADA (encontrado no teste de integração): registrar o
+      // plano só quando o inimigo já está pronto era tarde demais — o loop de
+      // ATB fica pausado durante o turno do jogador, então na prática ele
+      // decidia sem nunca ver o que vinha. Agora a intenção é fixada quando a
+      // barra do inimigo passa de 85%, o que dá ao jogador uma janela real
+      // para responder (itens 21/45) sem mudar nada de quando ele age.
+      for (const inimigo of inimigos) {
+        if (!inimigo.vivo || intencoes.has(inimigo)) continue;
+        if (inimigo.atb >= inimigo.atbMax * LIMIAR_INTENCAO_ANTECIPADA) registrarIntencao(inimigo);
+      }
+      limparIntencoesObsoletas();
       renderArena();
       renderLog();
       if (batalha.terminada) {
@@ -1050,6 +1458,15 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
 
   function finalizarBatalha() {
     if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    // A mão de cards e a faixa de contexto não fazem sentido depois do fim —
+    // e o listener global de "clique fora cancela a seleção" precisa sair
+    // junto, senão sobreviveria à tela de batalha.
+    if (painelCards) { painelCards.destruir(); painelCards = null; }
+    intencoes.clear();
+    previaAtiva = null;
+    cardArmado = null;
+    contextoTaticoEl.innerHTML = "";
+    arena.classList.remove("arena-com-card-armado");
     time.forEach((membro, i) => {
       const c = combatentesTime[i];
       membro.hp = Math.max(0, Math.min(membro.hpMax, c.hp));

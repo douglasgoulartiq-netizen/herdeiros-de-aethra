@@ -1,0 +1,898 @@
+/* =========================================================================
+   HERDEIROS DE AETHRA — MÃO DE CARDS DE BATALHA
+   Arquivo separado de style.css de propósito: é uma camada nova e grande, e
+   mantê-la isolada deixa claro o que pode ser removido/desligado sem tocar
+   em nenhuma regra visual anterior do jogo. Carregado depois de style.css
+   (ver index.html), então herda a paleta --hda-* já definida lá.
+
+   Índice
+     1. Tokens e paleta elemental
+     2. Faixa de contexto (intenção, chefe, timeline, dica)
+     3. A mão: layout, cabeçalho, paginação
+     4. O card: estrutura
+     5. Estados do card (prioridade explícita)
+     6. Identidade por elemento + efeitos ambientais
+     7. Animações
+     8. Detalhe, erro e resumo pós-ação
+     9. Barra-fantasma de HP e destaques na arena
+    10. Números flutuantes especializados
+    11. Acessibilidade e movimento reduzido
+    12. Mobile
+   ========================================================================= */
+
+/* =========================================================================
+   1. TOKENS
+   ========================================================================= */
+#batalha-acoes {
+  --carta-larg: 152px;
+  --carta-alt: 190px;
+  --carta-raio: 10px;
+  --carta-borda: #5a4327;
+  --carta-fundo: linear-gradient(163deg, #2a2018 0%, #1c1510 62%, #221a12 100%);
+  --el-cor: #c9c9c9;
+  --el-forte: #ffffff;
+  --el-fraca: #6b6455;
+
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 980px;
+}
+
+/* =========================================================================
+   2. FAIXA DE CONTEXTO
+   ========================================================================= */
+#batalha-contexto-tatico {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.faixa-intencoes, .faixa-timeline, .faixa-chefe, .faixa-dica {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 5px 9px;
+  background: rgba(20, 15, 12, 0.62);
+  border: 1px solid var(--hda-line, #4a3a26);
+  border-radius: var(--hda-radius, 6px);
+  font-size: 0.78em;
+  color: var(--hda-muted, #c8b89a);
+}
+.faixa-rotulo {
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-size: 0.85em; font-weight: bold; color: #8a7a5c;
+  padding-right: 6px; border-right: 1px solid #3a2f22; margin-right: 2px;
+}
+
+.intencao-chip {
+  padding: 2px 8px; border-radius: 10px;
+  background: rgba(224, 85, 85, 0.14);
+  border: 1px solid rgba(224, 85, 85, 0.45);
+  color: #ffd9d9;
+}
+.intencao-chip.intencao-chefe { border-color: #f5a524; background: rgba(245, 165, 36, 0.16); color: #ffeccb; }
+.intencao-chip.intencao-letal {
+  border-color: #ff6b6b; background: rgba(224, 85, 85, 0.3); color: #fff;
+  animation: intencao-letal-pulso 1.8s ease-in-out infinite;
+}
+@keyframes intencao-letal-pulso {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 107, 107, 0); }
+  50% { box-shadow: 0 0 10px rgba(255, 107, 107, 0.7); }
+}
+.intencao-nota { opacity: 0.65; font-style: italic; cursor: help; }
+
+.chefe-chip {
+  padding: 2px 8px; border-radius: 10px; font-weight: bold;
+  background: rgba(245, 165, 36, 0.12); border: 1px solid #7a5c34; color: #f5d9a8;
+}
+.chefe-chip-alerta { border-color: #e05555; color: #ffd0d0; background: rgba(224, 85, 85, 0.2); }
+
+.tl-chip {
+  padding: 2px 7px; border-radius: 9px; white-space: nowrap;
+  background: #241b14; border: 1px solid #3f3222;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.tl-chip.tl-aliado { border-color: #3f6b4a; color: #cfe9d4; }
+.tl-chip.tl-inimigo { border-color: #6b3f3f; color: #e9cfcf; }
+.tl-chip.tl-chefe { border-color: #f5a524; color: #ffeccb; }
+.tl-chip.tl-ativo { background: #3a2b18; border-color: var(--hda-gold, #f5a524); color: #fff3d6; font-weight: bold; }
+.tl-chip.tl-movido { border-color: #7fd4ff; color: #dff3ff; animation: tl-move 0.45s ease-out; }
+@keyframes tl-move {
+  0% { transform: translateY(-6px); opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.tl-seta { opacity: 0.35; }
+.tl-nota { font-style: italic; opacity: 0.7; }
+
+.faixa-dica { background: rgba(127, 212, 255, 0.08); border-color: #3f5c6b; color: #cfe9f5; }
+
+/* =========================================================================
+   3. A MÃO
+   ========================================================================= */
+.mao-cabecalho {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 0.85em; color: var(--hda-muted, #c8b89a);
+  padding: 0 2px;
+}
+.mao-titulo { font-size: 1.05em; }
+.mao-recursos, .mao-linha {
+  padding: 2px 8px; border-radius: 10px;
+  background: #241b14; border: 1px solid #3f3222; cursor: help;
+}
+.mao-btn-config {
+  margin: 0 0 0 auto; padding: 3px 9px; font-size: 0.95em; line-height: 1;
+}
+
+.mao-cards {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  /* flex-start: sem isto, cada linha estica todos os cards até a altura do
+     mais alto daquela linha — o que fazia a segunda linha nascer com cards
+     enormes e vazios (encontrado no teste visual). */
+  align-items: flex-start;
+  gap: 9px;
+  /* Item 92: nunca rolagem horizontal — os cards quebram em linhas. */
+  overflow: visible;
+}
+
+.mao-paginacao {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 0.8em; color: var(--hda-muted, #c8b89a);
+}
+.mao-paginacao button { margin: 0; padding: 2px 12px; }
+
+/* =========================================================================
+   4. O CARD
+   ========================================================================= */
+.carta-batalha {
+  position: relative;
+  width: var(--carta-larg);
+  min-height: var(--carta-alt);
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 9px 9px 8px;
+  background: var(--carta-fundo);
+  border: 2px solid var(--carta-borda);
+  border-radius: var(--carta-raio);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  /* Só transform/opacity/filter animam: nada aqui provoca reflow (item 90). */
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1),
+              box-shadow 0.18s ease,
+              border-color 0.18s ease,
+              filter 0.18s ease;
+  will-change: transform;
+  /* Fio interior gravado, como uma placa de bronze de Aethra. */
+  outline: 1px solid rgba(0, 0, 0, 0.5);
+  outline-offset: -4px;
+}
+.carta-batalha:focus-visible {
+  outline: 2px solid var(--hda-gold, #f5a524);
+  outline-offset: 2px;
+}
+
+/* Runa do elemento gravada no canto — apagada em repouso, acende quando o
+   card vira recomendado (item 94). */
+.carta-runa {
+  position: absolute; top: 4px; right: 7px;
+  font-size: 1.5em; line-height: 1;
+  color: var(--el-cor);
+  opacity: 0.16;
+  pointer-events: none;
+  transition: opacity 0.35s ease, text-shadow 0.35s ease;
+  z-index: 0;
+}
+
+.carta-cabecalho { display: flex; align-items: flex-start; gap: 5px; z-index: 1; }
+.carta-icone { font-size: 1.05em; line-height: 1.15; flex-shrink: 0; }
+.carta-nome {
+  font-weight: bold; font-size: 0.86em; line-height: 1.18;
+  color: #f1e9d8;
+  /* Nomes longos quebram em duas linhas em vez de estourar o card. */
+  overflow-wrap: anywhere; hyphens: auto;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  max-height: 2.4em;
+}
+
+.carta-elemento { min-height: 15px; z-index: 1; }
+.carta-elem-selo {
+  display: inline-block; font-size: 0.68em; letter-spacing: 0.03em;
+  padding: 1px 6px; border-radius: 8px;
+  color: var(--el-forte);
+  background: color-mix(in srgb, var(--el-cor) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--el-cor) 45%, transparent);
+}
+
+.carta-valor {
+  margin-top: auto; display: flex; flex-direction: column; line-height: 1.1; z-index: 1;
+}
+.carta-valor-vazio { min-height: 26px; }
+.carta-valor-rotulo {
+  font-size: 0.56em; letter-spacing: 0.1em; text-transform: uppercase; color: #8a7a5c;
+}
+.carta-valor-num { font-size: 1.22em; font-weight: bold; color: #f1e9d8; }
+.carta-valor.valor-dano .carta-valor-num { color: #ffc9a0; }
+.carta-valor.valor-cura .carta-valor-num { color: #8ff0b4; }
+.carta-valor.valor-defesa .carta-valor-num { color: #9fd0ff; }
+.carta-valor.valor-imune .carta-valor-num { color: #8a7a63; text-decoration: line-through; }
+
+.carta-custos { display: flex; flex-wrap: wrap; gap: 4px; z-index: 1; }
+.carta-custo-item {
+  font-size: 0.6em; padding: 1px 5px; border-radius: 7px;
+  background: rgba(0, 0, 0, 0.35); border: 1px solid #3f3222; color: #b8a988;
+  cursor: help;
+}
+.carta-custo-item.custo-eter { color: #b9a5ff; border-color: #4a3f6b; }
+.carta-custo-item.custo-eter.insuficiente { color: #ff9a9a; border-color: #7a3535; text-decoration: line-through; }
+.carta-custo-item.custo-unico { color: #f5d76e; border-color: #6b5a2a; }
+
+.carta-badges { display: flex; flex-wrap: wrap; gap: 3px; z-index: 1; }
+.badge-carta {
+  font-size: 0.56em; font-weight: bold; letter-spacing: 0.04em;
+  padding: 1px 5px; border-radius: 7px;
+  border: 1px solid transparent; white-space: nowrap;
+  /* Uma badge longa (ex.: nome de reação) nunca pode vazar para fora do
+     card — encurta com reticências em vez de estourar a borda. */
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+.badge-exec { background: rgba(224, 85, 85, 0.2); border-color: #a33c3c; color: #ffd0d0; }
+.badge-exec-forte { background: rgba(224, 85, 85, 0.42); border-color: #ff6b6b; color: #fff; }
+.badge-interrupt { background: rgba(245, 227, 78, 0.16); border-color: #8a7a14; color: #fff5a8; }
+.badge-combo { background: rgba(197, 138, 255, 0.18); border-color: #7a4fb0; color: #e6c9ff; }
+.badge-rel.rel-vuln, .badge-rel.rel-vuln-forte { background: rgba(111, 207, 92, 0.18); border-color: #4f8a3f; color: #c9f0b8; }
+.badge-rel.rel-resist, .badge-rel.rel-resist-forte { background: rgba(120, 120, 120, 0.18); border-color: #5a5a5a; color: #c0c0c0; }
+.badge-rel.rel-imune { background: rgba(90, 90, 90, 0.3); border-color: #6b6b6b; color: #9a9a9a; }
+.badge-ruptura { background: rgba(159, 208, 255, 0.14); border-color: #3f6b8a; color: #cfe9ff; }
+.badge-ruptura-forte { background: rgba(159, 208, 255, 0.3); border-color: #7fd4ff; color: #fff; }
+.badge-status { background: rgba(127, 212, 255, 0.14); border-color: #3f5c6b; color: #cfe9f5; }
+.badge-acerto { background: rgba(0, 0, 0, 0.35); border-color: #4a3a26; color: #c8b89a; }
+.badge-acerto-baixo { background: rgba(224, 85, 85, 0.18); border-color: #a33c3c; color: #ffc9c9; }
+.badge-critico { background: rgba(245, 165, 36, 0.16); border-color: #7a5c34; color: #ffd98a; }
+.badge-critico-forte { background: rgba(255, 224, 102, 0.3); border-color: #ffe066; color: #fff8d0; }
+.badge-ultimate { background: rgba(197, 138, 255, 0.2); border-color: #a06bff; color: #ecd9ff; }
+.badge-vantagem { background: rgba(111, 207, 92, 0.14); border-color: #4f8a3f; color: #c9f0b8; }
+.badge-desvantagem { background: rgba(224, 85, 85, 0.16); border-color: #a33c3c; color: #ffd0d0; }
+.badge-sinergia { background: rgba(245, 215, 110, 0.14); border-color: #6b5a2a; color: #f5e3b0; }
+.badge-friendly-fire { background: rgba(224, 85, 85, 0.32); border-color: #ff6b6b; color: #fff; }
+
+/* BUG corrigido no teste visual: as faixas de rodapé são absolutas e
+   cobriam a última badge. Cada estado que mostra uma faixa reserva o espaço
+   dela no padding do card. */
+.carta-batalha.estado-melhor-jogada,
+.carta-batalha.estado-selecionado,
+.carta-batalha.estado-desabilitado { padding-bottom: 22px; }
+/* O bloqueio por recurso tem duas linhas (motivo + Éter atual/necessário). */
+.carta-batalha.estado-sem-recurso { padding-bottom: 34px; }
+
+.carta-selo-melhor {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  text-align: center; font-size: 0.58em; font-weight: bold; letter-spacing: 0.1em;
+  padding: 2px 0;
+  background: linear-gradient(90deg, transparent, rgba(245, 165, 36, 0.85), transparent);
+  color: #1a1208;
+  z-index: 3;
+}
+
+.carta-confirmar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  text-align: center; font-size: 0.56em; letter-spacing: 0.05em;
+  padding: 3px 0;
+  background: rgba(245, 165, 36, 0.9); color: #1a1208; font-weight: bold;
+  z-index: 4;
+}
+
+/* =========================================================================
+   5. ESTADOS — ordem de prioridade (item 85)
+   Um card DESABILITADO nunca também pulsa como recomendado: as regras de
+   .estado-desabilitado vêm depois e desligam animação/brilho.
+   ========================================================================= */
+
+/* --- hover / foco --- */
+.carta-batalha:hover, .carta-batalha.estado-foco {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--el-cor) 60%, var(--carta-borda));
+  box-shadow: 0 7px 12px rgba(0, 0, 0, 0.5), 0 0 12px color-mix(in srgb, var(--el-cor) 35%, transparent);
+}
+
+/* --- selecionado (item 23): sobe e cresce POUCO; os outros perdem força --- */
+.carta-batalha.estado-selecionado {
+  transform: translateY(-9px) scale(1.045);
+  border-color: var(--hda-gold, #f5a524);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.6), 0 0 18px rgba(245, 165, 36, 0.55);
+  z-index: 2;
+}
+.mao-com-selecao .carta-batalha:not(.estado-selecionado) { filter: brightness(0.62) saturate(0.7); }
+
+/* --- recomendação, 3 níveis (item 4) --- */
+.carta-batalha.estado-recomendado .carta-runa { opacity: 0.7; text-shadow: 0 0 8px var(--el-cor); }
+
+.carta-batalha.nivel-1 {
+  border-color: color-mix(in srgb, var(--el-cor) 55%, var(--carta-borda));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 9px color-mix(in srgb, var(--el-cor) 30%, transparent);
+}
+.carta-batalha.nivel-2 {
+  border-color: var(--el-cor);
+  animation: respiro-borda 1.9s ease-in-out infinite;
+}
+.carta-batalha.nivel-3 {
+  border-color: var(--hda-gold, #f5a524);
+  animation: respiro-borda-forte 1.7s ease-in-out infinite;
+}
+.carta-batalha.nivel-3::before {
+  /* Moldura extra da "oportunidade especial" — desenhada, não piscando. */
+  content: ""; position: absolute; inset: 2px;
+  border: 1px solid rgba(245, 165, 36, 0.55); border-radius: calc(var(--carta-raio) - 3px);
+  pointer-events: none; z-index: 2;
+}
+/* Pulso lento e sem flash (item 3/81): 1,7–1,9s, opacidade e sombra apenas. */
+@keyframes respiro-borda {
+  0%, 100% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 8px color-mix(in srgb, var(--el-cor) 30%, transparent); }
+  50% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 18px color-mix(in srgb, var(--el-cor) 65%, transparent); }
+}
+/* Nada aqui anima `transform` do próprio card. Descoberto no teste de
+   integração: um pulso vertical de 2px deixa o card em movimento permanente,
+   ou seja, um ALVO DE CLIQUE que nunca para quieto — o que atrapalha toque,
+   mira e leitores de tela (e travou o clique automatizado). O destaque vive
+   inteiro na sombra e no anel ::before. */
+@keyframes respiro-borda-forte {
+  0%, 100% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 12px rgba(245, 165, 36, 0.5); }
+  50% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 26px rgba(245, 165, 36, 0.9); }
+}
+.carta-batalha.nivel-3::before { animation: respiro-anel 1.7s ease-in-out infinite; }
+@keyframes respiro-anel {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+/* --- execução garantida (item 96): borda que "fecha" --- */
+.carta-batalha.estado-execucao::after {
+  content: ""; position: absolute; inset: 0; border-radius: var(--carta-raio);
+  border: 2px solid rgba(255, 107, 107, 0.85);
+  clip-path: inset(0 0 0 0);
+  pointer-events: none; z-index: 2;
+  animation: execucao-fecha 2.2s ease-in-out infinite;
+}
+@keyframes execucao-fecha {
+  0% { clip-path: inset(0 100% 0 0); opacity: 0.9; }
+  55% { clip-path: inset(0 0 0 0); opacity: 0.9; }
+  100% { clip-path: inset(0 0 0 0); opacity: 0.25; }
+}
+
+/* --- combo / reação: filamentos ligando status do alvo ao card (item 95) --- */
+.carta-batalha.estado-combo {
+  background:
+    radial-gradient(circle at 50% 118%, color-mix(in srgb, var(--el-cor) 30%, transparent) 0%, transparent 58%),
+    var(--carta-fundo);
+}
+.carta-batalha.estado-combo .carta-runa { opacity: 0.85; }
+
+/* --- janela de reação/interrupção --- */
+.carta-batalha.estado-reacao {
+  border-style: double; border-width: 3px;
+  border-color: #f5e34e;
+}
+
+/* --- ultimate pronta (item 56) --- */
+.carta-batalha.estado-ultimate-pronta {
+  border-image: linear-gradient(135deg, #c58aff, #f5a524, #c58aff) 1;
+  border-width: 2px; border-style: solid;
+}
+.carta-batalha.estado-ultimate-pronta .carta-nome { color: #ecd9ff; }
+
+/* --- vulnerável / resistente (itens 7 e 8) --- */
+.carta-batalha.estado-vulneravel { background: linear-gradient(163deg, #2f2a18 0%, #1c1510 62%, #23200f 100%); }
+/* Resistente: intensidade REDUZIDA, mas o card continua jogável e legível. */
+.carta-batalha.estado-resistente { filter: saturate(0.55) brightness(0.86); }
+.carta-batalha.estado-resistente.estado-recomendado,
+.carta-batalha.estado-resistente.estado-selecionado { filter: none; }
+.carta-batalha.estado-resistente .carta-runa { opacity: 0.08; }
+
+/* --- desabilitado: vence todos os anteriores (item 85) --- */
+.carta-batalha.estado-desabilitado,
+.carta-batalha.estado-desabilitado:hover {
+  cursor: not-allowed;
+  filter: grayscale(0.72) brightness(0.6);
+  transform: none;
+  animation: none !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+  border-color: #3a2f22;
+}
+.carta-batalha.estado-desabilitado::before,
+.carta-batalha.estado-desabilitado::after { display: none; }
+.carta-batalha.estado-desabilitado .carta-runa { opacity: 0.06; text-shadow: none; }
+
+.carta-bloqueio {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 3px 4px;
+  background: rgba(10, 7, 5, 0.9);
+  border-top: 1px solid #5a4327;
+  font-size: 0.58em; font-weight: bold; letter-spacing: 0.05em;
+  color: #ffcf8a; text-align: center; z-index: 5;
+}
+.carta-bloqueio small { font-weight: normal; opacity: 0.75; font-size: 0.92em; }
+.estado-sem-recurso .carta-bloqueio { color: #ff9a9a; }
+.estado-condicao .carta-bloqueio { color: #9fd0ff; }
+
+/* Overlay radial de recarga (item 26): a fatia escura encolhe conforme os
+   turnos passam, então dá pra ver o quanto falta sem ler o número. */
+.carta-cooldown-overlay {
+  position: absolute; inset: 0; pointer-events: none; z-index: 4;
+  background: conic-gradient(from 0deg, rgba(8, 6, 4, 0.5) calc(var(--cd-restante) * 360deg), transparent 0);
+}
+
+/* =========================================================================
+   6. IDENTIDADE POR ELEMENTO (itens 29-37)
+   Cada elemento define --el-cor/--el-forte/--el-fraca e ganha uma textura
+   própria em ::before. A cor NUNCA é o único sinal: runa, ícone e a textura
+   diferenciam os elementos mesmo em escala de cinza.
+   ========================================================================= */
+.carta-batalha.elem-fisico  { --el-cor: #cfc4ad; --el-forte: #ffffff; --el-fraca: #6b6455; }
+.carta-batalha.elem-chama   { --el-cor: #ff7a3d; --el-forte: #ffb066; --el-fraca: #a33c14; }
+.carta-batalha.elem-mare    { --el-cor: #4fa3ff; --el-forte: #8fc8ff; --el-fraca: #1d4d8c; }
+.carta-batalha.elem-geada   { --el-cor: #a7ecff; --el-forte: #e6fbff; --el-fraca: #3f7d96; }
+.carta-batalha.elem-vida    { --el-cor: #6fcf5c; --el-forte: #a8f096; --el-fraca: #2f6b26; }
+.carta-batalha.elem-terra   { --el-cor: #c9a068; --el-forte: #e8c896; --el-fraca: #6b4f2a; }
+.carta-batalha.elem-vendaval{ --el-cor: #a9ecdd; --el-forte: #dcfff6; --el-fraca: #3f7a6d; }
+.carta-batalha.elem-eter    { --el-cor: #c58aff; --el-forte: #e6c9ff; --el-fraca: #5f2f96; }
+.carta-batalha.elem-umbral  { --el-cor: #9a6bf0; --el-forte: #c2a2ff; --el-fraca: #3a1f66; }
+.carta-batalha.elem-raio    { --el-cor: #f5e34e; --el-forte: #fff5a8; --el-fraca: #8a7a14; }
+.carta-batalha.elem-radiante{ --el-cor: #fff3b0; --el-forte: #fffbe0; --el-fraca: #8a7d3f; }
+.carta-batalha.elem-veneno  { --el-cor: #9fd14f; --el-forte: #cdf08f; --el-fraca: #4c6b1f; }
+
+/* Camada de textura ambiental — inerte por padrão, ganha movimento só
+   quando o card está em foco/selecionado/recomendado, para não ter 8
+   animações rodando ao mesmo tempo no repouso (item 82/83). */
+.carta-batalha::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none; opacity: 0.5;
+  background-repeat: no-repeat;
+}
+
+/* CHAMA — brasas subindo + calor na borda inferior (item 30) */
+.elem-chama::before {
+  background:
+    radial-gradient(2px 2px at 22% 88%, rgba(255, 176, 102, 0.9), transparent 60%),
+    radial-gradient(1.5px 1.5px at 64% 92%, rgba(255, 140, 60, 0.85), transparent 60%),
+    radial-gradient(1.5px 1.5px at 42% 96%, rgba(255, 210, 150, 0.7), transparent 60%),
+    linear-gradient(0deg, rgba(255, 122, 61, 0.22) 0%, transparent 34%);
+}
+.elem-chama.estado-foco::before, .elem-chama.estado-selecionado::before,
+.elem-chama.estado-recomendado::before { animation: brasas 2.6s linear infinite; }
+@keyframes brasas {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; opacity: 0.45; }
+  50% { opacity: 0.75; }
+  100% { background-position: 0 -26px, 0 -34px, 0 -20px, 0 0; opacity: 0.45; }
+}
+
+/* GEADA — cristalização nas bordas + condensação (item 31) */
+.elem-geada::before {
+  background:
+    linear-gradient(135deg, rgba(230, 251, 255, 0.5) 0 6px, transparent 6px 12px) top left / 22px 22px no-repeat,
+    linear-gradient(-45deg, rgba(230, 251, 255, 0.4) 0 5px, transparent 5px 12px) bottom right / 20px 20px no-repeat,
+    radial-gradient(1.5px 1.5px at 30% 40%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(1.5px 1.5px at 76% 66%, rgba(255, 255, 255, 0.6), transparent 60%);
+}
+.elem-geada.estado-foco::before, .elem-geada.estado-selecionado::before,
+.elem-geada.estado-recomendado::before { animation: condensa 3.4s ease-in-out infinite; }
+@keyframes condensa {
+  0%, 100% { opacity: 0.35; filter: blur(0px); }
+  50% { opacity: 0.7; filter: blur(0.4px); }
+}
+
+/* MARÉ — onda discreta no fundo (item 32) */
+.elem-mare::before {
+  background:
+    radial-gradient(120% 40% at 50% 112%, rgba(79, 163, 255, 0.4), transparent 70%),
+    linear-gradient(180deg, transparent 62%, rgba(143, 200, 255, 0.18) 78%, transparent 92%);
+}
+.elem-mare.estado-foco::before, .elem-mare.estado-selecionado::before,
+.elem-mare.estado-recomendado::before { animation: mare 3.8s ease-in-out infinite; }
+@keyframes mare {
+  0%, 100% { background-position: 0 0, 0 0; opacity: 0.45; }
+  50% { background-position: 0 -5px, 0 6px; opacity: 0.75; }
+}
+
+/* TERRA — textura mineral granulada (item 33) */
+.elem-terra::before {
+  background:
+    repeating-linear-gradient(115deg, rgba(201, 160, 104, 0.16) 0 2px, transparent 2px 7px),
+    radial-gradient(2px 2px at 18% 74%, rgba(232, 200, 150, 0.5), transparent 60%),
+    radial-gradient(2px 2px at 82% 30%, rgba(180, 140, 90, 0.5), transparent 60%);
+  opacity: 0.42;
+}
+.elem-terra.estado-selecionado { animation: impacto-terra 0.32s ease-out; }
+@keyframes impacto-terra {
+  0% { transform: translateY(-9px) scale(1.045); }
+  40% { transform: translateY(-5px) scale(1.03); }
+  100% { transform: translateY(-9px) scale(1.045); }
+}
+
+/* VENDAVAL — linhas direcionais (item 34) */
+.elem-vendaval::before {
+  background: repeating-linear-gradient(72deg, rgba(169, 236, 221, 0.22) 0 1px, transparent 1px 13px);
+}
+.elem-vendaval.estado-foco::before, .elem-vendaval.estado-selecionado::before,
+.elem-vendaval.estado-recomendado::before { animation: vendaval 1.9s linear infinite; }
+@keyframes vendaval {
+  0% { background-position: 0 0; opacity: 0.35; }
+  100% { background-position: 40px 0; opacity: 0.6; }
+}
+
+/* VIDA — brotos e pulsação orgânica (item 35) */
+.elem-vida::before {
+  background:
+    radial-gradient(3px 5px at 16% 84%, rgba(168, 240, 150, 0.55), transparent 65%),
+    radial-gradient(2px 4px at 84% 22%, rgba(111, 207, 92, 0.5), transparent 65%),
+    radial-gradient(circle at 50% 100%, rgba(111, 207, 92, 0.2), transparent 60%);
+}
+.elem-vida.estado-foco::before, .elem-vida.estado-selecionado::before,
+.elem-vida.estado-recomendado::before { animation: pulso-vida 2.8s ease-in-out infinite; }
+@keyframes pulso-vida {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(1.015); }
+}
+
+/* ÉTER — aberração prismática curta + runas (item 36) */
+.elem-eter::before {
+  background:
+    radial-gradient(circle at 28% 26%, rgba(197, 138, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 74% 72%, rgba(127, 212, 255, 0.22), transparent 55%);
+}
+.elem-eter.estado-foco::before, .elem-eter.estado-selecionado::before,
+.elem-eter.estado-recomendado::before { animation: prisma 3.2s ease-in-out infinite; }
+@keyframes prisma {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  45% { opacity: 0.7; transform: translateX(1.5px); }
+  55% { opacity: 0.7; transform: translateX(-1.5px); }
+}
+
+/* UMBRAL — sombra que anda + fragmentos (item 37) */
+.elem-umbral::before {
+  background:
+    radial-gradient(80% 60% at 30% 20%, rgba(58, 31, 102, 0.6), transparent 70%),
+    radial-gradient(2px 2px at 66% 58%, rgba(194, 162, 255, 0.6), transparent 60%),
+    radial-gradient(1.5px 1.5px at 24% 66%, rgba(194, 162, 255, 0.45), transparent 60%);
+}
+.elem-umbral.estado-foco::before, .elem-umbral.estado-selecionado::before,
+.elem-umbral.estado-recomendado::before { animation: umbra 4.2s ease-in-out infinite; }
+@keyframes umbra {
+  0%, 100% { background-position: 0 0, 0 0, 0 0; opacity: 0.5; }
+  50% { background-position: 8px 4px, -4px -3px, 3px 2px; opacity: 0.78; }
+}
+
+/* RAIO / RADIANTE / VENENO / FÍSICO — texturas mais sóbrias, sem animação
+   própria: são elementos de apoio na paleta e não competem com os oito
+   elementos-assinatura acima. */
+.elem-raio::before { background: repeating-linear-gradient(100deg, rgba(245, 227, 78, 0.16) 0 1px, transparent 1px 9px); }
+.elem-radiante::before { background: radial-gradient(circle at 50% 12%, rgba(255, 243, 176, 0.35), transparent 62%); }
+.elem-veneno::before { background: radial-gradient(3px 3px at 30% 70%, rgba(159, 209, 79, 0.5), transparent 60%), radial-gradient(2px 2px at 72% 36%, rgba(159, 209, 79, 0.4), transparent 60%); }
+.elem-fisico::before { background: repeating-linear-gradient(45deg, rgba(207, 196, 173, 0.07) 0 1px, transparent 1px 6px); }
+
+/* Cards utilitários sem elemento não recebem textura elemental nenhuma. */
+.carta-tipo-defender::before, .carta-tipo-item::before,
+.carta-tipo-fugir::before, .carta-tipo-reposicionar::before { background: none; }
+
+.carta-perigosa { border-style: dashed; }
+
+/* Potência visual (item 55): rank maior = moldura mais trabalhada. O
+   TAMANHO do card nunca muda — só o desenho da borda. */
+.carta-batalha.potencia-2 { outline-offset: -5px; outline-color: rgba(245, 165, 36, 0.25); }
+.carta-batalha.potencia-3 {
+  outline-offset: -6px; outline-color: rgba(245, 165, 36, 0.45); outline-width: 2px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), inset 0 0 14px rgba(245, 165, 36, 0.1);
+}
+
+/* =========================================================================
+   7. ANIMAÇÕES DE CICLO DE VIDA
+   ========================================================================= */
+
+/* Entrada escalonada (item 22): 55ms entre cards, subida curta. */
+.carta-batalha { animation: carta-entra 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) backwards; animation-delay: var(--entrada-atraso, 0ms); }
+@keyframes carta-entra {
+  0% { opacity: 0; transform: translateY(16px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Cards recomendados também precisam da animação de respiro DEPOIS da
+   entrada — sem isto, `animation` da entrada sobrescreveria o respiro. */
+.carta-batalha.nivel-2 { animation: carta-entra 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) backwards var(--entrada-atraso, 0ms), respiro-borda 1.9s ease-in-out 0.3s infinite; }
+.carta-batalha.nivel-3 { animation: carta-entra 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) backwards var(--entrada-atraso, 0ms), respiro-borda-forte 1.7s ease-in-out 0.3s infinite; }
+
+/* Card usado (item 25): avança para a arena e some. */
+.carta-batalha.carta-usada { animation: carta-usada 0.34s ease-in forwards; pointer-events: none; }
+@keyframes carta-usada {
+  0% { transform: translateY(-9px) scale(1.045); opacity: 1; }
+  60% { transform: translateY(-34px) scale(1.1); opacity: 0.85; }
+  100% { transform: translateY(-60px) scale(0.9); opacity: 0; }
+}
+
+/* Cancelamento (item 24): volta suavemente, sem "pop". */
+.carta-batalha.carta-cancelando { animation: carta-cancela 0.16s ease-out forwards; }
+@keyframes carta-cancela {
+  0% { transform: translateY(-9px) scale(1.045); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Ação recusada (item 98): sacode de leve e mostra o motivo. */
+.carta-batalha.carta-recusada { animation: carta-recusa 0.3s ease-in-out; }
+@keyframes carta-recusa {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+}
+
+/* Card novo/temporário aparecendo no meio do turno (item 78). */
+.carta-batalha.carta-nova { animation: carta-nova 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); }
+@keyframes carta-nova {
+  0% { opacity: 0; transform: scale(0.7) rotate(-6deg); filter: brightness(2.2); }
+  70% { opacity: 1; transform: scale(1.06) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: none; }
+}
+
+/* =========================================================================
+   8. DETALHE, ERRO E RESUMO
+   ========================================================================= */
+.carta-detalhe {
+  width: 100%;
+  min-height: 42px;
+  padding: 7px 11px;
+  background: rgba(15, 11, 8, 0.72);
+  border: 1px solid var(--hda-line, #4a3a26);
+  border-left: 3px solid var(--el-cor, #4a3a26);
+  border-radius: var(--hda-radius, 6px);
+  font-size: 0.78em; line-height: 1.4; color: var(--hda-text, #f1e9d8);
+}
+.carta-detalhe.vazio { color: #8a7a5c; font-style: italic; border-left-color: #3a2f22; }
+.detalhe-titulo { font-weight: bold; color: var(--hda-gold, #f5a524); margin-bottom: 3px; }
+.detalhe-desc { margin: 0 0 4px; color: var(--hda-muted, #c8b89a); font-style: italic; }
+.detalhe-linha { margin: 1px 0; }
+.detalhe-sub { opacity: 0.75; font-size: 0.94em; }
+.detalhe-bom { color: #9ff0b4; }
+.detalhe-ruim { color: #ff9a9a; }
+.detalhe-crit { color: var(--hda-gold, #f5a524); }
+.detalhe-porque { border-top: 1px dashed #3a2f22; margin-top: 4px; padding-top: 4px; color: #cfe9f5; }
+
+.carta-erro {
+  width: 100%; text-align: center;
+  font-size: 0.78em; font-weight: bold; letter-spacing: 0.04em;
+  padding: 0 10px; max-height: 0; overflow: hidden;
+  opacity: 0; transition: opacity 0.18s ease, max-height 0.18s ease, padding 0.18s ease;
+  border-radius: var(--hda-radius, 6px);
+}
+.carta-erro.visivel { opacity: 1; max-height: 44px; padding: 5px 10px; }
+.carta-erro.tom-erro { background: rgba(224, 85, 85, 0.22); border: 1px solid #a33c3c; color: #ffd0d0; }
+.carta-erro.tom-aviso { background: rgba(245, 165, 36, 0.18); border: 1px solid #7a5c34; color: #ffe3b0; }
+
+/* Resumo pós-ação (item 97): aparece por ~2s e some. */
+.resumo-acao {
+  position: absolute; left: 50%; top: -6px; transform: translate(-50%, -100%);
+  display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 8;
+}
+.resumo-acao.visivel { opacity: 1; transform: translate(-50%, -100%) translateY(-4px); }
+.resumo-chip {
+  font-size: 0.72em; font-weight: bold; letter-spacing: 0.05em;
+  padding: 2px 9px; border-radius: 10px;
+  background: rgba(15, 11, 8, 0.92); border: 1px solid #5a4327; color: #f1e9d8;
+}
+.resumo-chip.chip-critico { border-color: #ffe066; color: #fff8d0; }
+.resumo-chip.chip-vuln { border-color: #6fcf5c; color: #c9f0b8; }
+.resumo-chip.chip-resist { border-color: #6b6b6b; color: #b0b0b0; }
+.resumo-chip.chip-ruptura { border-color: #7fd4ff; color: #dff3ff; }
+.resumo-chip.chip-status { border-color: #a06bff; color: #e6c9ff; }
+
+/* Configurações (item 99) */
+/* BUG corrigido no teste visual: `display: flex` vence o comportamento
+   padrão de [hidden], então o painel de configurações nascia aberto. */
+.cards-config-painel[hidden] { display: none !important; }
+.cards-config-painel {
+  width: 100%; padding: 9px 12px;
+  background: rgba(15, 11, 8, 0.9);
+  border: 1px solid var(--hda-line, #4a3a26); border-radius: var(--hda-radius, 6px);
+  font-size: 0.8em;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.cfg-titulo { font-weight: bold; color: var(--hda-gold, #f5a524); margin-bottom: 2px; }
+.cfg-linha { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cfg-linha select { padding: 2px 6px; background: #241b14; color: #f1e9d8; border: 1px solid #4a3a26; border-radius: 4px; }
+.cfg-linha.cfg-check { justify-content: flex-start; }
+.cfg-nota { margin: 4px 0 0; font-size: 0.9em; color: #8a7a5c; font-style: italic; }
+
+/* =========================================================================
+   9. PRÉVIA NA ARENA (itens 12/13/63/66)
+   ========================================================================= */
+
+/* Barra-fantasma: o trecho de HP que o card selecionado deve tirar. Três
+   camadas: máximo (mais transparente), esperado e mínimo — é a "faixa de
+   incerteza" do item 13 desenhada, não escrita. */
+.barra { position: relative; }
+.barra-fantasma {
+  position: absolute; top: 0; bottom: 0; right: 0;
+  pointer-events: none;
+  display: none;
+}
+.combatente.com-previa .barra-fantasma { display: block; }
+.barra-fantasma .fantasma-max,
+.barra-fantasma .fantasma-esperado,
+.barra-fantasma .fantasma-min {
+  position: absolute; top: 0; bottom: 0; right: 0;
+  transition: width 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.barra-fantasma .fantasma-max { background: repeating-linear-gradient(45deg, rgba(255, 107, 107, 0.2) 0 4px, rgba(255, 107, 107, 0.32) 4px 8px); }
+.barra-fantasma .fantasma-esperado { background: rgba(255, 107, 107, 0.45); border-left: 1px solid rgba(255, 200, 200, 0.75); }
+.barra-fantasma .fantasma-min { background: rgba(255, 107, 107, 0.62); }
+/* Prévia de CURA usa a mesma barra, na direção oposta e em verde. */
+.barra-fantasma.fantasma-cura .fantasma-max { background: repeating-linear-gradient(45deg, rgba(111, 240, 180, 0.2) 0 4px, rgba(111, 240, 180, 0.32) 4px 8px); }
+.barra-fantasma.fantasma-cura .fantasma-esperado { background: rgba(111, 240, 180, 0.45); }
+.barra-fantasma.fantasma-cura .fantasma-min { background: rgba(111, 240, 180, 0.6); }
+
+/* Rótulo do HP previsto ao lado da barra. */
+.previa-hp-rotulo {
+  font-size: 0.62em; color: #ffb0b0; letter-spacing: 0.03em; margin-top: 1px;
+}
+.previa-hp-rotulo.morte { color: #ff6b6b; font-weight: bold; }
+.previa-hp-rotulo.cura { color: #8ff0b4; }
+
+/* Alvos atingidos por uma ação em área (item 63). */
+.combatente.alvo-na-area { outline: 2px dashed rgba(255, 176, 102, 0.8); outline-offset: 3px; border-radius: 8px; }
+.combatente.alvo-principal { outline: 2px solid var(--hda-gold, #f5a524); outline-offset: 3px; border-radius: 8px; }
+.combatente.aliado-na-area { outline: 2px dashed #ff6b6b; outline-offset: 3px; border-radius: 8px; }
+
+/* Linha de combo ligando o status do alvo ao card (item 95). */
+.combatente.origem-combo::after {
+  content: "🔗"; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+  font-size: 0.9em; animation: combo-liga 1.6s ease-in-out infinite;
+}
+@keyframes combo-liga {
+  0%, 100% { opacity: 0.45; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 1; transform: translateX(-50%) translateY(3px); }
+}
+
+/* =========================================================================
+   10. NÚMEROS FLUTUANTES ESPECIALIZADOS (itens 38-42)
+   ========================================================================= */
+.dano-flutuante.vulneravel { color: #b6ff8a; font-size: 1.35em; }
+.dano-flutuante.resistido { color: #a0a0a0; font-size: 0.95em; opacity: 0.9; }
+.dano-flutuante.ruptura { color: #9fe8ff; font-size: 1.2em; }
+.dano-flutuante.sub-rotulo {
+  font-size: 0.62em; letter-spacing: 0.1em; font-weight: bold;
+}
+.dano-flutuante.critico { font-size: 1.75em; color: #ffe066; animation: flutuar-critico 1s ease-out forwards; }
+@keyframes flutuar-critico {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.6) rotate(-6deg); }
+  18% { opacity: 1; transform: translate(-50%, -10px) scale(1.45) rotate(3deg); }
+  32% { transform: translate(-50%, -14px) scale(1.2) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%, -54px) scale(1.05); }
+}
+
+/* Hit-stop de crítico (item 42): pausa curtíssima da arena inteira. */
+.batalha-arena.hit-stop { animation: hit-stop 90ms steps(1, end); }
+@keyframes hit-stop {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.6) contrast(1.1); }
+}
+
+/* Postura rompida (item 41). */
+.faixa-ruptura {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  font-size: 1.25em; font-weight: bold; letter-spacing: 0.16em;
+  color: #dff3ff; text-shadow: 0 0 12px #7fd4ff, 2px 2px 0 rgba(0, 0, 0, 0.7);
+  pointer-events: none; z-index: 10;
+  animation: faixa-ruptura 0.85s ease-out forwards;
+}
+@keyframes faixa-ruptura {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); letter-spacing: 0.5em; }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(1); letter-spacing: 0.16em; }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -58%) scale(0.98); }
+}
+
+/* Natural 20 / Natural 1 (itens 72 e 73): um instante próprio, curto, e só
+   nessas duas faces — o resto das rolagens não interrompe mais o ritmo. */
+.faixa-nat20, .faixa-nat1 {
+  position: absolute; left: 50%; top: 34%; transform: translate(-50%, -50%);
+  font-size: 1.4em; font-weight: bold; letter-spacing: 0.2em;
+  pointer-events: none; z-index: 11;
+  animation: faixa-natural 0.85s ease-out forwards;
+}
+.faixa-nat20 { color: #fff8d0; text-shadow: 0 0 14px #ffe066, 2px 2px 0 rgba(0, 0, 0, 0.7); }
+.faixa-nat1 { color: #ffd0d0; text-shadow: 0 0 12px #e05555, 2px 2px 0 rgba(0, 0, 0, 0.7); }
+@keyframes faixa-natural {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+  22% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -62%) scale(0.96); }
+}
+
+/* Foco visual com um card armado (itens 23 e 67): tudo que não é alvo
+   daquele card baixa a intensidade — o alcance da ação fica óbvio no campo
+   sem nenhum overlay novo. O combatente ativo nunca é apagado. */
+.batalha-arena.arena-com-card-armado .combatente {
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+.batalha-arena.arena-com-card-armado .combatente:not(.alvo-principal):not(.alvo-na-area):not(.aliado-na-area):not(.ativo):not(.com-previa) {
+  opacity: 0.6; filter: saturate(0.65);
+}
+
+/* =========================================================================
+   11. ACESSIBILIDADE / MOVIMENTO REDUZIDO (item 81)
+   Duas portas para o mesmo lugar: a preferência do sistema operacional e a
+   opção do jogo. Em ambos os casos NADA some — só para de se mexer, porque
+   a informação está no texto e no ícone, não no movimento.
+   ========================================================================= */
+#batalha-acoes.animacoes-reduzidas .carta-batalha,
+#batalha-acoes.animacoes-reduzidas .carta-batalha::before,
+#batalha-acoes.animacoes-reduzidas .carta-batalha::after {
+  animation: none !important;
+  transition: none !important;
+}
+#batalha-acoes.animacoes-reduzidas .carta-batalha.nivel-2,
+#batalha-acoes.animacoes-reduzidas .carta-batalha.nivel-3 {
+  /* Sem pulso: o destaque vira uma borda sólida e um selo, permanentes. */
+  border-color: var(--hda-gold, #f5a524);
+  box-shadow: 0 0 0 2px rgba(245, 165, 36, 0.35);
+}
+#batalha-acoes.animacoes-reduzidas .carta-batalha:hover,
+#batalha-acoes.animacoes-reduzidas .carta-batalha.estado-selecionado { transform: none; }
+#batalha-acoes.animacoes-reduzidas .carta-batalha.estado-selecionado { box-shadow: 0 0 0 3px var(--hda-gold, #f5a524); }
+
+@media (prefers-reduced-motion: reduce) {
+  .carta-batalha, .carta-batalha::before, .carta-batalha::after,
+  .intencao-chip.intencao-letal, .tl-chip.tl-movido, .combatente.origem-combo::after,
+  .dano-flutuante, .faixa-ruptura, .batalha-arena.hit-stop {
+    animation: none !important;
+    transition: none !important;
+  }
+  .carta-batalha:hover, .carta-batalha.estado-selecionado { transform: none; }
+  .carta-batalha.nivel-2, .carta-batalha.nivel-3 {
+    border-color: var(--hda-gold, #f5a524);
+    box-shadow: 0 0 0 2px rgba(245, 165, 36, 0.35);
+  }
+  .carta-batalha.estado-selecionado { box-shadow: 0 0 0 3px var(--hda-gold, #f5a524); }
+}
+
+/* Alto contraste (reaproveita a classe já existente no <body>). */
+body.alto-contraste .carta-batalha {
+  background: #000 !important; border-color: #fff !important; color: #fff !important;
+}
+body.alto-contraste .carta-batalha::before { display: none; }
+body.alto-contraste .carta-nome, body.alto-contraste .carta-valor-num { color: #fff !important; }
+body.alto-contraste .carta-batalha.estado-recomendado { border-color: #ffe066 !important; box-shadow: 0 0 0 3px #ffe066 !important; }
+body.alto-contraste .badge-carta { background: #000 !important; border-color: #fff !important; color: #fff !important; }
+body.alto-contraste .carta-detalhe { background: #000 !important; border-color: #fff !important; }
+
+/* =========================================================================
+   12. MOBILE (itens 91/92)
+   Sem depender de hover em nenhum ponto: toda informação que o hover revela
+   também é revelada pelo 1º toque (que arma o card), e o toque longo abre o
+   detalhe avançado.
+   ========================================================================= */
+@media (max-width: 860px) {
+  #batalha-acoes { --carta-larg: 132px; --carta-alt: 172px; }
+  .carta-nome { font-size: 0.8em; }
+  .carta-valor-num { font-size: 1.1em; }
+  .faixa-intencoes, .faixa-timeline, .faixa-chefe, .faixa-dica { font-size: 0.72em; }
+}
+
+@media (max-width: 560px) {
+  #batalha-acoes { --carta-larg: calc(50% - 6px); --carta-alt: 158px; }
+  .mao-cards { gap: 7px; }
+  .carta-batalha { padding: 7px; }
+  .carta-badges .badge-carta:nth-child(n + 3) { display: none; }
+  .mao-cabecalho { font-size: 0.78em; gap: 6px; }
+  .carta-detalhe { font-size: 0.74em; }
+  /* Área de toque confortável mesmo com card estreito. */
+  .carta-batalha { min-height: 158px; }
+}
+
+/* Ponteiro grosso (toque) — hover nunca é o único caminho. */
+@media (hover: none) {
+  .carta-batalha:hover { transform: none; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45); }
+  .carta-batalha.estado-selecionado { transform: translateY(-6px) scale(1.03); }
+}

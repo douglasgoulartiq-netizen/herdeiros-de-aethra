@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HDA — bancada de teste da mão de cards</title>
+<link rel="stylesheet" href="../src/style.css" />
+<link rel="stylesheet" href="../src/battle-cards.css" />
+<style>
+  /* Só desta bancada — não faz parte do jogo. */
+  body { padding: 16px 12px 60px; background: #16110d; }
+  .cenario { max-width: 1000px; margin: 0 auto 34px; }
+  .cenario > h2 { color: #f5a524; font-size: 1em; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid #4a3a26; padding-bottom: 5px; }
+  .cenario > p { color: #c8b89a; font-size: 0.82em; margin: 4px 0 10px; }
+  .palco { display: flex; flex-direction: column; align-items: center; gap: 8px; background: linear-gradient(180deg,#2a1f2e,#1a1420); padding: 12px; border-radius: 8px; border: 1px solid #4a3a26; }
+  .batalha-arena { display: flex; justify-content: space-between; width: 100%; max-width: 900px; }
+  #painel-erros { position: fixed; left: 0; right: 0; bottom: 0; background: #400; color: #fdd; font: 12px/1.4 monospace; padding: 6px 10px; max-height: 26vh; overflow: auto; z-index: 99; display: none; }
+</style>
+</head>
+<body>
+<div id="painel-erros"></div>
+<div id="cenarios"></div>
+
+<script type="module">
+// Bancada de teste da mão de cards (itens 87, 90, 91, 92 do pedido).
+//
+// Monta os MESMOS módulos que a batalha real usa (Batalha, BattleForecast,
+// TacticalAdvisor, criarPainelDeCards) contra combatentes de mentira, para
+// checar layout, estados visuais, animações e comportamento em várias
+// larguras sem precisar jogar até encontrar cada situação.
+//
+// Não faz parte do jogo: nada em src/ importa este arquivo.
+import { Batalha } from "../src/systems/CombatSystem.js";
+import { criarPainelDeCards } from "../src/ui/BattleCards.js";
+import { aplicarEstadoElemental } from "../src/systems/ElementalReactionSystem.js";
+
+const erros = [];
+const painelErros = document.getElementById("painel-erros");
+function registrarErro(msg) {
+  erros.push(msg);
+  painelErros.style.display = "block";
+  painelErros.textContent = `${erros.length} erro(s):\n` + erros.join("\n");
+}
+window.addEventListener("error", (e) => registrarErro(`${e.message} @ ${e.filename}:${e.lineno}`));
+window.addEventListener("unhandledrejection", (e) => registrarErro(`promise: ${e.reason}`));
+
+const dados = {
+  elements: await (await fetch("../src/data/elements.json")).json(),
+  elementalStates: await (await fetch("../src/data/elementalStates.json")).json(),
+  elementalReactions: await (await fetch("../src/data/elementalReactions.json")).json(),
+};
+
+function heroi(over = {}) {
+  return {
+    id: "player", nome: "Aric", isPlayer: true, hp: 78, hpMax: 100, mp: 22, mpMax: 30,
+    atributos: { FOR: 16, DES: 11, CON: 13, INT: 18 }, defesa: 9, velocidade: 11,
+    ataque: { dano: 13, atributo: "FOR", bonusCritico: 0 }, critBonus: 0.05, elemento: "fisico",
+    habilidades: [], tracoId: null, racaId: "humano", classeId: "guerreiro",
+    sorteUsada: false, primeiroTurno: false, atb: 100, atbMax: 100, statusEffects: [],
+    sopro_usado: true, defendendo: false, posicao: "frente", vivo: true, ...over,
+  };
+}
+function monstro(over = {}) {
+  return {
+    id: "mob_0", monstroId: "mob", nome: "Servo de Geada", isPlayer: false,
+    hp: 62, hpMax: 90, mp: 0, mpMax: 0,
+    atributos: { FOR: 15, DES: 9, CON: 22, INT: 12 }, defesa: 7, velocidade: 9,
+    ataque: { dano: 16, atributo: "FOR", bonusCritico: 0 }, elemento: "gelo",
+    habilidades: [], sorteUsada: false, primeiroTurno: false, atb: 40, atbMax: 100,
+    statusEffects: [], chefe: false, postura: 0, posturaMax: 0, atordoado: false,
+    arquetipo: "agressor", defendendo: false, jaRoubou: false, jaInvocou: false,
+    invocacaoDef: null, vivo: true, xp: 10, ouroMin: 1, ouroMax: 3, ...over,
+  };
+}
+const hab = (o) => ({ id: "h", nome: "Habilidade", descricao: "", custoMP: 0, cooldown: 0, cooldownAtual: 0, tipo: "dano_fisico", multiplicador: 1.5, ...o });
+
+function montarCenario({ titulo, nota, jogador, aliados, inimigos, alvo, intencoes = new Map() }) {
+  const wrap = document.createElement("div");
+  wrap.className = "cenario";
+  wrap.innerHTML = `<h2>${titulo}</h2><p>${nota}</p><div class="palco"><div class="batalha-arena"></div><div class="ctx"></div><div class="acoes" id="acoes-${Math.random().toString(36).slice(2)}"></div></div>`;
+  document.getElementById("cenarios").appendChild(wrap);
+  const acoesEl = wrap.querySelector(".acoes");
+  acoesEl.id = `batalha-acoes-${document.querySelectorAll(".cenario").length}`;
+  // A folha de estilo usa #batalha-acoes; aqui replicamos as variáveis via
+  // um atributo id de mesmo prefixo não funciona, então clonamos a regra:
+  acoesEl.style.cssText = "--carta-larg:152px;--carta-alt:190px;--carta-raio:10px;--carta-borda:#5a4327;--carta-fundo:linear-gradient(163deg,#2a2018 0%,#1c1510 62%,#221a12 100%);display:flex;flex-direction:column;align-items:stretch;gap:8px;width:100%;max-width:980px;";
+  const batalha = new Batalha(aliados, inimigos, dados.elements, null, [], 0, null, false, dados.elementalStates, dados.elementalReactions);
+  const painel = criarPainelDeCards({
+    acoesEl,
+    contextoEl: wrap.querySelector(".ctx"),
+    dados,
+    onJogar: (card) => console.log("[bancada] jogou:", card.nome),
+    onAbrirItens: () => console.log("[bancada] abriu itens"),
+    onPreverAlvo: () => {},
+    onSelecionarCard: () => {},
+  });
+  painel.desenhar({
+    batalha, jogador, alvo, aliados,
+    inimigosVivos: inimigos.filter((i) => i.vivo),
+    intencoes, temItens: true,
+  });
+  return { wrap, acoesEl, painel };
+}
+
+// ---- Cenário A: mão de 6 cards, alvo vulnerável -----------------------
+{
+  const jogador = heroi({
+    habilidades: [
+      hab({ id: "chama", nome: "Lâmina Flamejante", tipo: "dano_fisico", multiplicador: 1.6, elemento: "fogo", custoMP: 6, cooldown: 2, descricao: "Envolve a lâmina em Chama por um golpe." }),
+      hab({ id: "cura", nome: "Toque Restaurador", tipo: "cura", multiplicador: 4, custoMP: 8, cooldown: 3, descricao: "Fecha as feridas com Éter de Vida." }),
+    ],
+  });
+  const alvo = monstro();
+  montarCenario({ titulo: "A · Mão de 6 cards, alvo vulnerável a Chama", nota: "Verifica: identidade elemental, badge VULNERÁVEL, faixa de dano, custo de Éter, selo de melhor jogada.", jogador, aliados: [jogador], inimigos: [alvo], alvo });
+}
+
+// ---- Cenário B: 8 cards, estados variados ----------------------------
+{
+  const jogador = heroi({
+    mp: 9,
+    habilidades: [
+      hab({ id: "geada", nome: "Prisão de Geada", tipo: "dano_magico", multiplicador: 1.7, elemento: "gelo", custoMP: 6, descricao: "Prende o alvo em cristais de Geada." }),
+      hab({ id: "meteoro", nome: "Chuva de Meteoros Cataclísmica", tipo: "dano_magico", multiplicador: 3.4, elemento: "fogo", custoMP: 25, cooldown: 4, descricao: "A definitiva do Mago: um dilúvio de Chama." }),
+      hab({ id: "recarga", nome: "Investida Brutal", tipo: "dano_ignora_defesa", multiplicador: 1.6, cooldown: 3, cooldownAtual: 2, descricao: "Ignora quase toda a defesa do alvo." }),
+      hab({ id: "lento", nome: "Amarras de Umbral", tipo: "debuff_velocidade", duracao: 2, valor: 0.4, elemento: "sombrio", custoMP: 4, descricao: "Sombras seguram os pés do alvo." }),
+    ],
+  });
+  const alvo = monstro({ nome: "Colosso de Terra", elemento: "terra", hp: 210, hpMax: 260 });
+  aplicarEstadoElemental(alvo, "molhado", dados.elementalStates);
+  montarCenario({ titulo: "B · 8 cards: recarga, sem Éter, ultimate, combo e nome longo", nota: "Verifica: overlay de recarga, bloqueio por recurso, moldura de definitiva, badge de reação, quebra de nome em duas linhas, e o limite de 3 destaques.", jogador, aliados: [jogador], inimigos: [alvo], alvo });
+}
+
+// ---- Cenário C: chefe telegrafando golpe letal ------------------------
+{
+  const jogador = heroi({ hp: 21, hpMax: 100, habilidades: [
+    hab({ id: "escudo", nome: "Escudo Arcano", tipo: "buff_defesa", duracao: 2, valor: 0.5, custoMP: 8, elemento: "arcano", descricao: "Uma cúpula de Éter absorve o impacto." }),
+    hab({ id: "golpe", nome: "Golpe Poderoso", tipo: "dano_fisico", multiplicador: 1.5, cooldown: 2 }),
+  ] });
+  const tanque = heroi({ nome: "Drakan", hp: 88, hpMax: 120, posicao: "frente" });
+  const chefe = monstro({ id: "chefe", nome: "Dragão Jovem", chefe: true, posturaMax: 100, postura: 88, hp: 340, hpMax: 900, elemento: "fogo", ataque: { dano: 46, atributo: "FOR", bonusCritico: 0 }, atributos: { FOR: 46, DES: 14, CON: 40, INT: 40 } });
+  const b = new Batalha([jogador, tanque], [chefe], dados.elements, null, [], 0, null, false, dados.elementalStates, dados.elementalReactions);
+  const plano = { tipo: "atacar", alvo: jogador };
+  montarCenario({
+    titulo: "C · Chefe telegrafando um golpe letal (fase 2, postura em 88%)",
+    nota: "Verifica: faixa de intenção com dano, chip de fase/postura do chefe, linha do tempo, e a defesa vencendo o ataque na recomendação.",
+    jogador, aliados: [jogador, tanque], inimigos: [chefe], alvo: chefe,
+    intencoes: new Map([[chefe, { plano, faixa: b.estimarDanoIntencao(chefe, plano) }]]),
+  });
+}
+
+// ---- Cenário D: 12 cards, para forçar a paginação ---------------------
+{
+  const habs = [];
+  const elementos = ["fogo", "agua", "gelo", "natureza", "terra", "vento", "arcano", "sombrio"];
+  elementos.forEach((el, i) => habs.push(hab({ id: `e${i}`, nome: `Golpe de ${el}`, tipo: "dano_fisico", multiplicador: 1.3 + i * 0.06, elemento: el, custoMP: i })));
+  const jogador = heroi({ habilidades: habs, mp: 30 });
+  const alvo = monstro({ elemento: "fisico", hp: 300, hpMax: 300 });
+  montarCenario({ titulo: "D · 13 cards: paginação e as 8 identidades elementais", nota: "Verifica: paginação (nunca rolagem horizontal) e a cor/runa/textura de cada elemento lado a lado.", jogador, aliados: [jogador], inimigos: [alvo], alvo });
+}
+
+// Sinaliza para o teste automatizado que tudo montou.
+window.__BANCADA_PRONTA__ = { erros };
+document.title = erros.length ? `ERROS (${erros.length})` : "bancada ok";
+</script>
+</body>
+</html>

@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Herdeiros de Aethra - RPG</title>
 <link rel="stylesheet" href="src/style.css" />
+<!-- Mão de cards de batalha: camada nova, carregada DEPOIS de style.css para
+     herdar a paleta --hda-* e poder sobrepor pontos específicos do combate.
+     Mantida em arquivo separado de propósito — remover esta linha devolve o
+     visual de combate anterior sem tocar em nenhuma outra tela. -->
+<link rel="stylesheet" href="src/battle-cards.css" />
 </head>
 <body>
   <div id="app">

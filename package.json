@@ -5,6 +5,7 @@
   "description": "Herdeiros de Aethra - RPG em JavaScript puro",
   "scripts": {
     "dev": "node scripts/dev-server.js",
-    "start": "node scripts/dev-server.js"
+    "start": "node scripts/dev-server.js",
+    "test:cards": "node scripts/test-battle-cards.mjs"
   }
 }

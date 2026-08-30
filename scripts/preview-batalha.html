@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HDA — batalha real (bancada de integração)</title>
+<link rel="stylesheet" href="../src/style.css" />
+<link rel="stylesheet" href="../src/battle-cards.css" />
+</head>
+<body>
+<div id="app">
+  <div id="modal-overlay" class="hidden"><div id="modal-conteudo"></div></div>
+  <div id="mensagem-topo" class="hidden"></div>
+  <div id="screen-batalha" class="tela hidden"></div>
+</div>
+<script type="module">
+// Bancada de INTEGRAÇÃO: chama a mesma `iniciarBatalha()` que o jogo chama,
+// com os dados reais (src/data/*.json) e um personagem real criado por
+// CharacterFactory — o caminho completo, incluindo loop de ATB, telegraph,
+// intenções, prévia na arena e a mão de cards.
+//
+// Não faz parte do jogo: nada em src/ importa este arquivo.
+import { carregarDados } from "../src/data/loader.js";
+import { criarPersonagem } from "../src/systems/CharacterFactory.js";
+import { iniciarBatalha } from "../src/ui/BattleUI.js";
+
+const erros = [];
+window.addEventListener("error", (e) => erros.push(`${e.message} @ ${e.filename}:${e.lineno}`));
+window.addEventListener("unhandledrejection", (e) => erros.push(`promise: ${e.reason && e.reason.stack ? e.reason.stack : e.reason}`));
+window.__ERROS__ = erros;
+
+// O loader busca ./src/data/*.json a partir da raiz do site; esta página vive
+// em /scripts/, então ajustamos a base uma única vez.
+const baseFetch = window.fetch.bind(window);
+window.fetch = (url, ...resto) => baseFetch(String(url).startsWith("./src/") ? `.${url}` : url, ...resto);
+
+const dados = await carregarDados();
+const personagem = criarPersonagem({ nome: "Aric", raca: "humano", classe: "guerreiro", antecedente: dados.backgrounds[0].id, traco: dados.traits[0].id }, dados);
+// ?nivel=20&chefe=1 permite forçar cenários específicos a partir do teste
+// automatizado (ex.: um time forte o bastante para quebrar a postura do
+// chefe e disparar a interrupção).
+const params = new URLSearchParams(location.search);
+const nivelAlvo = Number(params.get("nivel") || 6);
+personagem.nivel = nivelAlvo;
+for (let i = 1; i < nivelAlvo; i += 1) { personagem.atributos.FOR += 3; personagem.atributos.CON += 2; personagem.hpMax += 10; }
+personagem.hp = Math.round(personagem.hpMax * (params.get("ferido") ? 0.2 : 0.55));
+personagem.mp = personagem.mpMax;
+personagem.inventario = personagem.inventario || [];
+
+const mago = criarPersonagem({ nome: "Lirael", raca: "elfo", classe: "mago", antecedente: dados.backgrounds[0].id, traco: dados.traits[0].id }, dados);
+mago.uid = "lirael";
+
+// Um chefe e dois comuns, para exercitar postura, intenção e alvos múltiplos.
+const chefeDef = dados.monsters.find((m) => m.chefe) || dados.monsters[0];
+const comumDef = dados.monsters.find((m) => !m.chefe) || dados.monsters[0];
+// ?chefeFraco=1 clona a definição do chefe com defesa/HP baixos: é o único
+// jeito de o teste automatizado chegar de fato à quebra de postura e à
+// interrupção sem depender do balanceamento real do jogo.
+const chefeUsado = params.get("chefeFraco")
+  ? { ...chefeDef, hp: Number(params.get("chefeHp") || 70), defesa: 0, atk: Math.max(2, Math.round(chefeDef.atk * 0.25)) }
+  : chefeDef;
+const monstros = params.get("semChefe") ? [comumDef, comumDef, comumDef] : [chefeUsado, comumDef, comumDef];
+
+iniciarBatalha(
+  document.getElementById("screen-batalha"),
+  {},                    // imagens: vazio de propósito (o desenho do sprite é opcional)
+  dados, personagem, [mago], monstros,
+  "fogo",                // terreno
+  "gelo",                // clima
+  null, [], (resultado) => { window.__FIM__ = resultado; }
+);
+window.__PRONTO__ = true;
+document.title = erros.length ? `ERROS (${erros.length})` : "batalha ok";
+</script>
+</body>
+</html>

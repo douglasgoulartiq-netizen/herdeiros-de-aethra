@@ -61,3 +61,31 @@ export function somDano(critico) {
 }
 export function somCura() { bipar({ freq: 520, duracaoMs: 180, tipo: "sine", deslizarPara: 780, volumeMult: 0.55 }); }
 export function somBloqueioOuErro() { bipar({ freq: 200, duracaoMs: 90, tipo: "square", volumeMult: 0.35 }); }
+
+// ---------------------------------------------------------------------
+// Sons da mão de cards (item 79 do pedido de melhoria dos cards).
+//
+// Duas regras deliberadas, porque som de interface cansa muito mais rápido
+// que efeito visual:
+//   1. Hover é o som MAIS BAIXO e MAIS CURTO do jogo (35ms, 12% do volume) —
+//      passar o mouse por 8 cards não pode virar uma escala musical.
+//   2. Todos continuam mudos enquanto o volume de efeitos estiver
+//      "desligado", que é o padrão do jogo (ver volumeEfeitos()).
+// ---------------------------------------------------------------------
+
+// Anti-repetição: o mouse atravessa vários cards em milissegundos; sem esta
+// janela, o hover viraria um chiado contínuo.
+let ultimoHover = 0;
+export function somCardHover() {
+  const agora = Date.now();
+  if (agora - ultimoHover < 70) return;
+  ultimoHover = agora;
+  bipar({ freq: 880, duracaoMs: 35, tipo: "sine", volumeMult: 0.12 });
+}
+
+export function somCardSelecionado() { bipar({ freq: 600, duracaoMs: 90, tipo: "triangle", deslizarPara: 760, volumeMult: 0.4 }); }
+export function somCardErro() { bipar({ freq: 150, duracaoMs: 130, tipo: "square", deslizarPara: 110, volumeMult: 0.4 }); }
+export function somCombo() { bipar({ freq: 700, duracaoMs: 200, tipo: "triangle", deslizarPara: 1180, volumeMult: 0.5 }); }
+export function somUltimatePronta() { bipar({ freq: 330, duracaoMs: 380, tipo: "sawtooth", deslizarPara: 990, volumeMult: 0.45 }); }
+export function somCooldownPronto() { bipar({ freq: 990, duracaoMs: 110, tipo: "sine", deslizarPara: 1320, volumeMult: 0.28 }); }
+export function somRuptura() { bipar({ freq: 240, duracaoMs: 320, tipo: "sawtooth", deslizarPara: 90, volumeMult: 0.7 }); }

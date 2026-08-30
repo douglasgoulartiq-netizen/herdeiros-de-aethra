@@ -7,6 +7,7 @@ import {
   modificadorDanoRecebidoEstado, modificadorCuraRecebidaEstado, modificadorDefesaEstado,
   modificadorVelocidadeEstado, estaControladoPorEstado, penalidadeD20Estado,
   verificarReacaoElemental, peekReacaoElemental, aplicarEstadoElemental, estadoElementalAtivo,
+  buscarReacaoAplicavel,
 } from "./ElementalReactionSystem.js";
 import { multiplicadorDificuldade } from "./AccessibilitySystem.js";
 
@@ -527,17 +528,19 @@ export class Batalha {
       relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
       multElemental = multiplicadorElemental(elemResolvido, elemDef, this.dadosElementos);
     }
-    if (relacao === "imune") return { min: 0, max: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null };
+    if (relacao === "imune") return { min: 0, max: 0, esperado: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null, reacao: null, elemento: elemResolvido };
     const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
     let baseComMultiplicadores = base * multElemental * this.multiplicadorTerreno(elemResolvido, alvo) * this.multiplicadorClima(elemResolvido, alvo) * combo.multiplicador;
     if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= 0.3) baseComMultiplicadores *= 1.3;
     // Prévia (só-leitura) do bônus de reação elemental — ver peekReacaoElemental
     // em ElementalReactionSystem.js. Nunca consome o estado do alvo.
     let ignoraDefesaExtraPreview = 0;
+    let reacaoPrevista = null;
     if (FLAGS.reacoesElementais) {
       baseComMultiplicadores *= modificadorDanoRecebidoEstado(alvo, elemResolvido);
       const { ocorreu, reacao, multiplicadorDano } = peekReacaoElemental(alvo, elemResolvido, true, this.dadosReacoes);
       if (ocorreu) {
+        reacaoPrevista = reacao;
         baseComMultiplicadores *= multiplicadorDano;
         if (reacao.ignoraDefesaRestante) ignoraDefesaExtraPreview = 999;
       }
@@ -555,9 +558,179 @@ export class Batalha {
     };
     return {
       min: finalizar(0.85, false), max: finalizar(1.15, false),
+      // `esperado`: mesma fórmula com variância 1.0 (o centro da faixa) —
+      // usado pela barra-fantasma de HP (item 12/13 do pedido de cards),
+      // nunca por nenhuma decisão de jogo.
+      esperado: finalizar(1, false),
       minCritico: finalizar(0.85, true), maxCritico: finalizar(1.15, true),
       relacaoElemental: relacao, combo: combo.combo,
+      reacao: reacaoPrevista, elemento: elemResolvido,
     };
+  }
+
+  // =====================================================================
+  // PRÉVIAS SÓ-LEITURA PARA A UI DE CARDS (nenhuma delas rola dado, muda
+  // estado ou é chamada por qualquer caminho que decida um resultado real).
+  // Ficam AQUI, e não num módulo de UI, de propósito: espelham fórmulas que
+  // moram neste mesmo arquivo (rolarAtaque, usarHabilidade/dano_magico,
+  // usarHabilidade/cura, resolverAcaoD20, acumularQuebra), então qualquer
+  // ajuste de balanceamento futuro é feito lado a lado com a prévia
+  // correspondente, em vez de duas cópias em arquivos distantes.
+  // =====================================================================
+
+  // Espelha o ramo `dano_magico` de usarHabilidade(): INT * multiplicador,
+  // variância 0.9..1.1 (não 0.85..1.15 como o físico), defesa a 30% (não
+  // 50%) e SEM redução de formação. Retorna o mesmo formato de
+  // estimarFaixaDano() para a UI poder tratar os dois igual.
+  estimarFaixaDanoMagico(atacante, alvo, { multiplicador = 1, elementoAtacante = null } = {}) {
+    const elemResolvido = elementoAtacante || atacante.elemento || "fisico";
+    let relacao = "neutro";
+    let multElemental = 1;
+    if (FLAGS.elementos && this.dadosElementos) {
+      const elemDef = alvo.elemento || "fisico";
+      relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
+      multElemental = multiplicadorElemental(elemResolvido, elemDef, this.dadosElementos);
+    }
+    if (relacao === "imune") return { min: 0, max: 0, esperado: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null, reacao: null, elemento: elemResolvido };
+    const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
+    let base = (atacante.atributos.INT || 0) * multiplicador;
+    base *= multElemental * this.multiplicadorTerreno(elemResolvido, alvo) * this.multiplicadorClima(elemResolvido, alvo) * combo.multiplicador;
+    let reacaoPrevista = null;
+    if (FLAGS.reacoesElementais) {
+      base *= modificadorDanoRecebidoEstado(alvo, elemResolvido);
+      // tipoFisico=false: magia nunca aciona Estilhaçar/Ruptura (mesma regra
+      // do ramo dano_magico de usarHabilidade).
+      const { ocorreu, reacao, multiplicadorDano } = peekReacaoElemental(alvo, elemResolvido, false, this.dadosReacoes);
+      if (ocorreu) { reacaoPrevista = reacao; base *= multiplicadorDano; }
+    }
+    const bonusAtordoado = alvo.chefe && alvo.atordoado ? BONUS_DANO_ATORDOADO : 1;
+    const defAplicada = this.defesaEfetiva(alvo) * 0.3;
+    const finalizar = (varianciaMult, dobraCritico) => {
+      let dano = base * varianciaMult;
+      if (dobraCritico) dano *= 2;
+      dano = Math.max(1, Math.round(dano - defAplicada));
+      return Math.round(dano * bonusAtordoado);
+    };
+    return {
+      min: finalizar(0.9, false), max: finalizar(1.1, false), esperado: finalizar(1, false),
+      minCritico: finalizar(0.9, true), maxCritico: finalizar(1.1, true),
+      relacaoElemental: relacao, combo: combo.combo, reacao: reacaoPrevista, elemento: elemResolvido,
+    };
+  }
+
+  // Espelha o ramo `cura` de usarHabilidade() (que sempre cura o próprio
+  // conjurador). `efetivaMin/efetivaMax` já descontam o excedente acima do
+  // HP máximo — item 18 do pedido: não induzir o jogador a gastar uma cura
+  // grande num alvo quase cheio.
+  estimarCura(atacante, habilidade) {
+    const mult = habilidade.multiplicador || 1;
+    const modEstado = FLAGS.reacoesElementais ? modificadorCuraRecebidaEstado(atacante) : 1;
+    const bruta = (v) => Math.max(0, Math.round(Math.round((atacante.atributos.INT || 0) * mult * v) * modEstado));
+    const min = bruta(0.9);
+    const max = bruta(1.1);
+    const esperado = bruta(1);
+    const espaco = Math.max(0, atacante.hpMax - atacante.hp);
+    return {
+      min, max, esperado,
+      efetivaMin: Math.min(min, espaco), efetivaMax: Math.min(max, espaco), efetivaEsperada: Math.min(esperado, espaco),
+      desperdicada: Math.max(0, esperado - espaco),
+      espaco,
+      curaReduzida: modEstado < 1,
+    };
+  }
+
+  // Probabilidades da rolagem d20 desta ação, derivadas das MESMAS regras de
+  // resolverAcaoD20(): crítico natural em d>16, erro total em d-penalidade<4,
+  // bloqueio só quando o alvo está defendendo, re-rolagem do traço "sortudo"
+  // enquanto ainda não foi usada nesta batalha. Devolve frações 0..1.
+  chancesD20(atacante, alvo, { tipoFisico = true, elemento = null } = {}) {
+    const penalidade = FLAGS.reacoesElementais ? penalidadeD20Estado(atacante) : 0;
+    const rerolagem = !!(atacante.isPlayer && atacante.tracoId === "sortudo" && !atacante.sorteUsada);
+    const limiarErro = Math.min(20, Math.max(0, 4 + penalidade)); // erro se d < limiarErro
+    const faces = 20;
+    const pMenorQue = (t) => Math.min(faces, Math.max(0, t - 1)) / faces;
+    let pErro;
+    let pCriticoNatural;
+    if (rerolagem) {
+      // 1ª rolagem só é re-rolada quando d < 4 (independente da penalidade).
+      const pRerola = 3 / faces;
+      const pErroSemRerolagem = Math.max(0, Math.min(faces, limiarErro - 1) - 3) / faces;
+      pErro = pErroSemRerolagem + pRerola * pMenorQue(limiarErro);
+      pCriticoNatural = 4 / faces + pRerola * (4 / faces);
+    } else {
+      pErro = pMenorQue(limiarErro);
+      pCriticoNatural = 4 / faces;
+    }
+    const pAcerto = Math.max(0, 1 - pErro);
+    // Bônus de crítico da árvore/talentos: só é testado quando a rolagem não
+    // foi crítico natural nem erro total (mesma condição de rolarAtaque).
+    const critBonus = Math.max(0, Math.min(1, atacante.critBonus || 0));
+    let pCritico = pCriticoNatural + Math.max(0, pAcerto - pCriticoNatural) * critBonus;
+    // Bloqueio: só existe se o alvo declarou Defender. Aproximação honesta —
+    // usa o mesmo limiar (10 + metade da defesa efetiva) de resolverAcaoD20.
+    let pBloqueio = 0;
+    let limiarBloqueio = null;
+    if (alvo && alvo.defendendo) {
+      limiarBloqueio = 10 + Math.floor(this.defesaEfetiva(alvo) / 2);
+      pBloqueio = Math.max(0, pMenorQue(limiarBloqueio) - pErro);
+    }
+    // Crítico GARANTIDO: um golpe físico contra alvo Congelado dispara
+    // Estilhaçar, que tem `garanteCritico` (ver elementalReactions.json).
+    let criticoGarantido = false;
+    if (FLAGS.reacoesElementais && alvo) {
+      const estado = estadoElementalAtivo(alvo);
+      if (estado) {
+        const r = buscarReacaoAplicavel(estado.estadoId, elemento, tipoFisico, this.dadosReacoes);
+        if (r && r.garanteCritico) criticoGarantido = true;
+      }
+    }
+    return {
+      acerto: Math.max(0, pAcerto - pBloqueio),
+      erro: pErro,
+      bloqueio: pBloqueio,
+      critico: criticoGarantido ? 1 : pCritico,
+      criticoGarantido,
+      penalidadeD20: penalidade,
+      rerolagemSorte: rerolagem,
+      limiarBloqueio,
+    };
+  }
+
+  // Ganho de postura (ruptura) que ESTE golpe daria no alvo, pelas mesmas
+  // regras de acumularQuebra(): só o time do jogador enche, só contra chefe
+  // vivo e ainda não atordoado, e o valor depende da relação elemental.
+  estimarRuptura(atacante, alvo, relacao) {
+    if (!atacante || !atacante.isPlayer || !alvo || alvo.isPlayer) return null;
+    if (!alvo.chefe || !alvo.vivo || alvo.atordoado || !alvo.posturaMax) return null;
+    const ganho = GANHO_QUEBRA_POR_RELACAO[relacao] ?? GANHO_QUEBRA_POR_RELACAO.neutro;
+    if (ganho <= 0) return null;
+    const restante = Math.max(0, alvo.posturaMax - alvo.postura);
+    return { ganho, restante, quebra: ganho >= restante, postura: alvo.postura, posturaMax: alvo.posturaMax };
+  }
+
+  // Chance de o alvo bloquear o PRÓXIMO golpe recebido se ele usar Defender
+  // agora — usada pelo card "Defender" pra dizer o que a defesa vale de fato
+  // (item 19), em vez de só "fica defendendo".
+  chanceBloqueioSeDefender(c) {
+    const limiar = 10 + Math.floor(this.defesaEfetiva(c) / 2);
+    return { limiar, chance: Math.min(20, Math.max(0, limiar - 1)) / 20 };
+  }
+
+  // Faixa de dano que um plano de intenção inimiga (ver decidirAcao) causaria
+  // no alvo escolhido. Reusa exatamente os multiplicadores que
+  // conjurarAtaque()/ataqueBasico() usariam — nunca inventa um número novo.
+  estimarDanoIntencao(inimigo, plano) {
+    if (!plano || !plano.alvo || !plano.alvo.vivo) return null;
+    if (plano.tipo === "atacar") return this.estimarFaixaDano(inimigo, plano.alvo);
+    if (plano.tipo === "conjurar") {
+      return this.estimarFaixaDano(inimigo, plano.alvo, {
+        multiplicador: 1.3,
+        ignoraDefesa: Math.round(this.defesaEfetiva(plano.alvo) * 0.4),
+        elementoAtacante: inimigo.elemento,
+        respeitaFormacao: false,
+      });
+    }
+    return null;
   }
 
   rolarAtaque(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true } = {}) {
