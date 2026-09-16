@@ -1,0 +1,18 @@
+/* Polimento de batalha: entrada, resposta ao impacto e vida nos sprites. */
+#screen-batalha { animation: hda-batalha-entra .32s ease-out both; }
+#screen-batalha.hda-batalha-entrada { animation: hda-batalha-entra .32s ease-out both; }
+#screen-batalha.hda-batalha-saida { animation: hda-batalha-sai .28s ease-in both; }
+.combatente .sprite-wrap { animation: hda-sprite-idle 1.8s ease-in-out infinite; }
+.combatente.ativo .sprite-wrap { animation: hda-sprite-pronto .7s ease-in-out infinite; }
+.combatente.hit-flash .sprite-wrap { animation: hda-sprite-impacto .28s ease-out; }
+.combatente.tombando .sprite-wrap { animation: hda-sprite-queda .7s ease-in forwards; }
+@keyframes hda-batalha-entra { from { opacity:0; transform:scale(1.025); } to { opacity:1; transform:none; } }
+@keyframes hda-batalha-sai { from { opacity:1; transform:none; } to { opacity:0; transform:scale(.985); } }
+@keyframes hda-sprite-idle { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2px); } }
+@keyframes hda-sprite-pronto { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.18); } }
+@keyframes hda-sprite-impacto { 0% { filter:brightness(2.2); transform:translateX(0); } 35% { transform:translateX(-4px); } 70% { transform:translateX(4px); } 100% { filter:brightness(1); transform:none; } }
+@keyframes hda-sprite-queda { to { transform:translateY(10px) rotate(8deg); opacity:.25; } }
+@media (prefers-reduced-motion: reduce) {
+  #screen-batalha, #screen-batalha.hda-batalha-entrada, #screen-batalha.hda-batalha-saida, .combatente .sprite-wrap, .combatente.ativo .sprite-wrap,
+  .combatente.hit-flash .sprite-wrap, .combatente.tombando .sprite-wrap { animation:none; }
+}

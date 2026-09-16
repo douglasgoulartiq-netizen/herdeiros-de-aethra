@@ -15,7 +15,7 @@ export function montarAtlas(personagem, ZONAS, zonaAtualId, onViajar) {
   corpo.innerHTML = `
     <p class="desc">As grandes regiões de Aethra, catalogadas no Códice da Mitologia. Clique numa região para ler sua descrição — regiões ligadas a uma zona já visitada permitem viagem rápida direta.</p>
     <div id="atlas-wrap" style="position:relative;width:100%;max-width:900px;margin:0 auto;">
-      <img src="assets/lore/mapa_mundi.jpg" alt="Mapa-múndi de Aethra" style="width:100%;display:block;border-radius:6px;border:2px solid #7a5c34;" />
+      <img src="assets/lore/mapa_mundi.jpg" alt="Mapa-múndi de Aethra" class="hda-img-mapa" style="border-radius:6px;border:2px solid #7a5c34;" />
       <div id="atlas-hotspots" style="position:absolute;inset:0;"></div>
     </div>
     <div id="atlas-painel" style="margin-top:14px;"></div>

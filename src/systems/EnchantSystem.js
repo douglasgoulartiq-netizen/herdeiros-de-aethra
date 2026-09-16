@@ -13,18 +13,35 @@
 // defesa 2) sinta um ganho visível a cada nível — mesma lição aprendida no
 // reforço de monstro solo (task #46).
 import { contarItem, removerPorId } from "./InventorySystem.js";
+import { ehMarco, candidatosDoMarco, aplicarSubStatus } from "./SubStatusSystem.js";
 
-export const MAX_NIVEL_APRIMORAMENTO = 5;
+// O teto subiu de +5 para +10 (decisão do jogador). Motivo de design: com
+// sub-status a cada 2 níveis, cinco marcos (+2, +4, +6, +8, +10) dão ao item
+// uma história própria — a mesma espada vira cinco itens diferentes ao longo
+// da campanha. Com o teto antigo seriam só dois marcos, e o aprimoramento
+// continuaria sendo uma escada curta.
+export const MAX_NIVEL_APRIMORAMENTO = 10;
 export const GANHO_POR_NIVEL = 0.08; // +8% do stat base por nível, cumulativo a partir do original
 
 // Custo pra ir do nível atual (índice) pro próximo. CUSTO_POR_NIVEL[0] =
-// custo de +0 -> +1, [4] = custo de +4 -> +5 (máximo).
+// custo de +0 -> +1, [9] = custo de +9 -> +10 (máximo).
+//
+// A curva dos cinco primeiros é a original, intocada: um save no meio do
+// caminho não vê preço mudar. Do +6 em diante ela cresce mais rápido (cada
+// nível custa ~1,7x o anterior) porque esses níveis carregam os marcos de
+// sub-status — são a parte cara do item de propósito, e o material raro é o
+// que dá peso à escolha de QUAL item levar até o fim.
 export const CUSTO_POR_NIVEL = [
   { ouro: 15, materiais: [{ itemId: "minerio", quantidade: 2 }, { itemId: "madeira", quantidade: 1 }] },
   { ouro: 35, materiais: [{ itemId: "minerio", quantidade: 3 }, { itemId: "gema", quantidade: 1 }] },
   { ouro: 70, materiais: [{ itemId: "minerio_raro", quantidade: 2 }, { itemId: "gema", quantidade: 2 }] },
   { ouro: 130, materiais: [{ itemId: "minerio_raro", quantidade: 3 }, { itemId: "erva_rara", quantidade: 2 }] },
   { ouro: 220, materiais: [{ itemId: "gema_rara", quantidade: 1 }, { itemId: "minerio_raro", quantidade: 4 }] },
+  { ouro: 380, materiais: [{ itemId: "gema_rara", quantidade: 2 }, { itemId: "minerio_raro", quantidade: 5 }] },
+  { ouro: 620, materiais: [{ itemId: "gema_rara", quantidade: 3 }, { itemId: "minerio_raro", quantidade: 6 }, { itemId: "erva_rara", quantidade: 3 }] },
+  { ouro: 980, materiais: [{ itemId: "gema_rara", quantidade: 4 }, { itemId: "minerio_raro", quantidade: 8 }] },
+  { ouro: 1500, materiais: [{ itemId: "gema_rara", quantidade: 6 }, { itemId: "minerio_raro", quantidade: 10 }, { itemId: "erva_rara", quantidade: 5 }] },
+  { ouro: 2300, materiais: [{ itemId: "gema_rara", quantidade: 8 }, { itemId: "minerio_raro", quantidade: 14 }] },
 ];
 
 // Só arma/armadura/acessório têm um stat pra escalar — consumíveis e
@@ -105,5 +122,44 @@ export function aprimorarItem(personagem, uid) {
   item.aprimoramento = novoNivel;
   recalcularStats(item, novoNivel);
 
-  return { ok: true, item, novoNivel };
+  // MARCO DE SUB-STATUS (+2, +4, +6, +8, +10). O nível já está gravado e o
+  // stat já subiu; o que falta é a ESCOLHA, e ela não acontece aqui — esta
+  // função é pura e roda em teste sem navegador. Devolve os três candidatos
+  // para a UI apresentar, e `escolherSubStatusDoMarco` grava a decisão.
+  //
+  // Um item que ficou com marco pendente (o jogador fechou a forja no meio)
+  // não fica quebrado: `marcoPendente` sobrevive no save, e a forja o oferece
+  // de novo na próxima vez. Perder um sub-status pago seria imperdoável.
+  const resultado = { ok: true, item, novoNivel, marco: null };
+  if (ehMarco(novoNivel)) {
+    const candidatos = candidatosDoMarco(item, novoNivel);
+    item.marcoPendente = { nivel: novoNivel, candidatos };
+    resultado.marco = { nivel: novoNivel, candidatos };
+  }
+  return resultado;
+}
+
+// Grava a escolha do marco. Separada de `aprimorarItem` porque acontece num
+// segundo momento (depois de o jogador olhar as três opções), e porque assim
+// é testável sem simular clique.
+export function escolherSubStatusDoMarco(personagem, uid, idEscolhido) {
+  const item = encontrarItemPorUid(personagem, uid);
+  if (!item || !item.marcoPendente) return { ok: false, msg: "Nenhuma escolha pendente neste item." };
+  const escolha = (item.marcoPendente.candidatos || []).find((c) => c.id === idEscolhido);
+  if (!escolha) return { ok: false, msg: "Opção inválida." };
+  aplicarSubStatus(item, escolha);
+  delete item.marcoPendente;
+  return { ok: true, item, escolha };
+}
+
+// Um item com marco pendente é o que a forja precisa resolver antes de deixar
+// o jogador aprimorar de novo — senão dá para acumular escolhas e perder o
+// fio de qual pertence a qual nível.
+export const temMarcoPendente = (item) => !!(item && item.marcoPendente);
+
+export function itensComMarcoPendente(personagem) {
+  const lista = [];
+  (personagem.inventario || []).forEach((i) => { if (temMarcoPendente(i)) lista.push(i); });
+  Object.values(personagem.equipamento || {}).forEach((i) => { if (temMarcoPendente(i)) lista.push(i); });
+  return lista;
 }

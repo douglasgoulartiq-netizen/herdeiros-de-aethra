@@ -10,6 +10,8 @@ import { getReputacao, tierDaReputacao, facaoAfiliada, afiliarFaccao, registrarD
 import { infoElemento } from "../systems/ElementSystem.js";
 import { capitulosParaCompendio, progressoMitologia } from "../systems/MythologySystem.js";
 
+import { abrirTela, LARGURA, criarGrade, abrirSheet } from "./HdaUI.js";
+
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
 
@@ -22,30 +24,26 @@ const BIOMA_LABEL = { floresta: "Floresta", estrada: "Estrada", masmorra: "Masmo
 const ELEMENTO_LABEL = { fogo: "Fogo", agua: "Água", gelo: "Gelo", natureza: "Natureza", sombrio: "Sombrio", radiante: "Radiante", vento: "Vento", terra: "Terra", raio: "Raio", arcano: "Arcano", veneno: "Veneno" };
 
 export function montarCompendio(personagem, dados, abaInicial = "bestiario") {
-  overlay().classList.remove("hidden");
-  conteudo().innerHTML = `
-    <button class="fechar">Fechar (Esc)</button>
-    <h2>Compêndio</h2>
-    <div id="compendio-tabs" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-      <button data-tab="bestiario">Bestiário</button>
-      <button data-tab="missoes">Missões</button>
-      <button data-tab="invocacoes">Invocações</button>
-      <button data-tab="faccoes">Facções</button>
-      <button data-tab="mitologia">📖 Mitologia</button>
-    </div>
-    <div id="compendio-corpo"></div>
-  `;
-  conteudo().querySelector(".fechar").onclick = fecharModalLocal;
-  conteudo().querySelectorAll("#compendio-tabs button").forEach((b) => {
-    b.onclick = () => montarCompendio(personagem, dados, b.dataset.tab);
+  const tela = abrirTela({
+    titulo: "Compêndio",
+    largura: LARGURA.larga,
+    classe: "tela-compendio",
   });
+  tela.definirAbas([
+    { id: "bestiario", rotulo: "Bestiário", icone: "🐉" },
+    { id: "missoes", rotulo: "Missões", icone: "📜" },
+    { id: "invocacoes", rotulo: "Invocações", icone: "✨" },
+    { id: "faccoes", rotulo: "Facções", icone: "🏳️" },
+    { id: "mitologia", rotulo: "Mitologia", icone: "📖" },
+  ], (id) => montarCompendio(personagem, dados, id), abaInicial);
 
-  const corpo = conteudo().querySelector("#compendio-corpo");
+  const corpo = tela.corpo;
+  corpo.id = "compendio-corpo";
   if (abaInicial === "missoes") renderMissoes(corpo, personagem, dados);
   else if (abaInicial === "invocacoes") renderInvocacoes(corpo, personagem, dados);
   else if (abaInicial === "faccoes") renderFaccoes(corpo, personagem, dados);
   else if (abaInicial === "mitologia") renderMitologia(corpo, personagem, dados);
-  else renderBestiario(corpo, personagem, dados);
+  else renderBestiario(corpo, personagem, dados, tela);
 }
 
 // Códice da Mitologia (pedido: integrar o livro de mitologia como conteúdo
@@ -77,48 +75,84 @@ function renderMitologia(corpo, personagem, dados) {
   });
 }
 
-function renderBestiario(corpo, personagem, dados) {
+// Bestiário (itens 28 e 29).
+//
+// Antes: uma fileira de cards de 190px com a FICHA INTEIRA dentro de cada um
+// (nível, bioma, elemento, abates, fraqueza e lore). Com 40 monstros isso
+// dava 8179px de rolagem num modal de 658px — a lista virava um paredão e
+// não havia como comparar duas criaturas.
+//
+// Agora: grade de ladrilhos (nome, nível, elemento, estado de descoberta) e
+// a FICHA COMPLETA no painel contextual — lateral no desktop, bottom sheet
+// no celular. Exatamente o "lista/grid + criatura selecionada + ficha" do
+// item 28, sem tentar espremer as três coisas lado a lado no celular.
+function renderBestiario(corpo, personagem, dados, tela) {
   const bestiario = bestiarioParaCompendio(personagem, dados);
   const progresso = progressoBestiario(personagem, dados);
 
-  corpo.innerHTML = `
-    <p>Descobertos: ${progresso.descobertos}/${progresso.total} (${progresso.percentual}%). Derrote um monstro pela primeira vez para revelar sua entrada — a fraqueza elemental exata só aparece depois de mais abates do mesmo tipo.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-  `;
-  const grid = corpo.lastElementChild;
-  bestiario.forEach((m) => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.style.cssText = `flex-direction:column;width:190px;align-items:flex-start;${m.chefe ? "border-color:#f5a524;" : ""}${!m.descoberto ? "opacity:0.55;" : ""}`;
-    if (m.descoberto) {
-      // Fraqueza elemental progressiva (melhoria pós-backlog original): só
-      // aparece depois de ABATES_PARA_REVELAR_FRAQUEZA abates — antes disso,
-      // mostra quantos faltam em vez do elemento exato, pra dar um motivo a
-      // mais pra caçar o mesmo monstro de novo.
-      let fraquezaHTML;
-      if (m.fraquezaRevelada) {
-        const nomes = (m.fraquezas || []).map((elId) => {
-          const info = infoElemento(elId, dados.elements);
-          return info ? `${info.icone} ${info.nome}` : elId;
-        });
-        fraquezaHTML = nomes.length ? `Fraqueza: ${nomes.join(", ")}` : "Fraqueza: nenhuma conhecida";
-      } else {
-        fraquezaHTML = `Fraqueza: ??? (mais ${m.abatesFaltandoFraqueza} abate${m.abatesFaltandoFraqueza === 1 ? "" : "s"} para revelar)`;
-      }
-      div.innerHTML = `
-        <div class="nome">${m.nome}${m.chefe ? " 👑" : ""}</div>
-        <div class="desc">Nv. ${m.nivel} · ${(m.bioma || []).map((b) => BIOMA_LABEL[b] || b).join(", ")}${m.elemento ? ` · ${ELEMENTO_LABEL[m.elemento] || m.elemento}` : ""}</div>
-        <div class="desc" style="margin-top:4px;">Abates: ${m.abates}</div>
-        <div class="desc" style="margin-top:4px;">${fraquezaHTML}</div>
-        <div class="desc" style="margin-top:6px;font-style:italic;">${m.lore}</div>
-      `;
-    } else {
-      div.innerHTML = `
-        <div class="nome">???</div>
-        <div class="desc" style="margin-top:4px;font-style:italic;">${m.teaser}</div>
-      `;
-    }
-    grid.appendChild(div);
+  const cabecalho = document.createElement("p");
+  cabecalho.className = "desc";
+  cabecalho.innerHTML = `Descobertos: <b>${progresso.descobertos}/${progresso.total}</b> (${progresso.percentual}%). Derrote um monstro pela primeira vez para revelar sua entrada — a fraqueza elemental exata só aparece depois de mais abates do mesmo tipo.`;
+  corpo.appendChild(cabecalho);
+
+  const grade = criarGrade({ densidade: "densa" });
+  corpo.appendChild(grade);
+
+  bestiario.forEach((m, i) => {
+    const el = document.createElement("div");
+    el.className = "hda-ladrilho" + (m.chefe ? " chefe" : "") + (m.descoberto ? "" : " desconhecido");
+    el.dataset.uid = String(i);
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    const info = m.descoberto && m.elemento ? infoElemento(m.elemento, dados.elements) : null;
+    el.innerHTML = m.descoberto
+      ? `<span class="hda-ladrilho-icone icon-frame" style="border-color:${m.chefe ? "#f5a524" : "#4a3a26"}">${info ? info.icone : "👾"}</span>
+         <span class="hda-ladrilho-nome hda-clamp-2">${m.nome}${m.chefe ? " 👑" : ""}</span>
+         <span class="hda-ladrilho-rar">Nv. ${m.nivel}${info ? ` · ${info.nome}` : ""}</span>
+         ${m.abates ? `<span class="hda-ladrilho-qtd">${m.abates}</span>` : ""}`
+      : `<span class="hda-ladrilho-icone icon-frame">❓</span>
+         <span class="hda-ladrilho-nome hda-clamp-2">???</span>
+         <span class="hda-ladrilho-rar">não descoberto</span>`;
+    const abrir = () => {
+      grade.querySelectorAll(".hda-ladrilho").forEach((x) => x.classList.toggle("selecionado", x === el));
+      abrirFichaMonstro(m, dados);
+    };
+    el.onclick = abrir;
+    el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
+    grade.appendChild(el);
+  });
+
+  if (tela) tela.definirAcoes([], `${progresso.descobertos} de ${progresso.total} criaturas registradas`);
+}
+
+// Ficha completa da criatura — o "nível 3" da informação progressiva.
+function abrirFichaMonstro(m, dados) {
+  if (!m.descoberto) {
+    abrirSheet({ titulo: "Criatura desconhecida", corpoHTML: `<p class="desc" style="font-style:italic;">${m.teaser}</p><p class="desc">Derrote esta criatura uma vez para revelar a entrada.</p>` });
+    return;
+  }
+  let fraquezaHTML;
+  if (m.fraquezaRevelada) {
+    const nomes = (m.fraquezas || []).map((elId) => {
+      const info = infoElemento(elId, dados.elements);
+      return info ? `${info.icone} ${info.nome}` : elId;
+    });
+    fraquezaHTML = nomes.length ? nomes.join(", ") : "nenhuma conhecida";
+  } else {
+    fraquezaHTML = `??? (mais ${m.abatesFaltandoFraqueza} abate${m.abatesFaltandoFraqueza === 1 ? "" : "s"} para revelar)`;
+  }
+  const info = m.elemento ? infoElemento(m.elemento, dados.elements) : null;
+  abrirSheet({
+    titulo: `${m.nome}${m.chefe ? " 👑" : ""}`,
+    corpoHTML: `
+      <dl class="hda-ficha">
+        <div><dt>Nível</dt><dd>${m.nivel}</dd></div>
+        <div><dt>Elemento</dt><dd>${info ? `${info.icone} ${info.nome}` : "—"}</dd></div>
+        <div><dt>Biomas</dt><dd>${(m.bioma || []).map((b) => BIOMA_LABEL[b] || b).join(", ") || "—"}</dd></div>
+        <div><dt>Abates</dt><dd>${m.abates}</dd></div>
+        <div><dt>Fraqueza</dt><dd>${fraquezaHTML}</dd></div>
+      </dl>
+      <p class="desc" style="font-style:italic;">${m.lore}</p>`,
   });
 }
 

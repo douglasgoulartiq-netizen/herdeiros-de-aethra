@@ -1,0 +1,113 @@
+{
+  "custoInvocacao": 60,
+  "pets": [
+    {
+      "id": "ratao_farejador",
+      "nome": "Ratão Farejador",
+      "raridade": "comum",
+      "descricao": "Come qualquer coisa e acha o que ninguém procura. Vasculha baús e nós de recurso a poucos passos de você.",
+      "corpo": { "forma": "roedor", "paleta": "terra", "orelha": "redonda", "cauda": "fina" },
+      "mapa": { "tipo": "coletar", "raio": 3, "alvos": ["bau", "no"] },
+      "buff": { "DES": 1 }
+    },
+    {
+      "id": "corvo_batedor",
+      "nome": "Corvo Batedor",
+      "raridade": "comum",
+      "descricao": "Sobe alto, vê longe, volta gritando. Marca pontos de interesse à frente da estrada.",
+      "corpo": { "forma": "ave", "paleta": "carvao", "bico": true, "asa": true },
+      "mapa": { "tipo": "revelar", "raio": 14, "alvos": ["poi", "landmark"] },
+      "buff": { "INT": 1 }
+    },
+    {
+      "id": "cao_de_caca",
+      "nome": "Cão de Caça",
+      "raridade": "incomum",
+      "descricao": "Farejou sangue de chefe uma vez e nunca mais esqueceu o cheiro.",
+      "corpo": { "forma": "canideo", "paleta": "castanho", "orelha": "caida", "cauda": "media" },
+      "mapa": { "tipo": "revelar", "raio": 16, "alvos": ["chefe"] },
+      "buff": { "FOR": 2 }
+    },
+    {
+      "id": "lebre_saltadora",
+      "nome": "Lebre Saltadora",
+      "raridade": "incomum",
+      "descricao": "Ouve o monstro antes de ele ouvir você — e leva o grupo pelo caminho que ninguém está vigiando.",
+      "corpo": { "forma": "roedor", "paleta": "areia", "orelha": "longa", "cauda": "tufo" },
+      "mapa": { "tipo": "tregua", "forca": 0.35 },
+      "buff": { "DES": 2 }
+    },
+    {
+      "id": "tatu_couracado",
+      "nome": "Tatu Couraçado",
+      "raridade": "incomum",
+      "descricao": "Cava atrás de metal e volta com pedra boa nas costas.",
+      "corpo": { "forma": "couracado", "paleta": "pedra", "orelha": "nenhuma", "cauda": "fina" },
+      "mapa": { "tipo": "coletar", "raio": 4, "alvos": ["no"] },
+      "buff": { "CON": 2, "defesa": 2 }
+    },
+    {
+      "id": "coruja_arcana",
+      "nome": "Coruja Arcana",
+      "raridade": "raro",
+      "descricao": "Enxerga o Véu. Onde ela pousa, há uma boca de masmorra ou coisa pior.",
+      "corpo": { "forma": "ave", "paleta": "arcano", "bico": true, "asa": true, "olhoGrande": true },
+      "mapa": { "tipo": "revelar", "raio": 20, "alvos": ["masmorra", "chefe"] },
+      "buff": { "INT": 2, "eter": 3 }
+    },
+    {
+      "id": "raposa_ladra",
+      "nome": "Raposa Ladra",
+      "raridade": "raro",
+      "descricao": "Abre baú sem chave e volta com uma coisa a mais do que devia.",
+      "corpo": { "forma": "canideo", "paleta": "ruivo", "orelha": "pontuda", "cauda": "farta" },
+      "mapa": { "tipo": "coletar", "raio": 6, "alvos": ["bau", "no"], "achadoExtra": 0.3 },
+      "buff": { "DES": 2, "critico": 5 }
+    },
+    {
+      "id": "javali_guardiao",
+      "nome": "Javali Guardião",
+      "raridade": "raro",
+      "descricao": "Anda na frente e resmunga. O que estava à espreita muda de ideia.",
+      "corpo": { "forma": "javali", "paleta": "cinza", "presa": true, "cauda": "fina" },
+      "mapa": { "tipo": "tregua", "forca": 0.5 },
+      "buff": { "CON": 3, "defesa": 2 }
+    },
+    {
+      "id": "lince_das_brumas",
+      "nome": "Lince das Brumas",
+      "raridade": "epico",
+      "descricao": "Some na neblina e reaparece do outro lado do vale sabendo o que tem lá.",
+      "corpo": { "forma": "felino", "paleta": "bruma", "orelha": "pontuda", "cauda": "media" },
+      "mapa": { "tipo": "revelar", "raio": 26, "alvos": ["chefe", "masmorra", "poi", "landmark"] },
+      "buff": { "DES": 2, "INT": 2, "critico": 4 }
+    },
+    {
+      "id": "urso_de_pedra",
+      "nome": "Urso de Pedra",
+      "raridade": "epico",
+      "descricao": "Arranca a tampa do baú com a pata. Não há fechadura que valha a discussão.",
+      "corpo": { "forma": "urso", "paleta": "pedra", "orelha": "redonda" },
+      "mapa": { "tipo": "coletar", "raio": 8, "alvos": ["bau", "no"] },
+      "buff": { "CON": 2, "FOR": 2, "defesa": 4 }
+    },
+    {
+      "id": "grifo_jovem",
+      "nome": "Grifo Jovem",
+      "raridade": "lendario",
+      "descricao": "Ainda não voa alto o bastante para caçar sozinho — mas já vê o mundo de cima.",
+      "corpo": { "forma": "grifo", "paleta": "ouro", "bico": true, "asa": true, "cauda": "media" },
+      "mapa": { "tipo": "revelar", "raio": 32, "alvos": ["chefe", "masmorra", "poi", "landmark"], "tambemColeta": 6 },
+      "buff": { "FOR": 3, "DES": 3, "CON": 3, "INT": 3 }
+    },
+    {
+      "id": "dragonete_de_aethra",
+      "nome": "Dragonete de Aethra",
+      "raridade": "lendario",
+      "descricao": "Nasceu no Véu e trata tesouro como ninho. Você só carrega o que ele já contou.",
+      "corpo": { "forma": "dragonete", "paleta": "carmesim", "asa": true, "presa": true, "cauda": "longa" },
+      "mapa": { "tipo": "coletar", "raio": 10, "alvos": ["bau", "no"], "achadoExtra": 0.5 },
+      "buff": { "FOR": 3, "INT": 3, "critico": 6 }
+    }
+  ]
+}

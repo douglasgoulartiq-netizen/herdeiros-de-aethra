@@ -2,7 +2,7 @@
   "raridades": [
     {
       "id": "comum",
-      "mult": 1.0,
+      "mult": 1,
       "cor": "#b0b0b0",
       "peso": 100,
       "ordem": 0
@@ -48,7 +48,10 @@
       "dano": 6,
       "atributo": "FOR",
       "valor": 15,
-      "descricao": "Uma espada enferrujada. Dano baseado em FOR."
+      "descricao": "Uma espada enferrujada. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 7
+      }
     },
     {
       "id": "espada_incomum",
@@ -61,7 +64,10 @@
       "dano": 8,
       "atributo": "FOR",
       "valor": 25,
-      "descricao": "Uma espada de ferro. Dano baseado em FOR."
+      "descricao": "Uma espada de ferro. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 8
+      }
     },
     {
       "id": "espada_raro",
@@ -74,7 +80,10 @@
       "dano": 10,
       "atributo": "FOR",
       "valor": 43,
-      "descricao": "Uma espada élfica. Dano baseado em FOR."
+      "descricao": "Uma espada élfica. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 9
+      }
     },
     {
       "id": "espada_epico",
@@ -88,7 +97,10 @@
       "atributo": "FOR",
       "valor": 79,
       "descricao": "Uma espada flamejante. Dano baseado em FOR.",
-      "elemento": "fogo"
+      "elemento": "fogo",
+      "requisito": {
+        "FOR": 11
+      }
     },
     {
       "id": "espada_lendario",
@@ -102,7 +114,13 @@
       "atributo": "FOR",
       "valor": 154,
       "descricao": "Uma espada do dragão ancião. Dano baseado em FOR.",
-      "elemento": "fogo"
+      "elemento": "fogo",
+      "requisito": {
+        "FOR": 13
+      },
+      "efeitos": [
+        "ceifador"
+      ]
     },
     {
       "id": "machado_comum",
@@ -115,7 +133,10 @@
       "dano": 7,
       "atributo": "FOR",
       "valor": 15,
-      "descricao": "Uma machado lascado. Dano baseado em FOR."
+      "descricao": "Uma machado lascado. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 7
+      }
     },
     {
       "id": "machado_incomum",
@@ -128,7 +149,10 @@
       "dano": 9,
       "atributo": "FOR",
       "valor": 25,
-      "descricao": "Uma machado de guerra. Dano baseado em FOR."
+      "descricao": "Uma machado de guerra. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 8
+      }
     },
     {
       "id": "machado_raro",
@@ -141,7 +165,10 @@
       "dano": 12,
       "atributo": "FOR",
       "valor": 43,
-      "descricao": "Uma machado dos clãs. Dano baseado em FOR."
+      "descricao": "Uma machado dos clãs. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 10
+      }
     },
     {
       "id": "machado_epico",
@@ -155,7 +182,10 @@
       "atributo": "FOR",
       "valor": 79,
       "descricao": "Uma machado vulcânico. Dano baseado em FOR.",
-      "elemento": "fogo"
+      "elemento": "fogo",
+      "requisito": {
+        "FOR": 12
+      }
     },
     {
       "id": "machado_lendario",
@@ -169,7 +199,13 @@
       "atributo": "FOR",
       "valor": 154,
       "descricao": "Uma machado do titã. Dano baseado em FOR.",
-      "elemento": "terra"
+      "elemento": "terra",
+      "requisito": {
+        "FOR": 15
+      },
+      "efeitos": [
+        "algoz_de_chefes"
+      ]
     },
     {
       "id": "adaga_comum",
@@ -183,7 +219,10 @@
       "atributo": "DES",
       "valor": 15,
       "descricao": "Uma adaga cega. Dano baseado em DES.",
-      "bonusCritico": 5
+      "bonusCritico": 5,
+      "requisito": {
+        "DES": 6
+      }
     },
     {
       "id": "adaga_incomum",
@@ -197,7 +236,10 @@
       "atributo": "DES",
       "valor": 25,
       "descricao": "Uma adaga de aço. Dano baseado em DES.",
-      "bonusCritico": 6
+      "bonusCritico": 6,
+      "requisito": {
+        "DES": 6
+      }
     },
     {
       "id": "adaga_raro",
@@ -212,7 +254,10 @@
       "valor": 43,
       "descricao": "Uma adaga das sombras. Dano baseado em DES.",
       "bonusCritico": 8,
-      "elemento": "sombrio"
+      "elemento": "sombrio",
+      "requisito": {
+        "DES": 7
+      }
     },
     {
       "id": "adaga_epico",
@@ -227,7 +272,10 @@
       "valor": 79,
       "descricao": "Uma adaga venenosa. Dano baseado em DES.",
       "bonusCritico": 12,
-      "elemento": "veneno"
+      "elemento": "veneno",
+      "requisito": {
+        "DES": 8
+      }
     },
     {
       "id": "adaga_lendario",
@@ -242,7 +290,13 @@
       "valor": 154,
       "descricao": "Uma presa da noite eterna. Dano baseado em DES.",
       "bonusCritico": 16,
-      "elemento": "sombrio"
+      "elemento": "sombrio",
+      "requisito": {
+        "DES": 10
+      },
+      "efeitos": [
+        "primeiro_sangue"
+      ]
     },
     {
       "id": "cajado_comum",
@@ -255,7 +309,10 @@
       "dano": 5,
       "atributo": "INT",
       "valor": 15,
-      "descricao": "Uma cajado de madeira. Dano baseado em INT."
+      "descricao": "Uma cajado de madeira. Dano baseado em INT.",
+      "requisito": {
+        "INT": 6
+      }
     },
     {
       "id": "cajado_incomum",
@@ -269,7 +326,10 @@
       "atributo": "INT",
       "valor": 25,
       "descricao": "Uma cajado rúnico. Dano baseado em INT.",
-      "elemento": "arcano"
+      "elemento": "arcano",
+      "requisito": {
+        "INT": 7
+      }
     },
     {
       "id": "cajado_raro",
@@ -283,7 +343,10 @@
       "atributo": "INT",
       "valor": 43,
       "descricao": "Uma cajado do arcanista. Dano baseado em INT.",
-      "elemento": "arcano"
+      "elemento": "arcano",
+      "requisito": {
+        "INT": 8
+      }
     },
     {
       "id": "cajado_epico",
@@ -297,7 +360,10 @@
       "atributo": "INT",
       "valor": 79,
       "descricao": "Uma cajado da tempestade. Dano baseado em INT.",
-      "elemento": "raio"
+      "elemento": "raio",
+      "requisito": {
+        "INT": 10
+      }
     },
     {
       "id": "cajado_lendario",
@@ -311,7 +377,13 @@
       "atributo": "INT",
       "valor": 154,
       "descricao": "Uma cajado do arquimago. Dano baseado em INT.",
-      "elemento": "arcano"
+      "elemento": "arcano",
+      "requisito": {
+        "INT": 12
+      },
+      "efeitos": [
+        "perfurar_elemento"
+      ]
     },
     {
       "id": "maca_comum",
@@ -325,7 +397,10 @@
       "atributo": "FOR",
       "valor": 15,
       "descricao": "Uma maça simples. Dano baseado em FOR.",
-      "bonusCura": 3
+      "bonusCura": 3,
+      "requisito": {
+        "FOR": 6
+      }
     },
     {
       "id": "maca_incomum",
@@ -340,7 +415,10 @@
       "valor": 25,
       "descricao": "Uma maça abençoada. Dano baseado em FOR.",
       "bonusCura": 4,
-      "elemento": "radiante"
+      "elemento": "radiante",
+      "requisito": {
+        "FOR": 7
+      }
     },
     {
       "id": "maca_raro",
@@ -355,7 +433,10 @@
       "valor": 43,
       "descricao": "Uma maça do clérigo ancião. Dano baseado em FOR.",
       "bonusCura": 5,
-      "elemento": "radiante"
+      "elemento": "radiante",
+      "requisito": {
+        "FOR": 8
+      }
     },
     {
       "id": "maca_epico",
@@ -370,7 +451,10 @@
       "valor": 79,
       "descricao": "Uma maça da luz divina. Dano baseado em FOR.",
       "bonusCura": 7,
-      "elemento": "radiante"
+      "elemento": "radiante",
+      "requisito": {
+        "FOR": 10
+      }
     },
     {
       "id": "maca_lendario",
@@ -385,7 +469,13 @@
       "valor": 154,
       "descricao": "Uma maça do juízo final. Dano baseado em FOR.",
       "bonusCura": 10,
-      "elemento": "radiante"
+      "elemento": "radiante",
+      "requisito": {
+        "FOR": 12
+      },
+      "efeitos": [
+        "roubo_de_vida"
+      ]
     },
     {
       "id": "arco_comum",
@@ -398,7 +488,10 @@
       "dano": 6,
       "atributo": "DES",
       "valor": 15,
-      "descricao": "Uma arco curto. Dano baseado em DES."
+      "descricao": "Uma arco curto. Dano baseado em DES.",
+      "requisito": {
+        "DES": 7
+      }
     },
     {
       "id": "arco_incomum",
@@ -411,7 +504,10 @@
       "dano": 8,
       "atributo": "DES",
       "valor": 25,
-      "descricao": "Uma arco de teixo. Dano baseado em DES."
+      "descricao": "Uma arco de teixo. Dano baseado em DES.",
+      "requisito": {
+        "DES": 8
+      }
     },
     {
       "id": "arco_raro",
@@ -424,7 +520,10 @@
       "dano": 10,
       "atributo": "DES",
       "valor": 43,
-      "descricao": "Uma arco élfico. Dano baseado em DES."
+      "descricao": "Uma arco élfico. Dano baseado em DES.",
+      "requisito": {
+        "DES": 9
+      }
     },
     {
       "id": "arco_epico",
@@ -438,7 +537,10 @@
       "atributo": "DES",
       "valor": 79,
       "descricao": "Uma arco do vento uivante. Dano baseado em DES.",
-      "elemento": "vento"
+      "elemento": "vento",
+      "requisito": {
+        "DES": 11
+      }
     },
     {
       "id": "arco_lendario",
@@ -452,7 +554,13 @@
       "atributo": "DES",
       "valor": 154,
       "descricao": "Uma arco da caçadora celestial. Dano baseado em DES.",
-      "elemento": "vento"
+      "elemento": "vento",
+      "requisito": {
+        "DES": 13
+      },
+      "efeitos": [
+        "eco"
+      ]
     },
     {
       "id": "armadura_comum",
@@ -488,7 +596,10 @@
       "icone": "armadura",
       "defesa": 7,
       "valor": 35,
-      "descricao": "Cota de Malha, oferece 7 de defesa."
+      "descricao": "Cota de Malha, oferece 7 de defesa.",
+      "requisito": {
+        "CON": 9
+      }
     },
     {
       "id": "armadura_epico",
@@ -500,7 +611,10 @@
       "icone": "armadura",
       "defesa": 9,
       "valor": 63,
-      "descricao": "Armadura Élfica, oferece 9 de defesa."
+      "descricao": "Armadura Élfica, oferece 9 de defesa.",
+      "requisito": {
+        "CON": 10
+      }
     },
     {
       "id": "armadura_lendario",
@@ -512,7 +626,13 @@
       "icone": "armadura",
       "defesa": 13,
       "valor": 123,
-      "descricao": "Armadura do Guardião Eterno, oferece 13 de defesa."
+      "descricao": "Armadura do Guardião Eterno, oferece 13 de defesa.",
+      "requisito": {
+        "CON": 13
+      },
+      "efeitos": [
+        "quebra_postura"
+      ]
     },
     {
       "id": "elmo_comum",
@@ -572,7 +692,13 @@
       "icone": "elmo",
       "defesa": 6,
       "valor": 123,
-      "descricao": "Coroa do Rei Esquecido, oferece 6 de defesa."
+      "descricao": "Coroa do Rei Esquecido, oferece 6 de defesa.",
+      "requisito": {
+        "CON": 8
+      },
+      "efeitos": [
+        "algoz_de_chefes"
+      ]
     },
     {
       "id": "botas_comum",
@@ -637,7 +763,10 @@
       "defesa": 3,
       "valor": 123,
       "descricao": "Botas do Andarilho Fantasma, oferece 3 de defesa.",
-      "bonusVelocidade": 6
+      "bonusVelocidade": 6,
+      "efeitos": [
+        "primeiro_sangue"
+      ]
     },
     {
       "id": "escudo_comum",
@@ -685,7 +814,10 @@
       "icone": "escudo",
       "defesa": 7,
       "valor": 63,
-      "descricao": "Escudo Flamejante, oferece 7 de defesa."
+      "descricao": "Escudo Flamejante, oferece 7 de defesa.",
+      "requisito": {
+        "CON": 9
+      }
     },
     {
       "id": "escudo_lendario",
@@ -697,7 +829,13 @@
       "icone": "escudo",
       "defesa": 10,
       "valor": 123,
-      "descricao": "Escudo da Muralha Divina, oferece 10 de defesa."
+      "descricao": "Escudo da Muralha Divina, oferece 10 de defesa.",
+      "requisito": {
+        "CON": 11
+      },
+      "efeitos": [
+        "quebra_postura"
+      ]
     },
     {
       "id": "pocao_vida_p",
@@ -907,7 +1045,10 @@
         "INT": 4
       },
       "valor": 500,
-      "descricao": "+4 de Inteligência. Reliquia lendária."
+      "descricao": "+4 de Inteligência. Reliquia lendária.",
+      "efeitos": [
+        "ressonancia"
+      ]
     },
     {
       "id": "pergaminho_arcano",
@@ -942,7 +1083,10 @@
       "dano": 3,
       "atributo": "DES",
       "valor": 6,
-      "descricao": "Item inicial de antecedente Criminoso."
+      "descricao": "Item inicial de antecedente Criminoso.",
+      "requisito": {
+        "DES": 5
+      }
     },
     {
       "id": "coracao_de_carvalho",
@@ -966,7 +1110,10 @@
       "atributo": "DES",
       "valor": 190,
       "elemento": "sombrio",
-      "descricao": "Uma adaga da devoradora. Dano baseado em DES."
+      "descricao": "Uma adaga da devoradora. Dano baseado em DES.",
+      "requisito": {
+        "DES": 16
+      }
     },
     {
       "id": "martelo_do_sol_poente",
@@ -980,7 +1127,10 @@
       "atributo": "CON",
       "valor": 190,
       "elemento": "radiante",
-      "descricao": "Uma maça do sol poente. Dano baseado em CON."
+      "descricao": "Uma maça do sol poente. Dano baseado em CON.",
+      "requisito": {
+        "CON": 15
+      }
     },
     {
       "id": "cajado_do_lodo_eterno",
@@ -994,7 +1144,10 @@
       "atributo": "INT",
       "valor": 190,
       "elemento": "veneno",
-      "descricao": "Um cajado do lodo eterno. Dano baseado em INT."
+      "descricao": "Um cajado do lodo eterno. Dano baseado em INT.",
+      "requisito": {
+        "INT": 14
+      }
     },
     {
       "id": "adaga_da_mare_negra",
@@ -1008,7 +1161,10 @@
       "atributo": "DES",
       "valor": 205,
       "elemento": "agua",
-      "descricao": "Uma adaga da maré-negra. Dano baseado em DES."
+      "descricao": "Uma adaga da maré-negra. Dano baseado em DES.",
+      "requisito": {
+        "DES": 16
+      }
     },
     {
       "id": "viscera_toxica",
@@ -1042,7 +1198,10 @@
       "atributo": "FOR",
       "valor": 210,
       "elemento": "natureza",
-      "descricao": "Um machado da matriarca. Dano baseado em FOR."
+      "descricao": "Um machado da matriarca. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 17
+      }
     },
     {
       "id": "arco_do_grifo_alfa",
@@ -1056,7 +1215,10 @@
       "atributo": "DES",
       "valor": 210,
       "elemento": "vento",
-      "descricao": "Um arco do grifo alfa. Dano baseado em DES."
+      "descricao": "Um arco do grifo alfa. Dano baseado em DES.",
+      "requisito": {
+        "DES": 16
+      }
     },
     {
       "id": "ferrao_da_rainha_de_karn",
@@ -1070,7 +1232,10 @@
       "atributo": "DES",
       "valor": 225,
       "elemento": "fogo",
-      "descricao": "Uma adaga da rainha de karn. Dano baseado em DES."
+      "descricao": "Uma adaga da rainha de karn. Dano baseado em DES.",
+      "requisito": {
+        "DES": 18
+      }
     },
     {
       "id": "cajado_da_tempestade_eterna",
@@ -1084,7 +1249,14 @@
       "atributo": "INT",
       "valor": 310,
       "elemento": "raio",
-      "descricao": "Um cajado da tempestade eterna. Dano baseado em INT."
+      "descricao": "Um cajado da tempestade eterna. Dano baseado em INT.",
+      "requisito": {
+        "INT": 18
+      },
+      "efeitos": [
+        "duplo_elemento"
+      ],
+      "elementoSecundario": "vento"
     },
     {
       "id": "lamina_do_cavaleiro_caido",
@@ -1098,7 +1270,10 @@
       "atributo": "FOR",
       "valor": 225,
       "elemento": "sombrio",
-      "descricao": "Uma espada do cavaleiro caído. Dano baseado em FOR."
+      "descricao": "Uma espada do cavaleiro caído. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 17
+      }
     },
     {
       "id": "pele_regenerativa",
@@ -1121,7 +1296,10 @@
         "INT": 3
       },
       "valor": 310,
-      "descricao": "+3 de Inteligência. Relíquia do Guardião Arcano das Ruínas de Aethra Antiga."
+      "descricao": "+3 de Inteligência. Relíquia do Guardião Arcano das Ruínas de Aethra Antiga.",
+      "efeitos": [
+        "perfurar_elemento"
+      ]
     },
     {
       "id": "couraca_do_rei_petrificado",
@@ -1133,7 +1311,10 @@
       "raridade": "epico",
       "defesa": 19,
       "valor": 225,
-      "descricao": "Couraça do Rei Petrificado, oferece 19 de defesa."
+      "descricao": "Couraça do Rei Petrificado, oferece 19 de defesa.",
+      "requisito": {
+        "CON": 17
+      }
     },
     {
       "id": "machado_das_chamas_errantes",
@@ -1147,7 +1328,15 @@
       "atributo": "FOR",
       "valor": 320,
       "elemento": "fogo",
-      "descricao": "Um machado das chamas errantes. Dano baseado em FOR."
+      "descricao": "Um machado das chamas errantes. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 20
+      },
+      "efeitos": [
+        "duplo_elemento",
+        "ceifador"
+      ],
+      "elementoSecundario": "terra"
     },
     {
       "id": "arco_da_matriarca_wyvern",
@@ -1161,7 +1350,14 @@
       "atributo": "DES",
       "valor": 320,
       "elemento": "vento",
-      "descricao": "Um arco da matriarca wyvern. Dano baseado em DES."
+      "descricao": "Um arco da matriarca wyvern. Dano baseado em DES.",
+      "requisito": {
+        "DES": 19
+      },
+      "efeitos": [
+        "eco",
+        "perfurar_elemento"
+      ]
     },
     {
       "id": "anel_da_bruma_eterna",
@@ -1188,7 +1384,14 @@
       "atributo": "FOR",
       "valor": 340,
       "elemento": "sombrio",
-      "descricao": "Uma espada do senhor sombrio. Dano baseado em FOR."
+      "descricao": "Uma espada do senhor sombrio. Dano baseado em FOR.",
+      "requisito": {
+        "FOR": 21
+      },
+      "efeitos": [
+        "roubo_de_vida",
+        "ceifador"
+      ]
     },
     {
       "id": "escama_do_dragao_anciao",
@@ -1212,7 +1415,3077 @@
       "atributo": "INT",
       "valor": 420,
       "elemento": "arcano",
-      "descricao": "Um cajado do imperador arcano. Dano baseado em INT."
+      "descricao": "Um cajado do imperador arcano. Dano baseado em INT.",
+      "requisito": {
+        "INT": 22
+      },
+      "efeitos": [
+        "perfurar_elemento",
+        "ressonancia"
+      ]
+    },
+    {
+      "id": "ger_espada_bronze",
+      "nome": "Espada de Bronze",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "comum",
+      "icone": "espada",
+      "dano": 6,
+      "atributo": "FOR",
+      "valor": 49,
+      "requisito": {
+        "FOR": 7
+      },
+      "descricao": "Espada forjada em Bronze."
+    },
+    {
+      "id": "ger_machado_bronze",
+      "nome": "Machado de Bronze",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "comum",
+      "icone": "machado",
+      "dano": 7,
+      "atributo": "FOR",
+      "valor": 57,
+      "requisito": {
+        "FOR": 7
+      },
+      "descricao": "Machado forjada em Bronze."
+    },
+    {
+      "id": "ger_maca_bronze",
+      "nome": "Maça de Bronze",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "comum",
+      "icone": "maca",
+      "dano": 6,
+      "atributo": "FOR",
+      "valor": 49,
+      "requisito": {
+        "FOR": 7
+      },
+      "descricao": "Maça forjada em Bronze."
+    },
+    {
+      "id": "ger_adaga_bronze_telurico",
+      "nome": "Adaga de Bronze Telúrico",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "comum",
+      "icone": "adaga",
+      "dano": 4,
+      "atributo": "DES",
+      "valor": 32,
+      "requisito": {
+        "DES": 6
+      },
+      "descricao": "Adaga forjada em Bronze. Canaliza telúrico.",
+      "bonusCritico": 7,
+      "elemento": "terra"
+    },
+    {
+      "id": "ger_arco_bronze",
+      "nome": "Arco de Bronze",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "comum",
+      "icone": "arco",
+      "dano": 5,
+      "atributo": "DES",
+      "valor": 41,
+      "requisito": {
+        "DES": 6
+      },
+      "descricao": "Arco forjada em Bronze."
+    },
+    {
+      "id": "ger_cajado_bronze_flamejante",
+      "nome": "Cajado de Bronze Flamejante",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "comum",
+      "icone": "cajado",
+      "dano": 5,
+      "atributo": "INT",
+      "valor": 41,
+      "requisito": {
+        "INT": 6
+      },
+      "descricao": "Cajado forjada em Bronze. Canaliza flamejante.",
+      "elemento": "fogo"
+    },
+    {
+      "id": "ger_lanca_bronze_tempestuoso",
+      "nome": "Lança de Bronze Tempestuoso",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "comum",
+      "icone": "espada",
+      "dano": 6,
+      "atributo": "FOR",
+      "valor": 49,
+      "requisito": {
+        "FOR": 7
+      },
+      "descricao": "Lança forjada em Bronze. Canaliza tempestuoso.",
+      "elemento": "raio"
+    },
+    {
+      "id": "ger_grimorio_bronze",
+      "nome": "Grimório de Bronze",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "comum",
+      "icone": "cajado",
+      "dano": 4,
+      "atributo": "INT",
+      "valor": 32,
+      "requisito": {
+        "INT": 6
+      },
+      "descricao": "Grimório forjada em Bronze."
+    },
+    {
+      "id": "ger_martelo_bronze",
+      "nome": "Martelo de Bronze",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "comum",
+      "icone": "maca",
+      "dano": 8,
+      "atributo": "FOR",
+      "valor": 65,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Martelo forjada em Bronze."
+    },
+    {
+      "id": "ger_foice_bronze_tempestuoso",
+      "nome": "Foice de Bronze Tempestuoso",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "comum",
+      "icone": "adaga",
+      "dano": 5,
+      "atributo": "DES",
+      "valor": 41,
+      "requisito": {
+        "DES": 6
+      },
+      "descricao": "Foice forjada em Bronze. Canaliza tempestuoso.",
+      "bonusCritico": 5,
+      "elemento": "raio"
+    },
+    {
+      "id": "ger_peito_bronze",
+      "nome": "Peitoral de Bronze",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "comum",
+      "icone": "armadura",
+      "defesa": 5,
+      "valor": 41,
+      "descricao": "Peitoral de Bronze."
+    },
+    {
+      "id": "ger_elmo_bronze",
+      "nome": "Elmo de Bronze",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "comum",
+      "icone": "elmo",
+      "defesa": 2,
+      "valor": 16,
+      "descricao": "Elmo de Bronze."
+    },
+    {
+      "id": "ger_botas_bronze",
+      "nome": "Botas de Bronze",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "comum",
+      "icone": "botas",
+      "defesa": 2,
+      "valor": 16,
+      "descricao": "Botas de Bronze.",
+      "bonusVelocidade": 2
+    },
+    {
+      "id": "ger_escudo_bronze",
+      "nome": "Escudo de Bronze",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "comum",
+      "icone": "escudo",
+      "defesa": 4,
+      "valor": 32,
+      "descricao": "Escudo de Bronze."
+    },
+    {
+      "id": "ger_espada_ferro",
+      "nome": "Espada de Ferro",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "comum",
+      "icone": "espada",
+      "dano": 8,
+      "atributo": "FOR",
+      "valor": 82,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Espada forjada em Ferro."
+    },
+    {
+      "id": "ger_machado_ferro_das_mares",
+      "nome": "Machado de Ferro das Marés",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "comum",
+      "icone": "machado",
+      "dano": 9,
+      "atributo": "FOR",
+      "valor": 92,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Machado forjada em Ferro. Canaliza das marés.",
+      "elemento": "agua"
+    },
+    {
+      "id": "ger_maca_ferro",
+      "nome": "Maça de Ferro",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "comum",
+      "icone": "maca",
+      "dano": 8,
+      "atributo": "FOR",
+      "valor": 82,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Maça forjada em Ferro."
+    },
+    {
+      "id": "ger_adaga_ferro",
+      "nome": "Adaga de Ferro",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "comum",
+      "icone": "adaga",
+      "dano": 5,
+      "atributo": "DES",
+      "valor": 51,
+      "requisito": {
+        "DES": 6
+      },
+      "descricao": "Adaga forjada em Ferro.",
+      "bonusCritico": 8
+    },
+    {
+      "id": "ger_arco_ferro",
+      "nome": "Arco de Ferro",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "comum",
+      "icone": "arco",
+      "dano": 6,
+      "atributo": "DES",
+      "valor": 61,
+      "requisito": {
+        "DES": 7
+      },
+      "descricao": "Arco forjada em Ferro."
+    },
+    {
+      "id": "ger_cajado_ferro_das_mares",
+      "nome": "Cajado de Ferro das Marés",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "comum",
+      "icone": "cajado",
+      "dano": 6,
+      "atributo": "INT",
+      "valor": 61,
+      "requisito": {
+        "INT": 7
+      },
+      "descricao": "Cajado forjada em Ferro. Canaliza das marés.",
+      "elemento": "agua"
+    },
+    {
+      "id": "ger_lanca_ferro_arcano",
+      "nome": "Lança de Ferro Arcano",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "comum",
+      "icone": "espada",
+      "dano": 8,
+      "atributo": "FOR",
+      "valor": 82,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Lança forjada em Ferro. Canaliza arcano.",
+      "elemento": "arcano"
+    },
+    {
+      "id": "ger_grimorio_ferro",
+      "nome": "Grimório de Ferro",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "comum",
+      "icone": "cajado",
+      "dano": 5,
+      "atributo": "INT",
+      "valor": 51,
+      "requisito": {
+        "INT": 6
+      },
+      "descricao": "Grimório forjada em Ferro."
+    },
+    {
+      "id": "ger_martelo_ferro_arcano",
+      "nome": "Martelo de Ferro Arcano",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "comum",
+      "icone": "maca",
+      "dano": 10,
+      "atributo": "FOR",
+      "valor": 102,
+      "requisito": {
+        "FOR": 9
+      },
+      "descricao": "Martelo forjada em Ferro. Canaliza arcano.",
+      "elemento": "arcano"
+    },
+    {
+      "id": "ger_foice_ferro",
+      "nome": "Foice de Ferro",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "comum",
+      "icone": "adaga",
+      "dano": 6,
+      "atributo": "DES",
+      "valor": 61,
+      "requisito": {
+        "DES": 7
+      },
+      "descricao": "Foice forjada em Ferro.",
+      "bonusCritico": 6
+    },
+    {
+      "id": "ger_peito_ferro",
+      "nome": "Peitoral de Ferro",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "comum",
+      "icone": "armadura",
+      "defesa": 6,
+      "valor": 61,
+      "descricao": "Peitoral de Ferro.",
+      "requisito": {
+        "CON": 8
+      }
+    },
+    {
+      "id": "ger_elmo_ferro",
+      "nome": "Elmo de Ferro",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "comum",
+      "icone": "elmo",
+      "defesa": 3,
+      "valor": 31,
+      "descricao": "Elmo de Ferro."
+    },
+    {
+      "id": "ger_botas_ferro",
+      "nome": "Botas de Ferro",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "comum",
+      "icone": "botas",
+      "defesa": 3,
+      "valor": 31,
+      "descricao": "Botas de Ferro.",
+      "bonusVelocidade": 2
+    },
+    {
+      "id": "ger_escudo_ferro",
+      "nome": "Escudo de Ferro",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "comum",
+      "icone": "escudo",
+      "defesa": 5,
+      "valor": 51,
+      "descricao": "Escudo de Ferro."
+    },
+    {
+      "id": "ger_espada_aco_radiante",
+      "nome": "Espada de Aço Radiante",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "incomum",
+      "icone": "espada",
+      "dano": 9,
+      "atributo": "FOR",
+      "valor": 111,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Espada forjada em Aço. Canaliza radiante.",
+      "elemento": "radiante"
+    },
+    {
+      "id": "ger_machado_aco_arcano",
+      "nome": "Machado de Aço Arcano",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "incomum",
+      "icone": "machado",
+      "dano": 11,
+      "atributo": "FOR",
+      "valor": 135,
+      "requisito": {
+        "FOR": 9
+      },
+      "descricao": "Machado forjada em Aço. Canaliza arcano.",
+      "elemento": "arcano"
+    },
+    {
+      "id": "ger_maca_aco",
+      "nome": "Maça de Aço",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "incomum",
+      "icone": "maca",
+      "dano": 9,
+      "atributo": "FOR",
+      "valor": 111,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Maça forjada em Aço."
+    },
+    {
+      "id": "ger_adaga_aco",
+      "nome": "Adaga de Aço",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "incomum",
+      "icone": "adaga",
+      "dano": 6,
+      "atributo": "DES",
+      "valor": 74,
+      "requisito": {
+        "DES": 7
+      },
+      "descricao": "Adaga forjada em Aço.",
+      "bonusCritico": 9
+    },
+    {
+      "id": "ger_arco_aco_flamejante",
+      "nome": "Arco de Aço Flamejante",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "incomum",
+      "icone": "arco",
+      "dano": 8,
+      "atributo": "DES",
+      "valor": 98,
+      "requisito": {
+        "DES": 8
+      },
+      "descricao": "Arco forjada em Aço. Canaliza flamejante.",
+      "elemento": "fogo"
+    },
+    {
+      "id": "ger_cajado_aco_umbral",
+      "nome": "Cajado de Aço Umbral",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "incomum",
+      "icone": "cajado",
+      "dano": 8,
+      "atributo": "INT",
+      "valor": 98,
+      "requisito": {
+        "INT": 8
+      },
+      "descricao": "Cajado forjada em Aço. Canaliza umbral.",
+      "elemento": "sombrio"
+    },
+    {
+      "id": "ger_lanca_aco",
+      "nome": "Lança de Aço",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "incomum",
+      "icone": "espada",
+      "dano": 9,
+      "atributo": "FOR",
+      "valor": 111,
+      "requisito": {
+        "FOR": 8
+      },
+      "descricao": "Lança forjada em Aço."
+    },
+    {
+      "id": "ger_grimorio_aco",
+      "nome": "Grimório de Aço",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "incomum",
+      "icone": "cajado",
+      "dano": 6,
+      "atributo": "INT",
+      "valor": 74,
+      "requisito": {
+        "INT": 7
+      },
+      "descricao": "Grimório forjada em Aço."
+    },
+    {
+      "id": "ger_martelo_aco",
+      "nome": "Martelo de Aço",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "incomum",
+      "icone": "maca",
+      "dano": 12,
+      "atributo": "FOR",
+      "valor": 148,
+      "requisito": {
+        "FOR": 10
+      },
+      "descricao": "Martelo forjada em Aço."
+    },
+    {
+      "id": "ger_foice_aco_flamejante",
+      "nome": "Foice de Aço Flamejante",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "incomum",
+      "icone": "adaga",
+      "dano": 8,
+      "atributo": "DES",
+      "valor": 98,
+      "requisito": {
+        "DES": 8
+      },
+      "descricao": "Foice forjada em Aço. Canaliza flamejante.",
+      "bonusCritico": 7,
+      "elemento": "fogo"
+    },
+    {
+      "id": "ger_peito_aco",
+      "nome": "Peitoral de Aço",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "incomum",
+      "icone": "armadura",
+      "defesa": 8,
+      "valor": 98,
+      "descricao": "Peitoral de Aço.",
+      "requisito": {
+        "CON": 10
+      }
+    },
+    {
+      "id": "ger_elmo_aco",
+      "nome": "Elmo de Aço",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "incomum",
+      "icone": "elmo",
+      "defesa": 3,
+      "valor": 37,
+      "descricao": "Elmo de Aço."
+    },
+    {
+      "id": "ger_botas_aco",
+      "nome": "Botas de Aço",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "incomum",
+      "icone": "botas",
+      "defesa": 3,
+      "valor": 37,
+      "descricao": "Botas de Aço.",
+      "bonusVelocidade": 3
+    },
+    {
+      "id": "ger_escudo_aco",
+      "nome": "Escudo de Aço",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "incomum",
+      "icone": "escudo",
+      "defesa": 6,
+      "valor": 74,
+      "descricao": "Escudo de Aço.",
+      "requisito": {
+        "CON": 8
+      }
+    },
+    {
+      "id": "ger_espada_prata_glacial",
+      "nome": "Espada de Prata Glacial",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "incomum",
+      "icone": "espada",
+      "dano": 11,
+      "atributo": "FOR",
+      "valor": 158,
+      "requisito": {
+        "FOR": 9
+      },
+      "descricao": "Espada forjada em Prata. Canaliza glacial.",
+      "elemento": "gelo"
+    },
+    {
+      "id": "ger_machado_prata",
+      "nome": "Machado de Prata",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "incomum",
+      "icone": "machado",
+      "dano": 13,
+      "atributo": "FOR",
+      "valor": 187,
+      "requisito": {
+        "FOR": 10
+      },
+      "descricao": "Machado forjada em Prata."
+    },
+    {
+      "id": "ger_maca_prata_arcano",
+      "nome": "Maça de Prata Arcano",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "incomum",
+      "icone": "maca",
+      "dano": 11,
+      "atributo": "FOR",
+      "valor": 158,
+      "requisito": {
+        "FOR": 9
+      },
+      "descricao": "Maça forjada em Prata. Canaliza arcano.",
+      "elemento": "arcano"
+    },
+    {
+      "id": "ger_adaga_prata_glacial",
+      "nome": "Adaga de Prata Glacial",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "incomum",
+      "icone": "adaga",
+      "dano": 7,
+      "atributo": "DES",
+      "valor": 101,
+      "requisito": {
+        "DES": 7
+      },
+      "descricao": "Adaga forjada em Prata. Canaliza glacial.",
+      "bonusCritico": 10,
+      "elemento": "gelo"
+    },
+    {
+      "id": "ger_arco_prata",
+      "nome": "Arco de Prata",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "incomum",
+      "icone": "arco",
+      "dano": 9,
+      "atributo": "DES",
+      "valor": 130,
+      "requisito": {
+        "DES": 8
+      },
+      "descricao": "Arco forjada em Prata."
+    },
+    {
+      "id": "ger_cajado_prata",
+      "nome": "Cajado de Prata",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "incomum",
+      "icone": "cajado",
+      "dano": 9,
+      "atributo": "INT",
+      "valor": 130,
+      "requisito": {
+        "INT": 8
+      },
+      "descricao": "Cajado forjada em Prata."
+    },
+    {
+      "id": "ger_lanca_prata_das_mares",
+      "nome": "Lança de Prata das Marés",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "incomum",
+      "icone": "espada",
+      "dano": 11,
+      "atributo": "FOR",
+      "valor": 158,
+      "requisito": {
+        "FOR": 9
+      },
+      "descricao": "Lança forjada em Prata. Canaliza das marés.",
+      "elemento": "agua"
+    },
+    {
+      "id": "ger_grimorio_prata",
+      "nome": "Grimório de Prata",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "incomum",
+      "icone": "cajado",
+      "dano": 7,
+      "atributo": "INT",
+      "valor": 101,
+      "requisito": {
+        "INT": 7
+      },
+      "descricao": "Grimório forjada em Prata."
+    },
+    {
+      "id": "ger_martelo_prata",
+      "nome": "Martelo de Prata",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "incomum",
+      "icone": "maca",
+      "dano": 15,
+      "atributo": "FOR",
+      "valor": 216,
+      "requisito": {
+        "FOR": 11
+      },
+      "descricao": "Martelo forjada em Prata."
+    },
+    {
+      "id": "ger_foice_prata_radiante",
+      "nome": "Foice de Prata Radiante",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "incomum",
+      "icone": "adaga",
+      "dano": 9,
+      "atributo": "DES",
+      "valor": 130,
+      "requisito": {
+        "DES": 8
+      },
+      "descricao": "Foice forjada em Prata. Canaliza radiante.",
+      "bonusCritico": 8,
+      "elemento": "radiante"
+    },
+    {
+      "id": "ger_peito_prata",
+      "nome": "Peitoral de Prata",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "incomum",
+      "icone": "armadura",
+      "defesa": 9,
+      "valor": 130,
+      "descricao": "Peitoral de Prata.",
+      "requisito": {
+        "CON": 10
+      }
+    },
+    {
+      "id": "ger_elmo_prata",
+      "nome": "Elmo de Prata",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "incomum",
+      "icone": "elmo",
+      "defesa": 4,
+      "valor": 58,
+      "descricao": "Elmo de Prata."
+    },
+    {
+      "id": "ger_botas_prata",
+      "nome": "Botas de Prata",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "incomum",
+      "icone": "botas",
+      "defesa": 4,
+      "valor": 58,
+      "descricao": "Botas de Prata.",
+      "bonusVelocidade": 3
+    },
+    {
+      "id": "ger_escudo_prata",
+      "nome": "Escudo de Prata",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "incomum",
+      "icone": "escudo",
+      "defesa": 7,
+      "valor": 101,
+      "descricao": "Escudo de Prata.",
+      "requisito": {
+        "CON": 9
+      }
+    },
+    {
+      "id": "ger_espada_obsidiana_glacial",
+      "nome": "Espada de Obsidiana Glacial",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 13,
+      "atributo": "FOR",
+      "valor": 215,
+      "requisito": {
+        "FOR": 10
+      },
+      "descricao": "Espada forjada em Obsidiana. Canaliza glacial.",
+      "elemento": "gelo",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_machado_obsidiana",
+      "nome": "Machado de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "machado",
+      "dano": 15,
+      "atributo": "FOR",
+      "valor": 248,
+      "requisito": {
+        "FOR": 11
+      },
+      "descricao": "Machado forjada em Obsidiana."
+    },
+    {
+      "id": "ger_maca_obsidiana",
+      "nome": "Maça de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 13,
+      "atributo": "FOR",
+      "valor": 215,
+      "requisito": {
+        "FOR": 10
+      },
+      "descricao": "Maça forjada em Obsidiana."
+    },
+    {
+      "id": "ger_adaga_obsidiana_das_mares",
+      "nome": "Adaga de Obsidiana das Marés",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 9,
+      "atributo": "DES",
+      "valor": 149,
+      "requisito": {
+        "DES": 8
+      },
+      "descricao": "Adaga forjada em Obsidiana. Canaliza das marés.",
+      "bonusCritico": 11,
+      "elemento": "agua",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_arco_obsidiana_telurico",
+      "nome": "Arco de Obsidiana Telúrico",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "raro",
+      "icone": "arco",
+      "dano": 11,
+      "atributo": "DES",
+      "valor": 182,
+      "requisito": {
+        "DES": 9
+      },
+      "descricao": "Arco forjada em Obsidiana. Canaliza telúrico.",
+      "elemento": "terra",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_cajado_obsidiana",
+      "nome": "Cajado de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 11,
+      "atributo": "INT",
+      "valor": 182,
+      "requisito": {
+        "INT": 9
+      },
+      "descricao": "Cajado forjada em Obsidiana."
+    },
+    {
+      "id": "ger_lanca_obsidiana",
+      "nome": "Lança de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 13,
+      "atributo": "FOR",
+      "valor": 215,
+      "requisito": {
+        "FOR": 10
+      },
+      "descricao": "Lança forjada em Obsidiana."
+    },
+    {
+      "id": "ger_grimorio_obsidiana_telurico",
+      "nome": "Grimório de Obsidiana Telúrico",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 9,
+      "atributo": "INT",
+      "valor": 149,
+      "requisito": {
+        "INT": 8
+      },
+      "descricao": "Grimório forjada em Obsidiana. Canaliza telúrico.",
+      "elemento": "terra",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_martelo_obsidiana",
+      "nome": "Martelo de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 18,
+      "atributo": "FOR",
+      "valor": 297,
+      "requisito": {
+        "FOR": 13
+      },
+      "descricao": "Martelo forjada em Obsidiana."
+    },
+    {
+      "id": "ger_foice_obsidiana_telurico",
+      "nome": "Foice de Obsidiana Telúrico",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 11,
+      "atributo": "DES",
+      "valor": 182,
+      "requisito": {
+        "DES": 9
+      },
+      "descricao": "Foice forjada em Obsidiana. Canaliza telúrico.",
+      "bonusCritico": 9,
+      "elemento": "terra",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_peito_obsidiana",
+      "nome": "Peitoral de Obsidiana",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "raro",
+      "icone": "armadura",
+      "defesa": 11,
+      "valor": 182,
+      "descricao": "Peitoral de Obsidiana.",
+      "requisito": {
+        "CON": 12
+      }
+    },
+    {
+      "id": "ger_elmo_obsidiana",
+      "nome": "Elmo de Obsidiana",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "raro",
+      "icone": "elmo",
+      "defesa": 4,
+      "valor": 66,
+      "descricao": "Elmo de Obsidiana."
+    },
+    {
+      "id": "ger_botas_obsidiana",
+      "nome": "Botas de Obsidiana",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "raro",
+      "icone": "botas",
+      "defesa": 4,
+      "valor": 66,
+      "descricao": "Botas de Obsidiana.",
+      "bonusVelocidade": 3
+    },
+    {
+      "id": "ger_escudo_obsidiana",
+      "nome": "Escudo de Obsidiana",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "raro",
+      "icone": "escudo",
+      "defesa": 9,
+      "valor": 149,
+      "descricao": "Escudo de Obsidiana.",
+      "requisito": {
+        "CON": 10
+      }
+    },
+    {
+      "id": "ger_espada_mithril_umbral",
+      "nome": "Espada de Mithril Umbral",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 16,
+      "atributo": "FOR",
+      "valor": 298,
+      "requisito": {
+        "FOR": 12
+      },
+      "descricao": "Espada forjada em Mithril. Canaliza umbral.",
+      "elemento": "sombrio",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_machado_mithril",
+      "nome": "Machado de Mithril",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "machado",
+      "dano": 18,
+      "atributo": "FOR",
+      "valor": 335,
+      "requisito": {
+        "FOR": 13
+      },
+      "descricao": "Machado forjada em Mithril."
+    },
+    {
+      "id": "ger_maca_mithril_arcano",
+      "nome": "Maça de Mithril Arcano",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 16,
+      "atributo": "FOR",
+      "valor": 298,
+      "requisito": {
+        "FOR": 12
+      },
+      "descricao": "Maça forjada em Mithril. Canaliza arcano.",
+      "elemento": "arcano",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_adaga_mithril",
+      "nome": "Adaga de Mithril",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 10,
+      "atributo": "DES",
+      "valor": 186,
+      "requisito": {
+        "DES": 9
+      },
+      "descricao": "Adaga forjada em Mithril.",
+      "bonusCritico": 12
+    },
+    {
+      "id": "ger_arco_mithril_telurico",
+      "nome": "Arco de Mithril Telúrico",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "raro",
+      "icone": "arco",
+      "dano": 13,
+      "atributo": "DES",
+      "valor": 242,
+      "requisito": {
+        "DES": 10
+      },
+      "descricao": "Arco forjada em Mithril. Canaliza telúrico.",
+      "elemento": "terra",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_cajado_mithril",
+      "nome": "Cajado de Mithril",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 13,
+      "atributo": "INT",
+      "valor": 242,
+      "requisito": {
+        "INT": 10
+      },
+      "descricao": "Cajado forjada em Mithril."
+    },
+    {
+      "id": "ger_lanca_mithril",
+      "nome": "Lança de Mithril",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 16,
+      "atributo": "FOR",
+      "valor": 298,
+      "requisito": {
+        "FOR": 12
+      },
+      "descricao": "Lança forjada em Mithril."
+    },
+    {
+      "id": "ger_grimorio_mithril_das_mares",
+      "nome": "Grimório de Mithril das Marés",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 10,
+      "atributo": "INT",
+      "valor": 186,
+      "requisito": {
+        "INT": 9
+      },
+      "descricao": "Grimório forjada em Mithril. Canaliza das marés.",
+      "elemento": "agua",
+      "efeitos": [
+        "quebra_postura"
+      ]
+    },
+    {
+      "id": "ger_martelo_mithril_flamejante",
+      "nome": "Martelo de Mithril Flamejante",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 21,
+      "atributo": "FOR",
+      "valor": 391,
+      "requisito": {
+        "FOR": 14
+      },
+      "descricao": "Martelo forjada em Mithril. Canaliza flamejante.",
+      "elemento": "fogo",
+      "efeitos": [
+        "quebra_postura"
+      ]
+    },
+    {
+      "id": "ger_foice_mithril_umbral",
+      "nome": "Foice de Mithril Umbral",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 13,
+      "atributo": "DES",
+      "valor": 242,
+      "requisito": {
+        "DES": 10
+      },
+      "descricao": "Foice forjada em Mithril. Canaliza umbral.",
+      "bonusCritico": 10,
+      "elemento": "sombrio",
+      "efeitos": [
+        "quebra_postura"
+      ]
+    },
+    {
+      "id": "ger_peito_mithril",
+      "nome": "Peitoral de Mithril",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "raro",
+      "icone": "armadura",
+      "defesa": 13,
+      "valor": 242,
+      "descricao": "Peitoral de Mithril.",
+      "requisito": {
+        "CON": 13
+      }
+    },
+    {
+      "id": "ger_elmo_mithril",
+      "nome": "Elmo de Mithril",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "raro",
+      "icone": "elmo",
+      "defesa": 5,
+      "valor": 93,
+      "descricao": "Elmo de Mithril."
+    },
+    {
+      "id": "ger_botas_mithril",
+      "nome": "Botas de Mithril",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "raro",
+      "icone": "botas",
+      "defesa": 5,
+      "valor": 93,
+      "descricao": "Botas de Mithril.",
+      "bonusVelocidade": 4
+    },
+    {
+      "id": "ger_escudo_mithril",
+      "nome": "Escudo de Mithril",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "raro",
+      "icone": "escudo",
+      "defesa": 10,
+      "valor": 186,
+      "descricao": "Escudo de Mithril.",
+      "requisito": {
+        "CON": 11
+      }
+    },
+    {
+      "id": "ger_espada_adamante_flamejante",
+      "nome": "Espada de Adamante Flamejante",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 19,
+      "atributo": "FOR",
+      "valor": 393,
+      "requisito": {
+        "FOR": 13
+      },
+      "descricao": "Espada forjada em Adamante. Canaliza flamejante.",
+      "elemento": "fogo",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_machado_adamante_tempestuoso",
+      "nome": "Machado de Adamante Tempestuoso",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "machado",
+      "dano": 22,
+      "atributo": "FOR",
+      "valor": 455,
+      "requisito": {
+        "FOR": 15
+      },
+      "descricao": "Machado forjada em Adamante. Canaliza tempestuoso.",
+      "elemento": "raio",
+      "efeitos": [
+        "quebra_postura"
+      ]
+    },
+    {
+      "id": "ger_maca_adamante_umbral",
+      "nome": "Maça de Adamante Umbral",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 19,
+      "atributo": "FOR",
+      "valor": 393,
+      "requisito": {
+        "FOR": 13
+      },
+      "descricao": "Maça forjada em Adamante. Canaliza umbral.",
+      "elemento": "sombrio",
+      "efeitos": [
+        "quebra_postura"
+      ]
+    },
+    {
+      "id": "ger_adaga_adamante",
+      "nome": "Adaga de Adamante",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 12,
+      "atributo": "DES",
+      "valor": 248,
+      "requisito": {
+        "DES": 10
+      },
+      "descricao": "Adaga forjada em Adamante.",
+      "bonusCritico": 13
+    },
+    {
+      "id": "ger_arco_adamante",
+      "nome": "Arco de Adamante",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "epico",
+      "icone": "arco",
+      "dano": 16,
+      "atributo": "DES",
+      "valor": 331,
+      "requisito": {
+        "DES": 12
+      },
+      "descricao": "Arco forjada em Adamante."
+    },
+    {
+      "id": "ger_cajado_adamante",
+      "nome": "Cajado de Adamante",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 16,
+      "atributo": "INT",
+      "valor": 331,
+      "requisito": {
+        "INT": 12
+      },
+      "descricao": "Cajado forjada em Adamante."
+    },
+    {
+      "id": "ger_lanca_adamante",
+      "nome": "Lança de Adamante",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 19,
+      "atributo": "FOR",
+      "valor": 393,
+      "requisito": {
+        "FOR": 13
+      },
+      "descricao": "Lança forjada em Adamante."
+    },
+    {
+      "id": "ger_grimorio_adamante_glacial",
+      "nome": "Grimório de Adamante Glacial",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 12,
+      "atributo": "INT",
+      "valor": 248,
+      "requisito": {
+        "INT": 10
+      },
+      "descricao": "Grimório forjada em Adamante. Canaliza glacial.",
+      "elemento": "gelo",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_martelo_adamante",
+      "nome": "Martelo de Adamante",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 25,
+      "atributo": "FOR",
+      "valor": 518,
+      "requisito": {
+        "FOR": 16
+      },
+      "descricao": "Martelo forjada em Adamante."
+    },
+    {
+      "id": "ger_foice_adamante_glacial",
+      "nome": "Foice de Adamante Glacial",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 16,
+      "atributo": "DES",
+      "valor": 331,
+      "requisito": {
+        "DES": 12
+      },
+      "descricao": "Foice forjada em Adamante. Canaliza glacial.",
+      "bonusCritico": 11,
+      "elemento": "gelo",
+      "efeitos": [
+        "ceifador"
+      ]
+    },
+    {
+      "id": "ger_peito_adamante",
+      "nome": "Peitoral de Adamante",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "epico",
+      "icone": "armadura",
+      "defesa": 16,
+      "valor": 331,
+      "descricao": "Peitoral de Adamante.",
+      "requisito": {
+        "CON": 15
+      }
+    },
+    {
+      "id": "ger_elmo_adamante",
+      "nome": "Elmo de Adamante",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "epico",
+      "icone": "elmo",
+      "defesa": 6,
+      "valor": 124,
+      "descricao": "Elmo de Adamante.",
+      "requisito": {
+        "CON": 8
+      }
+    },
+    {
+      "id": "ger_botas_adamante",
+      "nome": "Botas de Adamante",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "epico",
+      "icone": "botas",
+      "defesa": 6,
+      "valor": 124,
+      "descricao": "Botas de Adamante.",
+      "bonusVelocidade": 4,
+      "requisito": {
+        "CON": 8
+      }
+    },
+    {
+      "id": "ger_escudo_adamante",
+      "nome": "Escudo de Adamante",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "epico",
+      "icone": "escudo",
+      "defesa": 12,
+      "valor": 248,
+      "descricao": "Escudo de Adamante.",
+      "requisito": {
+        "CON": 12
+      }
+    },
+    {
+      "id": "ger_espada_aetherium_das_mares",
+      "nome": "Espada de Aetherium das Marés",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 22,
+      "atributo": "FOR",
+      "valor": 502,
+      "requisito": {
+        "FOR": 15
+      },
+      "descricao": "Espada forjada em Aetherium. Canaliza das marés.",
+      "elemento": "agua",
+      "efeitos": [
+        "algoz_de_chefes"
+      ]
+    },
+    {
+      "id": "ger_machado_aetherium_radiante",
+      "nome": "Machado de Aetherium Radiante",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "machado",
+      "dano": 25,
+      "atributo": "FOR",
+      "valor": 570,
+      "requisito": {
+        "FOR": 16
+      },
+      "descricao": "Machado forjada em Aetherium. Canaliza radiante.",
+      "elemento": "radiante",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_maca_aetherium_flamejante",
+      "nome": "Maça de Aetherium Flamejante",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 22,
+      "atributo": "FOR",
+      "valor": 502,
+      "requisito": {
+        "FOR": 15
+      },
+      "descricao": "Maça forjada em Aetherium. Canaliza flamejante.",
+      "elemento": "fogo",
+      "efeitos": [
+        "condutor"
+      ]
+    },
+    {
+      "id": "ger_adaga_aetherium",
+      "nome": "Adaga de Aetherium",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 14,
+      "atributo": "DES",
+      "valor": 319,
+      "requisito": {
+        "DES": 11
+      },
+      "descricao": "Adaga forjada em Aetherium.",
+      "bonusCritico": 14
+    },
+    {
+      "id": "ger_arco_aetherium",
+      "nome": "Arco de Aetherium",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "epico",
+      "icone": "arco",
+      "dano": 18,
+      "atributo": "DES",
+      "valor": 410,
+      "requisito": {
+        "DES": 13
+      },
+      "descricao": "Arco forjada em Aetherium."
+    },
+    {
+      "id": "ger_cajado_aetherium",
+      "nome": "Cajado de Aetherium",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 18,
+      "atributo": "INT",
+      "valor": 410,
+      "requisito": {
+        "INT": 13
+      },
+      "descricao": "Cajado forjada em Aetherium."
+    },
+    {
+      "id": "ger_lanca_aetherium",
+      "nome": "Lança de Aetherium",
+      "tipo": "arma",
+      "subtipo": "lanca",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 22,
+      "atributo": "FOR",
+      "valor": 502,
+      "requisito": {
+        "FOR": 15
+      },
+      "descricao": "Lança forjada em Aetherium."
+    },
+    {
+      "id": "ger_grimorio_aetherium_flamejante",
+      "nome": "Grimório de Aetherium Flamejante",
+      "tipo": "arma",
+      "subtipo": "grimorio",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 14,
+      "atributo": "INT",
+      "valor": 319,
+      "requisito": {
+        "INT": 11
+      },
+      "descricao": "Grimório forjada em Aetherium. Canaliza flamejante.",
+      "elemento": "fogo",
+      "efeitos": [
+        "ceifador"
+      ]
+    },
+    {
+      "id": "ger_martelo_aetherium_tempestuoso",
+      "nome": "Martelo de Aetherium Tempestuoso",
+      "tipo": "arma",
+      "subtipo": "martelo",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 29,
+      "atributo": "FOR",
+      "valor": 661,
+      "requisito": {
+        "FOR": 18
+      },
+      "descricao": "Martelo forjada em Aetherium. Canaliza tempestuoso.",
+      "elemento": "raio",
+      "efeitos": [
+        "algoz_de_chefes"
+      ]
+    },
+    {
+      "id": "ger_foice_aetherium_arcano",
+      "nome": "Foice de Aetherium Arcano",
+      "tipo": "arma",
+      "subtipo": "foice",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 18,
+      "atributo": "DES",
+      "valor": 410,
+      "requisito": {
+        "DES": 13
+      },
+      "descricao": "Foice forjada em Aetherium. Canaliza arcano.",
+      "bonusCritico": 12,
+      "elemento": "arcano",
+      "efeitos": [
+        "catalisador"
+      ]
+    },
+    {
+      "id": "ger_peito_aetherium",
+      "nome": "Peitoral de Aetherium",
+      "tipo": "armadura",
+      "subtipo": "peito",
+      "slot": "peito",
+      "raridade": "epico",
+      "icone": "armadura",
+      "defesa": 18,
+      "valor": 410,
+      "descricao": "Peitoral de Aetherium.",
+      "requisito": {
+        "CON": 17
+      }
+    },
+    {
+      "id": "ger_elmo_aetherium",
+      "nome": "Elmo de Aetherium",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "epico",
+      "icone": "elmo",
+      "defesa": 7,
+      "valor": 160,
+      "descricao": "Elmo de Aetherium.",
+      "requisito": {
+        "CON": 9
+      }
+    },
+    {
+      "id": "ger_botas_aetherium",
+      "nome": "Botas de Aetherium",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "epico",
+      "icone": "botas",
+      "defesa": 7,
+      "valor": 160,
+      "descricao": "Botas de Aetherium.",
+      "bonusVelocidade": 4,
+      "requisito": {
+        "CON": 9
+      }
+    },
+    {
+      "id": "ger_escudo_aetherium",
+      "nome": "Escudo de Aetherium",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "epico",
+      "icone": "escudo",
+      "defesa": 14,
+      "valor": 319,
+      "descricao": "Escudo de Aetherium.",
+      "requisito": {
+        "CON": 14
+      }
+    },
+    {
+      "id": "ger_espada_obsidiana_alt_raio",
+      "nome": "Espada de Obsidiana do Trovão",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 13,
+      "atributo": "FOR",
+      "elemento": "raio",
+      "valor": 225,
+      "requisito": {
+        "FOR": 10
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Espada de Obsidiana que marca o alvo com raio, preparando reações elementais."
+    },
+    {
+      "id": "ger_machado_obsidiana_alt_fogo",
+      "nome": "Machado de Obsidiana da Brasa",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "machado",
+      "dano": 15,
+      "atributo": "FOR",
+      "elemento": "fogo",
+      "valor": 258,
+      "requisito": {
+        "FOR": 11
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Machado de Obsidiana que marca o alvo com fogo, preparando reações elementais."
+    },
+    {
+      "id": "ger_maca_obsidiana_alt_gelo",
+      "nome": "Maça de Obsidiana do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 13,
+      "atributo": "FOR",
+      "elemento": "gelo",
+      "valor": 225,
+      "requisito": {
+        "FOR": 10
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Maça de Obsidiana que marca o alvo com gelo, preparando reações elementais."
+    },
+    {
+      "id": "ger_adaga_obsidiana_alt_agua",
+      "nome": "Adaga de Obsidiana das Correntes",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 9,
+      "atributo": "DES",
+      "elemento": "agua",
+      "valor": 159,
+      "requisito": {
+        "DES": 8
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Adaga de Obsidiana que marca o alvo com agua, preparando reações elementais.",
+      "bonusCritico": 11
+    },
+    {
+      "id": "ger_arco_obsidiana_alt_raio",
+      "nome": "Arco de Obsidiana do Trovão",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "raro",
+      "icone": "arco",
+      "dano": 11,
+      "atributo": "DES",
+      "elemento": "raio",
+      "valor": 192,
+      "requisito": {
+        "DES": 9
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Arco de Obsidiana que marca o alvo com raio, preparando reações elementais."
+    },
+    {
+      "id": "ger_cajado_obsidiana_alt_fogo",
+      "nome": "Cajado de Obsidiana da Brasa",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 11,
+      "atributo": "INT",
+      "elemento": "fogo",
+      "valor": 192,
+      "requisito": {
+        "INT": 9
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Cajado de Obsidiana que marca o alvo com fogo, preparando reações elementais."
+    },
+    {
+      "id": "ger_espada_mithril_alt_fogo",
+      "nome": "Espada de Mithril da Brasa",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 16,
+      "atributo": "FOR",
+      "elemento": "fogo",
+      "valor": 308,
+      "requisito": {
+        "FOR": 12
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Espada de Mithril que marca o alvo com fogo, preparando reações elementais."
+    },
+    {
+      "id": "ger_machado_mithril_alt_gelo",
+      "nome": "Machado de Mithril do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "raro",
+      "icone": "machado",
+      "dano": 18,
+      "atributo": "FOR",
+      "elemento": "gelo",
+      "valor": 345,
+      "requisito": {
+        "FOR": 13
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Machado de Mithril que marca o alvo com gelo, preparando reações elementais."
+    },
+    {
+      "id": "ger_maca_mithril_alt_agua",
+      "nome": "Maça de Mithril das Correntes",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "raro",
+      "icone": "maca",
+      "dano": 16,
+      "atributo": "FOR",
+      "elemento": "agua",
+      "valor": 308,
+      "requisito": {
+        "FOR": 12
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Maça de Mithril que marca o alvo com agua, preparando reações elementais."
+    },
+    {
+      "id": "ger_adaga_mithril_alt_raio",
+      "nome": "Adaga de Mithril do Trovão",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "raro",
+      "icone": "adaga",
+      "dano": 10,
+      "atributo": "DES",
+      "elemento": "raio",
+      "valor": 196,
+      "requisito": {
+        "DES": 9
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Adaga de Mithril que marca o alvo com raio, preparando reações elementais.",
+      "bonusCritico": 12
+    },
+    {
+      "id": "ger_arco_mithril_alt_fogo",
+      "nome": "Arco de Mithril da Brasa",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "raro",
+      "icone": "arco",
+      "dano": 13,
+      "atributo": "DES",
+      "elemento": "fogo",
+      "valor": 252,
+      "requisito": {
+        "DES": 10
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Arco de Mithril que marca o alvo com fogo, preparando reações elementais."
+    },
+    {
+      "id": "ger_cajado_mithril_alt_gelo",
+      "nome": "Cajado de Mithril do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "raro",
+      "icone": "cajado",
+      "dano": 13,
+      "atributo": "INT",
+      "elemento": "gelo",
+      "valor": 252,
+      "requisito": {
+        "INT": 10
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Cajado de Mithril que marca o alvo com gelo, preparando reações elementais."
+    },
+    {
+      "id": "ger_espada_adamante_alt_gelo",
+      "nome": "Espada de Adamante do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 19,
+      "atributo": "FOR",
+      "elemento": "gelo",
+      "valor": 403,
+      "requisito": {
+        "FOR": 13
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Espada de Adamante que marca o alvo com gelo, preparando reações elementais."
+    },
+    {
+      "id": "ger_machado_adamante_alt_agua",
+      "nome": "Machado de Adamante das Correntes",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "machado",
+      "dano": 22,
+      "atributo": "FOR",
+      "elemento": "agua",
+      "valor": 465,
+      "requisito": {
+        "FOR": 15
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Machado de Adamante que marca o alvo com agua, preparando reações elementais."
+    },
+    {
+      "id": "ger_maca_adamante_alt_raio",
+      "nome": "Maça de Adamante do Trovão",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 19,
+      "atributo": "FOR",
+      "elemento": "raio",
+      "valor": 403,
+      "requisito": {
+        "FOR": 13
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Maça de Adamante que marca o alvo com raio, preparando reações elementais."
+    },
+    {
+      "id": "ger_adaga_adamante_alt_fogo",
+      "nome": "Adaga de Adamante da Brasa",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 12,
+      "atributo": "DES",
+      "elemento": "fogo",
+      "valor": 258,
+      "requisito": {
+        "DES": 10
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Adaga de Adamante que marca o alvo com fogo, preparando reações elementais.",
+      "bonusCritico": 13
+    },
+    {
+      "id": "ger_arco_adamante_alt_gelo",
+      "nome": "Arco de Adamante do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "epico",
+      "icone": "arco",
+      "dano": 16,
+      "atributo": "DES",
+      "elemento": "gelo",
+      "valor": 341,
+      "requisito": {
+        "DES": 12
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Arco de Adamante que marca o alvo com gelo, preparando reações elementais."
+    },
+    {
+      "id": "ger_cajado_adamante_alt_agua",
+      "nome": "Cajado de Adamante das Correntes",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 16,
+      "atributo": "INT",
+      "elemento": "agua",
+      "valor": 341,
+      "requisito": {
+        "INT": 12
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Cajado de Adamante que marca o alvo com agua, preparando reações elementais."
+    },
+    {
+      "id": "ger_espada_aetherium_alt_agua",
+      "nome": "Espada de Aetherium das Correntes",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "epico",
+      "icone": "espada",
+      "dano": 22,
+      "atributo": "FOR",
+      "elemento": "agua",
+      "valor": 512,
+      "requisito": {
+        "FOR": 15
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Espada de Aetherium que marca o alvo com agua, preparando reações elementais."
+    },
+    {
+      "id": "ger_machado_aetherium_alt_raio",
+      "nome": "Machado de Aetherium do Trovão",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "machado",
+      "dano": 25,
+      "atributo": "FOR",
+      "elemento": "raio",
+      "valor": 580,
+      "requisito": {
+        "FOR": 16
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Machado de Aetherium que marca o alvo com raio, preparando reações elementais."
+    },
+    {
+      "id": "ger_maca_aetherium_alt_fogo",
+      "nome": "Maça de Aetherium da Brasa",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "raridade": "epico",
+      "icone": "maca",
+      "dano": 22,
+      "atributo": "FOR",
+      "elemento": "fogo",
+      "valor": 512,
+      "requisito": {
+        "FOR": 15
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Maça de Aetherium que marca o alvo com fogo, preparando reações elementais."
+    },
+    {
+      "id": "ger_adaga_aetherium_alt_gelo",
+      "nome": "Adaga de Aetherium do Breu Gélido",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 14,
+      "atributo": "DES",
+      "elemento": "gelo",
+      "valor": 329,
+      "requisito": {
+        "DES": 11
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Adaga de Aetherium que marca o alvo com gelo, preparando reações elementais.",
+      "bonusCritico": 14
+    },
+    {
+      "id": "ger_arco_aetherium_alt_agua",
+      "nome": "Arco de Aetherium das Correntes",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "raridade": "epico",
+      "icone": "arco",
+      "dano": 18,
+      "atributo": "DES",
+      "elemento": "agua",
+      "valor": 420,
+      "requisito": {
+        "DES": 13
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Arco de Aetherium que marca o alvo com agua, preparando reações elementais."
+    },
+    {
+      "id": "ger_cajado_aetherium_alt_raio",
+      "nome": "Cajado de Aetherium do Trovão",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "raridade": "epico",
+      "icone": "cajado",
+      "dano": 18,
+      "atributo": "INT",
+      "elemento": "raio",
+      "valor": 420,
+      "requisito": {
+        "INT": 13
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Cajado de Aetherium que marca o alvo com raio, preparando reações elementais."
+    },
+    {
+      "id": "ger_anel_for_ferro",
+      "nome": "Anel de Ferro do Força",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "comum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "FOR": 1
+      },
+      "valor": 41,
+      "descricao": "Um anel que reforça força."
+    },
+    {
+      "id": "ger_amuleto_for_ferro",
+      "nome": "Amuleto de Ferro do Força",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "comum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 2
+      },
+      "valor": 102,
+      "descricao": "Um amuleto que reforça força."
+    },
+    {
+      "id": "ger_anel_des_ferro",
+      "nome": "Anel de Ferro do Destreza",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "comum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "DES": 1
+      },
+      "valor": 41,
+      "descricao": "Um anel que reforça destreza."
+    },
+    {
+      "id": "ger_amuleto_des_ferro",
+      "nome": "Amuleto de Ferro do Destreza",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "comum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 2
+      },
+      "valor": 102,
+      "descricao": "Um amuleto que reforça destreza."
+    },
+    {
+      "id": "ger_anel_con_ferro",
+      "nome": "Anel de Ferro do Vigor",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "comum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "CON": 1
+      },
+      "valor": 41,
+      "descricao": "Um anel que reforça vigor."
+    },
+    {
+      "id": "ger_amuleto_con_ferro",
+      "nome": "Amuleto de Ferro do Vigor",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "comum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 2
+      },
+      "valor": 102,
+      "descricao": "Um amuleto que reforça vigor."
+    },
+    {
+      "id": "ger_anel_int_ferro",
+      "nome": "Anel de Ferro do Intelecto",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "comum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "INT": 1
+      },
+      "valor": 41,
+      "descricao": "Um anel que reforça intelecto."
+    },
+    {
+      "id": "ger_amuleto_int_ferro",
+      "nome": "Amuleto de Ferro do Intelecto",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "comum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 2
+      },
+      "valor": 102,
+      "descricao": "Um amuleto que reforça intelecto."
+    },
+    {
+      "id": "ger_anel_for_prata",
+      "nome": "Anel de Prata do Força",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "incomum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "FOR": 3
+      },
+      "valor": 173,
+      "descricao": "Um anel que reforça força."
+    },
+    {
+      "id": "ger_amuleto_for_prata",
+      "nome": "Amuleto de Prata do Força",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 4
+      },
+      "valor": 288,
+      "descricao": "Um amuleto que reforça força."
+    },
+    {
+      "id": "ger_anel_des_prata",
+      "nome": "Anel de Prata do Destreza",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "incomum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "DES": 3
+      },
+      "valor": 173,
+      "descricao": "Um anel que reforça destreza."
+    },
+    {
+      "id": "ger_amuleto_des_prata",
+      "nome": "Amuleto de Prata do Destreza",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 4
+      },
+      "valor": 288,
+      "descricao": "Um amuleto que reforça destreza."
+    },
+    {
+      "id": "ger_anel_con_prata",
+      "nome": "Anel de Prata do Vigor",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "incomum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "CON": 3
+      },
+      "valor": 173,
+      "descricao": "Um anel que reforça vigor."
+    },
+    {
+      "id": "ger_amuleto_con_prata",
+      "nome": "Amuleto de Prata do Vigor",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 4
+      },
+      "valor": 288,
+      "descricao": "Um amuleto que reforça vigor."
+    },
+    {
+      "id": "ger_anel_int_prata",
+      "nome": "Anel de Prata do Intelecto",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "incomum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "INT": 3
+      },
+      "valor": 173,
+      "descricao": "Um anel que reforça intelecto."
+    },
+    {
+      "id": "ger_amuleto_int_prata",
+      "nome": "Amuleto de Prata do Intelecto",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 4
+      },
+      "valor": 288,
+      "descricao": "Um amuleto que reforça intelecto."
+    },
+    {
+      "id": "ger_anel_for_mithril",
+      "nome": "Anel de Mithril do Força",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "raro",
+      "icone": "anel",
+      "bonusAtributo": {
+        "FOR": 4
+      },
+      "valor": 298,
+      "descricao": "Um anel que reforça força."
+    },
+    {
+      "id": "ger_amuleto_for_mithril",
+      "nome": "Amuleto de Mithril do Força",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "raro",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 5
+      },
+      "valor": 465,
+      "descricao": "Um amuleto que reforça força."
+    },
+    {
+      "id": "ger_anel_des_mithril",
+      "nome": "Anel de Mithril do Destreza",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "raro",
+      "icone": "anel",
+      "bonusAtributo": {
+        "DES": 4
+      },
+      "valor": 298,
+      "descricao": "Um anel que reforça destreza."
+    },
+    {
+      "id": "ger_amuleto_des_mithril",
+      "nome": "Amuleto de Mithril do Destreza",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "raro",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 5
+      },
+      "valor": 465,
+      "descricao": "Um amuleto que reforça destreza."
+    },
+    {
+      "id": "ger_anel_con_mithril",
+      "nome": "Anel de Mithril do Vigor",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "raro",
+      "icone": "anel",
+      "bonusAtributo": {
+        "CON": 4
+      },
+      "valor": 298,
+      "descricao": "Um anel que reforça vigor."
+    },
+    {
+      "id": "ger_amuleto_con_mithril",
+      "nome": "Amuleto de Mithril do Vigor",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "raro",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 5
+      },
+      "valor": 465,
+      "descricao": "Um amuleto que reforça vigor."
+    },
+    {
+      "id": "ger_anel_int_mithril",
+      "nome": "Anel de Mithril do Intelecto",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "raro",
+      "icone": "anel",
+      "bonusAtributo": {
+        "INT": 4
+      },
+      "valor": 298,
+      "descricao": "Um anel que reforça intelecto."
+    },
+    {
+      "id": "ger_amuleto_int_mithril",
+      "nome": "Amuleto de Mithril do Intelecto",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "raro",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 5
+      },
+      "valor": 465,
+      "descricao": "Um amuleto que reforça intelecto."
+    },
+    {
+      "id": "ger_anel_for_aetherium",
+      "nome": "Anel de Aetherium do Força",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "epico",
+      "icone": "anel",
+      "bonusAtributo": {
+        "FOR": 6
+      },
+      "valor": 547,
+      "descricao": "Um anel que reforça força."
+    },
+    {
+      "id": "ger_amuleto_for_aetherium",
+      "nome": "Amuleto de Aetherium do Força",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 7
+      },
+      "valor": 798,
+      "descricao": "Um amuleto que reforça força."
+    },
+    {
+      "id": "ger_anel_des_aetherium",
+      "nome": "Anel de Aetherium do Destreza",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "epico",
+      "icone": "anel",
+      "bonusAtributo": {
+        "DES": 6
+      },
+      "valor": 547,
+      "descricao": "Um anel que reforça destreza."
+    },
+    {
+      "id": "ger_amuleto_des_aetherium",
+      "nome": "Amuleto de Aetherium do Destreza",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 7
+      },
+      "valor": 798,
+      "descricao": "Um amuleto que reforça destreza."
+    },
+    {
+      "id": "ger_anel_con_aetherium",
+      "nome": "Anel de Aetherium do Vigor",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "epico",
+      "icone": "anel",
+      "bonusAtributo": {
+        "CON": 6
+      },
+      "valor": 547,
+      "descricao": "Um anel que reforça vigor."
+    },
+    {
+      "id": "ger_amuleto_con_aetherium",
+      "nome": "Amuleto de Aetherium do Vigor",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 7
+      },
+      "valor": 798,
+      "descricao": "Um amuleto que reforça vigor."
+    },
+    {
+      "id": "ger_anel_int_aetherium",
+      "nome": "Anel de Aetherium do Intelecto",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "epico",
+      "icone": "anel",
+      "bonusAtributo": {
+        "INT": 6
+      },
+      "valor": 547,
+      "descricao": "Um anel que reforça intelecto."
+    },
+    {
+      "id": "ger_amuleto_int_aetherium",
+      "nome": "Amuleto de Aetherium do Intelecto",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 7
+      },
+      "valor": 798,
+      "descricao": "Um amuleto que reforça intelecto."
+    },
+    {
+      "id": "ger_pocao_vida_p",
+      "nome": "Elixir de Vida Pequena",
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "icone": "pocao",
+      "curaHP": 25,
+      "valor": 18,
+      "descricao": "Restaura 25 de vida."
+    },
+    {
+      "id": "ger_pocao_eter_p",
+      "nome": "Elixir de Éter Pequena",
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "icone": "pocao",
+      "curaMP": 15,
+      "valor": 20,
+      "descricao": "Restaura 15 de Éter."
+    },
+    {
+      "id": "ger_pocao_dupla_p",
+      "nome": "Elixir Duplo Pequena",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "curaHP": 18,
+      "curaMP": 11,
+      "valor": 29,
+      "descricao": "Restaura 18 de vida e 11 de Éter."
+    },
+    {
+      "id": "ger_pocao_vida_m",
+      "nome": "Elixir de Vida Média",
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "icone": "pocao",
+      "curaHP": 55,
+      "valor": 45,
+      "descricao": "Restaura 55 de vida."
+    },
+    {
+      "id": "ger_pocao_eter_m",
+      "nome": "Elixir de Éter Média",
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "icone": "pocao",
+      "curaMP": 35,
+      "valor": 50,
+      "descricao": "Restaura 35 de Éter."
+    },
+    {
+      "id": "ger_pocao_dupla_m",
+      "nome": "Elixir Duplo Média",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "curaHP": 39,
+      "curaMP": 25,
+      "valor": 72,
+      "descricao": "Restaura 39 de vida e 25 de Éter."
+    },
+    {
+      "id": "ger_pocao_vida_g",
+      "nome": "Elixir de Vida Grande",
+      "tipo": "consumivel",
+      "raridade": "raro",
+      "icone": "pocao",
+      "curaHP": 110,
+      "valor": 95,
+      "descricao": "Restaura 110 de vida."
+    },
+    {
+      "id": "ger_pocao_eter_g",
+      "nome": "Elixir de Éter Grande",
+      "tipo": "consumivel",
+      "raridade": "raro",
+      "icone": "pocao",
+      "curaMP": 70,
+      "valor": 105,
+      "descricao": "Restaura 70 de Éter."
+    },
+    {
+      "id": "ger_pocao_dupla_g",
+      "nome": "Elixir Duplo Grande",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "curaHP": 77,
+      "curaMP": 49,
+      "valor": 152,
+      "descricao": "Restaura 77 de vida e 49 de Éter."
+    },
+    {
+      "id": "ger_pocao_vida_s",
+      "nome": "Elixir de Vida Suprema",
+      "tipo": "consumivel",
+      "raridade": "raro",
+      "icone": "pocao",
+      "curaHP": 220,
+      "valor": 210,
+      "descricao": "Restaura 220 de vida."
+    },
+    {
+      "id": "ger_pocao_eter_s",
+      "nome": "Elixir de Éter Suprema",
+      "tipo": "consumivel",
+      "raridade": "raro",
+      "icone": "pocao",
+      "curaMP": 140,
+      "valor": 231,
+      "descricao": "Restaura 140 de Éter."
+    },
+    {
+      "id": "ger_pocao_dupla_s",
+      "nome": "Elixir Duplo Suprema",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "curaHP": 154,
+      "curaMP": 98,
+      "valor": 336,
+      "descricao": "Restaura 154 de vida e 98 de Éter."
+    },
+    {
+      "id": "ger_oleo_agua",
+      "nome": "Óleo de Água",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "agua",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de água por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_oleo_fogo",
+      "nome": "Óleo de Chama",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "fogo",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de chama por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_oleo_raio",
+      "nome": "Óleo de Raio",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "raio",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de raio por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_oleo_gelo",
+      "nome": "Óleo de Geada",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "gelo",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de geada por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_oleo_terra",
+      "nome": "Óleo de Terra",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "terra",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de terra por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_oleo_natureza",
+      "nome": "Óleo de Seiva",
+      "tipo": "consumivel",
+      "raridade": "incomum",
+      "icone": "pocao",
+      "oleoElemento": "natureza",
+      "duracaoTurnos": 5,
+      "valor": 60,
+      "descricao": "Unta a arma: seus golpes passam a ser de seiva por 5 turnos, marcando o alvo para reações elementais."
+    },
+    {
+      "id": "ger_botas_leves_bronze",
+      "nome": "Botas Ligeiras de Bronze",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "comum",
+      "icone": "botas",
+      "defesa": 1,
+      "valor": 97,
+      "descricao": "Botas Ligeiras de Bronze. Leves e silenciosas: +6 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 6,
+      "requisito": {
+        "DES": 9
+      }
+    },
+    {
+      "id": "ger_botas_leves_ferro",
+      "nome": "Botas Ligeiras de Ferro",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "comum",
+      "icone": "botas",
+      "defesa": 1,
+      "valor": 143,
+      "descricao": "Botas Ligeiras de Ferro. Leves e silenciosas: +7 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 7,
+      "requisito": {
+        "DES": 10
+      }
+    },
+    {
+      "id": "ger_botas_leves_aco",
+      "nome": "Botas Ligeiras de Aço",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "incomum",
+      "icone": "botas",
+      "defesa": 2,
+      "valor": 197,
+      "descricao": "Botas Ligeiras de Aço. Leves e silenciosas: +8 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 8,
+      "requisito": {
+        "DES": 11
+      }
+    },
+    {
+      "id": "ger_botas_leves_prata",
+      "nome": "Botas Ligeiras de Prata",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "incomum",
+      "icone": "botas",
+      "defesa": 2,
+      "valor": 259,
+      "descricao": "Botas Ligeiras de Prata. Leves e silenciosas: +9 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 9,
+      "requisito": {
+        "DES": 12
+      }
+    },
+    {
+      "id": "ger_botas_leves_obsidiana",
+      "nome": "Botas Ligeiras de Obsidiana",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "raro",
+      "icone": "botas",
+      "defesa": 2,
+      "valor": 330,
+      "descricao": "Botas Ligeiras de Obsidiana. Leves e silenciosas: +10 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 10,
+      "requisito": {
+        "DES": 14
+      }
+    },
+    {
+      "id": "ger_botas_leves_mithril",
+      "nome": "Botas Ligeiras de Mithril",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "raro",
+      "icone": "botas",
+      "defesa": 3,
+      "valor": 409,
+      "descricao": "Botas Ligeiras de Mithril. Leves e silenciosas: +11 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 11,
+      "requisito": {
+        "DES": 15
+      }
+    },
+    {
+      "id": "ger_botas_leves_adamante",
+      "nome": "Botas Ligeiras de Adamante",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "epico",
+      "icone": "botas",
+      "defesa": 3,
+      "valor": 497,
+      "descricao": "Botas Ligeiras de Adamante. Leves e silenciosas: +12 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 12,
+      "requisito": {
+        "DES": 16
+      }
+    },
+    {
+      "id": "ger_botas_leves_aetherium",
+      "nome": "Botas Ligeiras de Aetherium",
+      "tipo": "armadura",
+      "subtipo": "botas_leves",
+      "slot": "pes",
+      "raridade": "epico",
+      "icone": "botas",
+      "defesa": 4,
+      "valor": 593,
+      "descricao": "Botas Ligeiras de Aetherium. Leves e silenciosas: +13 de velocidade, quase nenhuma proteção.",
+      "bonusVelocidade": 13,
+      "requisito": {
+        "DES": 17
+      }
     }
   ]
 }

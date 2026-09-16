@@ -14,7 +14,16 @@
       "descricao": "Druidas e patrulheiros que protegem as florestas do reino — veem com bons olhos quem limpa ameaças das matas e mal quem some com a caça ou a madeira delas.",
       "min": -100,
       "max": 100,
-      "zonas": ["floresta", "bosque_sombrio", "floresta_ancestral", "bosque_petrificado"]
+      "zonas": [
+        "floresta",
+        "bosque_sombrio",
+        "floresta_ancestral",
+        "bosque_petrificado",
+        "bosque_das_vozes",
+        "lago_dos_reflexos",
+        "portao_verde",
+        "arvore_oca"
+      ]
     },
     {
       "id": "cla_dos_ventos_dourados",
@@ -23,7 +32,11 @@
       "descricao": "Pastores e cavaleiros nômades das colinas e planícies abertas, orgulhosos e hospitaleiros com quem prova valor em combate.",
       "min": -100,
       "max": 100,
-      "zonas": ["colinas_douradas", "planicie_ventosa"]
+      "zonas": [
+        "colinas_douradas",
+        "planicie_ventosa",
+        "pontes_suspensas"
+      ]
     },
     {
       "id": "andarilhos_do_pantano",
@@ -32,7 +45,12 @@
       "descricao": "Alquimistas e curandeiros que vivem isolados nos brejos, desconfiados de forasteiros até que provem ser úteis.",
       "min": -100,
       "max": 100,
-      "zonas": ["pantano_negro", "charco_fetido", "pantano_bruma"]
+      "zonas": [
+        "pantano_negro",
+        "charco_fetido",
+        "pantano_bruma",
+        "jardim_fungico"
+      ]
     },
     {
       "id": "confraria_do_farol",
@@ -41,7 +59,13 @@
       "descricao": "Marinheiros, pescadores e ex-piratas que guardam a costa do reino contra naufrágios e criaturas do mar.",
       "min": -100,
       "max": 100,
-      "zonas": ["costa_aurora", "recife_tempestades"]
+      "zonas": [
+        "costa_aurora",
+        "recife_tempestades",
+        "falesias_das_correntes",
+        "jardins_de_perola",
+        "abismo_raso"
+      ]
     },
     {
       "id": "caravana_de_karn",
@@ -50,7 +74,12 @@
       "descricao": "Mercadores e guias do deserto, mestres em sobreviver ao calor e negociar com qualquer um — ou qualquer coisa.",
       "min": -100,
       "max": 100,
-      "zonas": ["deserto_karn", "deserto_ardente"]
+      "zonas": [
+        "deserto_karn",
+        "deserto_ardente",
+        "oasis_sete_sombras",
+        "areias_soterradas"
+      ]
     },
     {
       "id": "forja_dos_anoes_cinzentos",
@@ -59,7 +88,14 @@
       "descricao": "Clã anão de mineradores e ferreiros das montanhas e cavernas, respeita força e trabalho duro acima de tudo.",
       "min": -100,
       "max": 100,
-      "zonas": ["vale_pedras", "caverna_eco", "montanha_sombria"]
+      "zonas": [
+        "vale_pedras",
+        "caverna_eco",
+        "montanha_sombria",
+        "mina_carmesim",
+        "mina_ferro_negro",
+        "cratera_primeiro_fogo"
+      ]
     },
     {
       "id": "ordem_dos_arquivistas",
@@ -68,7 +104,13 @@
       "descricao": "Estudiosos e caçadores de necromantes que vasculham ruínas antigas atrás de conhecimento perdido.",
       "min": -100,
       "max": 100,
-      "zonas": ["terras_esquecidas", "ruinas_aethra"]
+      "zonas": [
+        "terras_esquecidas",
+        "ruinas_aethra",
+        "labirinto_mecanico",
+        "ilha_do_prisma",
+        "margem_prismatica"
+      ]
     },
     {
       "id": "cavaleiros_do_vento_uivante",
@@ -77,7 +119,10 @@
       "descricao": "Domadores de grifos e wyverns que vigiam as falésias mais altas do reino, reservados e difíceis de impressionar.",
       "min": -100,
       "max": 100,
-      "zonas": ["falesias_fim"]
+      "zonas": [
+        "falesias_fim",
+        "jardim_das_nuvens"
+      ]
     },
     {
       "id": "legiao_das_cinzas",
@@ -86,7 +131,12 @@
       "descricao": "Sobreviventes endurecidos das terras arrasadas perto do covil do dragão — só respeitam quem sobrevive ao mesmo inferno que eles.",
       "min": -100,
       "max": 100,
-      "zonas": ["covil_do_dragao", "confins_aethra"]
+      "zonas": [
+        "covil_do_dragao",
+        "confins_aethra",
+        "vale_dos_lamentos",
+        "olho_do_abismo"
+      ]
     },
     {
       "id": "coroa_de_aethra",
@@ -95,14 +145,47 @@
       "descricao": "A autoridade política do reino — corte, guardas reais e nobreza. Diferente da simpatia popular da Vila, é sobre status oficial e favores da coroa.",
       "min": -100,
       "max": 100,
-      "zonas": ["vila"]
+      "zonas": [
+        "vila",
+        "campos_de_elyndor"
+      ]
     }
   ],
   "tiers": [
-    { "id": "heroi", "nome": "Herói da Vila", "min": 60, "descontoLoja": 0.15, "saudacao": "Ah, é você! A vila toda fala das suas façanhas." },
-    { "id": "respeitado", "nome": "Respeitado", "min": 20, "descontoLoja": 0.05, "saudacao": "Sempre bom ver um rosto confiável por aqui." },
-    { "id": "neutro", "nome": "Neutro", "min": -19, "descontoLoja": 0, "saudacao": "" },
-    { "id": "malvisto", "nome": "Malvisto", "min": -59, "descontoLoja": -0.05, "saudacao": "Hm. Não esperava te ver de novo por aqui." },
-    { "id": "hostil", "nome": "Hostil", "min": -100, "descontoLoja": -0.15, "saudacao": "Não é bem-vindo por aqui, mas vou tolerar sua presença." }
+    {
+      "id": "heroi",
+      "nome": "Herói da Vila",
+      "min": 60,
+      "descontoLoja": 0.15,
+      "saudacao": "Ah, é você! A vila toda fala das suas façanhas."
+    },
+    {
+      "id": "respeitado",
+      "nome": "Respeitado",
+      "min": 20,
+      "descontoLoja": 0.05,
+      "saudacao": "Sempre bom ver um rosto confiável por aqui."
+    },
+    {
+      "id": "neutro",
+      "nome": "Neutro",
+      "min": -19,
+      "descontoLoja": 0,
+      "saudacao": ""
+    },
+    {
+      "id": "malvisto",
+      "nome": "Malvisto",
+      "min": -59,
+      "descontoLoja": -0.05,
+      "saudacao": "Hm. Não esperava te ver de novo por aqui."
+    },
+    {
+      "id": "hostil",
+      "nome": "Hostil",
+      "min": -100,
+      "descontoLoja": -0.15,
+      "saudacao": "Não é bem-vindo por aqui, mas vou tolerar sua presença."
+    }
   ]
 }

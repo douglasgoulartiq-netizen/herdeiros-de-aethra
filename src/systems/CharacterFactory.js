@@ -3,9 +3,33 @@ import { bonusAfinidade } from "./AffinitySystem.js";
 import { bonusVinculo } from "./BondSystem.js";
 import { bonusConjunto } from "./SetBonusSystem.js";
 import { bonusCaminhoHerdeiro } from "./TalentSystem.js";
+import { bonusDosSubStats } from "./SubStatusSystem.js";
 
+// CURVA DE XP.
+//
+// Era `30 × nível^1.5`. Medido com scripts/medir-dificuldade.mjs: o nível 2
+// vinha em 2,7 lutas e o 3 em 6,1 — o começo do jogo passava correndo, que é
+// justamente onde o jogador aprende as regras. A campanha inteira (1→17)
+// custava 194 lutas.
+//
+// Agora `30 × nível^1.8`: só o EXPOENTE muda. A base fica em 30 de propósito
+// — o primeiro nível continua saindo em ~3 lutas, e ele é a recompensa que
+// ensina o jogador que subir de nível existe. O que estava errado não era o
+// começo, era a curva ser plana demais depois dele.
+//
+// Efeito medido, em lutas por nível:
+//     nível  2:  6,1 → 7,4      nível  5:  9,5 → 15,5
+//     nível 13: 17,1 → 37       campanha 1→17: 194 → 376 lutas (+94%)
+//
+// TENTEI ANTES `45 × n^1.8` e passei do ponto: 564 lutas (+192%), com o
+// nível 13 pedindo 55 lutas. Isso não é dificuldade, é grind — a luta não
+// fica mais difícil, só se repete mais. A base voltou para 30.
+//
+// Mexer aqui é seguro para saves antigos: `ganharXP` recalcula `xpProximo` a
+// cada nível, então um save existente pega a curva nova no próximo nível sem
+// precisar de migração.
 export function xpParaNivel(nivel) {
-  return Math.round(30 * Math.pow(nivel, 1.5));
+  return Math.round(30 * Math.pow(nivel, 1.8));
 }
 
 export function criarPersonagem({ nome, raca, classe, antecedente, traco }, dados) {
@@ -69,18 +93,36 @@ export function criarPersonagem({ nome, raca, classe, antecedente, traco }, dado
 }
 
 // --- Árvore de habilidades ---------------------------------------------
-// Cada classe tem 4 "tiers" (níveis 3/6/9/12), cada um com 2 opções (ramo
-// ofensivo: sempre uma nova habilidade ativa de ataque; ramo de suporte:
-// um bônus passivo permanente ou, em algumas classes, uma habilidade de
-// apoio). O jogador escolhe uma opção por tier — a outra fica de fora.
+// A árvore de verdade (pontos, 3 ramos, 18 nós por classe, requisito de
+// atributo, reset) vive em systems/SkillTreeSystem.js. Aqui fica só o que o
+// resto do CharacterFactory precisa: transformar os nós de ATRIBUTO já
+// comprados num bônus somável, no mesmo formato de bonusAfinidade/
+// bonusVinculo/bonusConjunto, para entrar em bonusTotal().
+//
+// Este arquivo não importa SkillTreeSystem de propósito: SkillTreeSystem já
+// importa daqui (calcularHpMax/atributosEfetivos), e um ciclo entre os dois
+// só serviria para economizar as seis linhas de `nosDaArvore`.
+
+// Aceita as duas formas do skillTrees.json: array puro (formato antigo, de
+// saves e de qualquer dado que ainda não tenha sido regerado) e
+// { ramos, nos } (formato atual).
+export function nosDaArvore(dados, classeId) {
+  const bruto = (dados && dados.skillTrees && dados.skillTrees[classeId]) || null;
+  if (!bruto) return [];
+  return Array.isArray(bruto) ? bruto : bruto.nos || [];
+}
 
 export function bonusArvore(personagem, dados) {
   const bonus = { FOR: 0, DES: 0, CON: 0, INT: 0, hpMaxPercent: 0, mpMaxPercent: 0, critChance: 0, defesaFlat: 0 };
-  const arvore = (dados && dados.skillTrees && dados.skillTrees[personagem.classeId]) || [];
+  const arvore = nosDaArvore(dados, personagem.classeId);
   const escolhas = (personagem.arvore && personagem.arvore.escolhas) || [];
   escolhas.forEach((nodeId) => {
     const node = arvore.find((n) => n.id === nodeId);
-    if (node && node.tipoConcedido === "passiva" && node.efeito && node.efeito.atributo in bonus) {
+    if (!node || !node.efeito || !(node.efeito.atributo in bonus)) return;
+    // "atributo" é o tipo atual; "passiva" com efeito.atributo é como a
+    // árvore antiga declarava a mesma coisa — os dois somam igual, para um
+    // save antigo nunca perder o bônus que já tinha.
+    if (node.tipoConcedido === "atributo" || node.tipoConcedido === "passiva") {
       bonus[node.efeito.atributo] += node.efeito.valor;
     }
   });
@@ -109,47 +151,38 @@ export function bonusTotal(personagem, dados) {
   // de verdade só chegam nas tasks #93/#94), bonusCaminhoHerdeiro() retorna
   // tudo zerado — no-op total, comportamento idêntico a antes desta task.
   const caminho = bonusCaminhoHerdeiro(personagem, dados);
+  // 6ª fonte: sub-status de forja (ver SubStatusSystem.js). Somar AQUI, e só
+  // aqui, é o que faz uma espada +6 com "+3 FOR" e "+5% HP" valer em todo o
+  // jogo sem nenhuma fórmula de combate saber que sub-status existe — o mesmo
+  // truque que as cinco fontes anteriores já usavam.
+  const sub = bonusDosSubStats(personagem);
   const total = {};
   for (const k of Object.keys(arv)) total[k] = arv[k] + (afin[k] || 0) + (vinc[k] || 0) + (conj[k] || 0) + (caminho[k] || 0);
+
+  // ESCALAS DIFERENTES, e este foi o único ponto do encaixe que exigiu
+  // cuidado: as cinco fontes antigas declaram hpMaxPercent em FRAÇÃO (0.06 =
+  // 6%), enquanto o sub-status guarda o número que o jogador lê no item (6).
+  // Converter na entrada é o que impede as duas escalas de se misturarem — um
+  // "+6% HP" somado como 6.0 multiplicaria a vida por sete.
+  total.hpMaxPercent = (total.hpMaxPercent || 0) + (sub.hpMaxPercent || 0) / 100;
+  total.FOR = (total.FOR || 0) + (sub.FOR || 0);
+  total.DES = (total.DES || 0) + (sub.DES || 0);
+  total.CON = (total.CON || 0) + (sub.CON || 0);
+  total.INT = (total.INT || 0) + (sub.INT || 0);
+  // Campos que SÓ os sub-status produzem — nenhuma outra fonte os declara, e
+  // por isso não existem nas chaves de `arv`.
+  total.danoPercent = (sub.danoPercent || 0) / 100;
+  total.defesaPercent = (sub.defesaPercent || 0) / 100;
+  total.subCritico = sub.bonusCritico || 0;
+  total.subVelocidade = sub.bonusVelocidade || 0;
   return total;
 }
 
-// Retorna o próximo tier ainda não decidido cujo nível já foi atingido
-// (ou null se não há nada pendente ainda). Os tiers são avaliados em ordem
-// de nível, então nunca pula um tier anterior ainda não resolvido.
-export function escolhaPendente(personagem, dados) {
-  const arvore = (dados && dados.skillTrees && dados.skillTrees[personagem.classeId]) || [];
-  if (!arvore.length) return null;
-  const escolhas = (personagem.arvore && personagem.arvore.escolhas) || [];
-  const tiers = [...new Set(arvore.map((n) => n.tier))].sort((a, b) => a - b);
-  for (const tier of tiers) {
-    const opcoes = arvore.filter((n) => n.tier === tier);
-    if (opcoes.some((n) => escolhas.includes(n.id))) continue;
-    const nivelRequerido = opcoes[0].nivelRequerido;
-    if (personagem.nivel >= nivelRequerido) return { tier, nivelRequerido, opcoes };
-    return null;
-  }
-  return null;
-}
-
-export function aplicarEscolhaArvore(personagem, dados, nodeId) {
-  const arvore = (dados && dados.skillTrees && dados.skillTrees[personagem.classeId]) || [];
-  const node = arvore.find((n) => n.id === nodeId);
-  if (!node) return { ok: false };
-  if (!personagem.arvore) personagem.arvore = { escolhas: [] };
-  if (personagem.arvore.escolhas.includes(nodeId)) return { ok: false };
-  personagem.arvore.escolhas.push(nodeId);
-  if (node.tipoConcedido === "ativa" && node.habilidade) {
-    const jaTem = personagem.habilidades.some((h) => h.id === node.habilidade.id);
-    if (!jaTem) personagem.habilidades.push({ ...node.habilidade, cooldownAtual: 0 });
-  } else {
-    personagem.hpMax = calcularHpMax(personagem, dados);
-    personagem.mpMax = calcularMpMax(personagem, dados);
-    personagem.hp = Math.min(personagem.hpMax, personagem.hp);
-    personagem.mp = Math.min(personagem.mpMax, personagem.mp);
-  }
-  return { ok: true, node };
-}
+// `escolhaPendente`/`aplicarEscolhaArvore` viviam aqui e implementavam a
+// árvore antiga (um par de opções por tier, uma escolha grátis a cada 3
+// níveis). Foram substituídas por SkillTreeSystem.escolherNo /
+// temCompraDisponivel, que cobram PONTOS — manter as duas versões vivas
+// permitiria comprar um nó de graça pelo caminho antigo.
 
 export function calcularHpMax(personagem, dados) {
   const c = dados.classes.find((x) => x.id === personagem.classeId);
@@ -169,7 +202,11 @@ export function calcularMpMax(personagem, dados) {
 
 export function critBonusTotal(personagem, dados) {
   if (!dados) return 0;
-  return bonusTotal(personagem, dados).critChance || 0;
+  const b = bonusTotal(personagem, dados);
+  // `critChance` é a escala antiga (fração: 0.05 = 5%); o sub-status guarda
+  // pontos percentuais (5 = 5%), como o jogador lê no item. Mesma conversão
+  // do hpMaxPercent.
+  return (b.critChance || 0) + (b.subCritico || 0) / 100;
 }
 
 export function atributosEfetivos(personagem, dados) {
@@ -191,7 +228,12 @@ export function defesaTotal(personagem, dados) {
   Object.values(personagem.equipamento).forEach((item) => {
     if (item && item.defesa) def += item.defesa;
   });
-  if (dados) def += bonusTotal(personagem, dados).defesaFlat || 0;
+  if (dados) {
+    const b = bonusTotal(personagem, dados);
+    def += b.defesaFlat || 0;
+    // Percentual por último, sobre o total já somado — mesma regra do dano.
+    def = Math.round(def * (1 + (b.defesaPercent || 0)));
+  }
   return def;
 }
 
@@ -202,17 +244,28 @@ export function velocidadeTotal(personagem, dados) {
     if (item && item.bonusVelocidade) vel += item.bonusVelocidade;
   });
   if (personagem.racaId === "elfo") vel += 2;
+  if (dados) vel += bonusTotal(personagem, dados).subVelocidade || 0;
   return vel;
 }
 
 export function ataqueBase(personagem, dados) {
   const item = personagem.equipamento.arma;
   const a = atributosEfetivos(personagem, dados);
+  // danoPercent e subCritico vêm dos sub-status de forja (ver bonusTotal).
+  // Aplicados DEPOIS da soma arma + atributo, que é o que "% de dano"
+  // significa: percentual do golpe inteiro, não só da lâmina.
+  const b = dados ? bonusTotal(personagem, dados) : {};
+  const pct = 1 + (b.danoPercent || 0);
+  const critSub = b.subCritico || 0;
   if (item) {
     const atrib = a[item.atributo] || 0;
-    return { dano: item.dano + atrib, atributo: item.atributo, bonusCritico: item.bonusCritico || 0 };
+    return {
+      dano: Math.round((item.dano + atrib) * pct),
+      atributo: item.atributo,
+      bonusCritico: (item.bonusCritico || 0) + critSub,
+    };
   }
-  return { dano: 2 + a.FOR, atributo: "FOR", bonusCritico: 0 };
+  return { dano: Math.round((2 + a.FOR) * pct), atributo: "FOR", bonusCritico: critSub };
 }
 
 export function ganharXP(personagem, xp) {

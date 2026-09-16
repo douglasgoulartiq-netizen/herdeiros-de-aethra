@@ -32,3 +32,16 @@ export function infoElemento(elementoId, dadosElementos) {
   if (!dadosElementos) return null;
   return dadosElementos.elementos.find((e) => e.id === elementoId) || null;
 }
+
+// Multiplicador a partir de uma RELAÇÃO já decidida.
+//
+// `multiplicadorElemental` acima recalcula a relação a partir dos dois
+// elementos, o que impede qualquer coisa de alterá-la no meio do caminho.
+// Os efeitos de item lendário precisam exatamente disso: "Perfurar Elemento"
+// rebaixa resistência para neutro, e "Golpe de Dois Elementos" escolhe a
+// melhor das duas relações. Sem esta função, os dois efeitos mudariam uma
+// variável que ninguém lê e não fariam nada.
+export function multiplicadorDaRelacao(relacao, dadosElementos) {
+  if (!dadosElementos) return 1;
+  return dadosElementos.multiplicadores[relacao] ?? 1;
+}

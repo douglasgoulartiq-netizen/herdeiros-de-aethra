@@ -1,0 +1,323 @@
+/* MAPAS — o minimapa do HUD e o mapa-múndi interativo.
+ *
+ * Duas peças no mesmo arquivo porque compartilham paleta e porque removendo
+ * este <link> some a aparência das duas de uma vez, que é o comportamento
+ * desejável para uma camada inteira.
+ *
+ * O minimapa vive DENTRO de #app, não dentro de #hud, de propósito: #hud tem
+ * pointer-events:none e uma faixa no topo; pendurar o minimapa ali herdaria
+ * regras que não são dele. Ele se posiciona sozinho, logo abaixo da faixa.
+ */
+
+/* ======================= MINIMAPA ======================= */
+
+.minimapa {
+  position: absolute;
+  z-index: 12;                    /* acima do canvas, abaixo do modal (30) */
+  left: calc(10px + var(--hda-safe-left, 0px));
+  /* Abaixo da faixa de status (--hud-faixa-alt, definida em hud-topo.css).
+     O fallback de 52px mantém o minimapa no lugar certo mesmo se hud-topo.css
+     não for carregado. */
+  top: calc(var(--hud-faixa-alt, 52px) + var(--hda-safe-top, 0px) + 10px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--hud-borda, #4a3a26);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(22, 17, 13, 0.92);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  user-select: none;
+}
+.minimapa.hidden { display: none; }
+
+.minimapa-tela {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: #0d0a12;
+  cursor: pointer;
+  line-height: 0;
+}
+.minimapa-canvas { display: block; image-rendering: pixelated; }
+
+/* A lupa diz que o minimapa é clicável. Sem ela, um mapa no canto parece
+   decoração e ninguém descobre que abre o mapa inteiro. */
+.minimapa-lupa {
+  position: absolute;
+  right: 4px; bottom: 4px;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  font-size: 13px; line-height: 1;
+  color: var(--hud-texto, #f1e9d8);
+  background: rgba(22, 17, 13, 0.82);
+  border: 1px solid rgba(245, 165, 36, 0.45);
+  border-radius: 5px;
+  transition: background 160ms ease, color 160ms ease;
+}
+.minimapa-tela:hover .minimapa-lupa { background: rgba(245, 165, 36, 0.92); color: #201811; }
+
+.minimapa-rodape {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  padding: 4px 8px 5px;
+  border-top: 1px solid rgba(74, 58, 38, 0.8);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+.minimapa-zona {
+  color: var(--hud-texto, #f1e9d8);
+  font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.minimapa-nivel { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+
+/* Celular: o minimapa encolhe e sobe para o canto, sem o rodapé de texto —
+   a faixa de status já diz onde o jogador está, e 390px de largura não
+   comportam as duas informações. */
+@media (max-width: 719px) {
+  .minimapa { left: calc(6px + var(--hda-safe-left, 0px)); top: calc(var(--hud-faixa-alt, 52px) + var(--hda-safe-top, 0px) + 6px); }
+  .minimapa-canvas { width: 108px; height: 86px; }
+  .minimapa-rodape { display: none; }
+  .minimapa-lupa { width: 18px; height: 18px; font-size: 11px; }
+}
+
+/* Em batalha, criação e telas abertas o minimapa não tem função e só ocupa
+   espaço — mesma regra que o jogo já aplica aos controles de toque. */
+body:has(#screen-batalha:not(.hidden)) .minimapa,
+body:has(#screen-criacao:not(.hidden)) .minimapa,
+body:has(#screen-boot:not(.hidden)) .minimapa,
+body:has(#modal-overlay:not(.hidden)) .minimapa,
+body.com-cutscene .minimapa { display: none !important; }
+
+/* ======================= MAPA-MÚNDI ======================= */
+
+.mapa-barra {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.mapa-modos { display: inline-flex; border: 1px solid var(--hud-borda, #4a3a26); border-radius: 999px; overflow: hidden; }
+.mapa-modo {
+  border: 0; background: transparent; color: var(--hda-muted, #c8b89a);
+  padding: 7px 18px; font-size: 0.88rem; cursor: pointer; min-height: 38px;
+  transition: background 160ms ease, color 160ms ease;
+}
+.mapa-modo.ativo { background: var(--hda-gold, #f5a524); color: #201811; font-weight: 600; }
+.mapa-modo:not(.ativo):hover { background: rgba(245, 165, 36, 0.14); color: var(--hda-text, #f1e9d8); }
+.mapa-explorado { font-size: 0.85rem; color: var(--hda-muted, #c8b89a); }
+.mapa-explorado b { color: var(--hda-gold, #f5a524); }
+.mapa-explorado-det { opacity: 0.7; }
+
+/* Mapa e painel lado a lado; o painel tem largura fixa para o mapa ficar com
+   o resto — é ele que precisa de área. */
+.mapa-corpo { display: flex; gap: 16px; align-items: flex-start; }
+.mapa-tela { position: relative; flex: 1 1 auto; min-width: 0; }
+.mapa-canvas {
+  display: block;
+  image-rendering: pixelated;
+  border: 2px solid #7a5c34;
+  border-radius: 6px;
+  background: #0d0a12;
+  cursor: crosshair;
+  max-width: 100%;
+}
+.mapa-rotulos { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+/* Rótulo: nome em cima, nível embaixo, ancorado no centro de massa da região.
+   pointer-events volta a `auto` só nele, para o clique no território (que é
+   do canvas) continuar funcionando em volta. */
+.mapa-rotulo {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: rgba(13, 10, 18, 0.58);
+  color: var(--hda-text, #f1e9d8);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.1;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.mapa-rotulo:hover { background: rgba(13, 10, 18, 0.9); border-color: rgba(245, 165, 36, 0.7); transform: translate(-50%, -50%) scale(1.06); }
+.mapa-rotulo.ativo { background: rgba(13, 10, 18, 0.95); border-color: var(--hda-gold, #f5a524); }
+
+/* Rótulos colados na borda do mapa: âncora deslocada para o texto ficar
+   inteiro dentro da moldura (ver montarRotulos em MapaMundoUI.js). As regras
+   de hover repetem o translate porque `transform` é uma propriedade só —
+   escrever a escala sem repetir a translação jogaria o rótulo para o ponto. */
+.mapa-rotulo.na-esq { transform: translate(0, -50%); }
+.mapa-rotulo.na-esq:hover { transform: translate(0, -50%) scale(1.06); }
+.mapa-rotulo.na-dir { transform: translate(-100%, -50%); }
+.mapa-rotulo.na-dir:hover { transform: translate(-100%, -50%) scale(1.06); }
+.mapa-rotulo.na-topo { transform: translate(-50%, 0); }
+.mapa-rotulo.na-topo:hover { transform: translate(-50%, 0) scale(1.06); }
+.mapa-rotulo.na-base { transform: translate(-50%, -100%); }
+.mapa-rotulo.na-base:hover { transform: translate(-50%, -100%) scale(1.06); }
+.mapa-rotulo.na-esq.na-topo { transform: translate(0, 0); }
+.mapa-rotulo.na-esq.na-base { transform: translate(0, -100%); }
+.mapa-rotulo.na-dir.na-topo { transform: translate(-100%, 0); }
+.mapa-rotulo.na-dir.na-base { transform: translate(-100%, -100%); }
+.mapa-rotulo.rumor { opacity: 0.62; font-style: italic; }
+.mapa-rotulo-nome { font-size: 0.74rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+.mapa-rotulo-nivel { font-size: 0.66rem; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+
+.mapa-dica {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 14px));
+  padding: 6px 10px;
+  background: rgba(13, 10, 18, 0.96);
+  border: 1px solid var(--hda-gold, #f5a524);
+  border-radius: 5px;
+  font-size: 0.78rem; line-height: 1.35;
+  color: var(--hda-text, #f1e9d8);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.mapa-dica.hidden { display: none; }
+
+/* --- Painel lateral --- */
+.mapa-painel {
+  flex: 0 0 300px;
+  max-height: 62vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.mapa-cab { border-left: 3px solid var(--hda-gold, #f5a524); padding-left: 10px; margin-bottom: 10px; }
+.mapa-cab h3 { margin: 0 0 2px; font-size: 1.18rem; color: var(--hda-text, #f1e9d8); }
+.mapa-trilha { margin: 0 0 2px; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hda-muted, #c8b89a); opacity: 0.8; }
+.mapa-sub { margin: 0 0 4px; font-size: 0.82rem; color: var(--hda-muted, #c8b89a); font-style: italic; }
+.mapa-nivel { margin: 4px 0 0; font-size: 0.88rem; font-weight: 600; }
+.mapa-nivel-voce { font-weight: 400; font-size: 0.78rem; color: var(--hda-muted, #c8b89a); opacity: 0.8; }
+.mapa-estado { margin: 2px 0 0; font-size: 0.75rem; color: var(--hda-muted, #c8b89a); opacity: 0.8; }
+.mapa-desc { font-size: 0.86rem; line-height: 1.5; color: #e4dac6; margin: 0 0 10px; }
+.mapa-rumor-txt { opacity: 0.75; font-style: italic; }
+.mapa-monstros { text-transform: capitalize; opacity: 0.9; }
+.mapa-chefe { font-size: 0.84rem; color: #d88a5a; margin: 6px 0 0; }
+.mapa-h4 { margin: 12px 0 6px; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hda-gold, #f5a524); }
+
+.mapa-fichas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 0 0 8px; }
+.mapa-fichas div { min-width: 0; }
+.mapa-fichas dt { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--hda-muted, #c8b89a); opacity: 0.75; }
+.mapa-fichas dd { margin: 0; font-size: 0.84rem; color: #e4dac6; text-transform: capitalize; }
+
+.mapa-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.mapa-item-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 10px; min-height: 38px;
+  background: rgba(43, 33, 24, 0.55);
+  border: 1px solid var(--hud-borda, #4a3a26);
+  border-radius: 5px;
+  color: var(--hda-text, #f1e9d8);
+  font-size: 0.85rem; text-align: left; cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.mapa-item-btn:hover { border-color: var(--hda-gold, #f5a524); background: rgba(58, 44, 26, 0.7); }
+.mapa-item.oculto { padding: 8px 10px; font-size: 0.82rem; opacity: 0.45; font-style: italic; }
+.mapa-item-nivel { flex: 0 0 auto; font-variant-numeric: tabular-nums; font-size: 0.78rem; }
+
+.mapa-acoes { margin-top: 14px; }
+.mapa-aqui { font-size: 0.85rem; color: var(--hda-gold, #f5a524); margin: 0; }
+.mapa-vazio { font-size: 0.88rem; color: var(--hda-muted, #c8b89a); font-style: italic; }
+
+/* --- Legenda --- */
+.mapa-legenda { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 0; font-size: 0.76rem; color: var(--hda-muted, #c8b89a); }
+.mapa-legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.mapa-legenda i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.mapa-pino-voce { border-radius: 50% !important; background: var(--hda-gold, #f5a524); box-shadow: 0 0 0 3px rgba(245, 165, 36, 0.25); }
+.mapa-chip-visitado { background: #5e9e4a; }
+.mapa-chip-rumor { background: #5e9e4a; opacity: 0.4; }
+.mapa-chip-oculto { background: #14111c; border: 1px solid #3a3346; }
+
+/* Celular e janelas estreitas: painel embaixo do mapa, não ao lado. */
+@media (max-width: 860px) {
+  .mapa-corpo { flex-direction: column; }
+  .mapa-painel { flex: 1 1 auto; width: 100%; max-height: none; }
+  .mapa-rotulo-nome { font-size: 0.68rem; }
+  .mapa-rotulo-nivel { font-size: 0.6rem; }
+  .mapa-fichas { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  /* Abaixo disto os rótulos das 48 zonas se empilham e viram um borrão —
+     mostra-se só o nome, e o nível fica no painel. */
+  .mapa-rotulo-nivel { display: none; }
+  .mapa-rotulo { padding: 2px 5px; }
+  .mapa-legenda { gap: 10px; font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-rotulo, .mapa-modo, .mapa-item-btn, .minimapa-lupa { transition: none !important; }
+  .mapa-rotulo:hover { transform: translate(-50%, -50%); }
+}
+
+
+/* =====================================================================
+ * NOTIFICAÇÕES x MINIMAPA
+ * =====================================================================
+ * A pilha de notificações nasce centrada no alto da tela com até 420px de
+ * largura. Num celular de 390px isso é a tela inteira — e o minimapa mora
+ * no canto superior esquerdo, logo abaixo da faixa de status. Resultado
+ * medido em jogo: duas notificações empilhadas escondiam o minimapa por
+ * completo, justamente quando o jogador acabava de entrar numa região nova
+ * e a notificação estava dizendo QUAL região é.
+ *
+ * A pilha desce para o rodapé. Lá não há minimapa, nem faixa de status, nem
+ * modal — e no celular é onde o polegar e o olhar já estão. No desktop a
+ * mudança também resolve as notificações que caíam sobre o diálogo de NPC.
+ */
+#hda-notificacoes {
+  top: auto;
+  bottom: calc(var(--hda-safe-bottom, 0px) + 16px);
+}
+
+/* No celular o rodapé é ocupado pelo direcional e pela navegação inferior:
+   a pilha sobe o suficiente para não disputar o toque com eles. */
+@media (max-width: 719px) {
+  #hda-notificacoes {
+    top: auto;
+    bottom: calc(var(--hda-safe-bottom, 0px) + 232px);
+  }
+}
+
+/* Três notificações empilhadas no celular somam ~180px — meia tela. As duas
+   mais recentes bastam: as antigas somem sozinhas em segundos e já foram
+   lidas, ou não eram importantes. */
+@media (max-width: 719px) {
+  #hda-notificacoes .hda-notif:nth-last-child(n + 3) { display: none; }
+}
+
+/* =====================================================================
+ * NOTIFICAÇÕES x DIÁLOGO ABERTO
+ * =====================================================================
+ * Com a pilha no rodapé (ver acima), um diálogo de NPC aberto recebe os
+ * avisos por cima da parte de baixo — que é justamente onde ficam os botões
+ * de missão ("Aceitar", "Tentar"). Visto em jogo com o Ancião Doran: duas
+ * notificações cobrindo a última missão da lista.
+ *
+ * Enquanto houver modal, a pilha sobe para o canto superior DIREITO: o
+ * minimapa mora no canto esquerdo e o trilho lateral fica na metade
+ * vertical, então essa quina é o espaço livre da tela nesse estado.
+ */
+body:has(#modal-overlay:not(.hidden)) #hda-notificacoes {
+  top: calc(var(--hud-faixa-alt, 52px) + var(--hda-safe-top, 0px) + 10px);
+  bottom: auto;
+  left: auto;
+  right: calc(var(--hud-trilho-larg, 68px) + 16px + var(--hda-safe-right, 0px));
+  transform: none;
+  width: min(340px, 38vw);
+}
+@media (max-width: 719px) {
+  /* No celular não há canto livre com um modal aberto (ele ocupa a largura
+     toda): a pilha fica no topo, acima do modal, que é o menor prejuízo —
+     o minimapa está escondido atrás do modal de qualquer forma. */
+  body:has(#modal-overlay:not(.hidden)) #hda-notificacoes {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(360px, calc(100vw - 20px));
+  }
+}

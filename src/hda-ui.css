@@ -1,0 +1,1275 @@
+/* =========================================================================
+   HERDEIROS DE AETHRA — SISTEMA DE INTERFACE RESPONSIVO
+   =========================================================================
+
+   Por que este arquivo existe
+   ---------------------------
+   A auditoria automatizada (scripts/test-ui-responsivo.mjs) reprovou 73 de
+   216 combinações de tela × resolução. A causa não era "faltou uma media
+   query": era estrutural.
+
+     - `#modal-conteudo` era UMA caixa rolável só. Título, botão de fechar,
+       abas, conteúdo e ações ficavam no mesmo scroll — então EQUIPAR, CRIAR
+       e INVOCAR sumiam de vista assim que a lista crescia. O inventário
+       chegava a 2707px de conteúdo dentro de uma caixa de 720px.
+     - A largura era `max-width: 720px` fixa. Num monitor de 1600px, 55% da
+       tela ficava vazio; num celular de 320px, a mesma caixa apertava tudo.
+     - As abas eram botões soltos com `margin: 6px`: no celular viravam uma
+       TORRE vertical (o Compêndio gastava 303px de altura só em abas).
+     - Não existia nenhum componente de painel contextual, então "detalhes"
+       só podiam ser mais conteúdo empilhado.
+
+   O que este arquivo faz
+   ----------------------
+   Define os componentes que faltavam, com DUAS composições do mesmo sistema
+   (não uma versão encolhida da outra):
+
+     .hda-modal      cabeçalho fixo · corpo rolável · ações fixas
+     .hda-tabs       faixa de abas que nunca vira torre
+     .hda-split      2-3 colunas no desktop, coluna única no celular
+     .hda-grid       colunas calculadas, nunca estouram a viewport
+     .hda-sheet      painel lateral no desktop, bottom sheet no celular
+     .hda-acoes      barra de ações sempre visível
+     .hda-navbar     navegação inferior no celular
+
+   Carregado DEPOIS de style.css e ANTES de battle-cards.css.
+   ========================================================================= */
+
+/* =========================================================================
+   1. TOKENS E DENSIDADE
+   ========================================================================= */
+:root {
+  /* Espaçamentos que crescem com a tela em vez de dois valores fixos. */
+  --hda-gap: clamp(6px, 1.4vw, 14px);
+  --hda-gap-lg: clamp(10px, 2vw, 20px);
+  --hda-pad: clamp(10px, 1.8vw, 20px);
+  --hda-raio: 8px;
+
+  /* Alvo de toque mínimo (item 11). Usado por TODO controle importante. */
+  --hda-toque: 44px;
+  --hda-toque-min: 40px;
+
+  /* Áreas seguras (item 10) — 0 em navegadores que não expõem env(). */
+  --hda-safe-top: env(safe-area-inset-top, 0px);
+  --hda-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --hda-safe-left: env(safe-area-inset-left, 0px);
+  --hda-safe-right: env(safe-area-inset-right, 0px);
+
+  /* Largura-alvo do modal. Cada tela sobrescreve conforme sua densidade —
+     é isso que faz o inventário usar 1400px no desktop e o painel de
+     acessibilidade continuar num tamanho de leitura confortável. */
+  --hda-modal-larg: 820px;
+  --hda-modal-alt: 90dvh;
+
+  /* Altura da barra de navegação inferior (celular). */
+  --hda-navbar-alt: 58px;
+}
+
+/* Unidade dinâmica com degradação: navegadores sem dvh usam vh. */
+@supports not (height: 1dvh) {
+  :root { --hda-modal-alt: 88vh; }
+}
+
+/* Nenhuma imagem pode empurrar a interface (item 69). */
+img, canvas, svg, video { max-width: 100%; }
+
+/* Todo container flex/grid precisa poder ENCOLHER. Sem isto, um filho com
+   conteúdo largo (uma tabela, um nome comprido) força o pai a crescer além
+   da viewport — a causa nº 1 de overflow horizontal acidental (item 3). */
+.hda-modal, .hda-modal *,
+.hda-split, .hda-split > *,
+.hda-grid, .hda-grid > * { min-width: 0; }
+
+/* =========================================================================
+   2. MODAL SEGURO (itens 41, 65, 81)
+   Três faixas: cabeçalho fixo · corpo rolável · ações fixas.
+   Só o corpo rola. O título e a ação principal nunca saem da tela.
+   ========================================================================= */
+#modal-overlay {
+  padding: var(--hda-gap);
+  padding-top: calc(var(--hda-gap) + var(--hda-safe-top));
+  padding-bottom: calc(var(--hda-gap) + var(--hda-safe-bottom));
+}
+
+#modal-conteudo.hda-modal {
+  /* Nunca mais largo que a viewport, e nunca mais alto que ela. */
+  width: min(100%, var(--hda-modal-larg));
+  max-width: 100%;
+  height: auto;
+  max-height: var(--hda-modal-alt);
+  padding: 0;
+  overflow: hidden;                 /* o scroll pertence ao corpo, não à caixa */
+  display: flex;
+  flex-direction: column;
+}
+
+.hda-modal-cab {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--hda-gap);
+  padding: var(--hda-gap) var(--hda-pad);
+  border-bottom: 1px solid var(--hda-line, #4a3a26);
+  background: linear-gradient(180deg, #2a2018, #221a12);
+}
+.hda-modal-cab h2 {
+  margin: 0; flex: 1 1 auto;
+  font-size: clamp(1em, 2.6vw, 1.4em); line-height: 1.2;
+  color: var(--hda-gold, #f5a524);
+  /* Um título longo encurta com reticências em vez de empurrar o botão de
+     fechar para fora da tela. */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hda-modal-sub {
+  flex: 0 0 auto; font-size: 0.78em; color: var(--hda-muted, #c8b89a);
+  white-space: nowrap;
+}
+.hda-fechar {
+  flex: 0 0 auto; margin: 0;
+  min-width: var(--hda-toque); min-height: var(--hda-toque);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.1em; line-height: 1; padding: 0 12px;
+}
+
+.hda-modal-corpo {
+  flex: 1 1 auto;
+  min-height: 0;                    /* imprescindível para o scroll funcionar */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--hda-pad);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;     /* rolar a lista não arrasta a página */
+}
+/* O corpo pode desligar o próprio padding quando a tela desenha a própria
+   composição (mapa, árvore de talentos, arena). */
+.hda-modal-corpo.sem-pad { padding: 0; }
+
+.hda-acoes {
+  flex: 0 0 auto;
+  display: flex; flex-wrap: wrap; gap: var(--hda-gap);
+  align-items: center; justify-content: flex-end;
+  padding: var(--hda-gap) var(--hda-pad);
+  padding-bottom: calc(var(--hda-gap) + var(--hda-safe-bottom));
+  border-top: 1px solid var(--hda-line, #4a3a26);
+  background: linear-gradient(0deg, #2a2018, #221a12);
+}
+.hda-acoes .hda-acoes-info { margin-right: auto; font-size: 0.82em; color: var(--hda-muted, #c8b89a); min-width: 0; }
+.hda-acoes button { margin: 0; min-height: var(--hda-toque); }
+
+/* --- Celular: o modal vira TELA CHEIA, não uma caixinha espremida ------- */
+@media (max-width: 719px) {
+  #modal-overlay { padding: 0; }
+  #modal-conteudo.hda-modal {
+    width: 100%; max-width: 100%;
+    height: 100dvh; max-height: 100dvh;
+    border-radius: 0; border-width: 0;
+    padding-top: var(--hda-safe-top);
+  }
+  .hda-modal-cab { padding: 8px 10px; }
+  .hda-modal-corpo { padding: 10px; }
+  /* No celular a barra de ações vira uma linha de botões de largura igual —
+     é a "action bar inferior" do item 6, não dois botões empilhados que
+     roubam altura da tela. A informação de contexto sobe para a linha de
+     cima, onde ainda é lida sem competir com a ação. */
+  .hda-acoes { padding: 8px 10px calc(8px + var(--hda-safe-bottom)); }
+  .hda-acoes .hda-acoes-info { flex: 1 0 100%; margin: 0 0 4px; }
+  .hda-acoes button { flex: 1 1 0; min-width: 0; }
+}
+@supports not (height: 100dvh) {
+  @media (max-width: 719px) {
+    #modal-conteudo.hda-modal { height: 100vh; max-height: 100vh; }
+  }
+}
+
+/* Celular deitado: sobra pouca altura, então o cabeçalho encolhe. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .hda-modal-cab { padding: 4px 10px; }
+  .hda-modal-cab h2 { font-size: 0.95em; }
+  .hda-fechar { min-height: 34px; }
+  .hda-acoes { padding: 4px 10px calc(4px + var(--hda-safe-bottom)); }
+  .hda-acoes button { min-height: 34px; padding: 4px 12px; }
+}
+
+/* =========================================================================
+   3. ABAS QUE NUNCA VIRAM TORRE (item 15)
+   No celular a faixa rola na horizontal DENTRO de si mesma — o que o item 15
+   proíbe é a página inteira rolar de lado, e é proibido descobrir função por
+   acidente: por isso, acima de 5 abas, o celular recebe um seletor.
+   ========================================================================= */
+.hda-tabs {
+  flex: 0 0 auto;
+  display: flex; gap: 4px;
+  padding: 6px var(--hda-pad);
+  border-bottom: 1px solid var(--hda-line, #4a3a26);
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+.hda-tabs::-webkit-scrollbar { height: 4px; }
+.hda-tabs::-webkit-scrollbar-thumb { background: #4a3a26; border-radius: 2px; }
+.hda-tabs button {
+  flex: 0 0 auto;                   /* nunca quebra linha: não vira torre */
+  margin: 0; scroll-snap-align: start;
+  min-height: var(--hda-toque-min);
+  padding: 6px 14px; font-size: 0.86em;
+  background: transparent; border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-radius: 6px 6px 0 0;
+  white-space: nowrap;
+}
+.hda-tabs button:hover { background: rgba(245, 165, 36, 0.1); transform: none; }
+.hda-tabs button.ativa {
+  color: var(--hda-gold, #f5a524);
+  border-color: var(--hda-line, #4a3a26);
+  border-bottom-color: var(--hda-gold, #f5a524);
+  background: rgba(245, 165, 36, 0.12);
+}
+/* Seletor de abas (celular com muitas abas): mesma função, sem obrigar
+   ninguém a descobrir aba escondida arrastando. */
+.hda-tabs-wrap { flex: 0 0 auto; padding: 6px var(--hda-pad); border-bottom: 1px solid var(--hda-line, #4a3a26); }
+.hda-tabs-select {
+  width: 100%; min-height: var(--hda-toque);
+  padding: 6px 10px; margin: 0;
+  background: #241b14; color: var(--hda-text, #f1e9d8);
+  border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px;
+  font-family: inherit; font-size: 0.9em;
+}
+@media (max-width: 719px) { .hda-tabs, .hda-tabs-wrap { padding: 6px 10px; } }
+
+/* Sub-abas: mesma mecânica, um degrau visual abaixo. */
+.hda-subtabs { border-bottom: 0; padding-top: 0; }
+.hda-subtabs button { font-size: 0.8em; padding: 4px 10px; border-radius: 12px; border-bottom-width: 1px; }
+.hda-subtabs button.ativa { border-bottom-color: var(--hda-line, #4a3a26); }
+
+/* =========================================================================
+   4. COMPOSIÇÃO EM COLUNAS (itens 7, 8, 47)
+   Desktop: navegação | conteúdo | detalhes.
+   Celular: só o conteúdo — os outros dois viram aba e bottom sheet.
+   ========================================================================= */
+.hda-split {
+  display: grid; gap: var(--hda-gap-lg);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+/* 2 colunas: conteúdo + detalhes */
+@media (min-width: 900px) {
+  .hda-split.duas { grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 380px); }
+  .hda-split.duas > .hda-col-detalhe { position: sticky; top: 0; max-height: 78dvh; overflow-y: auto; }
+}
+/* 3 colunas: navegação + conteúdo + detalhes */
+@media (min-width: 1200px) {
+  .hda-split.tres { grid-template-columns: clamp(180px, 15vw, 240px) minmax(0, 1fr) clamp(280px, 24vw, 380px); }
+  .hda-split.tres > .hda-col-nav,
+  .hda-split.tres > .hda-col-detalhe { position: sticky; top: 0; max-height: 78dvh; overflow-y: auto; }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .hda-split.tres { grid-template-columns: minmax(0, 1fr) clamp(260px, 28vw, 360px); }
+  .hda-split.tres > .hda-col-nav { grid-column: 1 / -1; }
+}
+/* Abaixo de 900px as colunas secundárias saem do fluxo — quem as mostra é o
+   bottom sheet (.hda-sheet). Escondê-las aqui é o que impede o celular de
+   virar "desktop espremido". */
+@media (max-width: 899px) {
+  .hda-split > .hda-col-detalhe.so-desktop,
+  .hda-split > .hda-col-nav.so-desktop { display: none; }
+}
+
+/* =========================================================================
+   5. GRADE SEGURA (item 68)
+   `min(100%, X)` é o detalhe que impede a grade de estourar a viewport
+   quando a coluna mínima é maior que a tela (o caso de 320px).
+   ========================================================================= */
+.hda-grid {
+  display: grid;
+  gap: var(--hda-gap);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--hda-col, 160px)), 1fr));
+}
+.hda-grid.densa { --hda-col: 108px; }
+.hda-grid.larga { --hda-col: 240px; }
+.hda-grid.lista { --hda-col: 300px; }
+
+/* =========================================================================
+   6. PAINEL CONTEXTUAL (itens 42, 47)
+   O MESMO componente: painel lateral no desktop, bottom sheet no celular.
+   ========================================================================= */
+.hda-sheet {
+  position: fixed; z-index: 60;
+  left: 0; right: 0; bottom: 0;
+  max-height: min(72dvh, 620px);
+  display: flex; flex-direction: column;
+  background: #201811;
+  border-top: 3px solid #7a5c34;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.6);
+  padding-bottom: var(--hda-safe-bottom);
+  animation: hda-sheet-sobe 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes hda-sheet-sobe {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.hda-sheet-pega {
+  flex: 0 0 auto; align-self: center;
+  width: 42px; height: 4px; border-radius: 2px;
+  background: #5a4327; margin: 7px 0 3px;
+}
+.hda-sheet-cab {
+  flex: 0 0 auto; display: flex; align-items: center; gap: var(--hda-gap);
+  padding: 4px var(--hda-pad) 8px;
+  border-bottom: 1px solid var(--hda-line, #4a3a26);
+}
+.hda-sheet-cab h3 {
+  margin: 0; flex: 1 1 auto; font-size: 1em; color: var(--hda-gold, #f5a524);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hda-sheet-corpo {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  padding: var(--hda-pad); font-size: 0.88em;
+  overscroll-behavior: contain;
+}
+.hda-sheet-acoes {
+  flex: 0 0 auto; display: flex; gap: var(--hda-gap); flex-wrap: wrap;
+  padding: var(--hda-gap) var(--hda-pad);
+  border-top: 1px solid var(--hda-line, #4a3a26);
+}
+.hda-sheet-acoes button { flex: 1 1 auto; margin: 0; min-height: var(--hda-toque); }
+.hda-sheet-fundo { position: fixed; inset: 0; z-index: 59; background: rgba(0, 0, 0, 0.45); }
+
+/* Desktop: o mesmo sheet vira painel encostado à direita, sem cobrir o
+   conteúdo principal (item 49). */
+@media (min-width: 900px) {
+  .hda-sheet {
+    left: auto; right: var(--hda-gap-lg); bottom: var(--hda-gap-lg); top: var(--hda-gap-lg);
+    width: clamp(300px, 26vw, 400px);
+    max-height: none;
+    border-radius: 12px; border: 3px solid #7a5c34;
+    animation: hda-sheet-entra 0.2s ease-out;
+  }
+  @keyframes hda-sheet-entra {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .hda-sheet-pega { display: none; }
+  .hda-sheet-fundo { background: rgba(0, 0, 0, 0.25); }
+
+  /* Item 49: o painel não pode COBRIR o conteúdo principal. Enquanto ele
+     está aberto, a tela por baixo cede a largura dele — em vez de continuar
+     do mesmo tamanho e ficar com a última coluna escondida atrás do painel
+     (que era o que acontecia com a grade do inventário). */
+  body:has(.hda-sheet) #modal-overlay {
+    padding-right: calc(clamp(300px, 26vw, 400px) + var(--hda-gap-lg) * 2);
+    justify-content: center;
+  }
+}
+
+/* =========================================================================
+   7. BARRA DE AÇÃO E NAVEGAÇÃO INFERIOR (itens 6, 43, 44)
+   ========================================================================= */
+.hda-navbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; align-items: stretch;
+  height: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom));
+  padding-bottom: var(--hda-safe-bottom);
+  background: linear-gradient(0deg, #17120d, #221a12);
+  border-top: 1px solid var(--hda-line, #4a3a26);
+}
+.hda-navbar button {
+  flex: 1 1 0; margin: 0; padding: 4px 2px;
+  min-width: 0; min-height: var(--hda-toque);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: transparent; border: 0; border-top: 2px solid transparent;
+  border-radius: 0; font-size: 0.64em; letter-spacing: 0.02em;
+  color: var(--hda-muted, #c8b89a);
+}
+.hda-navbar button .hda-nav-icone { font-size: 1.45em; line-height: 1; }
+.hda-navbar button .hda-nav-rotulo { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hda-navbar button.ativa { color: var(--hda-gold, #f5a524); border-top-color: var(--hda-gold, #f5a524); background: rgba(245, 165, 36, 0.08); }
+.hda-navbar button:hover { transform: none; background: rgba(245, 165, 36, 0.06); }
+/* A navegação inferior é exclusiva do celular: no desktop os mesmos destinos
+   vivem no HUD lateral, que aproveita a largura.
+   Ela também só existe QUANDO SE ESTÁ JOGANDO: antes de criar o personagem,
+   e durante a batalha, os hubs não levam a lugar nenhum útil — mostrá-los ali
+   seria oferecer cinco caminhos fechados. O vínculo é o próprio HUD do
+   mundo: se ele está escondido, a barra some junto, sem nenhuma sincronia
+   manual para esquecer de atualizar. */
+.hda-navbar { display: none; }
+@media (max-width: 719px) {
+  body:has(#hud:not(.hidden)) .hda-navbar { display: flex; }
+}
+
+/* =========================================================================
+   8. TEXTO E IMAGEM SEGUROS (itens 53, 69, 70)
+   ========================================================================= */
+.hda-elipse { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.hda-clamp-2, .hda-clamp-3 {
+  display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.hda-clamp-2 { -webkit-line-clamp: 2; }
+.hda-clamp-3 { -webkit-line-clamp: 3; }
+/* Nome de item/personagem: quebra em vez de esticar o container. */
+.hda-nome-longo { overflow-wrap: anywhere; word-break: break-word; hyphens: auto; }
+/* Reserva de espaço para imagens que ainda não carregaram — sem isto, uma
+   arte ausente colapsa o layout (o Atlas renderizava o mapa com 22px de
+   altura quando a imagem faltava). */
+/* O mapa reserva proporção (para não colapsar quando a imagem ainda não
+   carregou — era assim que o Atlas renderizava um mapa de 22px de altura) e
+   ao mesmo tempo tem teto de altura, para não empurrar tudo para fora em
+   telas baixas como o celular deitado. `contain` cuida das duas coisas. */
+.hda-img-mapa {
+  width: 100%; display: block;
+  aspect-ratio: 16 / 10;
+  max-height: min(58dvh, 520px);
+  object-fit: contain; background: #1a1410;
+}
+
+/* =========================================================================
+   9. AJUSTES ESTRUTURAIS EM COMPONENTES JÁ EXISTENTES
+   Correções de causa, não maquiagem (item 78).
+   ========================================================================= */
+
+/* `.tela` centralizava com `justify-content: center` E rolava. Quando o
+   conteúdo passa da altura da tela, o topo sai para FORA da área rolável e
+   fica inalcançável — bug clássico de flexbox. Os dois pseudo-elementos
+   elásticos centralizam quando cabe e cedem quando não cabe. */
+/* Mesma família de bug em toda parte: um container que ROLA e centraliza com
+   `center` joga o excedente para fora do alcance da rolagem. Onde a
+   centralização importa, usamos a palavra-chave `safe`, que cede quando não
+   cabe; onde não importa, alinhamos ao início. */
+.tela {
+  justify-content: flex-start;
+  align-items: center;
+  align-items: safe center;
+  padding: calc(var(--hda-pad) + var(--hda-safe-top)) var(--hda-pad)
+           calc(var(--hda-pad) + var(--hda-safe-bottom));
+}
+/* `flex-shrink: 0` protege o conteúdo das telas de LEITURA (abertura, criação
+   de personagem), onde encolher significaria cortar texto. A tela de batalha
+   é o oposto: ela precisa que o campo encolha para a mão de cards caber, e
+   por isso se exclui daqui — a regra estava fazendo a arena manter 310px num
+   celular de 568px e empurrando os cards para fora da tela. */
+.tela:not(#screen-batalha) > * { flex-shrink: 0; }
+.tela:not(#screen-batalha)::before, .tela:not(#screen-batalha)::after { content: ""; flex: 1 1 auto; min-height: 0; }
+
+/* Os cards de item da lista antiga não podiam encolher: o bloco de botões
+   empurrava a largura. */
+.card { min-width: 0; flex-wrap: wrap; }
+.card .info { min-width: 0; }
+.card .nome { overflow-wrap: anywhere; }
+
+/* Botões: alvo de toque confortável no celular (item 11) sem inchar o
+   desktop, onde o mouse é preciso. */
+@media (pointer: coarse) {
+  button { min-height: var(--hda-toque-min); }
+  .hda-acoes button, .hda-sheet-acoes button, .hda-navbar button { min-height: var(--hda-toque); }
+}
+
+/* Telas de leitura (abertura, criação de personagem): conteúdo centralizado
+   com largura de leitura, em vez de encostado na borda esquerda. */
+.tela > * { max-width: min(100%, 640px); width: 100%; }
+.tela > h1, .tela > .subtitulo, .tela > p { text-align: center; }
+#screen-criacao { text-align: center; }
+#screen-criacao input[type="text"] { width: min(100%, 320px); min-height: var(--hda-toque); }
+#screen-criacao .grid-opcoes { text-align: left; }
+
+/* Nenhum texto abaixo do mínimo legível no celular (item 12). */
+@media (max-width: 719px) {
+  .desc, .hda-modal-corpo .desc { font-size: max(0.78em, 12px); }
+}
+
+/* =========================================================================
+   10. HUD DO MUNDO (itens 43, 44)
+   Desktop: coluna de botões à direita, como já era.
+   Celular: a coluna de 15 botões saía da tela — vira navegação inferior por
+   hubs (ver HdaUI.js/GameUI.js), e o HUD guarda só as barras e o contexto.
+
+   Revisto quando o jogo virou tela cheia: com o mundo ocupando os 844px de
+   altura do aparelho, cada caixa opaca no topo passou a ser mundo que o
+   jogador NÃO vê na direção em que anda. As barras empilhadas viraram uma
+   tira horizontal, e as três barras de min(38vw,150px) — 444px de barra num
+   aparelho de 390px — encolheram para caber de verdade.
+   ========================================================================= */
+@media (max-width: 719px) {
+  #hud {
+    padding: calc(6px + var(--hda-safe-top)) 8px 0;
+    align-items: flex-start; gap: 4px;
+    /* O HUD cobre a largura toda: sem isto, a metade de cima da tela cheia
+       vira uma parede invisível entre o dedo e o mundo. Só as caixas de
+       dentro recebem toque (elas reativam com pointer-events: auto). */
+    pointer-events: none;
+  }
+  #hud-bars {
+    flex-direction: row; align-items: center; gap: 6px;
+    padding: 4px 8px; background: rgba(20,15,12,0.62);
+    max-width: calc(100vw - 16px);
+  }
+  #hud-bars .barra-wrap { gap: 4px; }
+  #hud-bars .barra-label { width: auto; font-size: 0.66em; }
+  #hud-bars .barra { width: min(20vw, 84px); height: 9px; }
+  #hud-info {
+    font-size: 0.7em; padding: 3px 8px; background: rgba(20,15,12,0.62);
+    max-width: calc(100vw - 16px);
+  }
+  /* Ouro, fragmentos e XP que falta saem do topo: é informação de menu, está
+     a um toque de distância, e ali em cima só tampava o caminho. */
+  #hud-info .hud-linha-recursos, #hud-info .hud-linha-xp { display: none; }
+  #hud-clima { font-size: 0.7em; padding: 2px 8px; background: rgba(20,15,12,0.5); border-radius: 6px; }
+  #hud-buttons.hda-vira-navbar { display: none; }
+}
+
+/* Painel de Acessibilidade: onze controles empilhados numa coluna só. Em
+   tela larga e BAIXA (celular deitado, notebook pequeno) essa coluna fica
+   seis vezes mais alta que a janela — o jogador precisa rolar muito pra
+   achar o que quer, e a auditoria reprova com razão. Onde há largura
+   sobrando, os controles vão pra duas colunas e a altura cai pela metade.
+   O último parágrafo e o botão de tela cheia atravessam as duas. */
+@media (min-width: 560px) and (max-height: 620px) {
+  .acc-painel {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 10px 16px;
+  }
+  .acc-painel > p, .acc-painel > button { grid-column: 1 / -1; }
+}
+
+/* =========================================================================
+   11. MOVIMENTO REDUZIDO
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .hda-sheet { animation: none; }
+}
+
+/* =========================================================================
+   12. LADRILHO DE ITEM E PAINEL DE DETALHE (itens 19, 20, 50, 68)
+   O ladrilho carrega só o NÍVEL 1 da informação progressiva: ícone, nome,
+   raridade e quantidade. Tudo o mais (descrição, comparação, preço, ações)
+   vive no painel contextual — que é o nível 2.
+   ========================================================================= */
+.hda-ladrilho {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 6px 6px;
+  min-height: 118px;
+  background: #2b2118; border: 1px solid var(--hda-line, #4a3a26);
+  border-radius: var(--hda-raio);
+  cursor: pointer; position: relative; text-align: center;
+  transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
+.hda-ladrilho:hover { border-color: var(--hda-gold, #f5a524); transform: translateY(-2px); }
+.hda-ladrilho:focus-visible { outline: 2px solid var(--hda-gold, #f5a524); outline-offset: 2px; }
+.hda-ladrilho.selecionado { border-color: var(--hda-gold, #f5a524); background: #3a2b18; box-shadow: 0 0 0 1px var(--hda-gold, #f5a524) inset; }
+/* Ladrilho COMPACTO: para listas em que o item é só um nome e um ícone — a
+   viagem rápida é o caso. O ladrilho normal reserva 118px porque carrega
+   arte de item, raridade e quantidade; um destino de viagem não tem nada
+   disso, e com 16 destinos os 118px empurravam a tela para o dobro da altura
+   da janela num celular de 320px. */
+.hda-ladrilho.compacto { min-height: 74px; padding: 6px 6px 5px; gap: 2px; }
+.hda-ladrilho.compacto .hda-ladrilho-icone { font-size: 1.15em; padding: 0; }
+.hda-ladrilho.compacto .hda-ladrilho-nome { font-size: 0.72em; max-height: 2.2em; }
+.hda-ladrilho.compacto .hda-ladrilho-rar { font-size: 0.62em; }
+
+.hda-ladrilho-icone { flex: 0 0 auto; padding: 3px; }
+.hda-ladrilho-icone img { width: 34px; height: 34px; image-rendering: pixelated; display: block; }
+.hda-ladrilho-nome { font-size: 0.74em; line-height: 1.15; max-height: 2.3em; }
+.hda-ladrilho-rar { font-size: 0.6em; letter-spacing: 0.05em; text-transform: uppercase; }
+.hda-ladrilho-qtd {
+  position: absolute; top: 4px; right: 5px;
+  font-size: 0.62em; font-weight: bold; padding: 1px 5px; border-radius: 8px;
+  background: rgba(10, 7, 5, 0.85); border: 1px solid var(--hda-line, #4a3a26);
+}
+.hda-ladrilho-marca { position: absolute; top: 4px; left: 5px; font-size: 0.75em; color: #7fd4ff; }
+
+.hda-det-topo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+.hda-det-icone { flex: 0 0 auto; padding: 4px; }
+.hda-det-icone img { width: 44px; height: 44px; image-rendering: pixelated; display: block; }
+.hda-det-info { min-width: 0; }
+.hda-det-nome { font-weight: bold; color: var(--hda-text, #f1e9d8); margin-bottom: 3px; }
+
+/* No celular a grade fica mais densa para caber mais itens sem encolher o
+   alvo de toque abaixo do confortável. */
+@media (max-width: 719px) {
+  .hda-grid.densa { --hda-col: 96px; }
+  .hda-ladrilho { min-height: 106px; }
+  .hda-ladrilho-icone img { width: 30px; height: 30px; }
+}
+@media (max-width: 359px) {
+  .hda-grid.densa { --hda-col: 88px; }
+}
+
+/* =========================================================================
+   13. GACHA (itens 23, 24)
+   O banner selecionado ocupa o primeiro enquadramento inteiro; a escolha de
+   banner é uma faixa compacta; moeda no cabeçalho; INVOCAR na barra fixa.
+   ========================================================================= */
+.gacha-escolha { display: flex; gap: 6px; margin-bottom: var(--hda-gap); flex-wrap: wrap; }
+.gacha-escolha-btn {
+  margin: 0; flex: 1 1 auto; min-width: 0; min-height: var(--hda-toque-min);
+  padding: 6px 12px; font-size: 0.84em;
+  background: #241b14; border: 1px solid var(--hda-line, #4a3a26);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gacha-escolha-btn.ativa { background: #3a2b18; border-color: var(--hda-gold, #f5a524); color: var(--hda-gold, #f5a524); }
+
+.gacha-banner-destaque {
+  display: flex; gap: var(--hda-gap-lg); align-items: center;
+  padding: var(--hda-gap-lg);
+  background: radial-gradient(circle at 18% 20%, #3a2b18, #201811 70%);
+  border: 2px solid #7a5c34; border-radius: var(--hda-raio);
+  margin-bottom: var(--hda-gap);
+}
+.gacha-banner-icone {
+  flex: 0 0 auto; font-size: clamp(2.2em, 7vw, 3.4em); line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(245, 165, 36, 0.45));
+}
+.gacha-banner-texto { min-width: 0; }
+.gacha-banner-nome { margin: 0 0 2px; font-size: clamp(1em, 3vw, 1.3em); color: var(--hda-gold, #f5a524); }
+.gacha-banner-featured { margin: 0 0 6px; font-size: 0.95em; color: var(--hda-text, #f1e9d8); overflow-wrap: anywhere; }
+.gacha-pity { margin: 0; font-size: 0.82em; color: #f5d76e; }
+.gacha-garantia { margin: 6px 0 0; font-size: 0.82em; color: #9ff0b4; }
+.gacha-detalhes { border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px; padding: 6px 10px; }
+.gacha-detalhes summary { cursor: pointer; font-size: 0.86em; color: var(--hda-muted, #c8b89a); min-height: 28px; display: flex; align-items: center; }
+.gacha-detalhes .desc { margin: 6px 0 0; }
+#gacha-saldo-chip { font-size: 1.05em; color: #c9a2ff; }
+
+@media (max-width: 719px) {
+  .gacha-banner-destaque { padding: var(--hda-gap); gap: var(--hda-gap); }
+  .gacha-escolha-btn { font-size: 0.76em; padding: 5px 8px; }
+}
+/* Celular deitado: o banner deita junto, para sobrar altura ao rodapé. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .gacha-banner-destaque { padding: 6px 10px; }
+  .gacha-banner-icone { font-size: 1.8em; }
+  .gacha-banner-featured { margin-bottom: 2px; }
+}
+
+/* Ficha em lista de definição — legível nos dois formatos, sem tabela (que
+   seria a fonte clássica de overflow horizontal no celular). */
+.hda-ficha { margin: 0 0 10px; display: grid; gap: 4px; }
+.hda-ficha > div { display: flex; gap: 8px; align-items: baseline; border-bottom: 1px dashed #3a2f22; padding-bottom: 3px; }
+.hda-ficha dt { flex: 0 0 34%; margin: 0; font-size: 0.82em; color: var(--hda-muted, #c8b89a); text-transform: uppercase; letter-spacing: 0.04em; }
+.hda-ficha dd { flex: 1 1 auto; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.hda-ladrilho.chefe { border-color: #f5a524; }
+.hda-ladrilho.desconhecido { opacity: 0.55; }
+.hda-ladrilho .hda-ladrilho-icone { font-size: 1.5em; line-height: 1; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Bloco recolhido: conteúdo secundário que não deve competir com o principal
+   (itens 49, 51) mas também não pode sumir. */
+.hda-recolhido { margin-top: var(--hda-gap); border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px; padding: 6px 10px; }
+.hda-recolhido summary { cursor: pointer; font-size: 0.84em; color: var(--hda-muted, #c8b89a); min-height: 30px; display: flex; align-items: center; }
+.hda-ladrilho.indisponivel { opacity: 0.5; }
+.hda-ladrilho.indisponivel:hover { transform: none; border-color: var(--hda-line, #4a3a26); }
+
+/* Caminhos do Herdeiro (itens 17, 18).
+   Desktop: árvore grande + painel à direita, como já era.
+   Celular: a árvore ocupa a largura inteira e o painel do nó vira bottom
+   sheet (o MESMO elemento, movido — ver TalentTreeUI.js). */
+@media (max-width: 899px) {
+  #caminho-corpo { flex-direction: column; }
+  #caminho-painel { display: none; }
+  .hda-sheet #caminho-painel { display: block; width: 100%; border: 0; padding: 0; background: transparent; max-height: none; }
+  #caminho-viewport-wrap { min-height: 46dvh; }
+}
+@media (max-width: 719px) {
+  #modal-conteudo.arvore-caminhos { width: 100%; max-width: 100%; }
+  #caminho-topo { gap: 6px; }
+  #caminho-pontos { font-size: 0.9em; gap: 5px; }
+  .ponto-badge { font-size: 0.76em; padding: 3px 8px; }
+  #caminho-presets { flex-wrap: wrap; }
+  .preset-btn { font-size: 0.74em; padding: 4px 9px; }
+  #caminho-zoom-controles button { min-width: 40px; min-height: 40px; }
+}
+
+/* =========================================================================
+   14. HUD AGRUPADO POR HUB (itens 13, 43, 82)
+   A mesma definição de HUBS (GameUI.js) vira esta coluna no desktop e a
+   barra inferior no celular. Agrupar reduz a parede de 15 botões soltos a
+   cinco blocos com rótulo — hierarquia, não só arrumação.
+   ========================================================================= */
+#hud-buttons { max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; align-items: stretch; }
+.hud-grupo { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+
+/* Coleção e montagem de time: cartões estáveis, legíveis e alinhados. */
+.convocado-card { box-sizing:border-box; width:clamp(176px, 20vw, 214px) !important; min-height:310px; flex:0 0 clamp(176px, 20vw, 214px); display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 12px; border-radius:14px; background:linear-gradient(160deg,#25243a,#171827); box-shadow:0 8px 18px rgba(0,0,0,.22); overflow:hidden; }
+.convocado-card .nome { width:100%; min-height:2.4em; display:flex; align-items:center; justify-content:center; font-weight:700; line-height:1.2; }
+.convocado-card .desc { width:100%; min-height:1.25em; text-align:center; line-height:1.25; }
+.convocado-card .gacha-retrato { flex:0 0 76px; }
+.convocado-card button { width:100%; min-height:38px; margin-top:auto !important; border-radius:9px; font-weight:700; }
+.convocado-card .btn-equipar-convocado { margin-top:0 !important; background:#292b42; }
+.convocado-card.selecionado { box-shadow:0 0 0 3px #f5a524, 0 10px 22px rgba(245,165,36,.18); }
+.formacao-grade { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.formacao-fileira { min-height:150px; padding:12px; border:1px solid #55486e; border-radius:12px; background:rgba(35,29,52,.72); }
+.formacao-fileira-titulo { margin-bottom:10px; color:#f6d98b; font-weight:800; }
+.formacao-chip { min-height:64px; display:flex; align-items:center; gap:9px; padding:8px; border:1px solid #675b7a; border-radius:10px; background:#211d31; }
+.formacao-chip > span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.formacao-chip .btn-trocar-posicao { flex:0 0 auto; padding:7px 10px; border-radius:8px; }
+@media (max-width:700px){ .convocado-card{width:calc(50% - 6px)!important; flex-basis:calc(50% - 6px); min-height:290px;} .formacao-grade{grid-template-columns:1fr;} }
+.hud-grupo-rotulo {
+  font-size: 0.62em; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #8a7a5c; padding: 2px 4px 1px; border-bottom: 1px solid #3a2f22; margin-bottom: 2px;
+}
+#hud-buttons .hud-grupo button { text-align: left; }
+
+/* Com a barra inferior presente, nada do jogo pode ficar embaixo dela. */
+@media (max-width: 719px) {
+  #modal-conteudo.hda-modal { padding-bottom: 0; }
+  .hda-sheet { bottom: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom)); }
+  .hda-navbar ~ #app #screen-batalha { padding-bottom: calc(8px + var(--hda-safe-bottom)); }
+}
+
+/* ============================================================
+   RETRATO DO CONVOCADO (aba de personagens, invocação, time)
+   ============================================================
+   Os sprites `gacha_*.png` sempre existiram e o loader já os carregava no
+   boot — a tela de gacha é que mostrava só o nome. A caixa aqui tem tamanho
+   FIXO por dois motivos: sprite que falte não pode encolher o card, e sprite
+   que venha noutra resolução (a arte nova virá em 192px) não pode esticar a
+   grade. `object-fit: contain` resolve qualquer tamanho de origem dentro da
+   mesma caixa.
+
+   `image-rendering: pixelated` é obrigatório: sem ele o navegador interpola
+   e a pixel-art fica borrada — exatamente o que a direção de arte proíbe. */
+.gacha-retrato {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  border: 2px solid #666;
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse at 50% 88%, rgba(0, 0, 0, 0.45) 0%, transparent 62%),
+    linear-gradient(180deg, #1a1a24 0%, #0d0d14 100%);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.gacha-retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  /* O sprite fica levemente acima do centro para dar espaço à sombra de
+     chão do gradiente — é o que evita a sensação de figura flutuando. */
+  transform: translateY(-4%);
+}
+
+.gacha-retrato-vazio {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #6a6a7a;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+/* No chip de formação o retrato fica ao lado do nome, não acima dele. */
+.formacao-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formacao-chip .gacha-retrato {
+  margin-bottom: 0;
+  border-radius: 4px;
+}
+
+/* =========================================================================
+   TELA DA PARTY — mochila do grupo + equipamento de todo mundo
+   -------------------------------------------------------------------------
+   O ponto da tela é comparar SEM clicar: os slots de cada membro ficam
+   visíveis o tempo todo, lado a lado. Por isso a fileira é horizontal e
+   rola no eixo dela — nunca quebra em várias linhas, que desmontaria a
+   comparação de relance.
+   ========================================================================= */
+.party-fileira {
+  display: flex; gap: 10px;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 2px 2px 8px;
+  scrollbar-width: thin;
+}
+.party-card {
+  flex: 0 0 auto; width: 148px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 8px 10px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 2px solid #3f3222; border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.party-card:hover { transform: translateY(-2px); }
+.party-card.ativo { border-color: var(--hda-gold, #f5a524); background: rgba(245, 165, 36, 0.08); }
+.party-retrato {
+  position: relative; width: 64px; height: 64px;
+  border: 2px solid #6b5a3a; border-radius: 8px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse at 50% 92%, rgba(0, 0, 0, 0.5), transparent 62%),
+    linear-gradient(180deg, #241d16, #14100c);
+}
+.party-retrato img {
+  width: 100%; height: 100%; object-fit: contain;
+  image-rendering: pixelated; transform: translateY(-4%);
+}
+.party-nome {
+  font-weight: bold; font-size: 0.86em; text-align: center; line-height: 1.15;
+  overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.party-nivel { font-size: 0.7em; color: var(--hda-muted, #c8b89a); }
+.party-vitais { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 5px; align-items: center; }
+.party-vitais small { font-size: 0.62em; color: #b8a988; white-space: nowrap; }
+.party-barra {
+  display: block; height: 6px; border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55); border: 1px solid #3f3222; overflow: hidden;
+}
+.party-barra i { display: block; height: 100%; }
+.party-barra.hp i { background: linear-gradient(90deg, #8f2f2f, #e05757); }
+.party-barra.mp i { background: linear-gradient(90deg, #2f4f8f, #5789e0); }
+
+/* Os sete slots. Cheio mostra o ícone da categoria e a cor da raridade;
+   vazio é um ponto apagado — dá para ver o buraco sem ler nada. */
+.party-slots { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+.party-slot {
+  width: 20px; height: 20px; line-height: 18px; text-align: center;
+  font-size: 0.72em; border-radius: 5px;
+  border: 1px solid #3f3222; background: rgba(0, 0, 0, 0.4);
+}
+.party-slot.vazio { color: #5a4d38; }
+.party-slot.cheio { cursor: pointer; }
+.party-slot.cheio:hover { filter: brightness(1.4); }
+
+/* ---- filtros e busca ---- */
+.party-filtros {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin: 10px 0 8px; padding-top: 8px; border-top: 1px solid var(--hda-line, #4a3a26);
+}
+.party-cats { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; }
+.party-cat {
+  font-size: 0.76em; padding: 4px 9px; border-radius: 999px;
+  border: 1px solid #3f3222; background: rgba(0, 0, 0, 0.3); color: #c8b89a;
+  cursor: pointer;
+}
+.party-cat.ativa { border-color: var(--hda-gold, #f5a524); color: #f5e6c8; background: rgba(245, 165, 36, 0.12); }
+.party-busca {
+  flex: 0 1 220px; min-width: 140px;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid #3f3222; background: rgba(0, 0, 0, 0.35); color: #f1e9d8;
+}
+
+.party-mochila { min-height: 60px; }
+
+/* ---- detalhe com uma linha por membro ---- */
+/* GRUDADO NO PÉ DA TELA. Na primeira versão o painel era um bloco normal
+   no fim do corpo: com 22 itens na grade ele nascia abaixo da dobra, e a
+   comparação — a razão de a tela existir — só aparecia depois de rolar.
+   Sticky mantém a comparação à vista enquanto se percorre a mochila. */
+.party-detalhe {
+  display: none;
+  position: sticky; bottom: 0; z-index: 3;
+  margin-top: 10px; padding: 10px 10px 8px;
+  border-top: 1px solid var(--hda-line, #4a3a26);
+  border-radius: 10px 10px 0 0;
+  background: rgba(12, 9, 7, 0.97);
+  box-shadow: 0 -10px 26px rgba(0, 0, 0, 0.6);
+  max-height: 46vh; overflow-y: auto;
+}
+.party-detalhe.visivel { display: block; }
+.party-detalhe-cabecalho { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.party-detalhe-nome { font-weight: bold; font-size: 1.05em; }
+.party-linhas { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.party-linha-membro {
+  display: grid; grid-template-columns: minmax(70px, 1fr) 2fr auto;
+  gap: 8px; align-items: center;
+  padding: 5px 8px; border-radius: 7px;
+  background: rgba(0, 0, 0, 0.25); border: 1px solid #332a1e;
+}
+.party-linha-nome { font-weight: bold; font-size: 0.84em; }
+.party-linha-info { font-size: 0.8em; color: var(--hda-muted, #c8b89a); }
+.party-melhor { color: #8ff0b4; }
+.party-pior { color: #ff9a9a; }
+.party-igual { color: #8a7a63; }
+.party-btn-equipar, .party-btn-usar {
+  font-size: 0.78em; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #6b5a2a; background: rgba(245, 165, 36, 0.14); color: #f5e6c8;
+  cursor: pointer; white-space: nowrap;
+}
+.party-btn-equipar:hover, .party-btn-usar:hover:not([disabled]) { background: rgba(245, 165, 36, 0.28); }
+.party-btn-usar[disabled] { opacity: 0.4; cursor: default; }
+.party-detalhe-acoes { display: flex; gap: 6px; }
+.party-btn-vender {
+  font-size: 0.78em; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #5a3a3a; background: rgba(180, 70, 70, 0.14); color: #f0d0d0; cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .party-card { width: 122px; }
+  .party-retrato { width: 52px; height: 52px; }
+  .party-linha-membro { grid-template-columns: 1fr auto; }
+  .party-linha-info { grid-column: 1 / -1; }
+}
+
+/* =========================================================================
+   NOTIFICAÇÕES EMPILHADAS
+   -------------------------------------------------------------------------
+   Antes era uma div só, no topo, e a segunda mensagem apagava a primeira.
+   Agora é uma pilha: cada aviso é um cartão com ícone, cor por tipo e uma
+   barrinha mostrando quanto tempo falta — para nada sumir "do nada".
+
+   A pilha é `pointer-events: none`; só os cartões recebem clique. Assim ela
+   nunca rouba um toque do mapa por baixo.
+   ========================================================================= */
+#hda-notificacoes {
+  position: absolute; z-index: 40;
+  top: calc(var(--hda-safe-top, 0px) + 68px);
+  left: 50%; transform: translateX(-50%);
+  width: min(420px, calc(100vw - 24px));
+  display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none;
+}
+.hda-notif {
+  pointer-events: auto; cursor: pointer;
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center;
+  padding: 9px 12px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--n-borda, #6b5a3a);
+  border-left: 4px solid var(--n-cor, #f5a524);
+  background:
+    linear-gradient(180deg, rgba(30, 23, 17, 0.97), rgba(18, 14, 10, 0.97));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: #f1e9d8; font-size: 0.86em; line-height: 1.35;
+  /* Entra deslizando de cima. Só transform/opacity: nada aqui reflui. */
+  opacity: 0; transform: translateY(-10px) scale(0.98);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.hda-notif.entrou { opacity: 1; transform: translateY(0) scale(1); }
+.hda-notif.saindo { opacity: 0; transform: translateY(-6px) scale(0.98); }
+.n-icone { font-size: 1.18em; line-height: 1; }
+.n-corpo { min-width: 0; }
+.n-titulo { display: block; color: var(--n-cor, #f5a524); font-size: 0.92em; }
+.n-texto { overflow-wrap: anywhere; }
+.n-vezes {
+  font-size: 0.78em; font-weight: bold; color: var(--n-cor, #f5a524);
+  background: rgba(0, 0, 0, 0.4); border: 1px solid var(--n-borda, #6b5a3a);
+  border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+}
+/* A barrinha de tempo. `transform: scaleX` é animado pelo compositor —
+   não custa layout nem um quadro por tick. */
+.n-tempo {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: rgba(0, 0, 0, 0.4);
+}
+.n-tempo i {
+  display: block; height: 100%; width: 100%;
+  transform-origin: left center;
+  background: var(--n-cor, #f5a524); opacity: 0.75;
+}
+/* Repetição junta: o cartão pulsa em vez de empilhar um clone. */
+.hda-notif.pulsa { animation: notif-pulsa 0.4s ease-out; }
+@keyframes notif-pulsa {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(0) scale(1.035); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.hda-notif.n-ganho { --n-cor: #f5d76e; --n-borda: #6b5a2a; }
+.hda-notif.n-sucesso { --n-cor: #8ff0b4; --n-borda: #3f6b4a; }
+.hda-notif.n-aviso { --n-cor: #ffd08a; --n-borda: #7a5c34; }
+.hda-notif.n-erro { --n-cor: #ff9a9a; --n-borda: #7a3535; }
+.hda-notif.n-info { --n-cor: #b8cfe0; --n-borda: #4a5a6b; }
+
+@media (max-width: 720px) {
+  #hda-notificacoes { top: calc(var(--hda-safe-top, 0px) + 76px); font-size: 0.94em; }
+  .hda-notif { padding: 8px 10px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hda-notif { transition: opacity 0.01s linear; transform: none !important; }
+  .hda-notif.pulsa { animation: none; }
+}
+
+/* =========================================================================
+   ROLAGEM DE d20 NA TELA
+   -------------------------------------------------------------------------
+   Fora de combate o dado era rolado em silêncio e o resultado saía escrito
+   num aviso: `[d20: 14 +2 atributo = 16 vs. DC 12]`. Tinha toda a informação
+   e nenhum momento — que é justamente a graça de um teste de perícia.
+   Aqui o dado gira no meio da tela, para no número, e só então a conta
+   aparece embaixo dele.
+   ========================================================================= */
+.rolagem-camada {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0; transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+.rolagem-camada.visivel { opacity: 1; }
+.rolagem-caixa {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 20px 26px;
+  border-radius: 14px;
+  border: 2px solid #7a5c34;
+  background: linear-gradient(180deg, rgba(32, 24, 17, 0.98), rgba(18, 13, 9, 0.98));
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+  min-width: min(320px, 86vw);
+}
+.rolagem-titulo {
+  color: var(--hda-gold, #f5a524); font-weight: bold; text-align: center;
+  font-size: 1.02em; overflow-wrap: anywhere;
+}
+.rolagem-palco { display: flex; align-items: center; justify-content: center; min-height: 78px; }
+.rolagem-conta {
+  text-align: center;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.rolagem-conta.entrou { opacity: 1; transform: translateY(0); }
+.rolagem-soma { font-size: 1.06em; color: #e8dcc4; }
+.rolagem-soma i { color: #8a7a5c; font-style: normal; margin: 0 3px; }
+.rolagem-soma .rol-d20 { color: var(--hda-gold, #f5a524); font-size: 1.16em; }
+.rolagem-soma .rol-total { color: #fff3d6; font-size: 1.16em; }
+.rolagem-alvo { font-size: 0.85em; color: var(--hda-muted, #c8b89a); margin-top: 2px; }
+.rolagem-veredito { margin-top: 6px; font-weight: bold; font-size: 1.04em; }
+.rolagem-veredito.ok { color: #8ff0b4; }
+.rolagem-veredito.falha { color: #ff9a9a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rolagem-camada, .rolagem-conta { transition: opacity 0.01s linear; transform: none !important; }
+}
+
+/* =========================================================================
+   JANELAS DE TEXTO — acabamento
+   -------------------------------------------------------------------------
+   O pedido foi "bonita e preenchida". A caixa era um retângulo #201811 com
+   uma borda de 3px: informação correta, superfície morta. O que falta numa
+   janela assim não é enfeite, é PROFUNDIDADE — quem olha precisa perceber
+   que ali é uma placa de bronze gravada, e não um <div>.
+
+   Quatro camadas, todas em CSS, sem imagem nenhuma:
+     1. um fundo com grão sutil (gradientes cônicos minúsculos e repetidos);
+     2. uma luz de topo, como se a caixa fosse iluminada de cima;
+     3. um fio interior gravado, afastado da borda (o mesmo truque dos cards
+        de batalha, que já funcionava bem lá);
+     4. cantos marcados, para a moldura ter começo e fim.
+
+   Nada disso muda tamanho, posição ou fluxo — só pintura. As medidas de
+   layout continuam idênticas, então nenhuma tela se mexe por causa daqui.
+   ========================================================================= */
+#modal-overlay {
+  /* Escurece e desfoca de leve o mundo atrás: separa a janela do mapa sem
+     precisar de mais contraste na própria janela. */
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.78));
+  backdrop-filter: blur(2px);
+}
+
+#modal-conteudo.hda-modal {
+  border: 2px solid #7a5c34;
+  border-radius: 12px;
+  background:
+    /* 2. luz vinda de cima */
+    linear-gradient(180deg, rgba(255, 220, 160, 0.07), transparent 190px),
+    /* 1. grão */
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #241b13, #17110c);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 226, 170, 0.12);
+  position: relative;
+}
+/* 3. fio interior gravado */
+#modal-conteudo.hda-modal::before {
+  content: ""; position: absolute; inset: 5px;
+  border: 1px solid rgba(122, 92, 52, 0.42);
+  border-radius: 8px; pointer-events: none; z-index: 0;
+}
+/* 4. cantos marcados */
+#modal-conteudo.hda-modal::after {
+  content: ""; position: absolute; inset: 5px; pointer-events: none; z-index: 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) left 0 top 0 / 14px 2px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) left 0 top 0 / 2px 14px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) right 0 top 0 / 14px 2px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) right 0 top 0 / 2px 14px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) left 0 bottom 0 / 14px 2px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) left 0 bottom 0 / 2px 14px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) right 0 bottom 0 / 14px 2px no-repeat,
+    linear-gradient(var(--hda-gold, #f5a524), var(--hda-gold, #f5a524)) right 0 bottom 0 / 2px 14px no-repeat;
+  opacity: 0.5;
+}
+/* O conteúdo fica ACIMA das duas camadas decorativas. Sem isto o fio
+   passaria por cima do texto do cabeçalho. */
+#modal-conteudo.hda-modal > * { position: relative; z-index: 1; }
+
+/* Cabeçalho: faixa com brilho próprio e um fio dourado embaixo, para o
+   título ficar sendo o começo da janela em vez de mais uma linha de texto. */
+.hda-modal-cab {
+  background:
+    linear-gradient(180deg, rgba(245, 165, 36, 0.10), transparent),
+    linear-gradient(180deg, #2c2118, #221a12);
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, var(--hda-gold, #f5a524), transparent) 1;
+}
+.hda-modal-cab h2 { text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); letter-spacing: 0.01em; }
+.hda-modal-sub {
+  padding: 2px 10px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3); border: 1px solid #3f3222;
+  font-size: 0.82em; color: var(--hda-muted, #c8b89a); white-space: nowrap;
+}
+.hda-fechar {
+  border-radius: 8px; border: 1px solid #4a3a26;
+  background: rgba(0, 0, 0, 0.28); color: #c8b89a;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.hda-fechar:hover { background: rgba(224, 85, 85, 0.2); border-color: #a33c3c; color: #ffd0d0; }
+
+/* Rodapé de ações: mesma lógica do cabeçalho, do outro lado. */
+.hda-acoes {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.32), transparent);
+  border-top: 1px solid rgba(122, 92, 52, 0.55);
+}
+
+/* Blocos de texto dentro das janelas: parágrafo de descrição e fala de NPC
+   ganham um recuo com fio na lateral, que é o que faz um bloco parecer uma
+   CITAÇÃO em vez de texto solto no meio da caixa. */
+.hda-modal-corpo .desc { color: var(--hda-muted, #c8b89a); line-height: 1.5; }
+.hda-modal-corpo blockquote,
+.hda-modal-corpo .fala-npc,
+.hda-modal-corpo .texto-evento {
+  margin: 8px 0; padding: 9px 12px;
+  border-left: 3px solid var(--hda-gold, #f5a524);
+  border-radius: 0 8px 8px 0;
+  background: rgba(0, 0, 0, 0.24);
+  font-style: italic; line-height: 1.55; color: #e2d6bd;
+}
+
+/* A caixa de diálogo do mundo (falar com NPC) é a janela mais lida do jogo:
+   ganha um pouco mais de respiro e um título com placa. */
+.tela-dialogo .hda-modal-corpo { font-size: 1.02em; }
+
+@media (prefers-reduced-motion: reduce) {
+  #modal-overlay { backdrop-filter: none; }
+}
+
+/* Efeitos lendários e aviso de requisito na tela da Party. */
+.party-efeitos {
+  display: flex; flex-direction: column; gap: 3px;
+  margin: 6px 0; padding: 7px 10px;
+  border-left: 3px solid #f5d76e; border-radius: 0 8px 8px 0;
+  background: rgba(245, 215, 110, 0.08);
+}
+.party-efeito { font-size: 0.84em; color: #f0e2b8; line-height: 1.4; }
+.party-req-falta {
+  font-size: 0.82em; color: #ffc9a0; white-space: nowrap;
+  border: 1px solid #7a5c34; border-radius: 999px; padding: 0 7px;
+  background: rgba(224, 140, 60, 0.12);
+}
+.party-linha-membro.penalizado { border-color: #6b4a2a; }
+
+/* ==========================================================================
+   TIME E MOCHILA — abas, ficha do personagem e equipar automático
+   ==========================================================================
+   A aba "Time" morava dentro de Invocação, que é o lugar errado: "meu time"
+   não é assunto de invocação. As três coisas que se faz com o grupo passam a
+   ficar lado a lado aqui — ver o que cada um tem, vestir, e mandar vestir
+   sozinho. Ver src/ui/PartyUI.js. */
+.party-abas { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 10px; }
+.party-aba {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+  color: inherit; border-radius: 8px 8px 0 0; padding: 7px 13px;
+  cursor: pointer; font-size: 0.88em; white-space: nowrap;
+}
+.party-aba:hover { background: rgba(255,255,255,0.12); }
+.party-aba.ativa { background: rgba(245,165,36,0.18); border-color: #f5a524; font-weight: 700; }
+
+/* --- Ficha do personagem --- */
+.party-ficha { padding: 2px 0 10px; }
+.ficha-cabecalho {
+  display: flex; gap: 12px; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding-bottom: 8px; margin-bottom: 10px;
+}
+.ficha-nome { font-size: 1.2em; font-weight: 700; }
+.ficha-elemento {
+  border: 1px solid; border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85em; white-space: nowrap; background: rgba(0,0,0,0.25);
+}
+.ficha-grade { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.ficha-bloco {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 9px 11px; margin-bottom: 10px; min-width: 0;
+}
+.ficha-bloco h4 { margin: 0 0 6px; font-size: 0.92em; opacity: 0.9; }
+.ficha-linhas { display: flex; flex-direction: column; gap: 3px; }
+.ficha-linha { display: flex; justify-content: space-between; gap: 10px; font-size: 0.85em; }
+.ficha-linha b { color: #ffd88a; }
+.ficha-linha.ficha-fraqueza b { color: #ff9a9a; }
+.ficha-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.ficha-chip {
+  background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 16px; padding: 3px 10px; font-size: 0.8em; cursor: help;
+}
+.ficha-chip:hover { border-color: #f5a524; }
+.ficha-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 5px; }
+.ficha-slot {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8em;
+  background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; padding: 5px 8px; min-width: 0;
+}
+.ficha-slot.vazio { opacity: 0.45; }
+.ficha-slot-label { opacity: 0.65; }
+.ficha-slot-item { margin-left: auto; text-align: right; overflow-wrap: anywhere; }
+
+/* --- Equipar automático --- */
+.party-auto { padding: 2px 0 10px; }
+.auto-lista { display: flex; flex-direction: column; gap: 5px; margin: 10px 0; }
+.auto-linha {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+  background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.1);
+  border-left: 4px solid #4ecb71; border-radius: 8px; padding: 6px 10px; font-size: 0.85em;
+}
+.auto-quem { font-weight: 700; min-width: 110px; }
+.auto-slot { opacity: 0.7; min-width: 80px; }
+.auto-item { color: #ffd88a; cursor: help; }
+.auto-troca { margin-left: auto; opacity: 0.6; font-size: 0.9em; }
+
+@media (max-width: 720px) {
+  .ficha-grade { grid-template-columns: 1fr; }
+  .auto-troca { margin-left: 0; width: 100%; }
+}
+
+/* --- ABA PETS -------------------------------------------------------------
+   Cada carta mostra as duas promessas do companheiro ao mesmo tempo: o que
+   ele faz no mapa e o bônus que dá ao time. O pet ativo é marcado por
+   contorno E selo — a regra de "só um" tem de ser visível sem texto. */
+.pets-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.pets-topo h3 { margin:0 0 4px; }
+.pets-aviso:not(:empty) {
+  margin:10px 0; padding:8px 12px; border-radius:8px;
+  background:rgba(245,165,36,.12); border:1px solid rgba(245,165,36,.35); color:#f1e9d8;
+}
+.pets-grade { display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); margin-top:12px; }
+.pet-carta {
+  display:grid; grid-template-columns:64px 1fr auto; gap:12px; align-items:center;
+  padding:12px; border:2px solid #6b5a3e; border-radius:10px; background:rgba(24,18,14,.55);
+}
+.pet-carta.ativo { background:rgba(245,165,36,.10); box-shadow:0 0 0 2px rgba(245,165,36,.45) inset; }
+.pet-retrato { width:64px; height:64px; display:grid; place-items:center; }
+.pet-retrato img { width:64px; height:64px; image-rendering:pixelated; object-fit:none; object-position:0 0; }
+.pet-nome { font-weight:700; }
+.pet-selo {
+  font-size:.72em; text-transform:uppercase; letter-spacing:.06em;
+  background:#f5a524; color:#241a08; padding:1px 6px; border-radius:5px; vertical-align:middle;
+}
+.pet-raridade { font-size:.78em; text-transform:uppercase; letter-spacing:.06em; }
+.pet-desc { margin:6px 0; font-size:.86em; opacity:.85; }
+.pet-linha { font-size:.86em; margin:2px 0; }
+.pet-linha span { opacity:.8; margin-right:4px; }
+.pet-botao { white-space:nowrap; }
+@media (max-width: 560px) {
+  .pet-carta { grid-template-columns:48px 1fr; }
+  .pet-botao { grid-column:1 / -1; }
+}

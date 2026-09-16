@@ -1,0 +1,24 @@
+# O que NÃO vai para o repositório (e, por tabela, não vai para a Vercel).
+#
+# A regra é simples: sobe o que o JOGO precisa para rodar no navegador.
+# Tudo que é ferramenta de desenvolvimento, pacote de instalação ou cópia de
+# segurança fica só na pasta do PC.
+
+# Pacotes de instalação e cópias de segurança (~2 MB de zips que o jogo não lê)
+*.zip
+_backup_antes_da_atualizacao/
+
+# Atalhos e instaladores do Windows — não fazem sentido num servidor
+*.bat
+*.ps1
+
+# Geradores de arte e testes: rodam no PC, nunca no navegador
+scripts/
+briefings-arte/
+bundle/
+
+# Dependências
+node_modules/
+
+# Vercel
+.vercel/

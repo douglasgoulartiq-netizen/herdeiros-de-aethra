@@ -1,4 +1,5 @@
 // Gerencia inventário, equipamento e comércio.
+import { ehOleo, aplicarOleo } from "./WeaponOilSystem.js";
 import { cryptoId } from "./CharacterFactory.js";
 
 export const RARITY_COLORS = {
@@ -46,7 +47,11 @@ export function contarItem(personagem, itemId) {
 
 const SLOT_POR_TIPO = { arma: "arma", armadura: null, acessorio: null };
 
-function slotDoItem(item) {
+// Exportado (antes era privado) porque o auto-equipar precisa saber em que
+// slot cada item da mochila cabe. Ter DUAS cópias dessa regra seria a
+// receita clássica pro dia em que alguém adiciona um slot novo aqui e o
+// automático continua ignorando ele — uma fonte de verdade só.
+export function slotDoItem(item) {
   if (item.tipo === "arma") return "arma";
   if (item.tipo === "armadura") {
     return { peito: "peito", cabeca: "cabeca", pes: "pes", escudo: "escudo" }[item.slot] || null;
@@ -109,6 +114,14 @@ export function usarConsumivel(personagem, uid, alvo = personagem) {
     alvo.statusEffects = [];
     msg = emOutroAlvo ? `Efeitos negativos de ${alvo.nome} removidos.` : "Efeitos negativos removidos.";
   }
+  // Óleo de arma (ver WeaponOilSystem.js). Estes seis itens declaravam
+  // `oleoElemento` e `duracaoTurnos` desde sempre e NINGUÉM lia: o item era
+  // removido logo abaixo e o jogador ficava sem o óleo e sem o efeito.
+  // Unta sempre QUEM VAI LUTAR — por isso `alvo`, e não `personagem`.
+  if (ehOleo(item)) {
+    const texto = aplicarOleo(alvo, item);
+    msg = emOutroAlvo ? `${alvo.nome}: ${texto}` : texto;
+  }
   removerItem(personagem, uid);
   return { ok: true, msg };
 }
@@ -155,6 +168,27 @@ export function sortearRaridade(raridades, bonusRaroPercent = 0) {
     roll -= pesos[i];
   }
   return raridades[0].id;
+}
+
+// Todas as quedas de UMA tabela, de uma vez.
+//
+// `chanceDrop` decide SE cai; `quedas` (opcional, padrão 1) decide QUANTAS
+// rolagens acontecem quando cai. É assim que um chefe passa a ser generoso
+// em quantidade em vez de em raridade — ver scripts/gerar-loot.mjs, onde a
+// tabela de chefe ganhou `quedas: 2` e o peso do lendário caiu para 10.
+//
+// Uma tabela sem o campo `quedas` continua valendo exatamente 1: nenhuma
+// tabela antiga muda de comportamento por este acréscimo.
+export function rolarQuedas(tabela, itemsCatalog) {
+  if (!tabela || !tabela.pool || !tabela.pool.length) return [];
+  if (Math.random() >= (tabela.chanceDrop != null ? tabela.chanceDrop : 0)) return [];
+  const quantas = Math.max(1, Math.floor(tabela.quedas || 1));
+  const saida = [];
+  for (let i = 0; i < quantas; i++) {
+    const item = sortearLoot(tabela.pool, itemsCatalog);
+    if (item) saida.push(item);
+  }
+  return saida;
 }
 
 export function sortearLoot(pool, itemsCatalog) {

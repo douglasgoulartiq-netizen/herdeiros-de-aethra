@@ -16,6 +16,32 @@ import { FRAGMENTOS, XP_DUPLICATA } from "../data/economyConfig.js";
 // no total, ver task #43 do backlog e FormationSystem.js pra posicionamento).
 export const MAX_CONVOCADOS_GACHA = 3;
 
+// O CUSTO DE ÉTER TEM QUE CABER NO ÉTER DO DONO.
+//
+// Bug medido: 39 das 215 habilidades com custo (18%) custavam MAIS Éter do
+// que o máximo do próprio convocado — "Rhaska Ruído da Tormenta" tem 13 de
+// Éter e três habilidades de 14, 19 e 24. Elas apareciam na tela, entravam
+// na mão de cards e devolviam "não tem mana suficiente" para sempre. Uma
+// habilidade que NUNCA pode ser usada é pior que não existir: ocupa um slot
+// da mão e mente para o jogador.
+//
+// O gerador de habilidades (scripts/gerar-habilidades-gacha.mjs) escala o
+// custo pela raridade e pelo molde, sem saber o Éter de quem vai receber —
+// e não tem como saber, porque o Éter vem do roster. O único lugar onde os
+// dois números existem juntos é aqui, na hora de instanciar o convocado.
+//
+// O teto é 70% do Éter máximo: a habilidade cara continua sendo um recurso
+// escasso (dá para usar uma vez com o Éter cheio, não para repetir), mas
+// deixa de ser impossível.
+export const FRACAO_MAXIMA_DE_ETER = 0.7;
+
+export function cabeNoEter(habilidade, mpMax) {
+  const custo = habilidade.custoMP || 0;
+  const teto = Math.max(1, Math.floor((mpMax || 0) * FRACAO_MAXIMA_DE_ETER));
+  if (custo <= teto) return habilidade;
+  return { ...habilidade, custoMP: teto, custoOriginal: custo };
+}
+
 export function estadoGachaInicial() {
   return {
     fragmentos: 0,
@@ -131,7 +157,19 @@ export function instanciarPersonagemGacha(defRoster) {
     mpMax: defRoster.mpMax,
     mp: defRoster.mpMax,
     equipamento: { arma: null, peito: null, cabeca: null, pes: null, escudo: null, anel: null, amuleto: null },
-    habilidades: [{ ...defRoster.habilidade, cooldownAtual: 0 }],
+    // A habilidade "de sempre" MAIS as exclusivas do personagem. As
+    // exclusivas são geradas por scripts/gerar-habilidades-gacha.mjs a
+    // partir da classe, do elemento e da RARIDADE — comum tem 1, lendário
+    // tem 3 ativas e 2 passivas. É o que faz puxar um lendário significar
+    // algo além de números maiores.
+    habilidades: [
+      { ...defRoster.habilidade, cooldownAtual: 0 },
+      ...(defRoster.habilidadesExclusivas || []).map((h) => ({ ...h, cooldownAtual: 0 })),
+    ].map((h) => cabeNoEter(h, defRoster.mpMax)),
+    // Passivas não entram na mão de cards: valem o tempo todo, sem gastar
+    // turno (ver PassiveSystem.js). Guardadas na instância para o save
+    // levá-las junto.
+    passivas: (defRoster.passivas || []).map((pa) => ({ ...pa })),
     spriteKey: `gacha_${defRoster.id}`,
     ehGacha: true,
   };

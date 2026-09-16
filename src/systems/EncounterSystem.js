@@ -1,3 +1,5 @@
+import { tamanhoDoGrupo, mediaDoGrupo } from "./EscalaSystem.js";
+
 // --- Reforço de monstro solo (task #46) -----------------------------------
 // Desde que o time passou a ter até 4 personagens (task #43), uma luta
 // contra 1 monstro só ficou raso demais — o grupo inteiro cerca um único
@@ -49,34 +51,73 @@ export function reforcarEmboscada(monstroDef) {
 }
 
 // Decide encontros aleatórios ao caminhar em terreno selvagem, e sorteia loot.
-export function sortearEncontro(bioma, monstros) {
+// O tamanho do grupo era fixo: 70% de chance de UM inimigo só, sempre, do
+// nível 1 ao 20. Contra um time de quatro isso é 4 contra 1 — o inimigo
+// morre antes de agir, e nenhuma quantidade de HP conserta isso. Agora sai
+// de `tamanhoDoGrupo` (EscalaSystem.js), que cresce com o nível do herói.
+// `nivelHeroi` é opcional: sem ele o comportamento cai na faixa inicial, que
+// é conservadora — nunca deixa uma chamada antiga mais difícil por acidente.
+export function sortearEncontro(bioma, monstros, nivelHeroi = 1) {
   const candidatos = monstros.filter((m) => m.bioma.includes(bioma) && !m.chefe);
   if (candidatos.length === 0) return [];
-  const qtdInimigos = Math.random() < 0.7 ? 1 : Math.random() < 0.85 ? 2 : 3;
-  if (qtdInimigos === 1) return [reforcarMonstroSolo(candidatos[Math.floor(Math.random() * candidatos.length)])];
+  return montarGrupo(candidatos, nivelHeroi);
+}
+
+function montarGrupo(candidatos, nivelHeroi) {
+  const qtdInimigos = tamanhoDoGrupo(nivelHeroi);
+  const sorteia = () => candidatos[Math.floor(Math.random() * candidatos.length)];
+  // Um inimigo sozinho continua ganhando o reforço de solo (task #46) — a
+  // desvantagem numérica dele não mudou, só ficou mais rara.
+  if (qtdInimigos === 1) return [reforcarMonstroSolo(sorteia())];
   const grupo = [];
-  for (let i = 0; i < qtdInimigos; i++) {
-    grupo.push(candidatos[Math.floor(Math.random() * candidatos.length)]);
-  }
+  for (let i = 0; i < qtdInimigos; i++) grupo.push(sorteia());
   return grupo;
 }
 
+// PASSOS DE TRÉGUA depois de uma batalha.
+//
+// Problema medido dentro da masmorra: com o grupo de inimigos maior (ver
+// EscalaSystem.js), 86% dos ticks do modo automático eram gastos com a tela
+// de batalha aberta — 443 ticks lá dentro e só 59 casas visitadas. Sair de
+// uma luta e cair em outra dois passos depois não é dificuldade: é o jogo
+// virar um corredor de batalhas em que explorar fica impossível.
+//
+// A trégua é o remédio clássico: alguns passos sem sorteio logo depois de
+// uma luta. Não deixa o jogo mais fácil (o número de lutas por MINUTO cai,
+// o de lutas por SALA não), só devolve ao jogador a chance de andar.
+export const PASSOS_DE_TREGUA = 5;
+
+let tregua = 0;
+export function iniciarTregua(passos = PASSOS_DE_TREGUA) { tregua = passos; }
+export function passosDeTreguaRestantes() { return tregua; }
+export function zerarTregua() { tregua = 0; }
+
+// A CHANCE COMPENSA O TAMANHO DO GRUPO.
+//
+// A chance por passo era fixa (4,5% no mundo, 6% na masmorra) desde quando
+// 70% dos encontros eram de UM inimigo. Com grupos de 3 e 4, a mesma chance
+// significa três a quatro vezes mais MONSTROS por passo, e foi isso que
+// transformou a masmorra em corredor de luta. Dividir pela média do grupo
+// mantém constante o que importa — monstros enfrentados por passo — enquanto
+// cada luta individual fica maior e mais interessante.
+export function chanceAjustadaPeloGrupo(chanceBase, nivelHeroi) {
+  const referencia = mediaDoGrupo(1);
+  const atual = mediaDoGrupo(nivelHeroi || 1);
+  if (!atual) return chanceBase;
+  return chanceBase * (referencia / atual);
+}
+
 export function deveDispararEncontro(chancePorPasso = 0.045) {
+  if (tregua > 0) { tregua -= 1; return false; }
   return Math.random() < chancePorPasso;
 }
 
 // Como sortearEncontro, mas recebe a lista de monstros já filtrada (usado
 // pelo sistema de zonas, onde cada zona já define seu próprio pool).
-export function sortearEncontroDeLista(candidatos) {
+export function sortearEncontroDeLista(candidatos, nivelHeroi = 1) {
   const vivos = candidatos.filter((m) => !m.chefe);
   if (vivos.length === 0) return [];
-  const qtdInimigos = Math.random() < 0.7 ? 1 : Math.random() < 0.85 ? 2 : 3;
-  if (qtdInimigos === 1) return [reforcarMonstroSolo(vivos[Math.floor(Math.random() * vivos.length)])];
-  const grupo = [];
-  for (let i = 0; i < qtdInimigos; i++) {
-    grupo.push(vivos[Math.floor(Math.random() * vivos.length)]);
-  }
-  return grupo;
+  return montarGrupo(vivos, nivelHeroi);
 }
 
 // --- Hordas de monstros (task #47) ---------------------------------------

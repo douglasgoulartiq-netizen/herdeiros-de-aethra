@@ -1,782 +1,2470 @@
 {
-  "guerreiro": [
-    {
-      "id": "guerreiro_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Corte Duplo",
-      "descricao": "Dois cortes rápidos e recorrentes: 130% do dano físico normal, recarga curta.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "corte_duplo",
+  "guerreiro": {
+    "ramos": [
+      {
+        "id": "lamina",
+        "nome": "Lâmina",
+        "icone": "⚔️",
+        "descricao": "Dano físico direto e crescente contra grupos."
+      },
+      {
+        "id": "baluarte",
+        "nome": "Baluarte",
+        "icone": "🛡️",
+        "descricao": "Absorver castigo e continuar de pé."
+      },
+      {
+        "id": "comando",
+        "nome": "Comando",
+        "icone": "🎖️",
+        "descricao": "Ramo híbrido: exige Inteligência, que o Guerreiro não ganha por nível."
+      }
+    ],
+    "nos": [
+      {
+        "id": "guerreiro_lamina_1",
+        "ramo": "lamina",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
         "nome": "Corte Duplo",
-        "descricao": "Dois cortes rápidos que causam 130% do dano físico normal.",
-        "custoMP": 0,
-        "cooldown": 1,
-        "tipo": "dano_fisico",
-        "multiplicador": 1.3
-      }
-    },
-    {
-      "id": "guerreiro_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Corpo Rígido",
-      "descricao": "+2 de Constituição permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "CON",
-        "valor": 2
-      }
-    },
-    {
-      "id": "guerreiro_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Investida Brutal",
-      "descricao": "Dano físico que ignora parte da defesa inimiga.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "investida_brutal",
+        "descricao": "Dois cortes rápidos: 135% do dano físico.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "corte_duplo",
+          "nome": "Corte Duplo",
+          "descricao": "Dois cortes rápidos: 135% do dano físico.",
+          "custoMP": 0,
+          "cooldown": 1,
+          "tipo": "dano_fisico",
+          "multiplicador": 1.35
+        }
+      },
+      {
+        "id": "guerreiro_lamina_2",
+        "ramo": "lamina",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Punho de Ferro",
+        "descricao": "Todo dano que você causa aumenta 6%.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_punho_ferro",
+          "nome": "Punho de Ferro",
+          "icone": "🥊",
+          "descricao": "Todo dano que você causa aumenta 6%.",
+          "efeito": {
+            "tipo": "dano",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "guerreiro_lamina_3",
+        "ramo": "lamina",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
         "nome": "Investida Brutal",
         "descricao": "Investida que ignora quase toda a defesa do alvo.",
-        "custoMP": 0,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.6
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "investida_brutal",
+          "nome": "Investida Brutal",
+          "descricao": "Investida que ignora quase toda a defesa do alvo.",
+          "custoMP": 0,
+          "cooldown": 3,
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 1.7
+        }
+      },
+      {
+        "id": "guerreiro_lamina_4",
+        "ramo": "lamina",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Força Bruta",
+        "descricao": "+5 de Força permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "FOR",
+          "valor": 5
+        }
+      },
+      {
+        "id": "guerreiro_lamina_5",
+        "ramo": "lamina",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Ceifar",
+        "descricao": "Golpe largo que atinge todos os inimigos em campo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "ceifar",
+          "nome": "Ceifar",
+          "descricao": "Golpe largo que atinge todos os inimigos em campo.",
+          "custoMP": 12,
+          "cooldown": 4,
+          "tipo": "dano_area",
+          "multiplicador": 1.25
+        }
+      },
+      {
+        "id": "guerreiro_lamina_6",
+        "ramo": "lamina",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Ímpeto",
+        "descricao": "Quanto mais inimigos em campo, mais forte você bate: +12% de dano por inimigo além do primeiro (até +36%).",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_impeto",
+          "nome": "Ímpeto",
+          "icone": "⚔️",
+          "recurso": "Ímpeto",
+          "descricao": "Quanto mais inimigos em campo, mais forte você bate: +12% de dano por inimigo além do primeiro (até +36%).",
+          "condicao": {
+            "tipo": "inimigos_vivos",
+            "minimo": 2
+          },
+          "efeito": {
+            "dano": 0.12,
+            "escalonado": true,
+            "maximo": 0.36
+          }
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_1",
+        "ramo": "baluarte",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Corpo Rígido",
+        "descricao": "+3 de Constituição permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "CON",
+          "valor": 3
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_2",
+        "ramo": "baluarte",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Postura Firme",
+        "descricao": "Assume a guarda e reduz o dano recebido por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "postura_firme",
+          "nome": "Postura Firme",
+          "descricao": "Assume a guarda e reduz o dano recebido por 2 turnos.",
+          "custoMP": 0,
+          "cooldown": 3,
+          "tipo": "buff_defesa",
+          "valor": 0.35,
+          "duracao": 2
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_3",
+        "ramo": "baluarte",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Couraça",
+        "descricao": "Você recebe 8% menos dano.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_couraca",
+          "nome": "Couraça",
+          "icone": "🪖",
+          "descricao": "Você recebe 8% menos dano.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 0.92,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_4",
+        "ramo": "baluarte",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Fôlego de Ferro",
+        "descricao": "+12% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_folego_ferro",
+          "nome": "Fôlego de Ferro",
+          "icone": "❤️",
+          "descricao": "+12% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.12,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_5",
+        "ramo": "baluarte",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Muralha",
+        "descricao": "Ergue a guarda do grupo inteiro por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "muralha",
+          "nome": "Muralha",
+          "descricao": "Ergue a guarda do grupo inteiro por 2 turnos.",
+          "custoMP": 14,
+          "cooldown": 4,
+          "tipo": "buff_time",
+          "alvoBuff": "defesa",
+          "valor": 0.3,
+          "duracao": 2,
+          "icone": "🛡️"
+        }
+      },
+      {
+        "id": "guerreiro_baluarte_6",
+        "ramo": "baluarte",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Guarda",
+        "descricao": "Enquanto estiver acima de 60% de vida, você recebe 22% menos dano e causa 10% a mais.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_guarda",
+          "nome": "Guarda",
+          "icone": "🛡️",
+          "recurso": "Guarda",
+          "descricao": "Enquanto estiver acima de 60% de vida, você recebe 22% menos dano e causa 10% a mais.",
+          "condicao": {
+            "tipo": "hp_proprio_acima",
+            "limiar": 0.6
+          },
+          "efeito": {
+            "defesa": 0.78,
+            "dano": 1.1
+          }
+        }
+      },
+      {
+        "id": "guerreiro_comando_1",
+        "ramo": "comando",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Grito de Guerra",
+        "descricao": "O time inteiro acerta mais forte no próximo golpe.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "grito_guerra",
+          "nome": "Grito de Guerra",
+          "descricao": "O time inteiro acerta mais forte no próximo golpe.",
+          "custoMP": 10,
+          "cooldown": 3,
+          "tipo": "buff_time",
+          "alvoBuff": "ataque",
+          "valor": 0.25,
+          "duracao": 2,
+          "icone": "📣"
+        }
+      },
+      {
+        "id": "guerreiro_comando_2",
+        "ramo": "comando",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Disciplina",
+        "descricao": "+6 de Inteligência permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "INT",
+          "valor": 6
+        }
+      },
+      {
+        "id": "guerreiro_comando_3",
+        "ramo": "comando",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Ordem Cerrada",
+        "descricao": "Todo o time recebe 5% menos dano.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_ordem_cerrada",
+          "nome": "Ordem Cerrada",
+          "icone": "🧱",
+          "descricao": "Todo o time recebe 5% menos dano.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 0.95,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "guerreiro_comando_4",
+        "ramo": "comando",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "INT": 8
+        },
+        "nome": "Tática de Flanco",
+        "descricao": "Todo o time age 8% mais rápido.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_tatica_flanco",
+          "nome": "Tática de Flanco",
+          "icone": "🏃",
+          "descricao": "Todo o time age 8% mais rápido.",
+          "efeito": {
+            "tipo": "velocidade",
+            "valor": 1.08,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "guerreiro_comando_5",
+        "ramo": "comando",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "INT": 10
+        },
+        "nome": "Estandarte",
+        "descricao": "Finca o estandarte e restaura vida de todo o grupo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "estandarte",
+          "nome": "Estandarte",
+          "descricao": "Finca o estandarte e restaura vida de todo o grupo.",
+          "custoMP": 18,
+          "cooldown": 4,
+          "tipo": "cura_area",
+          "multiplicador": 1.1
+        }
+      },
+      {
+        "id": "guerreiro_comando_6",
+        "ramo": "comando",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "INT": 13
+        },
+        "nome": "Comando",
+        "descricao": "Quando algum aliado está abaixo de 50% de vida, você causa 20% a mais de dano e recebe 10% a menos.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_comando",
+          "nome": "Comando",
+          "icone": "🎖️",
+          "recurso": "Comando",
+          "descricao": "Quando algum aliado está abaixo de 50% de vida, você causa 20% a mais de dano e recebe 10% a menos.",
+          "condicao": {
+            "tipo": "aliado_ferido",
+            "limiar": 0.5
+          },
+          "efeito": {
+            "dano": 1.2,
+            "defesa": 0.9
+          }
+        }
       }
-    },
-    {
-      "id": "guerreiro_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Postura Firme",
-      "descricao": "+3 de defesa permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "defesaFlat",
-        "valor": 3
+    ]
+  },
+  "mago": {
+    "ramos": [
+      {
+        "id": "elementalista",
+        "nome": "Elementalista",
+        "icone": "🔥",
+        "descricao": "Dano elemental em área — o ramo que abre reações."
+      },
+      {
+        "id": "arcanista",
+        "nome": "Arcanista",
+        "icone": "🔮",
+        "descricao": "Alvo único, éter fundo e golpes decisivos."
+      },
+      {
+        "id": "runas",
+        "nome": "Runas",
+        "icone": "🪬",
+        "descricao": "Ramo híbrido: exige Destreza, que o Mago quase não ganha por nível."
       }
-    },
-    {
-      "id": "guerreiro_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Fúria Sangrenta",
-      "descricao": "Dobra o dano do próximo ataque com mais intensidade que o Grito de Guerra.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "furia_sangrenta",
-        "nome": "Fúria Sangrenta",
-        "descricao": "Aumenta muito o próximo ataque, à custa da defesa por 2 turnos.",
-        "custoMP": 0,
-        "cooldown": 4,
-        "tipo": "buff_ataque",
-        "duracao": 2,
-        "valor": 1.2
+    ],
+    "nos": [
+      {
+        "id": "mago_elementalista_1",
+        "ramo": "elementalista",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Estilhaço de Gelo",
+        "descricao": "Lasca de gelo que congela a ferida do alvo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "estilhaco_gelo",
+          "nome": "Estilhaço de Gelo",
+          "descricao": "Lasca de gelo que congela a ferida do alvo.",
+          "custoMP": 6,
+          "cooldown": 1,
+          "tipo": "dano_magico",
+          "multiplicador": 1.3,
+          "elemento": "gelo"
+        }
+      },
+      {
+        "id": "mago_elementalista_2",
+        "ramo": "elementalista",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Cadeia de Raios",
+        "descricao": "Um arco elétrico salta por todos os inimigos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "cadeia_raios",
+          "nome": "Cadeia de Raios",
+          "descricao": "Um arco elétrico salta por todos os inimigos.",
+          "custoMP": 14,
+          "cooldown": 3,
+          "tipo": "dano_area",
+          "multiplicador": 1.15,
+          "elemento": "raio"
+        }
+      },
+      {
+        "id": "mago_elementalista_3",
+        "ramo": "elementalista",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Conduíte",
+        "descricao": "Todo dano que você causa aumenta 7%.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_conduite",
+          "nome": "Conduíte",
+          "icone": "⚡",
+          "descricao": "Todo dano que você causa aumenta 7%.",
+          "efeito": {
+            "tipo": "dano",
+            "valor": 1.07,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "mago_elementalista_4",
+        "ramo": "elementalista",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Núcleo Arcano",
+        "descricao": "+5 de Inteligência permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "INT",
+          "valor": 5
+        }
+      },
+      {
+        "id": "mago_elementalista_5",
+        "ramo": "elementalista",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Nova Elemental",
+        "descricao": "Explosão de fogo que engolfa o campo inteiro.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "nova_elemental",
+          "nome": "Nova Elemental",
+          "descricao": "Explosão de fogo que engolfa o campo inteiro.",
+          "custoMP": 22,
+          "cooldown": 4,
+          "tipo": "dano_area",
+          "multiplicador": 1.5,
+          "elemento": "fogo"
+        }
+      },
+      {
+        "id": "mago_elementalista_6",
+        "ramo": "elementalista",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Carga",
+        "descricao": "Enquanto seu Éter estiver acima de 60%, você causa 20% a mais de dano.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_carga",
+          "nome": "Carga",
+          "icone": "🔮",
+          "recurso": "Carga Arcana",
+          "descricao": "Enquanto seu Éter estiver acima de 60%, você causa 20% a mais de dano.",
+          "condicao": {
+            "tipo": "eter_proprio_acima",
+            "limiar": 0.6
+          },
+          "efeito": {
+            "dano": 1.2
+          }
+        }
+      },
+      {
+        "id": "mago_arcanista_1",
+        "ramo": "arcanista",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Reserva Profunda",
+        "descricao": "+20% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_reserva_profunda",
+          "nome": "Reserva Profunda",
+          "icone": "💧",
+          "descricao": "+20% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.2,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "mago_arcanista_2",
+        "ramo": "arcanista",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Míssil Focado",
+        "descricao": "Projétil arcano concentrado num alvo só.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "missil_focado",
+          "nome": "Míssil Focado",
+          "descricao": "Projétil arcano concentrado num alvo só.",
+          "custoMP": 8,
+          "cooldown": 2,
+          "tipo": "dano_magico",
+          "multiplicador": 1.6
+        }
+      },
+      {
+        "id": "mago_arcanista_3",
+        "ramo": "arcanista",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Mente Afiada",
+        "descricao": "+4 de Inteligência permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "INT",
+          "valor": 4
+        }
+      },
+      {
+        "id": "mago_arcanista_4",
+        "ramo": "arcanista",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Precisão Arcana",
+        "descricao": "+8% de chance de crítico.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_precisao_arcana",
+          "nome": "Precisão Arcana",
+          "icone": "🎯",
+          "descricao": "+8% de chance de crítico.",
+          "efeito": {
+            "tipo": "critico",
+            "valor": 0.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "mago_arcanista_5",
+        "ramo": "arcanista",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Desintegrar",
+        "descricao": "Dissolve a matéria do alvo, ignorando a defesa.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "desintegrar",
+          "nome": "Desintegrar",
+          "descricao": "Dissolve a matéria do alvo, ignorando a defesa.",
+          "custoMP": 20,
+          "cooldown": 5,
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 2
+        }
+      },
+      {
+        "id": "mago_arcanista_6",
+        "ramo": "arcanista",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Foco",
+        "descricao": "Contra alvos ainda acima de 70% de vida, você causa 35% a mais de dano. O primeiro golpe é o que decide.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_foco",
+          "nome": "Foco",
+          "icone": "🎯",
+          "recurso": "Foco",
+          "descricao": "Contra alvos ainda acima de 70% de vida, você causa 35% a mais de dano. O primeiro golpe é o que decide.",
+          "condicao": {
+            "tipo": "hp_alvo_acima",
+            "limiar": 0.7
+          },
+          "efeito": {
+            "dano": 1.35
+          }
+        }
+      },
+      {
+        "id": "mago_runas_1",
+        "ramo": "runas",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Runa de Lentidão",
+        "descricao": "Marca o alvo com uma runa que o atrasa.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "runa_lentidao",
+          "nome": "Runa de Lentidão",
+          "descricao": "Marca o alvo com uma runa que o atrasa.",
+          "custoMP": 6,
+          "cooldown": 2,
+          "tipo": "debuff_velocidade",
+          "valor": 0.3,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "mago_runas_2",
+        "ramo": "runas",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Passo Rúnico",
+        "descricao": "+6 de Destreza permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 6
+        }
+      },
+      {
+        "id": "mago_runas_3",
+        "ramo": "runas",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Runa de Ferro",
+        "descricao": "Você recebe 7% menos dano.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_runa_ferro",
+          "nome": "Runa de Ferro",
+          "icone": "🪨",
+          "descricao": "Você recebe 7% menos dano.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 0.93,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "mago_runas_4",
+        "ramo": "runas",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "DES": 19
+        },
+        "nome": "Selo Fraturante",
+        "descricao": "Sela o campo: todos os inimigos ficam mais lentos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "selo_fraturante",
+          "nome": "Selo Fraturante",
+          "descricao": "Sela o campo: todos os inimigos ficam mais lentos.",
+          "custoMP": 16,
+          "cooldown": 4,
+          "tipo": "debuff_area",
+          "valor": 0.25,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "mago_runas_5",
+        "ramo": "runas",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "DES": 22
+        },
+        "nome": "Runa Vampírica",
+        "descricao": "10% do dano causado volta como vida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_runa_vampirica",
+          "nome": "Runa Vampírica",
+          "icone": "🩸",
+          "descricao": "10% do dano causado volta como vida.",
+          "efeito": {
+            "tipo": "roubo_vida",
+            "valor": 0.1,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "mago_runas_6",
+        "ramo": "runas",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "DES": 30
+        },
+        "nome": "Trama",
+        "descricao": "Contra alvos sob qualquer efeito negativo, você causa 18% a mais de dano e tem +10% de crítico.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_trama",
+          "nome": "Trama",
+          "icone": "🪬",
+          "recurso": "Trama",
+          "descricao": "Contra alvos sob qualquer efeito negativo, você causa 18% a mais de dano e tem +10% de crítico.",
+          "condicao": {
+            "tipo": "alvo_debilitado"
+          },
+          "efeito": {
+            "dano": 1.18,
+            "critico": 0.1
+          }
+        }
       }
-    },
-    {
-      "id": "guerreiro_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Vitalidade de Guerra",
-      "descricao": "+12% de HP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "hpMaxPercent",
-        "valor": 0.12
-      }
-    },
-    {
-      "id": "guerreiro_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Golpe Devastador",
-      "descricao": "Um golpe massivo com 220% do dano físico normal.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "golpe_devastador",
-        "nome": "Golpe Devastador",
-        "descricao": "Golpe massivo que causa 220% do dano físico normal.",
-        "custoMP": 0,
-        "cooldown": 4,
-        "tipo": "dano_fisico",
-        "multiplicador": 2.2
-      }
-    },
-    {
-      "id": "guerreiro_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Instinto de Batalha",
-      "descricao": "+8% de chance de acerto crítico permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "critChance",
-        "valor": 0.08
-      }
-    }
-  ],
-  "mago": [
-    {
-      "id": "mago_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Lança de Gelo",
-      "descricao": "Dano mágico rápido e recorrente.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "lanca_de_gelo",
-        "nome": "Lança de Gelo",
-        "descricao": "Projétil gélido de dano mágico com recarga curta.",
-        "custoMP": 6,
-        "cooldown": 1,
-        "tipo": "dano_magico",
-        "multiplicador": 1.6,
-        "elemento": "gelo"
-      }
-    },
-    {
-      "id": "mago_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Mente Afiada",
-      "descricao": "+2 de Inteligência permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "INT",
-        "valor": 2
-      }
-    },
-    {
-      "id": "mago_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Raio Arcano",
-      "descricao": "Um feixe concentrado de dano mágico pesado.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "raio_arcano",
-        "nome": "Raio Arcano",
-        "descricao": "Feixe concentrado de energia arcana.",
-        "custoMP": 14,
-        "cooldown": 3,
-        "tipo": "dano_magico",
-        "multiplicador": 2.3,
-        "elemento": "arcano"
-      }
-    },
-    {
-      "id": "mago_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Reservas Arcanas",
-      "descricao": "+15% de MP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "mpMaxPercent",
-        "valor": 0.15
-      }
-    },
-    {
-      "id": "mago_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Explosão Arcana",
-      "descricao": "Dano mágico que rompe defesas mágicas do alvo.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "explosao_arcana",
-        "nome": "Explosão Arcana",
-        "descricao": "Explosão que ignora parte da defesa do alvo.",
-        "custoMP": 12,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.4,
-        "elemento": "arcano"
-      }
-    },
-    {
-      "id": "mago_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Ressonância Arcana",
-      "descricao": "+6% de chance de acerto crítico permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "critChance",
-        "valor": 0.06
-      }
-    },
-    {
-      "id": "mago_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Meteoro",
-      "descricao": "O feitiço mais poderoso do mago, com altíssimo dano.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "meteoro",
-        "nome": "Meteoro",
-        "descricao": "Invoca um meteoro devastador sobre o alvo.",
-        "custoMP": 20,
-        "cooldown": 5,
-        "tipo": "dano_magico",
-        "multiplicador": 3.0,
-        "elemento": "fogo"
-      }
-    },
-    {
-      "id": "mago_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Constituição Élfica",
-      "descricao": "+10% de HP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "hpMaxPercent",
-        "valor": 0.1
-      }
-    }
-  ],
-  "ladino": [
-    {
-      "id": "ladino_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Investida das Sombras",
-      "descricao": "Ataque rápido baseado em Destreza com recarga curta.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "investida_das_sombras",
-        "nome": "Investida das Sombras",
-        "descricao": "Ataque veloz baseado em Destreza.",
-        "custoMP": 0,
-        "cooldown": 1,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 1.4,
-        "elemento": "sombrio"
-      }
-    },
-    {
-      "id": "ladino_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Passos Leves",
-      "descricao": "+2 de Destreza permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "DES",
-        "valor": 2
-      }
-    },
-    {
-      "id": "ladino_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Lâminas Gêmeas",
-      "descricao": "Uma sequência de cortes com alta chance de crítico.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "laminas_gemeas",
+    ]
+  },
+  "ladino": {
+    "ramos": [
+      {
+        "id": "sombra",
+        "nome": "Sombra",
+        "icone": "🗡️",
+        "descricao": "Crítico e execução: matar antes de ser visto."
+      },
+      {
+        "id": "gemeas",
         "nome": "Lâminas Gêmeas",
-        "descricao": "Sequência de cortes rápidos baseados em Destreza.",
-        "custoMP": 0,
-        "cooldown": 2,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 1.9
+        "icone": "⚔️",
+        "descricao": "Velocidade e muitos golpes pequenos."
+      },
+      {
+        "id": "trapaca",
+        "nome": "Trapaça",
+        "icone": "🎲",
+        "descricao": "Ramo híbrido: exige Inteligência, que o Ladino não ganha por nível."
       }
-    },
-    {
-      "id": "ladino_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Reflexos Apurados",
-      "descricao": "+2 de defesa permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "defesaFlat",
-        "valor": 2
+    ],
+    "nos": [
+      {
+        "id": "ladino_sombra_1",
+        "ramo": "sombra",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Ataque Furtivo",
+        "descricao": "Golpe pelas costas usando Destreza no lugar da Força.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "ataque_furtivo",
+          "nome": "Ataque Furtivo",
+          "descricao": "Golpe pelas costas usando Destreza no lugar da Força.",
+          "custoMP": 0,
+          "cooldown": 1,
+          "tipo": "dano_fisico_des",
+          "multiplicador": 1.45
+        }
+      },
+      {
+        "id": "ladino_sombra_2",
+        "ramo": "sombra",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Olho Afiado",
+        "descricao": "+7% de chance de crítico.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_olho_afiado",
+          "nome": "Olho Afiado",
+          "icone": "👁️",
+          "descricao": "+7% de chance de crítico.",
+          "efeito": {
+            "tipo": "critico",
+            "valor": 0.07,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_sombra_3",
+        "ramo": "sombra",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Mãos Rápidas",
+        "descricao": "+5 de Destreza permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 5
+        }
+      },
+      {
+        "id": "ladino_sombra_4",
+        "ramo": "sombra",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Golpe Mortal",
+        "descricao": "Estocada precisa que ignora a defesa do alvo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "golpe_mortal",
+          "nome": "Golpe Mortal",
+          "descricao": "Estocada precisa que ignora a defesa do alvo.",
+          "custoMP": 0,
+          "cooldown": 4,
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 1.9
+        }
+      },
+      {
+        "id": "ladino_sombra_5",
+        "ramo": "sombra",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Sangue Frio",
+        "descricao": "Todo dano que você causa aumenta 10%.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_sangue_frio",
+          "nome": "Sangue Frio",
+          "icone": "🧊",
+          "descricao": "Todo dano que você causa aumenta 10%.",
+          "efeito": {
+            "tipo": "dano",
+            "valor": 1.1,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_sombra_6",
+        "ramo": "sombra",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Presa",
+        "descricao": "Contra alvos abaixo de 35% de vida, você causa 45% a mais de dano. Ninguém escapa ferido.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_presa",
+          "nome": "Presa",
+          "icone": "🩸",
+          "recurso": "Presa",
+          "descricao": "Contra alvos abaixo de 35% de vida, você causa 45% a mais de dano. Ninguém escapa ferido.",
+          "condicao": {
+            "tipo": "hp_alvo_abaixo",
+            "limiar": 0.35
+          },
+          "efeito": {
+            "dano": 1.45
+          }
+        }
+      },
+      {
+        "id": "ladino_gemeas_1",
+        "ramo": "gemeas",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Pés Ligeiros",
+        "descricao": "+12% de velocidade.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_pes_ligeiros",
+          "nome": "Pés Ligeiros",
+          "icone": "🌀",
+          "descricao": "+12% de velocidade.",
+          "efeito": {
+            "tipo": "velocidade",
+            "valor": 1.12,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_gemeas_2",
+        "ramo": "gemeas",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Dança de Aço",
+        "descricao": "Rodopio de lâminas que atinge todos os inimigos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "danca_aco",
+          "nome": "Dança de Aço",
+          "descricao": "Rodopio de lâminas que atinge todos os inimigos.",
+          "custoMP": 8,
+          "cooldown": 3,
+          "tipo": "dano_area",
+          "multiplicador": 1.1
+        }
+      },
+      {
+        "id": "ladino_gemeas_3",
+        "ramo": "gemeas",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Reflexos",
+        "descricao": "+4 de Destreza permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 4
+        }
+      },
+      {
+        "id": "ladino_gemeas_4",
+        "ramo": "gemeas",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Fio Envenenado",
+        "descricao": "8% do dano causado volta como vida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_fio_envenenado",
+          "nome": "Fio Envenenado",
+          "icone": "🧪",
+          "descricao": "8% do dano causado volta como vida.",
+          "efeito": {
+            "tipo": "roubo_vida",
+            "valor": 0.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_gemeas_5",
+        "ramo": "gemeas",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Tempestade de Lâminas",
+        "descricao": "Uma sequência de cortes que cobre o campo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "tempestade_laminas",
+          "nome": "Tempestade de Lâminas",
+          "descricao": "Uma sequência de cortes que cobre o campo.",
+          "custoMP": 16,
+          "cooldown": 4,
+          "tipo": "dano_area",
+          "multiplicador": 1.45
+        }
+      },
+      {
+        "id": "ladino_gemeas_6",
+        "ramo": "gemeas",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Cadência",
+        "descricao": "Com dois ou mais inimigos em campo você causa 12% a mais de dano e tem +8% de crítico.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_cadencia",
+          "nome": "Cadência",
+          "icone": "🌀",
+          "recurso": "Cadência",
+          "descricao": "Com dois ou mais inimigos em campo você causa 12% a mais de dano e tem +8% de crítico.",
+          "condicao": {
+            "tipo": "inimigos_vivos",
+            "minimo": 2
+          },
+          "efeito": {
+            "dano": 1.12,
+            "critico": 0.08
+          }
+        }
+      },
+      {
+        "id": "ladino_trapaca_1",
+        "ramo": "trapaca",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Poeira nos Olhos",
+        "descricao": "Cega o alvo e reduz sua velocidade.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "poeira_olhos",
+          "nome": "Poeira nos Olhos",
+          "descricao": "Cega o alvo e reduz sua velocidade.",
+          "custoMP": 0,
+          "cooldown": 2,
+          "tipo": "debuff_velocidade",
+          "valor": 0.35,
+          "duracao": 2
+        }
+      },
+      {
+        "id": "ladino_trapaca_2",
+        "ramo": "trapaca",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Malandragem",
+        "descricao": "+6 de Inteligência permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "INT",
+          "valor": 6
+        }
+      },
+      {
+        "id": "ladino_trapaca_3",
+        "ramo": "trapaca",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Bolsos Fundos",
+        "descricao": "+25% de ouro em toda vitória.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bolsos_fundos",
+          "nome": "Bolsos Fundos",
+          "icone": "💰",
+          "descricao": "+25% de ouro em toda vitória.",
+          "efeito": {
+            "tipo": "ouro",
+            "valor": 1.25,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_trapaca_4",
+        "ramo": "trapaca",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "INT": 9
+        },
+        "nome": "Marcar Fraqueza",
+        "descricao": "Expõe a falha de todos os inimigos em campo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "marcar_fraqueza",
+          "nome": "Marcar Fraqueza",
+          "descricao": "Expõe a falha de todos os inimigos em campo.",
+          "custoMP": 12,
+          "cooldown": 4,
+          "tipo": "debuff_area",
+          "valor": 0.25,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "ladino_trapaca_5",
+        "ramo": "trapaca",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "INT": 11
+        },
+        "nome": "Aprendizado Rápido",
+        "descricao": "+15% de XP em toda vitória.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_aprendizado_rapido",
+          "nome": "Aprendizado Rápido",
+          "icone": "📖",
+          "descricao": "+15% de XP em toda vitória.",
+          "efeito": {
+            "tipo": "xp",
+            "valor": 1.15,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "ladino_trapaca_6",
+        "ramo": "trapaca",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "INT": 14
+        },
+        "nome": "Vantagem",
+        "descricao": "Contra alvos sob qualquer efeito negativo, +15% de crítico e 10% a mais de dano.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_vantagem",
+          "nome": "Vantagem",
+          "icone": "🎲",
+          "recurso": "Vantagem",
+          "descricao": "Contra alvos sob qualquer efeito negativo, +15% de crítico e 10% a mais de dano.",
+          "condicao": {
+            "tipo": "alvo_debilitado"
+          },
+          "efeito": {
+            "critico": 0.15,
+            "dano": 1.1
+          }
+        }
       }
-    },
-    {
-      "id": "ladino_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Golpe Certeiro",
-      "descricao": "Ataque que ignora parte da defesa, mirando pontos fracos.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "golpe_certeiro",
-        "nome": "Golpe Certeiro",
-        "descricao": "Mira os pontos fracos do inimigo, ignorando parte da defesa.",
-        "custoMP": 0,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.6
+    ]
+  },
+  "clerigo": {
+    "ramos": [
+      {
+        "id": "luz",
+        "nome": "Luz",
+        "icone": "✨",
+        "descricao": "Manter o grupo vivo custe o que custar."
+      },
+      {
+        "id": "fe_marcial",
+        "nome": "Fé Marcial",
+        "icone": "🛐",
+        "descricao": "Transformar devoção em vantagem de time."
+      },
+      {
+        "id": "punicao",
+        "nome": "Punição",
+        "icone": "⚡",
+        "descricao": "Ramo híbrido: exige Destreza, que o Clérigo não ganha por nível."
       }
-    },
-    {
-      "id": "ladino_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Instinto Assassino",
-      "descricao": "+10% de chance de acerto crítico permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "critChance",
-        "valor": 0.1
+    ],
+    "nos": [
+      {
+        "id": "clerigo_luz_1",
+        "ramo": "luz",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Bênção Menor",
+        "descricao": "Fecha ferimentos de um aliado.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bencao_menor",
+          "nome": "Bênção Menor",
+          "descricao": "Fecha ferimentos de um aliado.",
+          "custoMP": 6,
+          "cooldown": 1,
+          "tipo": "cura",
+          "multiplicador": 1.4
+        }
+      },
+      {
+        "id": "clerigo_luz_2",
+        "ramo": "luz",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Mãos Cálidas",
+        "descricao": "Todo o time recebe 15% mais cura.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_maos_calidas",
+          "nome": "Mãos Cálidas",
+          "icone": "🤲",
+          "descricao": "Todo o time recebe 15% mais cura.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.15,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "clerigo_luz_3",
+        "ramo": "luz",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Devoção",
+        "descricao": "+4 de Inteligência permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "INT",
+          "valor": 4
+        }
+      },
+      {
+        "id": "clerigo_luz_4",
+        "ramo": "luz",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Círculo de Luz",
+        "descricao": "Um círculo sagrado restaura todo o grupo de uma vez.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "circulo_luz",
+          "nome": "Círculo de Luz",
+          "descricao": "Um círculo sagrado restaura todo o grupo de uma vez.",
+          "custoMP": 16,
+          "cooldown": 3,
+          "tipo": "cura_area",
+          "multiplicador": 1.2
+        }
+      },
+      {
+        "id": "clerigo_luz_5",
+        "ramo": "luz",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Graça",
+        "descricao": "+12% de vida máxima para todo o time.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_graca",
+          "nome": "Graça",
+          "icone": "🕊️",
+          "descricao": "+12% de vida máxima para todo o time.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.12,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "clerigo_luz_6",
+        "ramo": "luz",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Fé",
+        "descricao": "Quando algum aliado está abaixo de 40% de vida, sua cura aumenta 40% e você recebe 12% menos dano.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_fe",
+          "nome": "Fé",
+          "icone": "✨",
+          "recurso": "Fé",
+          "descricao": "Quando algum aliado está abaixo de 40% de vida, sua cura aumenta 40% e você recebe 12% menos dano.",
+          "condicao": {
+            "tipo": "aliado_ferido",
+            "limiar": 0.4
+          },
+          "efeito": {
+            "cura": 1.4,
+            "defesa": 0.88
+          }
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_1",
+        "ramo": "fe_marcial",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Escudo da Fé",
+        "descricao": "Uma barreira de luz reduz o dano que você sofre.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "escudo_fe",
+          "nome": "Escudo da Fé",
+          "descricao": "Uma barreira de luz reduz o dano que você sofre.",
+          "custoMP": 8,
+          "cooldown": 3,
+          "tipo": "buff_defesa",
+          "valor": 0.35,
+          "duracao": 2
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_2",
+        "ramo": "fe_marcial",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Hino de Coragem",
+        "descricao": "O hino faz o grupo inteiro bater mais forte.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "hino_coragem",
+          "nome": "Hino de Coragem",
+          "descricao": "O hino faz o grupo inteiro bater mais forte.",
+          "custoMP": 12,
+          "cooldown": 3,
+          "tipo": "buff_time",
+          "alvoBuff": "ataque",
+          "valor": 0.25,
+          "duracao": 2,
+          "icone": "🎵"
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_3",
+        "ramo": "fe_marcial",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Vigor Sagrado",
+        "descricao": "+5 de Constituição permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "CON",
+          "valor": 5
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_4",
+        "ramo": "fe_marcial",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Litania",
+        "descricao": "Todo o time recebe 6% menos dano.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_litania",
+          "nome": "Litania",
+          "icone": "📿",
+          "descricao": "Todo o time recebe 6% menos dano.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 0.94,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_5",
+        "ramo": "fe_marcial",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Aura de Resistência",
+        "descricao": "Todo o time recebe 15% menos dano elemental.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_aura_resistencia",
+          "nome": "Aura de Resistência",
+          "icone": "🌐",
+          "descricao": "Todo o time recebe 15% menos dano elemental.",
+          "efeito": {
+            "tipo": "resistencia_elemental",
+            "valor": 0.85,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "clerigo_fe_marcial_6",
+        "ramo": "fe_marcial",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Louvor",
+        "descricao": "Enquanto você estiver acima de 70% de vida, causa 18% a mais de dano e cura 15% a mais.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_louvor",
+          "nome": "Louvor",
+          "icone": "🛐",
+          "recurso": "Louvor",
+          "descricao": "Enquanto você estiver acima de 70% de vida, causa 18% a mais de dano e cura 15% a mais.",
+          "condicao": {
+            "tipo": "hp_proprio_acima",
+            "limiar": 0.7
+          },
+          "efeito": {
+            "dano": 1.18,
+            "cura": 1.15
+          }
+        }
+      },
+      {
+        "id": "clerigo_punicao_1",
+        "ramo": "punicao",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Martelo Sagrado",
+        "descricao": "Golpe de luz pura contra um alvo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "martelo_sagrado",
+          "nome": "Martelo Sagrado",
+          "descricao": "Golpe de luz pura contra um alvo.",
+          "custoMP": 8,
+          "cooldown": 1,
+          "tipo": "dano_magico",
+          "multiplicador": 1.3,
+          "elemento": "luz"
+        }
+      },
+      {
+        "id": "clerigo_punicao_2",
+        "ramo": "punicao",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Passo Leve",
+        "descricao": "+6 de Destreza permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 6
+        }
+      },
+      {
+        "id": "clerigo_punicao_3",
+        "ramo": "punicao",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Julgamento",
+        "descricao": "Todo dano que você causa aumenta 8%.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_julgamento",
+          "nome": "Julgamento",
+          "icone": "⚖️",
+          "descricao": "Todo dano que você causa aumenta 8%.",
+          "efeito": {
+            "tipo": "dano",
+            "valor": 1.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "clerigo_punicao_4",
+        "ramo": "punicao",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "DES": 9
+        },
+        "nome": "Condenação",
+        "descricao": "A luz cai sobre todos os inimigos em campo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "condenacao",
+          "nome": "Condenação",
+          "descricao": "A luz cai sobre todos os inimigos em campo.",
+          "custoMP": 18,
+          "cooldown": 4,
+          "tipo": "dano_area",
+          "multiplicador": 1.3,
+          "elemento": "luz"
+        }
+      },
+      {
+        "id": "clerigo_punicao_5",
+        "ramo": "punicao",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "DES": 11
+        },
+        "nome": "Fúria Divina",
+        "descricao": "+8% de chance de crítico.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_furia_divina",
+          "nome": "Fúria Divina",
+          "icone": "🔥",
+          "descricao": "+8% de chance de crítico.",
+          "efeito": {
+            "tipo": "critico",
+            "valor": 0.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "clerigo_punicao_6",
+        "ramo": "punicao",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "DES": 14
+        },
+        "nome": "Ira Sagrada",
+        "descricao": "Abaixo de 50% de vida, sua ira desperta: 30% a mais de dano.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_ira_sagrada",
+          "nome": "Ira Sagrada",
+          "icone": "⚡",
+          "recurso": "Ira Sagrada",
+          "descricao": "Abaixo de 50% de vida, sua ira desperta: 30% a mais de dano.",
+          "condicao": {
+            "tipo": "hp_proprio_abaixo",
+            "limiar": 0.5
+          },
+          "efeito": {
+            "dano": 1.3
+          }
+        }
       }
-    },
-    {
-      "id": "ladino_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Execução Sombria",
-      "descricao": "Um ataque brutal baseado em Destreza para finalizar o alvo.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "execucao_sombria",
-        "nome": "Execução Sombria",
-        "descricao": "Ataque devastador baseado em Destreza.",
-        "custoMP": 0,
-        "cooldown": 4,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 2.5,
-        "elemento": "sombrio"
+    ]
+  },
+  "barbaro": {
+    "ramos": [
+      {
+        "id": "furia",
+        "nome": "Fúria",
+        "icone": "🔥",
+        "descricao": "Quanto mais perto da morte, mais perigoso."
+      },
+      {
+        "id": "instinto",
+        "nome": "Instinto",
+        "icone": "🐺",
+        "descricao": "Sobreviver ao que deveria ter matado você."
+      },
+      {
+        "id": "devastacao",
+        "nome": "Devastação",
+        "icone": "🌪️",
+        "descricao": "Ramo híbrido: exige Destreza, que o Bárbaro não ganha por nível."
       }
-    },
-    {
-      "id": "ladino_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Fôlego de Ladrão",
-      "descricao": "+10% de HP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "hpMaxPercent",
-        "valor": 0.1
+    ],
+    "nos": [
+      {
+        "id": "barbaro_furia_1",
+        "ramo": "furia",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Golpe Selvagem",
+        "descricao": "Golpe sem técnica e sem contenção.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "golpe_selvagem",
+          "nome": "Golpe Selvagem",
+          "descricao": "Golpe sem técnica e sem contenção.",
+          "custoMP": 0,
+          "cooldown": 1,
+          "tipo": "dano_fisico",
+          "multiplicador": 1.4
+        }
+      },
+      {
+        "id": "barbaro_furia_2",
+        "ramo": "furia",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Sangue Quente",
+        "descricao": "Todo dano que você causa aumenta 8%.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_sangue_quente",
+          "nome": "Sangue Quente",
+          "icone": "🩸",
+          "descricao": "Todo dano que você causa aumenta 8%.",
+          "efeito": {
+            "tipo": "dano",
+            "valor": 1.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_furia_3",
+        "ramo": "furia",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Músculos de Aço",
+        "descricao": "+5 de Força permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "FOR",
+          "valor": 5
+        }
+      },
+      {
+        "id": "barbaro_furia_4",
+        "ramo": "furia",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Frenesi",
+        "descricao": "Entra em frenesi: o próximo golpe é devastador, mas a guarda cai.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "frenesi",
+          "nome": "Frenesi",
+          "descricao": "Entra em frenesi: o próximo golpe é devastador, mas a guarda cai.",
+          "custoMP": 0,
+          "cooldown": 4,
+          "tipo": "buff_ataque",
+          "valor": 0.5,
+          "duracao": 2
+        }
+      },
+      {
+        "id": "barbaro_furia_5",
+        "ramo": "furia",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Ignorar a Dor",
+        "descricao": "+15% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_ignorar_dor",
+          "nome": "Ignorar a Dor",
+          "icone": "💢",
+          "descricao": "+15% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.15,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_furia_6",
+        "ramo": "furia",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Fúria Incontida",
+        "descricao": "Você ganha 10% de dano a cada 20% de vida perdida, até +40%. Quase morto é quando o bárbaro é melhor.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_furia",
+          "nome": "Fúria Incontida",
+          "icone": "🔥",
+          "recurso": "Fúria",
+          "descricao": "Você ganha 10% de dano a cada 20% de vida perdida, até +40%. Quase morto é quando o bárbaro é melhor.",
+          "condicao": {
+            "tipo": "hp_perdido_escalonado",
+            "fatia": 0.2
+          },
+          "efeito": {
+            "dano": 0.1,
+            "escalonado": true,
+            "maximo": 0.4
+          }
+        }
+      },
+      {
+        "id": "barbaro_instinto_1",
+        "ramo": "instinto",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Pele de Pedra",
+        "descricao": "+4 de Constituição permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "CON",
+          "valor": 4
+        }
+      },
+      {
+        "id": "barbaro_instinto_2",
+        "ramo": "instinto",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Rugido",
+        "descricao": "Um urro que atrasa todos os inimigos em campo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "rugido",
+          "nome": "Rugido",
+          "descricao": "Um urro que atrasa todos os inimigos em campo.",
+          "custoMP": 0,
+          "cooldown": 3,
+          "tipo": "debuff_area",
+          "valor": 0.25,
+          "duracao": 2
+        }
+      },
+      {
+        "id": "barbaro_instinto_3",
+        "ramo": "instinto",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Regeneração",
+        "descricao": "12% do dano causado volta como vida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_regeneracao",
+          "nome": "Regeneração",
+          "icone": "🌿",
+          "descricao": "12% do dano causado volta como vida.",
+          "efeito": {
+            "tipo": "roubo_vida",
+            "valor": 0.12,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_instinto_4",
+        "ramo": "instinto",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Casca Grossa",
+        "descricao": "Você recebe 10% menos dano.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_casca_grossa",
+          "nome": "Casca Grossa",
+          "icone": "🪵",
+          "descricao": "Você recebe 10% menos dano.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 0.9,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_instinto_5",
+        "ramo": "instinto",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Segundo Fôlego",
+        "descricao": "Recupera vida na base da teimosia, sem gastar Éter.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "segundo_folego",
+          "nome": "Segundo Fôlego",
+          "descricao": "Recupera vida na base da teimosia, sem gastar Éter.",
+          "custoMP": 0,
+          "cooldown": 5,
+          "tipo": "cura",
+          "multiplicador": 1.6
+        }
+      },
+      {
+        "id": "barbaro_instinto_6",
+        "ramo": "instinto",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Teimosia",
+        "descricao": "Abaixo de 35% de vida, você recebe 30% menos dano. Difícil de derrubar quando já deveria ter caído.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_resiliencia",
+          "nome": "Teimosia",
+          "icone": "🐺",
+          "recurso": "Resiliência",
+          "descricao": "Abaixo de 35% de vida, você recebe 30% menos dano. Difícil de derrubar quando já deveria ter caído.",
+          "condicao": {
+            "tipo": "hp_proprio_abaixo",
+            "limiar": 0.35
+          },
+          "efeito": {
+            "defesa": 0.7
+          }
+        }
+      },
+      {
+        "id": "barbaro_devastacao_1",
+        "ramo": "devastacao",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Giro Devastador",
+        "descricao": "Gira o machado atingindo todos os inimigos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "giro_devastador",
+          "nome": "Giro Devastador",
+          "descricao": "Gira o machado atingindo todos os inimigos.",
+          "custoMP": 0,
+          "cooldown": 3,
+          "tipo": "dano_area",
+          "multiplicador": 1.15
+        }
+      },
+      {
+        "id": "barbaro_devastacao_2",
+        "ramo": "devastacao",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Agilidade Bruta",
+        "descricao": "+6 de Destreza permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 6
+        }
+      },
+      {
+        "id": "barbaro_devastacao_3",
+        "ramo": "devastacao",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Passada Larga",
+        "descricao": "+10% de velocidade.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_passada_larga",
+          "nome": "Passada Larga",
+          "icone": "👣",
+          "descricao": "+10% de velocidade.",
+          "efeito": {
+            "tipo": "velocidade",
+            "valor": 1.1,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_devastacao_4",
+        "ramo": "devastacao",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "DES": 9
+        },
+        "nome": "Terremoto",
+        "descricao": "Golpeia o chão e o impacto atinge o campo inteiro.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "terremoto",
+          "nome": "Terremoto",
+          "descricao": "Golpeia o chão e o impacto atinge o campo inteiro.",
+          "custoMP": 10,
+          "cooldown": 4,
+          "tipo": "dano_area",
+          "multiplicador": 1.5
+        }
+      },
+      {
+        "id": "barbaro_devastacao_5",
+        "ramo": "devastacao",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "DES": 11
+        },
+        "nome": "Impiedoso",
+        "descricao": "+7% de chance de crítico.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_impiedoso",
+          "nome": "Impiedoso",
+          "icone": "☠️",
+          "descricao": "+7% de chance de crítico.",
+          "efeito": {
+            "tipo": "critico",
+            "valor": 0.07,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "barbaro_devastacao_6",
+        "ramo": "devastacao",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "DES": 14
+        },
+        "nome": "Ceifador de Hordas",
+        "descricao": "+12% de dano por inimigo além do primeiro, até +36%. Quanto maior a horda, pior para ela.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_massacre",
+          "nome": "Ceifador de Hordas",
+          "icone": "🌪️",
+          "recurso": "Massacre",
+          "descricao": "+12% de dano por inimigo além do primeiro, até +36%. Quanto maior a horda, pior para ela.",
+          "condicao": {
+            "tipo": "inimigos_vivos",
+            "minimo": 2
+          },
+          "efeito": {
+            "dano": 0.12,
+            "escalonado": true,
+            "maximo": 0.36
+          }
+        }
       }
-    }
-  ],
-  "clerigo": [
-    {
-      "id": "clerigo_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Chama Sagrada",
-      "descricao": "Dano mágico sagrado com recarga curta.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "chama_sagrada",
-        "nome": "Chama Sagrada",
-        "descricao": "Fogo sagrado que causa dano mágico ao inimigo.",
-        "custoMP": 6,
-        "cooldown": 1,
-        "tipo": "dano_magico",
-        "multiplicador": 1.5,
-        "elemento": "radiante"
+    ]
+  },
+  "patrulheiro": {
+    "ramos": [
+      {
+        "id": "cacada",
+        "nome": "Caçada",
+        "icone": "🏹",
+        "descricao": "Escolher uma presa e não errar."
+      },
+      {
+        "id": "tempestade",
+        "nome": "Tempestade",
+        "icone": "🌩️",
+        "descricao": "Cobrir o campo inteiro de flechas."
+      },
+      {
+        "id": "vinculo",
+        "nome": "Vínculo Selvagem",
+        "icone": "🌿",
+        "descricao": "Ramo híbrido: exige Constituição, que o Patrulheiro quase não ganha por nível."
       }
-    },
-    {
-      "id": "clerigo_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Bênção da Vitalidade",
-      "descricao": "+2 de Constituição permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "CON",
-        "valor": 2
-      }
-    },
-    {
-      "id": "clerigo_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Julgamento Divino",
-      "descricao": "Dano que ignora parte da defesa do alvo.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "julgamento_divino",
-        "nome": "Julgamento Divino",
-        "descricao": "Dano sagrado que ignora parte da defesa do inimigo.",
-        "custoMP": 10,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.5,
-        "elemento": "radiante"
-      }
-    },
-    {
-      "id": "clerigo_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Cura Maior",
-      "descricao": "Uma cura mais forte para os momentos mais difíceis.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "cura_maior",
-        "nome": "Cura Maior",
-        "descricao": "Recupera bastante HP, baseado em Inteligência.",
-        "custoMP": 14,
-        "cooldown": 2,
-        "tipo": "cura",
-        "multiplicador": 3.0
-      }
-    },
-    {
-      "id": "clerigo_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Explosão Radiante",
-      "descricao": "Uma explosão de luz sagrada com dano elevado.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "explosao_radiante",
-        "nome": "Explosão Radiante",
-        "descricao": "Explosão de luz sagrada que causa dano mágico elevado.",
-        "custoMP": 16,
-        "cooldown": 4,
-        "tipo": "dano_magico",
-        "multiplicador": 2.0,
-        "elemento": "radiante"
-      }
-    },
-    {
-      "id": "clerigo_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Vigor Celestial",
-      "descricao": "+12% de HP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "hpMaxPercent",
-        "valor": 0.12
-      }
-    },
-    {
-      "id": "clerigo_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Ira Celestial",
-      "descricao": "O feitiço ofensivo mais poderoso do clérigo.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "ira_celestial",
-        "nome": "Ira Celestial",
-        "descricao": "Convoca a fúria dos céus contra o inimigo.",
-        "custoMP": 20,
-        "cooldown": 5,
-        "tipo": "dano_magico",
-        "multiplicador": 2.8,
-        "elemento": "radiante"
-      }
-    },
-    {
-      "id": "clerigo_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Poço de Mana Sagrado",
-      "descricao": "+15% de MP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "mpMaxPercent",
-        "valor": 0.15
-      }
-    }
-  ],
-  "barbaro": [
-    {
-      "id": "barbaro_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Machado Girante",
-      "descricao": "Um golpe giratório rápido e recorrente.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "machado_girante",
-        "nome": "Machado Girante",
-        "descricao": "Golpe giratório que causa 140% do dano físico normal.",
-        "custoMP": 0,
-        "cooldown": 1,
-        "tipo": "dano_fisico",
-        "multiplicador": 1.4
-      }
-    },
-    {
-      "id": "barbaro_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Couro Endurecido",
-      "descricao": "+2 de Constituição permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "CON",
-        "valor": 2
-      }
-    },
-    {
-      "id": "barbaro_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Esmagar",
-      "descricao": "Um golpe pesado que ignora parte da defesa inimiga.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "esmagar",
-        "nome": "Esmagar",
-        "descricao": "Golpe pesado que ignora parte da defesa do inimigo.",
-        "custoMP": 0,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.7
-      }
-    },
-    {
-      "id": "barbaro_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Pele de Pedra",
-      "descricao": "+3 de defesa permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "defesaFlat",
-        "valor": 3
-      }
-    },
-    {
-      "id": "barbaro_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Fúria Ancestral",
-      "descricao": "Uma fúria mais intensa que a Fúria comum.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "furia_ancestral",
-        "nome": "Fúria Ancestral",
-        "descricao": "Aumenta muito o próximo ataque, à custa da defesa por 2 turnos.",
-        "custoMP": 0,
-        "cooldown": 4,
-        "tipo": "buff_ataque",
-        "duracao": 2,
-        "valor": 1.3
-      }
-    },
-    {
-      "id": "barbaro_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Sangue Selvagem",
-      "descricao": "+15% de HP máximo permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "hpMaxPercent",
-        "valor": 0.15
-      }
-    },
-    {
-      "id": "barbaro_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Golpe Sísmico",
-      "descricao": "Um golpe descomunal que sacode o campo de batalha.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "golpe_sismico",
-        "nome": "Golpe Sísmico",
-        "descricao": "Golpe descomunal que causa 240% do dano físico normal.",
-        "custoMP": 0,
-        "cooldown": 4,
-        "tipo": "dano_fisico",
-        "multiplicador": 2.4,
-        "elemento": "terra"
-      }
-    },
-    {
-      "id": "barbaro_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Fúria Implacável",
-      "descricao": "+8% de chance de acerto crítico permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "critChance",
-        "valor": 0.08
-      }
-    }
-  ],
-  "patrulheiro": [
-    {
-      "id": "patrulheiro_t1_of",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "ofensiva",
-      "nome": "Flecha Dupla",
-      "descricao": "Duas flechas rápidas baseadas em Destreza.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "flecha_dupla",
-        "nome": "Flecha Dupla",
-        "descricao": "Duas flechas rápidas que causam 140% do dano baseado em Destreza.",
-        "custoMP": 0,
-        "cooldown": 1,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 1.4
-      }
-    },
-    {
-      "id": "patrulheiro_t1_sup",
-      "tier": 1,
-      "nivelRequerido": 3,
-      "ramo": "suporte",
-      "nome": "Olhos de Águia",
-      "descricao": "+2 de Destreza permanentemente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "DES",
-        "valor": 2
-      }
-    },
-    {
-      "id": "patrulheiro_t2_of",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "ofensiva",
-      "nome": "Chuva de Flechas",
-      "descricao": "Uma rajada de flechas com dano elevado.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "chuva_de_flechas",
-        "nome": "Chuva de Flechas",
-        "descricao": "Rajada de flechas baseada em Destreza.",
-        "custoMP": 0,
-        "cooldown": 3,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 1.8
-      }
-    },
-    {
-      "id": "patrulheiro_t2_sup",
-      "tier": 2,
-      "nivelRequerido": 6,
-      "ramo": "suporte",
-      "nome": "Camuflagem",
-      "descricao": "+2 de defesa permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "defesaFlat",
-        "valor": 2
-      }
-    },
-    {
-      "id": "patrulheiro_t3_of",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "ofensiva",
-      "nome": "Tiro Perfurante",
-      "descricao": "Uma flecha que atravessa armaduras.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "tiro_perfurante",
+    ],
+    "nos": [
+      {
+        "id": "patrulheiro_cacada_1",
+        "ramo": "cacada",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Tiro Certeiro",
+        "descricao": "Disparo preciso usando Destreza no lugar da Força.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "tiro_certeiro",
+          "nome": "Tiro Certeiro",
+          "descricao": "Disparo preciso usando Destreza no lugar da Força.",
+          "custoMP": 0,
+          "cooldown": 1,
+          "tipo": "dano_fisico_des",
+          "multiplicador": 1.4
+        }
+      },
+      {
+        "id": "patrulheiro_cacada_2",
+        "ramo": "cacada",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Olho de Águia",
+        "descricao": "+8% de chance de crítico.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_olho_aguia",
+          "nome": "Olho de Águia",
+          "icone": "🦅",
+          "descricao": "+8% de chance de crítico.",
+          "efeito": {
+            "tipo": "critico",
+            "valor": 0.08,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_cacada_3",
+        "ramo": "cacada",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Pontaria",
+        "descricao": "+5 de Destreza permanentemente.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "DES",
+          "valor": 5
+        }
+      },
+      {
+        "id": "patrulheiro_cacada_4",
+        "ramo": "cacada",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Marca do Caçador",
+        "descricao": "Marca a presa: ela fica visivelmente mais lenta.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "marca_cacador",
+          "nome": "Marca do Caçador",
+          "descricao": "Marca a presa: ela fica visivelmente mais lenta.",
+          "custoMP": 8,
+          "cooldown": 3,
+          "tipo": "debuff_velocidade",
+          "valor": 0.35,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "patrulheiro_cacada_5",
+        "ramo": "cacada",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
         "nome": "Tiro Perfurante",
-        "descricao": "Flecha que ignora parte da defesa do inimigo.",
-        "custoMP": 0,
-        "cooldown": 3,
-        "tipo": "dano_ignora_defesa",
-        "multiplicador": 1.6
+        "descricao": "Flecha que atravessa armadura como se não houvesse.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "tiro_perfurante",
+          "nome": "Tiro Perfurante",
+          "descricao": "Flecha que atravessa armadura como se não houvesse.",
+          "custoMP": 12,
+          "cooldown": 4,
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 1.8
+        }
+      },
+      {
+        "id": "patrulheiro_cacada_6",
+        "ramo": "cacada",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Presa Marcada",
+        "descricao": "Contra alvos sob qualquer efeito negativo, você causa 35% a mais de dano.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_rastro",
+          "nome": "Presa Marcada",
+          "icone": "🏹",
+          "recurso": "Rastro",
+          "descricao": "Contra alvos sob qualquer efeito negativo, você causa 35% a mais de dano.",
+          "condicao": {
+            "tipo": "alvo_debilitado"
+          },
+          "efeito": {
+            "dano": 1.35
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_1",
+        "ramo": "tempestade",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Chuva de Flechas",
+        "descricao": "Uma saraivada que cai sobre todos os inimigos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "chuva_flechas",
+          "nome": "Chuva de Flechas",
+          "descricao": "Uma saraivada que cai sobre todos os inimigos.",
+          "custoMP": 0,
+          "cooldown": 3,
+          "tipo": "dano_area",
+          "multiplicador": 1.1
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_2",
+        "ramo": "tempestade",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Aljava Profunda",
+        "descricao": "+15% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_aljava_profunda",
+          "nome": "Aljava Profunda",
+          "icone": "🎒",
+          "descricao": "+15% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.15,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_3",
+        "ramo": "tempestade",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Mira Rápida",
+        "descricao": "+10% de velocidade.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_mira_rapida",
+          "nome": "Mira Rápida",
+          "icone": "⚡",
+          "descricao": "+10% de velocidade.",
+          "efeito": {
+            "tipo": "velocidade",
+            "valor": 1.1,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_4",
+        "ramo": "tempestade",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Flecha Elemental",
+        "descricao": "Flechas de vento que cortam o campo inteiro.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "flecha_elemental",
+          "nome": "Flecha Elemental",
+          "descricao": "Flechas de vento que cortam o campo inteiro.",
+          "custoMP": 14,
+          "cooldown": 3,
+          "tipo": "dano_area",
+          "multiplicador": 1.3,
+          "elemento": "vento"
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_5",
+        "ramo": "tempestade",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Barragem",
+        "descricao": "Esvazia a aljava de uma vez sobre todos os inimigos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "barragem",
+          "nome": "Barragem",
+          "descricao": "Esvazia a aljava de uma vez sobre todos os inimigos.",
+          "custoMP": 20,
+          "cooldown": 5,
+          "tipo": "dano_area",
+          "multiplicador": 1.55
+        }
+      },
+      {
+        "id": "patrulheiro_tempestade_6",
+        "ramo": "tempestade",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Vendaval",
+        "descricao": "Contra alvos ainda acima de 60% de vida, +15% de dano e +10% de crítico.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_rajada",
+          "nome": "Vendaval",
+          "icone": "🌩️",
+          "recurso": "Rajada",
+          "descricao": "Contra alvos ainda acima de 60% de vida, +15% de dano e +10% de crítico.",
+          "condicao": {
+            "tipo": "hp_alvo_acima",
+            "limiar": 0.6
+          },
+          "efeito": {
+            "dano": 1.15,
+            "critico": 0.1
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_1",
+        "ramo": "vinculo",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Companheiro Fiel",
+        "descricao": "O companheiro animal cobre o grupo por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "companheiro_fiel",
+          "nome": "Companheiro Fiel",
+          "descricao": "O companheiro animal cobre o grupo por 2 turnos.",
+          "custoMP": 10,
+          "cooldown": 3,
+          "tipo": "buff_time",
+          "alvoBuff": "defesa",
+          "valor": 0.25,
+          "duracao": 2,
+          "icone": "🐾"
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_2",
+        "ramo": "vinculo",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Vigor Selvagem",
+        "descricao": "+6 de Constituição permanentemente. É este nó que abre o resto do ramo.",
+        "tipoConcedido": "atributo",
+        "efeito": {
+          "atributo": "CON",
+          "valor": 6
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_3",
+        "ramo": "vinculo",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Ervas de Cura",
+        "descricao": "Ervas do mato fecham os ferimentos de um aliado.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "ervas_cura",
+          "nome": "Ervas de Cura",
+          "descricao": "Ervas do mato fecham os ferimentos de um aliado.",
+          "custoMP": 8,
+          "cooldown": 2,
+          "tipo": "cura",
+          "multiplicador": 1.3
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_4",
+        "ramo": "vinculo",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "requisito": {
+          "CON": 19
+        },
+        "nome": "Instinto do Bando",
+        "descricao": "Todo o time age 8% mais rápido.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_instinto_bando",
+          "nome": "Instinto do Bando",
+          "icone": "🐺",
+          "descricao": "Todo o time age 8% mais rápido.",
+          "efeito": {
+            "tipo": "velocidade",
+            "valor": 1.08,
+            "escopo": "time"
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_5",
+        "ramo": "vinculo",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "requisito": {
+          "CON": 22
+        },
+        "nome": "Fartura",
+        "descricao": "+20% de ouro em toda vitória.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_fartura",
+          "nome": "Fartura",
+          "icone": "🍖",
+          "descricao": "+20% de ouro em toda vitória.",
+          "efeito": {
+            "tipo": "ouro",
+            "valor": 1.2,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_vinculo_6",
+        "ramo": "vinculo",
+        "tier": 6,
+        "custo": 3,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "requisito": {
+          "CON": 30
+        },
+        "nome": "Guardião da Mata",
+        "descricao": "Enquanto você estiver acima de 50% de vida, recebe 15% menos dano e cura 20% a mais.",
+        "tipoConcedido": "marca",
+        "marca": {
+          "id": "m_elo",
+          "nome": "Guardião da Mata",
+          "icone": "🌿",
+          "recurso": "Elo",
+          "descricao": "Enquanto você estiver acima de 50% de vida, recebe 15% menos dano e cura 20% a mais.",
+          "condicao": {
+            "tipo": "hp_proprio_acima",
+            "limiar": 0.5
+          },
+          "efeito": {
+            "defesa": 0.85,
+            "cura": 1.2
+          }
+        }
       }
-    },
-    {
-      "id": "patrulheiro_t3_sup",
-      "tier": 3,
-      "nivelRequerido": 9,
-      "ramo": "suporte",
-      "nome": "Armadilha Dupla",
-      "descricao": "Uma armadilha mais eficaz que reduz ainda mais a velocidade do alvo.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "armadilha_dupla",
-        "nome": "Armadilha Dupla",
-        "descricao": "Reduz fortemente a velocidade (iniciativa) do inimigo.",
-        "custoMP": 5,
-        "cooldown": 4,
-        "tipo": "debuff_velocidade",
-        "duracao": 3,
-        "valor": 0.5
-      }
-    },
-    {
-      "id": "patrulheiro_t4_of",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "ofensiva",
-      "nome": "Flecha Fatal",
-      "descricao": "O tiro mais poderoso do patrulheiro.",
-      "tipoConcedido": "ativa",
-      "habilidade": {
-        "id": "flecha_fatal",
-        "nome": "Flecha Fatal",
-        "descricao": "Tiro certeiro e devastador baseado em Destreza.",
-        "custoMP": 0,
-        "cooldown": 5,
-        "tipo": "dano_fisico_des",
-        "multiplicador": 2.6
-      }
-    },
-    {
-      "id": "patrulheiro_t4_sup",
-      "tier": 4,
-      "nivelRequerido": 12,
-      "ramo": "suporte",
-      "nome": "Precisão Mortal",
-      "descricao": "+10% de chance de acerto crítico permanente.",
-      "tipoConcedido": "passiva",
-      "efeito": {
-        "atributo": "critChance",
-        "valor": 0.1
-      }
-    }
-  ]
+    ]
+  }
 }

@@ -1,0 +1,599 @@
+/* LAYOUT DA BATALHA — a pista de anúncios.
+ *
+ * O PROBLEMA, VISTO NUMA LUTA DE VERDADE
+ * --------------------------------------
+ * O campo tinha duas fileiras (inimigos em cima, heróis embaixo) que juntas
+ * ocupavam 90% da altura, e TODO o resto era desenhado por cima delas:
+ *
+ *   • o dado d20 (64px) ficava centrado no campo — ou seja, exatamente na
+ *     fresta de 6% entre as duas fileiras. Ele não cabia, então transbordava
+ *     por cima do card do inimigo E do card do herói ao mesmo tempo;
+ *   • os letreiros de revelação (reação elemental, virada de fase) ficavam a
+ *     6% do topo, bem em cima da fileira de inimigos;
+ *   • as faixas curtas (NATURAL 20, POSTURA ROMPIDA) ficavam a 34-40%,
+ *     em cima dos inimigos também;
+ *   • e os três podiam acontecer no mesmo segundo, um sobre o outro.
+ *
+ * A SOLUÇÃO É A MESMA QUE O PROJETO JÁ USA NO CONTEXTO TÁTICO: em vez de
+ * empilhar camadas, RESERVAR TERRA. A pista de anúncios é uma faixa de altura
+ * fixa no meio do campo, sempre presente mesmo vazia, e as duas fileiras
+ * terminam onde ela começa. Nada mais é desenhado ali, e nada dali sai.
+ *
+ * Reservar altura fixa custa espaço aos cards — de propósito. Um card 12%
+ * menor continua legível; um dado por cima da cara do inimigo, não.
+ *
+ * Remover esta folha do index.html devolve o layout anterior inteiro.
+ */
+
+#screen-batalha.bt-screen {
+  /* A pista precisa caber o letreiro de revelação mais alto (ícone + rótulo +
+     nome + descrição em duas linhas ≈ 76px). O clamp segue a altura da
+     janela: numa tela baixa a pista encolhe antes de espremer os cards. */
+  --anuncio-alt: clamp(62px, 13vh, 96px);
+  /* Metade da pista, usada nas três contas abaixo. Escrito uma vez para as
+     fileiras e a pista não poderem discordar. */
+  --anuncio-meio: calc(var(--anuncio-alt) / 2);
+}
+
+/* As duas fileiras param onde a pista começa. */
+#screen-batalha.bt-screen .bt-row-inimigos {
+  top: 2%;
+  height: calc(50% - var(--anuncio-meio) - 2%);
+}
+#screen-batalha.bt-screen .bt-row-herois {
+  bottom: var(--ctx-alt);
+  height: calc(50% - var(--anuncio-meio) - var(--ctx-alt));
+}
+
+/* A pista. Não recebe eventos: o jogador continua podendo tocar no que
+   estiver atrás dela (nada, por construção — mas a regra evita que um
+   letreiro roube um toque destinado a um card). */
+#screen-batalha.bt-screen .bt-pista-anuncios {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - var(--anuncio-meio));
+  height: var(--anuncio-alt);
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* O DADO fica ANCORADO À ESQUERDA da pista, não centrado.
+ *
+ * É a única regra desta folha que não é sobre espaço vertical, e o motivo é
+ * temporal: o dado e um letreiro podem acontecer no mesmo instante (rolar 20
+ * natural e disparar uma reação elemental é uma jogada só). Centrados, os
+ * dois ocupariam o mesmo ponto. Com o dado à esquerda e o letreiro ao centro,
+ * a colisão deixa de ser possível — em vez de improvável. */
+#screen-batalha.bt-screen .bt-field .dado-layer {
+  top: calc(50% - var(--anuncio-meio));
+  bottom: auto;
+  height: var(--anuncio-alt);
+  justify-content: flex-start;
+  padding-left: clamp(10px, 4vw, 48px);
+}
+/* E encolhe o suficiente para caber na pista sem encostar nas bordas. */
+#screen-batalha.bt-screen .dado-rolagem {
+  min-width: 52px;
+  min-height: 52px;
+  font-size: 1.5rem;
+}
+
+/* A camada de letreiros passa a viver DENTRO da pista, centrada nos dois
+   eixos. Antes ela era `inset: 0` com `padding-top: 6%` — o que a punha
+   exatamente em cima da fileira de inimigos. */
+#screen-batalha.bt-screen .revelacoes-camada {
+  top: calc(50% - var(--anuncio-meio));
+  bottom: auto;
+  height: var(--anuncio-alt);
+  padding-top: 0;
+  justify-content: center;
+}
+
+/* O letreiro precisa caber em `--anuncio-alt`. Mais estreito na vertical,
+   mais largo na horizontal: a pista tem largura de sobra e altura contada. */
+#screen-batalha.bt-screen .revelacao {
+  max-width: min(560px, 76%);
+  padding: 7px 16px 7px 10px;
+  gap: 10px;
+}
+#screen-batalha.bt-screen .rev-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* =====================================================================
+ * FAIXAS CURTAS (NATURAL 20, POSTURA ROMPIDA, ECO, LEVA N)
+ * =====================================================================
+ * Também mudam de casa: iam para 34-40% do campo, em cima dos inimigos.
+ * Agora entram na pista, pela MESMA fila dos letreiros — ver
+ * `anunciarFaixa` em RevelacoesCombate.js. Passar pela mesma fila é o que
+ * garante, por construção e não por sorte, que duas nunca aparecem juntas.
+ */
+#screen-batalha.bt-screen .faixa-central {
+  position: static;
+  transform: none;
+  left: auto;
+  top: auto;
+  margin: 0;
+}
+
+/* =====================================================================
+ * TEXTOS FLUTUANTES: ACIMA DO CARD, NUNCA EM CIMA DO SPRITE
+ * =====================================================================
+ * "ESQUIVOU!" era desenhado no meio do corpo do personagem, com a fonte
+ * grande o bastante para cobri-lo inteiro. O número de dano, idem. Num jogo
+ * em que o sprite é a arte, tapar o sprite para dizer o que aconteceu com
+ * ele é a troca errada.
+ *
+ * O JS agora ancora esses textos acima do topo do sprite (ver
+ * `posicionarFlutuante` e as constantes ALTURA_* em BattleUI.js). Aqui fica
+ * só o que é aparência: a sombra que os mantém legíveis contra o cenário,
+ * agora que não têm mais o corpo escuro do personagem atrás.
+ */
+.dano-flutuante {
+  text-shadow: 0 1px 2px #000, 0 0 5px rgba(0, 0, 0, 0.85);
+}
+.dano-flutuante.miss {
+  font-size: 0.82em;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: rgba(12, 9, 6, 0.72);
+}
+
+/* =====================================================================
+ * CARD DO COMBATENTE DERROTADO
+ * =====================================================================
+ * O card do morto continuava mostrando "Alvo ✓"/"Selecionar" e a barra de
+ * HP zerada por cima do vizinho. O slot fica — é o que impede a fileira de
+ * se reorganizar — mas o que não serve para nada some.
+ */
+.bt-slot .combatente.morto .btn-alvo,
+.bt-slot .combatente.morto .status-icones,
+.bt-slot .combatente.morto .atb-barra,
+.bt-slot .combatente.morto .selos-linha,
+.bt-slot .combatente.morto .formacao-linha { display: none; }
+
+/* =====================================================================
+ * TELAS BAIXAS
+ * =====================================================================
+ * Abaixo de ~620px de altura a pista cheia deixaria os cards menores que o
+ * sprite. Ela encolhe primeiro, e o letreiro encolhe junto.
+ */
+@media (max-height: 620px) {
+  #screen-batalha.bt-screen { --anuncio-alt: clamp(48px, 11vh, 64px); }
+  #screen-batalha.bt-screen .revelacao { padding: 5px 12px 5px 8px; }
+  #screen-batalha.bt-screen .rev-desc { -webkit-line-clamp: 1; }
+  #screen-batalha.bt-screen .dado-rolagem { min-width: 42px; min-height: 42px; font-size: 1.2rem; }
+}
+
+@media (max-width: 719px) {
+  #screen-batalha.bt-screen { --anuncio-alt: clamp(52px, 11vh, 74px); }
+  #screen-batalha.bt-screen .revelacao { max-width: 92%; }
+  #screen-batalha.bt-screen .bt-field .dado-layer { padding-left: 8px; }
+}
+
+/* =====================================================================
+ * ÍCONES DE EFEITO: NO CANTO DO CARD, NÃO EMPILHADOS ABAIXO DELE
+ * =====================================================================
+ * Numa luta de verdade o card do herói carrega nome, linha de formação,
+ * sprite, barra de HP, número de HP, barra de MP, barra de ATB, a linha de
+ * selos nova E a linha de ícones de efeito. Empilhado, isso passava da altura
+ * da fileira: os ícones caíam para fora, em cima da faixa de contexto tático.
+ *
+ * Ancorados no canto superior direito do card, eles param de custar altura —
+ * e ficam onde todo RPG os põe, ao lado do retrato. Isto é sobreposição
+ * deliberada dentro do PRÓPRIO card, que é diferente de tapar o vizinho.
+ */
+.bt-slot .combatente { position: relative; }
+.bt-slot .combatente .status-icones {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  justify-content: flex-start;
+  /* Teto: mais de quatro efeitos ao mesmo tempo viraria uma coluna do
+     tamanho do card. Do quinto em diante a informação continua no tooltip
+     e no painel "Como você está". */
+  max-height: 84px;
+  overflow: hidden;
+}
+.bt-slot .combatente .status-icone { font-size: 0.86em; line-height: 1; }
+
+@media (max-width: 719px) {
+  .bt-slot .combatente .status-icones { max-height: 56px; gap: 1px; }
+  .bt-slot .combatente .status-icone { font-size: 0.74em; }
+}
+
+/* =====================================================================
+ * FAIXA DE CONTEXTO TÁTICO: UMA LINHA, NÃO UMA COLUNA
+ * =====================================================================
+ * A faixa tem altura reservada de `--ctx-alt` (34px) e `overflow: hidden` —
+ * a reserva é certa e já existia. O que estava errado era a direção: a regra
+ * base do #batalha-contexto-tatico declara `flex-direction: column`, e a
+ * regra da tela de batalha redefine `display: flex` sem redefinir a direção.
+ * Então os blocos (nome do chefe, fase, postura, intenção, dica) empilhavam
+ * em coluna dentro de 34px e eram cortados ao meio — numa luta de chefe
+ * sobrava uma tira vermelha sem sentido colada na barra do herói.
+ *
+ * Em linha, tudo cabe na altura reservada. Quando não cabe na LARGURA, rola
+ * na horizontal em vez de crescer para cima — a altura é a dimensão que não
+ * pode variar aqui, porque a fileira de heróis está encostada nela.
+ */
+#screen-batalha.bt-screen #batalha-contexto-tatico {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+#screen-batalha.bt-screen #batalha-contexto-tatico::-webkit-scrollbar { display: none; }
+#screen-batalha.bt-screen #batalha-contexto-tatico > * {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* =====================================================================
+ * MENSAGEM DE TOPO DURANTE A BATALHA
+ * =====================================================================
+ * `#mensagem-topo` é do MUNDO — "Você coletou: Erva x2", "Missão aceita",
+ * o nome da região ao entrar nela. Ele continuava aparecendo durante a luta,
+ * ancorado no alto da tela, que é exatamente onde fica a fileira de inimigos:
+ * numa luta de chefe o aviso da região cobria a cabeça do chefe.
+ *
+ * Em vez de escondê-lo (a informação é útil, e algumas dessas mensagens
+ * acontecem por causa da luta), ele MUDA DE CASA: vai para a faixa vazia do
+ * rodapé, abaixo do registro de combate. É o único lugar da tela de batalha
+ * que não pertence a ninguém — e num turno do inimigo, quando o dock está
+ * vazio, é justamente onde o olhar já está.
+ */
+body.em-batalha #mensagem-topo,
+body.em-batalha #hda-notificacoes {
+  top: auto;
+  bottom: 8px;
+  z-index: 30;
+  max-width: min(680px, 92vw);
+  text-align: center;
+}
+
+/* =====================================================================
+ * TRÊS EFEITOS QUE ESTAVAM MORTOS
+ * =====================================================================
+ * Achado numa revisão do combate. O tremor de tela, o hit-stop de crítico e
+ * o foco de alvo eram aplicados pelo JS em elementos do palco NOVO
+ * (`.bt-cena`, `.bt-field`), mas as regras que os definem em style.css e
+ * battle-cards.css ainda pedem `.batalha-arena` / `#arena` — a casca ANTIGA
+ * da batalha, que nenhum JS do projeto cria há tempo (conferido: zero
+ * ocorrências no código).
+ *
+ * Ou seja: o combate perdeu o peso do impacto em algum refactor e ninguém
+ * notou, porque nada quebrou — os efeitos só pararam de existir. O hit-stop
+ * ainda cobra os 90ms de espera a cada crítico, sem nada na tela.
+ *
+ * Aqui eles voltam, apontados para os elementos certos. As regras velhas
+ * ficam onde estão: elas não alcançam nada e remover 200 linhas de uma folha
+ * de 74KB é risco sem retorno.
+ */
+
+/* Tremor: vai no CANVAS do cenário, nunca no campo — o campo carrega os
+   slots, e sacudi-lo moveria os cards de lugar. */
+.bt-cena.shake { animation: arena-shake 0.35s ease-in-out; }
+.bt-cena.shake-forte { animation: arena-shake-forte 0.45s ease-in-out; }
+
+/* Hit-stop: o campo inteiro congela por 90ms num degrau só (steps(1)) —
+   é o "peso" do crítico. */
+.bt-field.hit-stop { animation: hit-stop 90ms steps(1, end); }
+
+/* Foco: com um card armado, quem não é alvo baixa a intensidade. */
+.bt-field.arena-com-card-armado .combatente { transition: opacity 200ms ease, filter 200ms ease; }
+.bt-field.arena-com-card-armado .combatente:not(.alvo-principal):not(.alvo-na-area):not(.aliado-na-area):not(.ativo):not(.com-previa) {
+  opacity: 0.6;
+  filter: saturate(0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bt-cena.shake, .bt-cena.shake-forte, .bt-field.hit-stop { animation: none; }
+}
+
+/* =====================================================================
+ * PORTE: O TAMANHO DIZ O PERIGO
+ * =====================================================================
+ * Um chefe de 808 de vida e um morcego de 16 tinham exatamente o mesmo
+ * tamanho na tela. Escala é a forma mais barata e mais imediata de comunicar
+ * ameaça — o jogador lê antes de processar qualquer número — e os dados para
+ * calculá-la já existiam (`chefe`, `solo`, escala da região).
+ *
+ * `--porte` é posto pelo JS (ver `porte` em BattleUI.cardCombatente). Cresce
+ * A PARTIR DO CHÃO: sem `transform-origin: bottom`, o bicho grande subiria
+ * meio corpo e flutuaria acima da linha em que os outros pisam — que é
+ * justamente o problema que a linha do chão medida veio consertar.
+ */
+.bt-slot .combatente .sprite-wrap {
+  transform: scale(var(--porte, 1));
+  transform-origin: 50% 100%;
+  transition: transform 220ms ease-out;
+}
+
+/* O card cresceria junto e empurraria o vizinho; o `z-index` põe o maior por
+   cima na hora de os sprites se aproximarem, e o slot continua do mesmo
+   tamanho — a fileira não se reorganiza. */
+.bt-slot .combatente { z-index: 1; }
+.bt-slot .combatente:has(.sprite-wrap) { position: relative; }
+
+/* PROFUNDIDADE: o que está mais ao fundo recebe menos luz.
+ *
+ * A fileira de inimigos agora fica logo abaixo da linha do horizonte, ou
+ * seja, no FUNDO do chão desenhado; os heróis ficam à frente. Um leve
+ * escurecimento e uma dessaturação mínima nos inimigos vendem essa distância
+ * sem nenhuma arte nova — e, de quebra, fazem o time do jogador saltar. */
+.bt-row-inimigos .combatente .sprite-wrap {
+  filter: brightness(0.93) saturate(0.95);
+}
+.bt-row-inimigos .combatente.ativo .sprite-wrap,
+.bt-row-inimigos .combatente.telegrafando .sprite-wrap {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bt-slot .combatente .sprite-wrap { transition: none; }
+}
+
+/* =====================================================================
+ * O DOCK ENCOLHE QUANDO NÃO HÁ MÃO
+ * =====================================================================
+ * O dock reserva `--dock-alt` (150–208px, ~27% da tela) para a mão de cards.
+ * A reserva é certa enquanto há cards: sem ela a tela pularia de altura a
+ * cada turno. Mas em metade do combate — todo turno do inimigo, toda espera
+ * de barra de iniciativa — ele fica preto e vazio, com uma frase no meio.
+ *
+ * Com `.dock-sem-mao` ele desce para a altura do aviso. O campo é `1fr` na
+ * grade da tela, então recebe o espaço de volta imediatamente: os
+ * personagens ficam maiores exatamente no momento em que não há card para
+ * ler e a luta é a única coisa acontecendo.
+ *
+ * A transição é no `grid-template-rows` da tela, não no dock: animar a linha
+ * da grade move campo e dock juntos, sem os dois brigarem por um pixel.
+ */
+#screen-batalha.bt-screen { transition: grid-template-rows 240ms ease-out; }
+#screen-batalha.bt-screen:has(.bt-dock.dock-sem-mao) {
+  grid-template-rows: auto minmax(0, 1fr) auto var(--dock-espera-alt, 52px);
+}
+
+.bt-dock.dock-sem-mao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px clamp(8px, 2vw, 20px);
+  min-height: 0;
+}
+.bt-dock.dock-sem-mao .telegrafo-inimigo,
+.bt-dock.dock-sem-mao .dock-espera {
+  margin: 0;
+  text-align: center;
+  font-size: 0.86em;
+}
+.dock-espera { opacity: 0.6; font-style: italic; }
+
+@media (max-width: 719px) {
+  #screen-batalha.bt-screen { --dock-espera-alt: 46px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #screen-batalha.bt-screen { transition: none; }
+}
+
+/* =====================================================================
+ * LEGIBILIDADE DO CARD EM CENÁRIO CLARO
+ * =====================================================================
+ * Medido no Deserto Ardente: o chão é areia clara, os cards são
+ * transparentes e o texto branco do nome praticamente desaparece. A
+ * legibilidade do combate não pode depender de o bioma ser escuro.
+ *
+ * Em vez de pôr uma caixa opaca atrás de cada card (o que mataria o
+ * cenário), o NOME e os números ganham um fundo próprio, curto, do tamanho
+ * do texto. O cenário continua visível em volta.
+ */
+.bt-slot .combatente .nome-c {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(12, 9, 6, 0.55);
+  text-shadow: 0 1px 2px #000;
+}
+
+/* O número de HP tinha 0.7em sem fundo nenhum — sumia primeiro que o nome. */
+.bt-slot .combatente > div[style*="0.7em"] {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: rgba(12, 9, 6, 0.5);
+  text-shadow: 0 1px 2px #000;
+}
+
+/* As barras ganham contorno escuro: sobre areia clara, a barra de HP
+   vermelha a 100% e o fundo da barra tinham quase o mesmo valor. */
+.bt-slot .combatente .barra,
+.bt-slot .combatente .atb-barra,
+.bt-slot .combatente .postura-barra {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* A linha de formação/papel estava cinza-claro sobre fundo claro — ilegível
+   no deserto, e é ela que diz se o herói está na frente ou na retaguarda. */
+.bt-slot .combatente .formacao-linha {
+  text-shadow: 0 1px 2px #000, 0 0 4px rgba(0, 0, 0, 0.9);
+}
+.bt-slot .combatente .badge-formacao,
+.bt-slot .combatente .badge-papel,
+.bt-slot .combatente .badge-comportamento {
+  background: rgba(12, 9, 6, 0.6);
+  padding: 0 5px;
+  border-radius: 3px;
+}
+
+/* =====================================================================
+ * ENTRADA NA BATALHA
+ * =====================================================================
+ * O encontro é o momento de maior tensão do loop do jogo e era o único sem
+ * nenhuma passagem: o mundo sumia e a batalha aparecia no mesmo quadro.
+ *
+ * O véu abre em duas metades — em cima e embaixo — em vez de um fade
+ * simples. É o gesto de "cortina levantando", que lê como começo de luta e
+ * não como carregamento; e as duas metades abrem para FORA do centro, que é
+ * exatamente onde estão os combatentes.
+ *
+ * Ele é pintado sobre a tela de BATALHA, não sobre o mundo: quando abre, o
+ * que está por baixo já terminou de montar. Não há um quadro feio de cards
+ * meio desenhados.
+ */
+.veu-entrada-batalha {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+.veu-entrada-batalha::before,
+.veu-entrada-batalha::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 52%;
+  background: linear-gradient(180deg, #0a0806, #12100c);
+  box-shadow: 0 0 30px 10px rgba(0, 0, 0, 0.9);
+}
+.veu-entrada-batalha::before {
+  top: 0;
+  animation: veu-abre-topo 600ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.veu-entrada-batalha::after {
+  bottom: 0;
+  animation: veu-abre-base 600ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+@keyframes veu-abre-topo {
+  0%, 22% { transform: translateY(0); }
+  to      { transform: translateY(-101%); }
+}
+@keyframes veu-abre-base {
+  0%, 22% { transform: translateY(0); }
+  to      { transform: translateY(101%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veu-entrada-batalha { display: none; }
+}
+
+/* =====================================================================
+ * PORTE GRANDE: OS SELOS MUDAM DE LADO
+ * =====================================================================
+ * `transform: scale` não ocupa espaço no layout — o sprite cresce por cima
+ * do que estiver ali. Com um chefe a 1,55 (medido em jogo) ele sobe o
+ * bastante para cobrir a linha de selos "🌍 +75% · FASE 1 · DOMÍNIO", que
+ * fica logo acima. Em vez de encolher o chefe, os selos descem para debaixo
+ * do sprite: o card é uma coluna flex, então isto é uma linha de `order`.
+ *
+ * O nome fica onde está — ele ganhou fundo próprio na seção de legibilidade
+ * e o `z-index` o mantém legível por cima do sprite, que é o comportamento
+ * certo: o nome do chefe SOBRE o chefe lê bem, uma fileira de selos não.
+ */
+.bt-slot .combatente.porte-grande .nome-c { position: relative; z-index: 5; }
+.bt-slot .combatente.porte-grande .selos-linha { order: 3; margin-top: 2px; }
+.bt-slot .combatente.porte-grande .sprite-wrap { order: 2; }
+.bt-slot .combatente.porte-grande .barra,
+.bt-slot .combatente.porte-grande .postura-barra,
+.bt-slot .combatente.porte-grande .atb-barra,
+.bt-slot .combatente.porte-grande > div[style*="0.7em"],
+.bt-slot .combatente.porte-grande .btn-alvo { order: 4; }
+
+/* =====================================================================
+ * NOTIFICAÇÃO x TELA DE FIM DE BATALHA
+ * =====================================================================
+ * As notificações foram para o rodapé porque no topo cobriam o minimapa e a
+ * fileira de inimigos. Só que o rodapé da BATALHA é onde fica o dock — e no
+ * fim da luta é ali que aparece o botão "Continuar"/"Voltar à vila". Visto
+ * em teste: um "Baú aberto! Você encontrou…" cobrindo o botão inteiro, sem o
+ * jogador ter como sair da tela a não ser esperando o aviso sumir.
+ *
+ * Em batalha a pilha sobe para logo acima do dock, qualquer que seja a
+ * altura dele.
+ */
+/* Em batalha a pilha vai para o CANTO INFERIOR ESQUERDO, estreita.
+ *
+ * Centrada, ela cobria a faixa de contexto tático e, no fim da luta, o botão
+ * "Continuar" — o jogador ficava sem como sair da tela até o aviso sumir.
+ * O canto esquerdo do campo é chão vazio: os combatentes são centrados e o
+ * dado fica na pista, acima dessa altura. É o único retângulo da tela de
+ * batalha que não pertence a ninguém.
+ *
+ * A folga de 96px sobre o dock cobre a barra do registro de combate e a
+ * faixa de contexto, que ficam entre os dois. */
+/* `--dock-alt` é declarada em `#screen-batalha.bt-screen`, e a pilha de
+ * notificações é irmã dessa árvore (vive no body). Variável CSS não sobe:
+ * repetida aqui com o MESMO valor de battle-cards.css:1436. Se aquele clamp
+ * mudar, este precisa mudar junto — é a única duplicação desta folha, e ela
+ * existe porque mover a pilha para dentro de #screen-batalha quebraria o
+ * posicionamento dela no mundo. */
+body.em-batalha { --dock-alt: clamp(150px, 23vh, 208px); }
+@media (max-width: 719px) { body.em-batalha { --dock-alt: clamp(132px, 27vh, 190px); } }
+@media (max-height: 460px) and (orientation: landscape) { body.em-batalha { --dock-alt: clamp(104px, 34vh, 150px); } }
+
+body.em-batalha #hda-notificacoes,
+body.em-batalha #mensagem-topo {
+  left: calc(12px + var(--hda-safe-left, 0px));
+  right: auto;
+  transform: none;
+  width: min(340px, 46vw);
+  max-width: min(340px, 46vw);
+  text-align: left;
+  bottom: calc(var(--dock-alt, 180px) + 96px);
+}
+/* Com o dock encolhido a conta acompanha, senão o aviso flutuaria no meio da
+   tela em vez de ficar ancorado ao rodapé. */
+body.em-batalha:has(.bt-dock.dock-sem-mao) #hda-notificacoes,
+body.em-batalha:has(.bt-dock.dock-sem-mao) #mensagem-topo {
+  bottom: calc(var(--dock-espera-alt, 52px) + 96px);
+}
+/* No celular o campo é estreito e não há canto sobrando: ali a pilha fica
+   centrada mesmo, só bem acima do dock. */
+@media (max-width: 719px) {
+  body.em-batalha #hda-notificacoes,
+  body.em-batalha #mensagem-topo {
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(360px, calc(100vw - 20px));
+    max-width: min(360px, calc(100vw - 20px));
+    text-align: center;
+  }
+}
+
+/* No celular o card tem 78px de largura útil: "Fase 1 · Domínio" era cortado
+   no meio ("SE 1 · DOMIN"). O número da fase é a informação; o nome é o
+   sabor, e sai primeiro. O tooltip mantém os dois. */
+@media (max-width: 719px) {
+  .so-desktop { display: none; }
+}
+
+/* =====================================================================
+ * NOTIFICAÇÕES DO MUNDO NO CELULAR, DURANTE A BATALHA
+ * =====================================================================
+ * Medido num aparelho de 390px: com o chefe em cena, o campo inteiro está
+ * ocupado — inimigos, pista, heróis e faixa de contexto, sem uma faixa vazia
+ * sequer. As notificações centradas caíam em cima do card do herói.
+ *
+ * Elas são avisos do MUNDO (caravana na estrada, item equipado) e não têm
+ * nada a ver com a luta em andamento; o que importa do combate já está no
+ * registro. No celular, durante a batalha, elas simplesmente não aparecem —
+ * e voltam ao normal assim que a luta acaba. Suprimir é melhor que exibir
+ * por cima do personagem que o jogador está tentando ler.
+ */
+@media (max-width: 719px) {
+  body.em-batalha #hda-notificacoes { display: none; }
+}

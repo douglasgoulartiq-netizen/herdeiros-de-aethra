@@ -1,0 +1,353 @@
+// Motor visual das cenas. Uma camada de tela cheia, acima de tudo (inclusive
+// do modal-overlay), que mostra um painel por vez e devolve uma Promise que
+// resolve quando a cena termina — assim quem chama simplesmente dá `await` e
+// continua, sem callback aninhado:
+//
+//   await reproduzirCutscene(cena, personagem, dados);
+//   iniciarMundo();
+//
+// DECISÕES DE DESENHO, e por quê:
+//
+// • Sem imagem nova. `painel.arte` é uma chave de classe CSS
+//   (cutscene.css) que pinta um gradiente temático com um glifo grande ao
+//   fundo. O jogo tem 516 assets e nenhum deles é arte de cena; inventar
+//   dezoito ilustrações seria a parte cara e a menos importante. A exceção é
+//   a arte "retrato", que usa o retrato HD do próprio personagem
+//   (assets/sprites_hd/retrato_<raca>_<classe>.png, os mesmos que BattleUI
+//   já usa) — no painel em que a cena fala sobre ele.
+//
+// • Parágrafo por parágrafo, não letra por letra. Texto que datilografa
+//   parece cinematográfico por dez segundos e vira obstáculo no minuto
+//   seguinte, ainda mais em PT-BR, que tem palavras longas. Cada parágrafo
+//   entra com um fade curto; um clique durante a entrada mostra tudo de uma
+//   vez. Ninguém espera o jogo.
+//
+// • Pular é de primeira classe. O botão "Pular cena" fica visível o tempo
+//   todo, não escondido atrás de um hold de três segundos. Um jogador que
+//   está recomeçando pela quinta vez não deve ser punido com a mesma cena.
+//   Pular ainda aplica a escolha (quando há), usando a primeira opção — ver
+//   `escolherPadraoAoPular` abaixo.
+//
+// • Respeita Acessibilidade. Todas as durações passam por duracaoAnimacao(),
+//   o mesmo multiplicador do dado e do combate, e por efeitosReduzidos().
+import { duracaoAnimacao, sleep } from "./DiceAnimation.js";
+import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
+import { aplicarEscolhaCena, marcarVista } from "../systems/CutsceneSystem.js";
+import { linhasDaConsequencia } from "../systems/ConsequenciaTexto.js";
+
+const ID_CAMADA = "cutscene-camada";
+
+// {nome}, {raca}, {classe}, {origem} — os únicos campos interpolados. Ver o
+// cabeçalho de cutscenes.js. Os nomes dos campos aqui seguem o objeto criado
+// por CharacterFactory.criarPersonagem: racaNome/classeNome (legíveis) com
+// racaId/classeId como reserva, e antecedenteId para a origem (que não tem
+// forma legível guardada no personagem).
+function interpolar(texto, personagem) {
+  if (!texto) return "";
+  const p = personagem || {};
+  const mapa = {
+    nome: p.nome || "viajante",
+    raca: minusculas(p.racaNome || p.racaId) || "andarilho",
+    classe: minusculas(p.classeNome || p.classeId) || "aventureiro",
+    origem: minusculas(p.antecedenteId) || "estrada",
+  };
+  return String(texto).replace(/\{(nome|raca|classe|origem)\}/g, (_, chave) => mapa[chave]);
+}
+
+// As cenas usam esses valores no meio de frase ("o jeito de guerreiro de
+// entrar numa sala"), por isso minúsculas e sem sublinhado.
+function minusculas(valor) {
+  if (!valor) return "";
+  return String(valor).replace(/_/g, " ").toLowerCase();
+}
+
+// Os mesmos retratos que BattleUI usa: assets/sprites_hd/retrato_<racaId>_
+// <classeId>.png — com ID, não com nome ("anao", não "Anão").
+function caminhoRetrato(personagem) {
+  const raca = personagem && personagem.racaId;
+  const classe = personagem && personagem.classeId;
+  if (!raca || !classe) return null;
+  return `assets/sprites_hd/retrato_${raca}_${classe}.png`;
+}
+
+export function cutsceneAberta() {
+  return !!document.getElementById(ID_CAMADA);
+}
+
+// Reproduz a cena e resolve com { pulou, escolha } quando ela acaba.
+export function reproduzirCutscene(cena, personagem, dados = {}) {
+  return new Promise((resolve) => {
+    if (!cena || !Array.isArray(cena.paineis) || !cena.paineis.length) return resolve({ pulou: false });
+    // Duas cenas ao mesmo tempo seria um bug de chamada, não um estado a
+    // suportar: a segunda simplesmente não abre.
+    if (cutsceneAberta()) return resolve({ pulou: false });
+
+    const camada = document.createElement("div");
+    camada.id = ID_CAMADA;
+    camada.className = "cutscene";
+    camada.setAttribute("role", "dialog");
+    camada.setAttribute("aria-label", cena.titulo || "Cena");
+    camada.innerHTML = `
+      <div class="cutscene-arte"></div>
+      <div class="cutscene-frente">
+        <div class="cutscene-cab">
+          <span class="cutscene-titulo"></span>
+          <button type="button" class="cutscene-pular" id="cutscene-pular">Pular cena</button>
+        </div>
+        <div class="cutscene-corpo">
+          <p class="cutscene-epigrafe hidden"></p>
+          <h2 class="cutscene-subtitulo hidden"></h2>
+          <div class="cutscene-texto"></div>
+        </div>
+        <div class="cutscene-rodape">
+          <div class="cutscene-pontos" aria-hidden="true"></div>
+          <button type="button" class="primario cutscene-avancar" id="cutscene-avancar">Continuar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(camada);
+    document.body.classList.add("com-cutscene");
+
+    const arte = camada.querySelector(".cutscene-arte");
+    const elTitulo = camada.querySelector(".cutscene-titulo");
+    const elEpigrafe = camada.querySelector(".cutscene-epigrafe");
+    const elSub = camada.querySelector(".cutscene-subtitulo");
+    const elTexto = camada.querySelector(".cutscene-texto");
+    const elPontos = camada.querySelector(".cutscene-pontos");
+    const btnAvancar = camada.querySelector("#cutscene-avancar");
+    const btnPular = camada.querySelector("#cutscene-pular");
+
+    elTitulo.textContent = cena.titulo || "";
+    cena.paineis.forEach(() => {
+      const ponto = document.createElement("i");
+      elPontos.appendChild(ponto);
+    });
+
+    let indice = 0;
+    let entrando = false;     // um painel ainda está fazendo fade dos parágrafos
+    let adiantar = false;     // o jogador clicou durante o fade: mostra tudo já
+    let finalizado = false;
+
+    function encerrar(saida) {
+      if (finalizado) return;
+      finalizado = true;
+      document.removeEventListener("keydown", aoTeclado, true);
+      camada.classList.add("saindo");
+      const espera = efeitosReduzidos() ? 0 : duracaoAnimacao(320);
+      setTimeout(() => {
+        camada.remove();
+        document.body.classList.remove("com-cutscene");
+        if (personagem) marcarVista(personagem, cena.id);
+        resolve(saida);
+      }, espera);
+    }
+
+    async function mostrarPainel(i) {
+      const painel = cena.paineis[i];
+      entrando = true;
+      adiantar = false;
+
+      arte.className = `cutscene-arte arte-${painel.arte || "eter"}`;
+      arte.style.backgroundImage = "";
+      if (painel.arte === "retrato") {
+        const src = caminhoRetrato(personagem);
+        // Se o retrato não existir para esta combinação, o gradiente da
+        // classe `arte-retrato` continua valendo — a cena nunca quebra por
+        // falta de arte.
+        if (src) {
+          const img = new Image();
+          img.onload = () => { arte.style.backgroundImage = `url("${src}")`; arte.classList.add("com-imagem"); };
+          img.src = src;
+        }
+      }
+
+      [...elPontos.children].forEach((p, k) => p.classList.toggle("ativo", k <= i));
+
+      elEpigrafe.classList.toggle("hidden", !painel.epigrafe);
+      elEpigrafe.textContent = interpolar(painel.epigrafe, personagem);
+      elSub.classList.toggle("hidden", !painel.titulo);
+      elSub.textContent = interpolar(painel.titulo, personagem);
+
+      elTexto.innerHTML = "";
+      const paragrafos = (painel.texto || []).map((t) => {
+        const p = document.createElement("p");
+        p.textContent = interpolar(t, personagem);
+        p.className = "cutscene-p";
+        elTexto.appendChild(p);
+        return p;
+      });
+
+      const ultimo = i === cena.paineis.length - 1;
+      btnAvancar.textContent = ultimo && !cena.escolha && cena.quando === "novo_jogo" ? "Começar" : "Continuar";
+
+      const passo = efeitosReduzidos() ? 0 : duracaoAnimacao(260);
+      for (let k = 0; k < paragrafos.length; k++) {
+        paragrafos[k].classList.add("visivel");
+        // Nada de esperar DEPOIS do último parágrafo: essa espera final não
+        // revelava mais nada e mantinha o painel em estado "entrando", de
+        // modo que o primeiro clique do jogador era engolido como
+        // "adiantar" quando já não havia nada a adiantar — e ele precisava
+        // clicar duas vezes para virar a página.
+        if (adiantar || !passo || k === paragrafos.length - 1) continue;
+        await sleep(passo);
+      }
+      // Se o jogador adiantou no meio, o loop acima já pulou as esperas —
+      // mas os parágrafos restantes podem não ter recebido a classe ainda.
+      paragrafos.forEach((p) => p.classList.add("visivel"));
+      entrando = false;
+    }
+
+    function avancar() {
+      if (finalizado) return;
+      // Clicar durante o fade não pula o painel: mostra o painel inteiro.
+      // É o comportamento que todo jogo com cena tem, e o que evita que um
+      // clique ansioso engula um parágrafo inteiro sem o jogador ver.
+      if (entrando) { adiantar = true; return; }
+
+      if (indice < cena.paineis.length - 1) {
+        indice += 1;
+        mostrarPainel(indice);
+        return;
+      }
+      if (cena.escolha) return mostrarEscolha();
+      encerrar({ pulou: false });
+    }
+
+    function mostrarEscolha() {
+      const escolha = cena.escolha;
+      arte.className = "cutscene-arte arte-escolha";
+      elEpigrafe.classList.add("hidden");
+      elSub.classList.remove("hidden");
+      elSub.textContent = "Uma decisão";
+      elTexto.innerHTML = "";
+
+      const pergunta = document.createElement("p");
+      pergunta.className = "cutscene-p visivel";
+      pergunta.textContent = interpolar(escolha.pergunta, personagem);
+      elTexto.appendChild(pergunta);
+
+      const lista = document.createElement("div");
+      lista.className = "cutscene-opcoes";
+      (escolha.opcoes || []).forEach((opcao) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cutscene-opcao";
+        btn.textContent = interpolar(opcao.rotulo, personagem);
+        btn.onclick = () => resolverEscolha(opcao.id);
+        lista.appendChild(btn);
+      });
+      elTexto.appendChild(lista);
+
+      // Durante a escolha não há "Continuar": a única saída é escolher, ou
+      // pular (que escolhe a primeira opção). Botão de avançar escondido
+      // evita o jogador atravessar a decisão sem perceber que era uma.
+      btnAvancar.classList.add("hidden");
+      elPontos.classList.add("hidden");
+    }
+
+    async function resolverEscolha(opcaoId) {
+      // Duas origens de escolha, um mesmo motor:
+      //
+      // • `escolha.aoEscolher` — quem chamou a cena decide o efeito. É o
+      //   caminho das DECISÕES DE QUESTLINE (GameUI.js): quem aplica a
+      //   consequência ali é concluirQuestRegional, não este arquivo, e o
+      //   callback devolve { texto, linhas } já pronto para encenar.
+      // • sem callback — a cena é autossuficiente e os efeitos estão nos
+      //   próprios dados da opção (é o caso do prólogo).
+      //
+      // Os dois desembocam no mesmo desfecho na tela, que é o ponto: uma
+      // decisão de quest passa a ter exatamente o mesmo peso visual que a
+      // decisão do prólogo, em vez de ser um botão "Concluir" num card.
+      const contrato = cena.escolha || {};
+      const r = contrato.aoEscolher
+        ? contrato.aoEscolher(opcaoId)
+        : aplicarEscolhaCena(personagem, cena, opcaoId, dados.worldStateVariables);
+      if (!r || !r.ok) return encerrar({ pulou: false });
+
+      // O desfecho da escolha é a última coisa que a cena mostra — e ela
+      // fica na tela até o jogador confirmar, porque é a consequência dele.
+      elSub.textContent = "";
+      elSub.classList.add("hidden");
+      elTexto.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "cutscene-p";
+      p.textContent = interpolar(r.texto, personagem);
+      elTexto.appendChild(p);
+      await sleep(efeitosReduzidos() ? 0 : duracaoAnimacao(120));
+      p.classList.add("visivel");
+
+      // O ECO: o que essa escolha mudou no mundo, em frases. Vem pronto de
+      // quem chamou (`r.linhas`, caminho das quests — ver
+      // ConsequenciaTexto.js) ou é montado aqui a partir da reputação
+      // (caminho do prólogo). Isto é o que faltava para uma decisão parecer
+      // uma decisão: ver, no mesmo instante, o que ela custou.
+      // As duas origens desembocam no mesmo formatador (ConsequenciaTexto),
+      // para o eco do prólogo e o eco de uma decisão de questline saírem
+      // escritos do mesmo jeito.
+      const linhas = r.linhas && r.linhas.length
+        ? r.linhas
+        : linhasDaConsequencia({ faccao: (r.mudou && r.mudou.reputacao) || {} }, dados.worldStateVariables);
+      if (linhas.length) {
+        const eco = document.createElement("ul");
+        eco.className = "cutscene-eco";
+        linhas.forEach(({ icone, texto }) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span class="cutscene-eco-icone"></span><span></span>`;
+          li.firstChild.textContent = icone || "•";
+          li.lastChild.textContent = texto;
+          eco.appendChild(li);
+        });
+        elTexto.appendChild(eco);
+        requestAnimationFrame(() => eco.classList.add("visivel"));
+      }
+
+      btnAvancar.classList.remove("hidden");
+      // "Começar" só faz sentido quando a cena é a que precede o início do
+      // jogo; numa decisão tomada no meio de uma questline, o que vem a
+      // seguir é a continuação do que já estava acontecendo.
+      btnAvancar.textContent = cena.quando === "novo_jogo" ? "Começar" : "Continuar";
+      btnAvancar.onclick = () => encerrar({ pulou: false, escolha: opcaoId });
+    }
+
+    // Pular durante uma cena com escolha ainda registra uma escolha — a
+    // primeira da lista. Deixar a escolha em branco criaria um personagem
+    // sem resposta no diário e sem flag, um estado que nenhum conteúdo
+    // posterior sabe tratar. A primeira opção é sempre a mais neutra/ativa.
+    function escolherPadraoAoPular() {
+      if (!cena.escolha) return null;
+      const primeira = (cena.escolha.opcoes || [])[0];
+      if (!primeira) return null;
+      aplicarEscolhaCena(personagem, cena, primeira.id, dados.worldStateVariables);
+      return primeira.id;
+    }
+
+    function pular() {
+      const escolhido = escolherPadraoAoPular();
+      encerrar({ pulou: true, escolha: escolhido });
+    }
+
+    function aoTeclado(ev) {
+      if (finalizado) return;
+      if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); return pular(); }
+      if (ev.key === " " || ev.key === "Enter") {
+        // Espaço/Enter com foco num botão já dispara o click dele — deixar
+        // passar aqui também avançaria duas vezes.
+        if (document.activeElement && document.activeElement.tagName === "BUTTON") return;
+        ev.preventDefault(); ev.stopPropagation();
+        if (!btnAvancar.classList.contains("hidden")) btnAvancar.click();
+      }
+    }
+
+    btnAvancar.onclick = avancar;
+    btnPular.onclick = pular;
+    // Clicar na área da cena avança também — mas não quando o clique foi num
+    // botão (senão a opção escolhida também contaria como "avançar").
+    camada.querySelector(".cutscene-corpo").onclick = (ev) => {
+      if (ev.target.closest("button")) return;
+      if (!btnAvancar.classList.contains("hidden")) avancar();
+    };
+    document.addEventListener("keydown", aoTeclado, true);
+
+    requestAnimationFrame(() => camada.classList.add("visivel"));
+    mostrarPainel(0);
+  });
+}

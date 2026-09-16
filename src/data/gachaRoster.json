@@ -35,7 +35,23 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "ashryn_folhaferrea_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.8,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "brokk_runamente",
@@ -72,7 +88,22 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "brokk_runamente_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.9
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "pippa_escudoleve",
@@ -110,7 +141,23 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "pippa_escudoleve_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.8,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "ghrol_punho_de_luz",
@@ -135,7 +182,7 @@
       "custoMP": 9,
       "cooldown": 1,
       "tipo": "cura",
-      "multiplicador": 2.0
+      "multiplicador": 2
     },
     "sprite": "gacha_ghrol_punho_de_luz.png",
     "despertar": {
@@ -147,7 +194,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "ghrol_punho_de_luz_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.85,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "vexahl_escamasfurtivas",
@@ -184,7 +247,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "vexahl_escamasfurtivas_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.35,
+        "duracao": 3
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "rowan_trilhaverde",
@@ -222,7 +301,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "rowan_trilhaverde_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.75,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "dura_passoleve",
@@ -259,7 +354,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "dura_passoleve_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.45
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "tobin_vistalonga",
@@ -297,7 +407,24 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "tobin_vistalonga_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.35,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "lyanthe_orvalho_sagrado",
@@ -334,7 +461,35 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "lyanthe_orvalho_sagrado_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 0.98,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "lyanthe_orvalho_sagrado_aura_saber",
+        "nome": "Saber Compartilhado",
+        "icone": "📖",
+        "descricao": "O grupo ganha 15% mais XP.",
+        "efeito": {
+          "tipo": "xp",
+          "valor": 1.161,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "zurgash_olho_de_tempestade",
@@ -371,7 +526,34 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "zurgash_olho_de_tempestade_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.84
+      }
+    ],
+    "passivas": [
+      {
+        "id": "zurgash_olho_de_tempestade_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.129,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "kaethrys_escamas_de_aco",
@@ -408,7 +590,35 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "kaethrys_escamas_de_aco_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 0.92,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "kaethrys_escamas_de_aco_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.269,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "marec_coracao_de_ferro",
@@ -446,7 +656,36 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "marec_coracao_de_ferro_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "marec_coracao_de_ferro_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.129,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "fendrel_passo_de_pedra",
@@ -483,7 +722,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "fendrel_passo_de_pedra_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.61
+      }
+    ],
+    "passivas": [
+      {
+        "id": "fendrel_passo_de_pedra_olho_fatal",
+        "nome": "Olho Fatal",
+        "icone": "🎯",
+        "descricao": "+8% de chance de crítico.",
+        "efeito": {
+          "tipo": "critico",
+          "valor": 0.086,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "wyn_faisca_curiosa",
@@ -520,7 +786,35 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "wyn_faisca_curiosa_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "wyn_faisca_curiosa_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.129,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "ignara_chama_sagrada",
@@ -557,7 +851,49 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "ignara_chama_sagrada_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.12,
+        "alcance": "todos"
+      },
+      {
+        "id": "ignara_chama_sagrada_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.4,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "ignara_chama_sagrada_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.139,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "krusha_lamina_silenciosa",
@@ -594,7 +930,47 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "krusha_lamina_silenciosa_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 0.99,
+        "alcance": "todos"
+      },
+      {
+        "id": "krusha_lamina_silenciosa_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.85
+      }
+    ],
+    "passivas": [
+      {
+        "id": "krusha_lamina_silenciosa_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.116,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "aelric_lamina_do_vento",
@@ -631,7 +1007,48 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "aelric_lamina_do_vento_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.4,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "aelric_lamina_do_vento_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      }
+    ],
+    "passivas": [
+      {
+        "id": "aelric_lamina_do_vento_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.884,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "cassian_arauto_arcano",
@@ -668,7 +1085,46 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "cassian_arauto_arcano_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.11
+      },
+      {
+        "id": "cassian_arauto_arcano_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.19
+      }
+    ],
+    "passivas": [
+      {
+        "id": "cassian_arauto_arcano_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.116,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "grimnir_punho_de_granito",
@@ -694,7 +1150,7 @@
       "cooldown": 3,
       "tipo": "buff_ataque",
       "duracao": 1,
-      "valor": 1.0
+      "valor": 1
     },
     "sprite": "gacha_grimnir_punho_de_granito.png",
     "despertar": {
@@ -706,7 +1162,47 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "grimnir_punho_de_granito_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      },
+      {
+        "id": "grimnir_punho_de_granito_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.06,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "grimnir_punho_de_granito_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.139,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "zephyrion_furia_draconiana",
@@ -743,7 +1239,61 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "zephyrion_furia_draconiana_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      },
+      {
+        "id": "zephyrion_furia_draconiana_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 19,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.2,
+        "alcance": "todos"
+      },
+      {
+        "id": "zephyrion_furia_draconiana_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "zephyrion_furia_draconiana_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.813,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "mordak_quebramuralhas",
@@ -780,7 +1330,60 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "mordak_quebramuralhas_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.45,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "mordak_quebramuralhas_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      },
+      {
+        "id": "mordak_quebramuralhas_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      }
+    ],
+    "passivas": [
+      {
+        "id": "mordak_quebramuralhas_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.313,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "selene_sombraveloz",
@@ -817,7 +1420,60 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "selene_sombraveloz_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.13,
+        "alcance": "todos"
+      },
+      {
+        "id": "selene_sombraveloz_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 3
+      },
+      {
+        "id": "selene_sombraveloz_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      }
+    ],
+    "passivas": [
+      {
+        "id": "selene_sombraveloz_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.225,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "nyxandra_voz_da_tempestade",
@@ -842,7 +1498,7 @@
       "custoMP": 18,
       "cooldown": 2,
       "tipo": "dano_magico",
-      "multiplicador": 3.0
+      "multiplicador": 3
     },
     "sprite": "gacha_nyxandra_voz_da_tempestade.png",
     "despertar": {
@@ -854,7 +1510,70 @@
         "DES": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "nyxandra_voz_da_tempestade_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 18,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      },
+      {
+        "id": "nyxandra_voz_da_tempestade_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 3
+      },
+      {
+        "id": "nyxandra_voz_da_tempestade_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.75
+      }
+    ],
+    "passivas": [
+      {
+        "id": "nyxandra_voz_da_tempestade_aura_saber",
+        "nome": "Saber Compartilhado",
+        "icone": "📖",
+        "descricao": "O grupo ganha 15% mais XP.",
+        "efeito": {
+          "tipo": "xp",
+          "valor": 1.204,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "nyxandra_voz_da_tempestade_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.163,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "thorgrid_forja_sagrada",
@@ -891,7 +1610,72 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "thorgrid_forja_sagrada_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 18,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      },
+      {
+        "id": "thorgrid_forja_sagrada_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.52,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "thorgrid_forja_sagrada_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 31,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.46,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "thorgrid_forja_sagrada_olho_fatal",
+        "nome": "Olho Fatal",
+        "icone": "🎯",
+        "descricao": "+8% de chance de crítico.",
+        "efeito": {
+          "tipo": "critico",
+          "valor": 0.109,
+          "escopo": "proprio"
+        }
+      },
+      {
+        "id": "thorgrid_forja_sagrada_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.34,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sylvaine_punho_de_aco",
@@ -928,7 +1712,22 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sylvaine_punho_de_aco_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.45
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_thrain_passo_de_nevoa",
@@ -966,7 +1765,23 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_thrain_passo_de_nevoa_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.35,
+        "duracao": 3
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_mellow_sussurro_verde",
@@ -1003,7 +1818,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_mellow_sussurro_verde_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.4
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_vurg_faisca_perdida",
@@ -1040,7 +1870,24 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vurg_faisca_perdida_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.3,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_voldrak_trilha_dos_ventos",
@@ -1078,7 +1925,24 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_voldrak_trilha_dos_ventos_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.35,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_ivane_marca_do_trovao",
@@ -1115,7 +1979,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ivane_marca_do_trovao_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.75,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_caelith_sombra_dourada",
@@ -1153,7 +2033,23 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_caelith_sombra_dourada_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.85,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_vorik_sussurro_da_nevoa",
@@ -1190,7 +2086,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vorik_sussurro_da_nevoa_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.75,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_tobber_coracao_fervente",
@@ -1227,7 +2139,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_tobber_coracao_fervente_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.9
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_grosk_guarda_da_bruma",
@@ -1265,7 +2192,23 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_grosk_guarda_da_bruma_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.8,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_corvinax_coracao_gelido",
@@ -1303,7 +2246,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_corvinax_coracao_gelido_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.45
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_garrick_coracao_de_bronze",
@@ -1341,7 +2299,22 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_garrick_coracao_de_bronze_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.45
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_eryndor_chama_contida",
@@ -1378,7 +2351,23 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_eryndor_chama_contida_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.75,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_runna_ecos_do_passado",
@@ -1415,7 +2404,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_runna_ecos_do_passado_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.9
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_merric_lamina_do_meio_dia",
@@ -1453,7 +2457,23 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_merric_lamina_do_meio_dia_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 6,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 0.8,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_ghazak_coracao_selvagem",
@@ -1491,7 +2511,22 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ghazak_coracao_selvagem_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "multiplicador": 1.4
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_aurexia_escamas_de_prata",
@@ -1528,7 +2563,24 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.15
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_aurexia_escamas_de_prata_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "comum",
+        "valor": 0.3,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": []
   },
   {
     "id": "novo_bastian_lamina_silenciosa",
@@ -1566,7 +2618,34 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_bastian_lamina_silenciosa_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.03
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_bastian_lamina_silenciosa_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.215,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_elowen_manto_do_vento_norte",
@@ -1603,7 +2682,36 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_elowen_manto_do_vento_norte_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.34,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_elowen_manto_do_vento_norte_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.194,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_kelda_ecos_da_tempestade",
@@ -1640,7 +2748,35 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_kelda_ecos_da_tempestade_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 0.92,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_kelda_ecos_da_tempestade_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.839,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_poppy_lamina_da_aurora",
@@ -1677,7 +2813,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_poppy_lamina_da_aurora_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.67
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_poppy_lamina_da_aurora_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.129,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_kazra_grito_silencioso",
@@ -1714,7 +2877,34 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_kazra_grito_silencioso_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.78
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_kazra_grito_silencioso_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.215,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sethara_lamina_errante",
@@ -1752,7 +2942,35 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sethara_lamina_errante_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sethara_lamina_errante_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.215,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sanna_canto_da_tempestade",
@@ -1789,7 +3007,35 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sanna_canto_da_tempestade_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 0.86,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sanna_canto_da_tempestade_aura_saber",
+        "nome": "Saber Compartilhado",
+        "icone": "📖",
+        "descricao": "O grupo ganha 15% mais XP.",
+        "efeito": {
+          "tipo": "xp",
+          "valor": 1.161,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_aravel_manto_de_cinzas",
@@ -1827,7 +3073,36 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_aravel_manto_de_cinzas_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_aravel_manto_de_cinzas_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.215,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sifrid_sombra_do_penhasco",
@@ -1865,7 +3140,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sifrid_sombra_do_penhasco_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.61
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sifrid_sombra_do_penhasco_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.839,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_cobb_aco_sereno",
@@ -1902,7 +3204,34 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_cobb_aco_sereno_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.78
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_cobb_aco_sereno_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.893,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_rhaska_grito_da_tempestade",
@@ -1940,7 +3269,35 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_rhaska_grito_da_tempestade_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_rhaska_grito_da_tempestade_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.269,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ashkaris_chama_errante",
@@ -1977,7 +3334,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ashkaris_chama_errante_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.67
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ashkaris_chama_errante_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.839,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_edmund_faisca_do_amanhecer",
@@ -2014,7 +3398,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_edmund_faisca_do_amanhecer_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.03
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_edmund_faisca_do_amanhecer_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.893,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sylvaine_sombra_do_deserto",
@@ -2052,7 +3463,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sylvaine_sombra_do_deserto_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.67
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sylvaine_sombra_do_deserto_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.194,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_thrain_voz_das_raizes",
@@ -2090,7 +3528,36 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_thrain_voz_das_raizes_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.34,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_thrain_voz_das_raizes_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.269,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_mellow_faisca_selvagem",
@@ -2128,7 +3595,34 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_mellow_faisca_selvagem_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.84
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_mellow_faisca_selvagem_aura_saber",
+        "nome": "Saber Compartilhado",
+        "icone": "📖",
+        "descricao": "O grupo ganha 15% mais XP.",
+        "efeito": {
+          "tipo": "xp",
+          "valor": 1.161,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_vurg_folego_de_cinzas",
@@ -2165,7 +3659,34 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vurg_folego_de_cinzas_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "multiplicador": 1.61
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_vurg_folego_de_cinzas_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.839,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_voldrak_ferro_frio",
@@ -2202,7 +3723,36 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_voldrak_ferro_frio_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.34,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_voldrak_ferro_frio_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.269,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ivane_vigia_das_fronteiras",
@@ -2239,7 +3789,36 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.2
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ivane_vigia_das_fronteiras_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 8,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "incomum",
+        "valor": 0.4,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ivane_vigia_das_fronteiras_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.269,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_caelith_olhar_de_bronze",
@@ -2276,7 +3855,48 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_caelith_olhar_de_bronze_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.91
+      },
+      {
+        "id": "novo_caelith_olhar_de_bronze_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.4,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_caelith_olhar_de_bronze_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.139,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_vorik_nevoa_da_aurora",
@@ -2314,7 +3934,48 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vorik_nevoa_da_aurora_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.12,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_vorik_nevoa_da_aurora_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_vorik_nevoa_da_aurora_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.884,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_tobber_coracao_de_pedra",
@@ -2351,7 +4012,47 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_tobber_coracao_de_pedra_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 0.99,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_tobber_coracao_de_pedra_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.85
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_tobber_coracao_de_pedra_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.116,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_grosk_escudo_de_bronze",
@@ -2388,7 +4089,47 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_grosk_escudo_de_bronze_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.12,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_grosk_escudo_de_bronze_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.19
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_grosk_escudo_de_bronze_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.826,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_corvinax_olhar_distante",
@@ -2426,7 +4167,47 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_corvinax_olhar_distante_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      },
+      {
+        "id": "novo_corvinax_olhar_distante_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.06,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_corvinax_olhar_distante_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.29,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_garrick_espinho_frio",
@@ -2463,7 +4244,49 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_garrick_espinho_frio_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_garrick_espinho_frio_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 0.99,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_garrick_espinho_frio_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.826,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_eryndor_punho_da_mare",
@@ -2501,7 +4324,48 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_eryndor_punho_da_mare_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 3
+      },
+      {
+        "id": "novo_eryndor_punho_da_mare_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.12,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_eryndor_punho_da_mare_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.826,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_runna_sombra_silenciosa",
@@ -2538,7 +4402,47 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_runna_sombra_silenciosa_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 3
+      },
+      {
+        "id": "novo_runna_sombra_silenciosa_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.91
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_runna_sombra_silenciosa_aura_saber",
+        "nome": "Saber Compartilhado",
+        "icone": "📖",
+        "descricao": "O grupo ganha 15% mais XP.",
+        "efeito": {
+          "tipo": "xp",
+          "valor": 1.174,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_merric_escudo_vivo",
@@ -2575,7 +4479,48 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_merric_escudo_vivo_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.4,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_merric_escudo_vivo_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.19
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_merric_escudo_vivo_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.232,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ghazak_pedra_que_anda",
@@ -2613,7 +4558,47 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ghazak_pedra_que_anda_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.06,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_ghazak_pedra_que_anda_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ghazak_pedra_que_anda_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.884,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_aurexia_guardia_das_mares",
@@ -2651,7 +4636,47 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_aurexia_guardia_das_mares_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 0.99,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_aurexia_guardia_das_mares_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.91
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_aurexia_guardia_das_mares_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.116,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_bastian_chama_do_norte",
@@ -2689,7 +4714,47 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_bastian_chama_do_norte_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 11,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.06,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_bastian_chama_do_norte_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_bastian_chama_do_norte_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.209,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_elowen_fogo_contido",
@@ -2726,7 +4791,48 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_elowen_fogo_contido_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 3
+      },
+      {
+        "id": "novo_elowen_fogo_contido_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 0.99,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_elowen_fogo_contido_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.826,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_kelda_voz_serena",
@@ -2763,7 +4869,48 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_kelda_voz_serena_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.4,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_kelda_voz_serena_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.19
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_kelda_voz_serena_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.29,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_poppy_ferro_ardente",
@@ -2801,7 +4948,48 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_poppy_ferro_ardente_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      },
+      {
+        "id": "novo_poppy_ferro_ardente_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_poppy_ferro_ardente_pele_elemental",
+        "nome": "Pele Elemental",
+        "icone": "🌈",
+        "descricao": "Recebe 15% menos dano elemental.",
+        "efeito": {
+          "tipo": "resistencia_elemental",
+          "valor": 0.826,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_kazra_punho_silencioso",
@@ -2839,7 +5027,48 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_kazra_punho_silencioso_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.91
+      },
+      {
+        "id": "novo_kazra_punho_silencioso_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_kazra_punho_silencioso_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.139,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sethara_andarilho_do_trovao",
@@ -2876,7 +5105,47 @@
         "CON": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sethara_andarilho_do_trovao_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.05
+      },
+      {
+        "id": "novo_sethara_andarilho_do_trovao_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 15,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 1.06,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sethara_andarilho_do_trovao_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.139,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sanna_sussurro_do_vento",
@@ -2914,7 +5183,47 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.25
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sanna_sussurro_do_vento_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 11,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "valor": 0.46,
+        "duracao": 3
+      },
+      {
+        "id": "novo_sanna_sussurro_do_vento_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 15,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "raro",
+        "multiplicador": 2.11
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sanna_sussurro_do_vento_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.139,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_aravel_voz_do_trovao",
@@ -2951,7 +5260,61 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_aravel_voz_do_trovao_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.27,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_aravel_voz_do_trovao_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.45,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_aravel_voz_do_trovao_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.35
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_aravel_voz_do_trovao_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.125,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sifrid_andarilho_das_ruinas",
@@ -2988,7 +5351,61 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sifrid_andarilho_das_ruinas_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.2,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_sifrid_andarilho_das_ruinas_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_sifrid_andarilho_das_ruinas_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sifrid_andarilho_das_ruinas_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.875,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_cobb_furia_silenciosa",
@@ -3025,7 +5442,60 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_cobb_furia_silenciosa_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_cobb_furia_silenciosa_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      },
+      {
+        "id": "novo_cobb_furia_silenciosa_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.1
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_cobb_furia_silenciosa_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.25,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_rhaska_ruido_da_tormenta",
@@ -3062,7 +5532,60 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_rhaska_ruido_da_tormenta_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      },
+      {
+        "id": "novo_rhaska_ruido_da_tormenta_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.45,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_rhaska_ruido_da_tormenta_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_rhaska_ruido_da_tormenta_aura_furia",
+        "nome": "Aura de Fúria",
+        "icone": "🔥",
+        "descricao": "O time inteiro causa 10% mais dano.",
+        "efeito": {
+          "tipo": "dano",
+          "valor": 1.125,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ashkaris_voz_da_montanha",
@@ -3100,7 +5623,59 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ashkaris_voz_da_montanha_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.35
+      },
+      {
+        "id": "novo_ashkaris_voz_da_montanha_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.4
+      },
+      {
+        "id": "novo_ashkaris_voz_da_montanha_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ashkaris_voz_da_montanha_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.875,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_edmund_andarilha_solitaria",
@@ -3137,7 +5712,59 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_edmund_andarilha_solitaria_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 3
+      },
+      {
+        "id": "novo_edmund_andarilha_solitaria_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      },
+      {
+        "id": "novo_edmund_andarilha_solitaria_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.1
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_edmund_andarilha_solitaria_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.25,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_sylvaine_guardiao_das_encostas",
@@ -3175,7 +5802,61 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_sylvaine_guardiao_das_encostas_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_sylvaine_guardiao_das_encostas_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 19,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.2,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_sylvaine_guardiao_das_encostas_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_sylvaine_guardiao_das_encostas_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.875,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_thrain_trilha_escura",
@@ -3213,7 +5894,61 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_thrain_trilha_escura_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_thrain_trilha_escura_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 19,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.13,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_thrain_trilha_escura_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.1
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_thrain_trilha_escura_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.225,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_mellow_vigia_silenciosa",
@@ -3250,7 +5985,61 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_mellow_vigia_silenciosa_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.2,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_mellow_vigia_silenciosa_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.45,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_mellow_vigia_silenciosa_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.33
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_mellow_vigia_silenciosa_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.313,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_vurg_passo_do_vendaval",
@@ -3288,7 +6077,60 @@
         "DES": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vurg_passo_do_vendaval_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.35
+      },
+      {
+        "id": "novo_vurg_passo_do_vendaval_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.52,
+        "duracao": 3
+      },
+      {
+        "id": "novo_vurg_passo_do_vendaval_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.27,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_vurg_passo_do_vendaval_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.15,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_voldrak_escudo_da_alvorada",
@@ -3325,7 +6167,59 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_voldrak_escudo_da_alvorada_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 14,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.1
+      },
+      {
+        "id": "novo_voldrak_escudo_da_alvorada_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 19,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 2.17
+      },
+      {
+        "id": "novo_voldrak_escudo_da_alvorada_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.13,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_voldrak_escudo_da_alvorada_olho_fatal",
+        "nome": "Olho Fatal",
+        "icone": "🎯",
+        "descricao": "+8% de chance de crítico.",
+        "efeito": {
+          "tipo": "critico",
+          "valor": 0.1,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ivane_guarda_do_amanhecer",
@@ -3362,7 +6256,61 @@
         "FOR": 1
       },
       "bonusHabilidadeMultiplicador": 0.3
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ivane_guarda_do_amanhecer_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 14,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.27,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_ivane_guarda_do_amanhecer_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 19,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "multiplicador": 1.35
+      },
+      {
+        "id": "novo_ivane_guarda_do_amanhecer_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "epico",
+        "valor": 0.45,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ivane_guarda_do_amanhecer_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.813,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_caelith_marca_da_lua_cheia",
@@ -3400,7 +6348,71 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_caelith_marca_da_lua_cheia_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      },
+      {
+        "id": "novo_caelith_marca_da_lua_cheia_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.49
+      },
+      {
+        "id": "novo_caelith_marca_da_lua_cheia_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.41
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_caelith_marca_da_lua_cheia_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.796,
+          "escopo": "proprio"
+        }
+      },
+      {
+        "id": "novo_caelith_marca_da_lua_cheia_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.245,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_vorik_espinho_do_deserto",
@@ -3438,7 +6450,71 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_vorik_espinho_do_deserto_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.52,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_vorik_espinho_do_deserto_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.67
+      },
+      {
+        "id": "novo_vorik_espinho_do_deserto_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.49
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_vorik_espinho_do_deserto_reserva_eter",
+        "nome": "Reserva de Éter",
+        "icone": "💠",
+        "descricao": "+25% de Éter máximo.",
+        "efeito": {
+          "tipo": "eter_max",
+          "valor": 1.34,
+          "escopo": "proprio"
+        }
+      },
+      {
+        "id": "novo_vorik_espinho_do_deserto_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.864,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_tobber_punho_gentil",
@@ -3476,7 +6552,70 @@
         "DES": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_tobber_punho_gentil_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.75
+      },
+      {
+        "id": "novo_tobber_punho_gentil_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 3
+      },
+      {
+        "id": "novo_tobber_punho_gentil_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 31,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_tobber_punho_gentil_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.796,
+          "escopo": "proprio"
+        }
+      },
+      {
+        "id": "novo_tobber_punho_gentil_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.272,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_grosk_passo_firme",
@@ -3513,7 +6652,71 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_grosk_passo_firme_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.49
+      },
+      {
+        "id": "novo_grosk_passo_firme_area_flechas",
+        "nome": "Chuva de Projéteis",
+        "icone": "🏹",
+        "descricao": "Uma saraivada que alcança TODOS os inimigos.",
+        "tipo": "dano_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.29,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_grosk_passo_firme_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 3
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_grosk_passo_firme_aura_guarda",
+        "nome": "Aura do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O time inteiro recebe 10% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.864,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_grosk_passo_firme_couro_duro",
+        "nome": "Couro Duro",
+        "icone": "🪨",
+        "descricao": "Recebe 15% menos dano.",
+        "efeito": {
+          "tipo": "defesa",
+          "valor": 0.796,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_corvinax_punho_de_vento",
@@ -3550,7 +6753,72 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_corvinax_punho_de_vento_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 18,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.46,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_corvinax_punho_de_vento_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      },
+      {
+        "id": "novo_corvinax_punho_de_vento_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.52,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_corvinax_punho_de_vento_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.272,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_corvinax_punho_de_vento_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.163,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_garrick_passo_sombrio",
@@ -3587,7 +6855,72 @@
         "CON": 3
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_garrick_passo_sombrio_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 18,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.38,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_garrick_passo_sombrio_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.67
+      },
+      {
+        "id": "novo_garrick_passo_sombrio_buff_furia",
+        "nome": "Grito de Guerra",
+        "icone": "📣",
+        "descricao": "O TIME INTEIRO amplia o próximo golpe por 2 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 2,
+        "alvoBuff": "ataque"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_garrick_passo_sombrio_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.163,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_garrick_passo_sombrio_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.163,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_eryndor_marca_selvagem",
@@ -3624,7 +6957,72 @@
         "CON": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_eryndor_marca_selvagem_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.52,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_eryndor_marca_selvagem_brutal",
+        "nome": "Machadada Brutal",
+        "icone": "💢",
+        "descricao": "Um golpe pesado num alvo só.",
+        "tipo": "dano_fisico",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.67
+      },
+      {
+        "id": "novo_eryndor_marca_selvagem_area_fisica",
+        "nome": "Golpe Giratório",
+        "icone": "🌀",
+        "descricao": "Gira a arma e atinge TODOS os inimigos ao redor.",
+        "tipo": "dano_area",
+        "custoMP": 31,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.38,
+        "alcance": "todos"
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_eryndor_marca_selvagem_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.34,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_eryndor_marca_selvagem_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.163,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_runna_chama_eterna",
@@ -3662,7 +7060,70 @@
         "DES": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_runna_chama_eterna_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 18,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      },
+      {
+        "id": "novo_runna_chama_eterna_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 3
+      },
+      {
+        "id": "novo_runna_chama_eterna_arcano_focado",
+        "nome": "Lança de Aço",
+        "icone": "✨",
+        "descricao": "Um feitiço concentrado de aço.",
+        "tipo": "dano_magico",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.75
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_runna_chama_eterna_aura_fortuna",
+        "nome": "Fortuna",
+        "icone": "🪙",
+        "descricao": "O grupo ganha 25% mais ouro.",
+        "efeito": {
+          "tipo": "ouro",
+          "valor": 1.34,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_runna_chama_eterna_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.272,
+          "escopo": "time"
+        }
+      }
+    ]
   },
   {
     "id": "novo_merric_manto_de_escamas",
@@ -3699,7 +7160,70 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_merric_manto_de_escamas_lentidao_area",
+        "nome": "Correntes de Éter",
+        "icone": "⛓️",
+        "descricao": "TODOS os inimigos ficam mais lentos por 3 turnos.",
+        "tipo": "debuff_area",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.6,
+        "duracao": 3
+      },
+      {
+        "id": "novo_merric_manto_de_escamas_veloz",
+        "nome": "Corte Relâmpago",
+        "icone": "⚡",
+        "descricao": "Um corte rápido guiado por Destreza.",
+        "tipo": "dano_fisico_des",
+        "custoMP": 24,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.41
+      },
+      {
+        "id": "novo_merric_manto_de_escamas_perfurante",
+        "nome": "Estocada Precisa",
+        "icone": "🗡️",
+        "descricao": "Um golpe que ignora a defesa do alvo.",
+        "tipo": "dano_ignora_defesa",
+        "custoMP": 31,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 2.49
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_merric_manto_de_escamas_vitalidade",
+        "nome": "Vitalidade",
+        "icone": "❤️",
+        "descricao": "+18% de HP máximo.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.245,
+          "escopo": "proprio"
+        }
+      },
+      {
+        "id": "novo_merric_manto_de_escamas_vampirismo",
+        "nome": "Sede",
+        "icone": "🩸",
+        "descricao": "Converte 12% do dano causado em cura.",
+        "efeito": {
+          "tipo": "roubo_vida",
+          "valor": 0.163,
+          "escopo": "proprio"
+        }
+      }
+    ]
   },
   {
     "id": "novo_ghazak_punho_de_aco",
@@ -3736,6 +7260,71 @@
         "FOR": 2
       },
       "bonusHabilidadeMultiplicador": 0.35
-    }
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "novo_ghazak_punho_de_aco_buff_guarda",
+        "nome": "Bênção do Baluarte",
+        "icone": "🛡️",
+        "descricao": "O TIME INTEIRO reduz o dano recebido por 3 turnos.",
+        "tipo": "buff_time",
+        "custoMP": 18,
+        "cooldown": 2,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "valor": 0.52,
+        "duracao": 3,
+        "alvoBuff": "defesa"
+      },
+      {
+        "id": "novo_ghazak_punho_de_aco_area_elemental",
+        "nome": "Tempestade de Aço",
+        "icone": "🌪️",
+        "descricao": "Atinge TODOS os inimigos com aço.",
+        "tipo": "dano_area",
+        "custoMP": 24,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.46,
+        "alcance": "todos"
+      },
+      {
+        "id": "novo_ghazak_punho_de_aco_cura_grupo",
+        "nome": "Maré Restauradora",
+        "icone": "💚",
+        "descricao": "Restaura vida do TIME INTEIRO.",
+        "tipo": "cura_area",
+        "custoMP": 31,
+        "cooldown": 3,
+        "exclusiva": true,
+        "raridadeOrigem": "lendario",
+        "multiplicador": 1.55
+      }
+    ],
+    "passivas": [
+      {
+        "id": "novo_ghazak_punho_de_aco_aura_passo",
+        "nome": "Passo Ligeiro",
+        "icone": "💨",
+        "descricao": "O time inteiro age 12% mais rápido.",
+        "efeito": {
+          "tipo": "velocidade",
+          "valor": 1.163,
+          "escopo": "time"
+        }
+      },
+      {
+        "id": "novo_ghazak_punho_de_aco_aura_cura",
+        "nome": "Aura Restauradora",
+        "icone": "💚",
+        "descricao": "O time inteiro recebe 20% mais cura.",
+        "efeito": {
+          "tipo": "cura_recebida",
+          "valor": 1.272,
+          "escopo": "time"
+        }
+      }
+    ]
   }
 ]

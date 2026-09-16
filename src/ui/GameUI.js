@@ -1,48 +1,290 @@
 // Telas de inventário, missões, loja, forja, diálogo e HUD (tudo em DOM/HTML).
+import { caminhoDoIcone } from "../data/itemIcons.js";
 import { RARITY_COLORS, RARITY_LABEL, equiparItem, desequiparItem, usarConsumivel, venderItem, comprarItem } from "../systems/InventorySystem.js";
 import { receitaDisponivel, craftar } from "../systems/CraftingSystem.js";
-import { itemPodeSerAprimorado, nivelAprimoramento, custoProximoNivel, podeAprimorar, aprimorarItem, MAX_NIVEL_APRIMORAMENTO } from "../systems/EnchantSystem.js";
+import { itemPodeSerAprimorado, nivelAprimoramento, custoProximoNivel, podeAprimorar, aprimorarItem, MAX_NIVEL_APRIMORAMENTO,
+  escolherSubStatusDoMarco,
+  temMarcoPendente} from "../systems/EnchantSystem.js";
 import { iniciarMissao, missaoPronta, concluirMissao } from "../systems/QuestSystem.js";
 import { missoesDiariasParaExibir, coletarRecompensaDiaria } from "../systems/DailyQuestSystem.js";
-import { ganharXP, aplicarCrescimento, cryptoId, escolhaPendente } from "../systems/CharacterFactory.js";
+import { ganharXP, aplicarCrescimento, cryptoId } from "../systems/CharacterFactory.js";
+import { temCompraDisponivel } from "../systems/SkillTreeSystem.js";
+
+// BUG ANTIGO, achado pelo teste da masmorra: `REPUTACAO_POR_MISSAO` era
+// usado duas vezes ao concluir uma missão pelo diálogo de NPC e não estava
+// declarado em lugar nenhum do projeto (conferido: só estas duas linhas o
+// mencionavam). Toda entrega de missão por diálogo lançava
+// "REPUTACAO_POR_MISSAO is not defined" e a recompensa não chegava a ser
+// mostrada. O valor segue a mesma régua de REPUTACAO_POR_CHEFE (20 em
+// BattleUI.js): uma missão vale menos que derrubar um chefe.
+const REPUTACAO_POR_MISSAO = 8;
 import { adicionarFragmentos, checarConquistas } from "../systems/GachaSystem.js";
 import { testesDoContexto, testeJaFeito, marcarTesteFeito, realizarTeste } from "../systems/SkillCheckSystem.js";
 import { getReputacao, alterarReputacao, tierDaReputacao, multiplicadorPrecoLoja, registrarDecisao } from "../systems/WorldStateSystem.js";
 import { zonaFoiVisitada } from "../systems/FastTravelSystem.js";
 import { conjuntosParaExibir } from "../systems/SetBonusSystem.js";
-import { multiplicadorVelocidadeMensagem } from "../systems/AccessibilitySystem.js";
 import { registrarEvento } from "../systems/TelemetrySystem.js";
+import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { personagemTemCaminhoHerdeiro } from "./TalentTreeUI.js";
+import { planejarEquipamento, aplicarPlanoEquipamento, autoEquiparSlotsVazios, garantirPrefAutoEquipar } from "../systems/AutoEquipSystem.js";
+import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, marcarNavbarAtiva } from "./HdaUI.js";
+import { falaAtual, reacaoPorReputacao, registrarConversa } from "../systems/NpcSystem.js";
+import { questsOferecidasPor, aceitarQuestRegional, concluirQuestRegional, progressoObjetivoRegional } from "../systems/RegionalQuestSystem.js";
+import { questRegionalPorId, PASSOS_INICIAIS } from "../data/world/regionalQuests.js";
+import { linhasDaConsequencia, resumoDaConsequencia } from "../systems/ConsequenciaTexto.js";
+import { reproduzirCutscene } from "./CutsceneUI.js";
+import { textoSubStatus, GRAU_ROTULO, GRAU_COR, MARCOS, NIVEL_MAXIMO as SUB_NIVEL_MAX } from "../systems/SubStatusSystem.js";
+import { celebrarNivel } from "./CartaoUI.js";
+import { cenaDeAbertura, jaViu } from "../systems/CutsceneSystem.js";
+import { proximoPassoAltaverde, podeRecrutarAshryn, recrutarAshryn } from "../systems/JornadaSystem.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
 
 export function fecharModal() {
-  overlay().classList.add("hidden");
-  conteudo().innerHTML = "";
+  fecharTela();
 }
 
-export function abrirModalBase(titulo) {
-  overlay().classList.remove("hidden");
-  conteudo().innerHTML = `<button class="fechar">Fechar (Esc)</button><h2>${titulo}</h2><div id="modal-corpo"></div>`;
-  conteudo().querySelector(".fechar").onclick = fecharModal;
+// Casca de tela padrão. Antes montava tudo num bloco só (`<button>Fechar</button>
+// <h2>…</h2><div id="modal-corpo">`) dentro de um `#modal-conteudo` que rolava
+// inteiro — por isso o título e as ações sumiam de vista junto com a lista.
+// Agora delega para `abrirTela()` (ver HdaUI.js), que separa cabeçalho fixo,
+// corpo rolável e barra de ações fixa. A assinatura antiga continua valendo:
+// quem chamava `abrirModalBase("Título")` e recebia o corpo continua
+// funcionando sem nenhuma mudança.
+export function abrirModalBase(titulo, opcoes = {}) {
+  const tela = abrirTela({ titulo, ...opcoes });
+  telaAtual = tela;
+  const corpo = tela.corpo;
+  corpo.__tela = tela;
   // Telemetria mínima local (item 98 de 100_melhorias.md): ponto único que
   // cobre a maioria das telas do jogo, já que quase todas passam por aqui —
   // só o título (nunca conteúdo do jogador), pra saber onde o tempo é gasto.
   registrarEvento("tela_aberta", { tela: titulo });
-  return conteudo().querySelector("#modal-corpo");
+  return corpo;
 }
 
-export function mostrarMensagem(texto, duracaoMs = 2200) {
-  const el = document.getElementById("mensagem-topo");
-  el.textContent = texto;
-  el.classList.remove("hidden");
-  clearTimeout(mostrarMensagem._t);
-  // Acessibilidade (melhoria pós-backlog, ver AccessibilitySystem.js):
-  // velocidade de mensagens é uma preferência do jogador, não do
-  // personagem — multiplicador 1 (padrão) mantém o comportamento idêntico
-  // a antes deste sistema existir.
-  mostrarMensagem._t = setTimeout(() => el.classList.add("hidden"), Math.round(duracaoMs * multiplicadorVelocidadeMensagem()));
+// Última casca aberta — permite às telas usarem `definirAcoes`/`definirAbas`
+// sem mudar a assinatura de `abrirModalBase`.
+let telaAtual = null;
+export function telaAberta() { return telaAtual; }
+
+// Re-exportado de Notificacoes.js. A implementação saiu daqui porque a
+// versão antiga escrevia numa div única — a segunda mensagem apagava a
+// primeira, e no modo automático (ouro, nível, poção, item em quadros
+// seguidos) isso virava um borrão ilegível. A assinatura é a mesma, então
+// as dezenas de chamadas espalhadas pelo jogo continuam valendo e ganham
+// o visual novo sem serem tocadas.
+// ATENÇÃO: `export { x } from "..."` NÃO cria binding local — este arquivo
+// chama mostrarMensagem() 14 vezes, e um re-export puro daria ReferenceError
+// em todas. Por isso: importa (para uso interno) E reexporta (para quem
+// importava daqui).
+import {
+  mostrarMensagem, notificar, notificarGanho, notificarSucesso,
+  notificarAviso, notificarErro, limparNotificacoes,
+} from "./Notificacoes.js";
+
+export {
+  mostrarMensagem, notificar, notificarGanho, notificarSucesso,
+  notificarAviso, notificarErro, limparNotificacoes,
+};
+
+// =====================================================================
+// ARQUITETURA DE NAVEGAÇÃO (itens 13, 43, 44, 45, 82, 83, 84)
+//
+// O HUD tinha 15 botões soltos numa coluna vertical à direita. No desktop
+// isso já era uma parede sem hierarquia; no celular a coluna simplesmente
+// não cabia na tela.
+//
+// Agora existe UMA definição de navegação, usada pelos dois formatos
+// (item 84): no desktop ela vira a mesma coluna, mas AGRUPADA por hub; no
+// celular vira a barra inferior de 5 destinos, e cada hub abre a sua lista
+// num painel. A profundidade máxima é hub → ação (item 83) — nenhuma função
+// ficou a três níveis de distância.
+//
+// Os `id` originais (#btn-caminhos, #btn-auto) foram preservados porque
+// atualizarHUD, main.js e BattleUI.js os procuram pelo id.
+// De cinco hubs para QUATRO. O "Codex" era um hub inteiro para uma única
+// ação (Compêndio) — um destino de primeiro nível que abria uma tela só, o
+// que desperdiça um dos poucos lugares que o jogador consegue memorizar.
+// Compêndio desceu para Jornada, que é onde mora o resto do conhecimento do
+// mundo (Atlas, Diário, Missões), e Forja subiu para Mochila, que é onde o
+// jogador já está quando pensa em item. Sobram quatro blocos com peso
+// parecido — 4, 5, 3 e 5 ações — em vez de 4, 4, 2, 1 e 6.
+//
+// O "Modo Automático" saiu do hub e virou botão solto no trilho (ver
+// montarNavegacao): ele é um ESTADO ligado/desligado que pisca enquanto está
+// ativo, e um estado escondido dentro de um menu fechado não é um estado
+// visível. #btn-auto continua existindo com o mesmo id porque main.js e
+// BattleUI.js o procuram por ele.
+export const ACAO_AUTO = { acao: "auto", rotulo: "Modo Automático", icone: "▶", atalho: "P", id: "btn-auto" };
+
+export const HUBS = [
+  // `curto` é o rótulo do trilho, onde cabem 68px: "Personagem" virava
+  // "PERSON…" e uma palavra cortada não é um rótulo. Na barra do celular e no
+  // título do painel continua valendo o nome inteiro.
+  { id: "personagem", icone: "👤", rotulo: "Personagem", curto: "Herói", acoes: [
+    { acao: "estado", rotulo: "Como você está", icone: "📋", atalho: "K" },
+    { acao: "arvore", rotulo: "Habilidades", icone: "✨", atalho: "T" },
+    { acao: "caminhos", rotulo: "Caminhos do Herdeiro", icone: "🌌", atalho: "H", id: "btn-caminhos", ocultavel: true },
+    // "Time" saiu de dentro do painel de invocação e virou tela própria
+    // (PartyUI.js). Antes, para vestir um convocado era preciso passar pelo
+    // gacha — uma tela de sorteio — o que misturava duas coisas que não têm
+    // nada a ver uma com a outra.
+    { acao: "party", rotulo: "Time e Mochila", icone: "🛡️", atalho: "Y" },
+    { acao: "gacha", rotulo: "Invocação", icone: "✨", atalho: "G" },
+  ] },
+  // "Mapa" e "Atlas" são duas coisas e continuam separadas: o Mapa (U) é
+  // desenhado do território real, mostra o nível de cada região e respeita a
+  // névoa — é instrumento de navegação; o Atlas é a pintura de lore com as 17
+  // regiões catalogadas — é leitura. Unir os dois faria o jogador procurar
+  // uma coisa e achar a outra.
+  { id: "jornada", icone: "🧭", rotulo: "Jornada", acoes: [
+    { acao: "missoes", rotulo: "Missões", icone: "📜", atalho: "M" },
+    { acao: "mapa", rotulo: "Mapa de Aethra", icone: "🗺️", atalho: "U" },
+    { acao: "viagem", rotulo: "Viagem Rápida", icone: "🧭", atalho: "V" },
+    { acao: "atlas", rotulo: "Atlas ilustrado", icone: "🖼️" },
+    { acao: "diario", rotulo: "Diário de Decisões", icone: "📖", atalho: "D" },
+    { acao: "compendio", rotulo: "Compêndio", icone: "📚", atalho: "C" },
+  ] },
+  { id: "mochila", icone: "🎒", rotulo: "Mochila", acoes: [
+    { acao: "party", rotulo: "Mochila do grupo", icone: "🎒", atalho: "I" },
+    { acao: "inventario", rotulo: "Só do principal", icone: "👤" },
+    { acao: "forja", rotulo: "Forja & Alquimia", icone: "🔨", atalho: "F" },
+  ] },
+  { id: "mais", icone: "⋯", rotulo: "Mais", acoes: [
+    { acao: "descansar", rotulo: "Descansar", icone: "💤", atalho: "R" },
+    { acao: "sair_masmorra", rotulo: "Sair da Masmorra", icone: "🚪" },
+    { acao: "salvar", rotulo: "Salvar", icone: "💾", atalho: "S" },
+    { acao: "acessibilidade", rotulo: "Acessibilidade", icone: "⚙️" },
+  ] },
+];
+
+// Monta a navegação nos dois formatos a partir de HUBS. Chamada uma vez pelo
+// boot (main.js) e de novo em toda troca de orientação/tamanho.
+export function montarNavegacao(onAcao) {
+  const hud = document.getElementById("hud-buttons");
+  if (hud) {
+    // TRILHO LATERAL (desktop). A parede de 17 botões empilhados ocupava 760
+    // pixels da direita da tela — um quinto do mundo escondido atrás de um
+    // menu que fica aberto o tempo todo mesmo quando não se está usando. E
+    // como o #hud é um flex com align-items: center, a altura dessa torre
+    // era o que jogava a caixa de identidade para o MEIO da tela, em cima do
+    // personagem.
+    //
+    // Agora são quatro abas de 64px e um painel que só existe enquanto está
+    // aberto. Fechado, o menu inteiro custa 64px de largura; aberto, ele
+    // cobre um retângulo do canto direito e some no clique seguinte.
+    hud.className = "hda-vira-navbar hud-trilho";
+    hud.innerHTML = "";
+
+    const paineis = document.createElement("div");
+    paineis.className = "hud-paineis";
+
+    const abas = document.createElement("div");
+    abas.className = "hud-abas";
+    abas.setAttribute("role", "tablist");
+    abas.setAttribute("aria-label", "Menus do jogo");
+
+    let abertoId = null;
+    const fecharPainel = () => {
+      abertoId = null;
+      paineis.querySelectorAll(".hud-painel").forEach((p) => p.classList.add("hidden"));
+      abas.querySelectorAll("button").forEach((b) => { b.classList.remove("ativa"); b.setAttribute("aria-expanded", "false"); });
+      hud.classList.remove("aberto");
+    };
+    const abrirPainel = (id) => {
+      if (abertoId === id) { fecharPainel(); return; }
+      abertoId = id;
+      paineis.querySelectorAll(".hud-painel").forEach((p) => p.classList.toggle("hidden", p.dataset.hub !== id));
+      abas.querySelectorAll("button").forEach((b) => {
+        const ativo = b.dataset.hub === id;
+        b.classList.toggle("ativa", ativo);
+        b.setAttribute("aria-expanded", String(ativo));
+      });
+      hud.classList.add("aberto");
+    };
+
+    for (const hub of HUBS) {
+      const aba = document.createElement("button");
+      aba.type = "button";
+      aba.dataset.hub = hub.id;
+      aba.setAttribute("role", "tab");
+      aba.setAttribute("aria-expanded", "false");
+      aba.title = hub.rotulo;
+      aba.innerHTML = `<span class="hud-aba-icone" aria-hidden="true">${hub.icone}</span><span class="hud-aba-rotulo">${hub.curto || hub.rotulo}</span>`;
+      aba.onclick = (ev) => { ev.stopPropagation(); abrirPainel(hub.id); };
+      abas.appendChild(aba);
+
+      // Todos os painéis nascem no DOM (escondidos). É isso que mantém
+      // #btn-caminhos existindo mesmo com o menu fechado — atualizarHUD
+      // liga e desliga esse botão pelo id, e um id que só existe quando o
+      // menu está aberto seria um id que não existe na hora em que é usado.
+      const painel = document.createElement("div");
+      painel.className = "hud-painel hidden";
+      painel.dataset.hub = hub.id;
+      painel.innerHTML = `<span class="hud-painel-rotulo">${hub.icone} ${hub.rotulo}</span>`;
+      for (const a of hub.acoes) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.dataset.action = a.acao;
+        if (a.id) b.id = a.id;
+        if (a.ocultavel) b.classList.add("hidden");
+        b.innerHTML = `<span class="hud-acao-icone" aria-hidden="true">${a.icone}</span><span class="hud-acao-rotulo">${a.rotulo}</span>${a.atalho ? `<kbd>${a.atalho}</kbd>` : ""}`;
+        b.onclick = () => { fecharPainel(); onAcao(a.acao); };
+        painel.appendChild(b);
+      }
+      paineis.appendChild(painel);
+    }
+
+    // O Automático fica FORA das abas, sempre visível: ele é um estado que
+    // pisca enquanto está ligado, e estado escondido dentro de menu fechado
+    // não comunica nada. Mesmo id de sempre (#btn-auto).
+    const auto = document.createElement("button");
+    auto.type = "button";
+    auto.id = ACAO_AUTO.id;
+    auto.className = "hud-aba hud-aba-auto";
+    auto.dataset.action = ACAO_AUTO.acao;
+    auto.title = `${ACAO_AUTO.rotulo} (${ACAO_AUTO.atalho})`;
+    auto.innerHTML = `<span class="hud-aba-icone" aria-hidden="true">${ACAO_AUTO.icone}</span><span class="hud-aba-rotulo">Auto</span>`;
+    auto.onclick = (ev) => { ev.stopPropagation(); fecharPainel(); onAcao(ACAO_AUTO.acao); };
+    abas.appendChild(auto);
+
+    hud.appendChild(paineis);
+    hud.appendChild(abas);
+
+    // Clicar no mundo ou apertar Esc fecha o painel. Sem isto o menu aberto
+    // vira um estado preso: some só se você acertar a mesma aba de novo.
+    document.addEventListener("click", (ev) => { if (abertoId && !hud.contains(ev.target)) fecharPainel(); });
+    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && abertoId) fecharPainel(); });
+  }
+
+  // Barra inferior (celular). Um hub com uma única ação abre direto; os
+  // demais abrem a lista num painel — nunca mais de dois toques (item 83).
+  montarNavbar(HUBS.map((h) => ({ id: h.id, icone: h.icone, rotulo: h.rotulo })), (id) => {
+    const hub = HUBS.find((h) => h.id === id);
+    if (!hub) return;
+    marcarNavbarAtiva(id);
+    if (hub.direto) { fecharSheet(); onAcao(hub.direto); return; }
+    const visiveis = hub.acoes.filter((a) => {
+      if (!a.ocultavel) return true;
+      const el = document.getElementById(a.id);
+      return el && !el.classList.contains("hidden");
+    });
+    // No celular o Automático entra no fim de "Mais": lá o trilho não
+    // existe, e sem esta linha o modo automático ficaria inalcançável pelo
+    // dedo — só pelo atalho de teclado, que num celular não existe.
+    const acoes = hub.id === "mais" ? [...visiveis, ACAO_AUTO] : visiveis;
+    abrirSheet({
+      titulo: `${hub.icone} ${hub.rotulo}`,
+      corpoHTML: "",
+      acoes: acoes.map((a) => ({
+        rotulo: `${a.icone} ${a.rotulo}`,
+        onClick: () => { fecharSheet(); onAcao(a.acao); },
+      })),
+      aoFechar: () => marcarNavbarAtiva(null),
+    });
+  });
 }
 
 export function atualizarHUD(personagem) {
@@ -67,15 +309,50 @@ export function atualizarHUD(personagem) {
   // (aqui, o mais simples e universal — faltam quantos XP pro próximo
   // nível), sem precisar abrir nenhuma tela.
   const faltamXP = Math.max(0, personagem.xpProximo - personagem.xp);
+
+  // Os números saíram de dentro de um parágrafo de texto e viraram rótulos
+  // em cima das próprias barras: "HP 58/58" ao lado da barra de HP diz a
+  // mesma coisa que a barra e ocupa o mesmo lugar. Antes a linha de recursos
+  // repetia HP e MP que já estavam desenhados dois centímetros ao lado.
+  const num = (id, txt, dica) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = txt;
+    if (dica) el.title = dica;
+  };
+  num("hud-hp-num", `${personagem.hp}/${personagem.hpMax}`, "Pontos de vida");
+  num("hud-mp-num", `${personagem.mp}/${personagem.mpMax}`, "Pontos de magia");
+  // A frase inteira virou dica da barra. Ela ficava numa segunda linha embaixo
+  // do nome dizendo a mesma coisa que o número ao lado da barra de XP — duas
+  // vezes o mesmo dado em 3cm de faixa.
+  num("hud-xp-num", `faltam ${faltamXP}`, `Faltam ${faltamXP} XP para o nível ${personagem.nivel + 1}`);
+
+  // As três linhas viraram três elementos com classe própria. O motivo é o
+  // celular em pé: o bloco inteiro ocupava três linhas de texto no topo da
+  // tela cheia, tampando o mundo justo na direção em que o jogador anda. Com
+  // classes, o CSS esconde as duas linhas de menu (ouro, fragmentos, XP que
+  // falta — tudo isso está a um toque de distância nas telas) e mantém quem
+  // você é e de que nível, que é o que se lê de relance.
   document.getElementById("hud-info").innerHTML =
-    `<b>${personagem.nome}</b> - Nv. ${personagem.nivel} ${personagem.classeIcone || ""} ${personagem.classeNome}${seloNgPlus}${seloModoHistoria}<br/>HP ${personagem.hp}/${personagem.hpMax} · MP ${personagem.mp}/${personagem.mpMax} · Ouro: ${personagem.ouro} · Fragmentos: ${fragmentos}<br/><span style="opacity:0.75;font-size:0.85em;">Faltam ${faltamXP} XP para o nível ${personagem.nivel + 1}</span>`;
+    `<span class="hud-linha-identidade"><b>${personagem.nome}</b><span class="hud-nivel">Nv. ${personagem.nivel}</span><span class="hud-classe">${personagem.classeIcone || ""} ${personagem.classeNome}</span>${seloNgPlus}${seloModoHistoria}</span>`
+    + `<span class="hud-linha-xp">Faltam ${faltamXP} XP para o nível ${personagem.nivel + 1}</span>`;
+
+  // Ouro e fragmentos saíram do parágrafo e viraram duas fichas próprias no
+  // canto direito da faixa — é o canto em que o jogador procura moeda em
+  // qualquer RPG, e como ficha o número muda de valor sem reescrever texto.
+  const bolsa = document.getElementById("hud-bolsa");
+  if (bolsa) {
+    bolsa.innerHTML =
+      `<span class="hud-ficha" title="Ouro"><span aria-hidden="true">🪙</span>${personagem.ouro}</span>`
+      + `<span class="hud-ficha" title="Fragmentos de invocação"><span aria-hidden="true">💠</span>${fragmentos}</span>`;
+  }
 }
 
 export function itemCardHTML(item, extraBotoesHTML = "") {
   const cor = RARITY_COLORS[item.raridade] || "#888";
   return `
     <div class="card">
-      <span class="icon-frame" style="border-color:${cor}"><img src="assets/icons/${item.icone}.png" /></span>
+      <span class="icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" /></span>
       <div class="info">
         <div class="nome">${item.nome} <span class="raridade-badge" style="background:${cor}">${RARITY_LABEL[item.raridade]}</span></div>
         <div class="desc">${item.descricao || ""}</div>
@@ -87,7 +364,10 @@ export function itemCardHTML(item, extraBotoesHTML = "") {
 // Ordem fixa dos 7 slots de equipamento — sempre renderizados, vazios ou
 // não, pra virar um painel visual estável em vez de uma lista que só mostra
 // o que está preenchido (task #39).
-const SLOTS_EQUIPAMENTO = [
+// Exportado para a tela unificada de Party (PartyUI.js) usar a MESMA lista.
+// Duplicar sete slots em dois arquivos é como um slot novo aparece num
+// lugar e some no outro.
+export const SLOTS_EQUIPAMENTO = [
   { slot: "arma", label: "Arma", icone: "⚔️" },
   { slot: "peito", label: "Peito", icone: "🛡️" },
   { slot: "cabeca", label: "Cabeça", icone: "🪖" },
@@ -153,7 +433,7 @@ function comparacaoEquipamentoHTML(candidato, alvo) {
   return `<div class="comparacao-equip" title="Comparado com ${equipado.nome}, já equipado neste slot">vs. equipado (${equipado.nome}): ${linhasHTML}${elementoHTML}</div>`;
 }
 
-function slotEquipadoHTML({ slot, label, icone }, item) {
+export function slotEquipadoHTML({ slot, label, icone }, item) {
   if (!item) {
     return `
       <div class="equip-slot vazio" data-slot="${slot}">
@@ -165,11 +445,93 @@ function slotEquipadoHTML({ slot, label, icone }, item) {
   const cor = RARITY_COLORS[item.raridade] || "#888";
   return `
     <div class="equip-slot preenchido" data-slot="${slot}" style="border-color:${cor}">
-      <span class="icon-frame" style="border-color:${cor}"><img src="assets/icons/${item.icone}.png" /></span>
+      <span class="icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" /></span>
       <div class="equip-slot-label">${label}</div>
       <div class="equip-slot-item-nome">${item.nome}</div>
       <button data-slot="${slot}" class="btn-desequipar">Remover</button>
     </div>`;
+}
+
+// ---- Painel de equipamento automático (aba "Equipado") ----------------
+// Regra combinada com o jogador: slot VAZIO se resolve sozinho; peça já
+// equipada só troca se ele mandar. Por isso são duas coisas separadas aqui —
+// um interruptor pro automático silencioso e um botão explícito pro resto.
+//
+// O botão nunca aplica direto: ele MOSTRA o que pretende trocar (com a
+// diferença de estatísticas de cada peça) e espera a confirmação. Trocar
+// equipamento sem avisar é a maneira mais rápida de desfazer uma build que o
+// jogador montou de propósito.
+function painelAutoEquipar(personagem, time, dados, aoAplicar) {
+  const painel = document.createElement("div");
+  painel.className = "auto-equipar";
+  // Sem contexto (chamador antigo que não passou dados/time) o painel
+  // simplesmente não existe — a tela volta a ser a de antes.
+  if (!dados || !time) return painel;
+
+  garantirPrefAutoEquipar(personagem);
+  painel.innerHTML = `
+    <h3>⚙️ Equipamento automático</h3>
+    <label class="auto-equipar-check">
+      <input type="checkbox" id="chk-auto-equipar"${personagem.autoEquiparVazios ? " checked" : ""}/>
+      <span>Vestir sozinho quando o slot estiver <b>vazio</b> (você e o time)</span>
+    </label>
+    <p class="desc auto-equipar-nota">Peça que você já escolheu nunca é trocada sem sua ordem. Pra revisar trocas, use o botão abaixo.</p>
+    <div class="auto-equipar-acoes"></div>
+    <div class="auto-equipar-plano"></div>`;
+
+  painel.querySelector("#chk-auto-equipar").onchange = (ev) => {
+    personagem.autoEquiparVazios = ev.target.checked;
+    // Ligar já vale pra agora: preenche o que estiver vazio na hora, em vez
+    // de esperar o próximo baú.
+    if (personagem.autoEquiparVazios) autoEquiparSlotsVazios(personagem, time, dados);
+    aoAplicar();
+  };
+
+  const areaAcoes = painel.querySelector(".auto-equipar-acoes");
+  const areaPlano = painel.querySelector(".auto-equipar-plano");
+
+  const btn = document.createElement("button");
+  btn.textContent = "⚡ Otimizar equipamento";
+  btn.className = "btn-otimizar";
+  btn.title = "Procura na mochila trocas que aumentem o poder de combate — você vê a lista antes de qualquer coisa mudar";
+  btn.onclick = () => {
+    const plano = planejarEquipamento(personagem, time, dados, { incluirUpgrades: true });
+    if (!plano.length) {
+      areaPlano.innerHTML = `<p class="desc auto-equipar-ok">✅ Nada a melhorar: o que está na mochila não supera o que já está vestido.</p>`;
+      return;
+    }
+    areaPlano.innerHTML = `
+      <p class="auto-equipar-titulo">${plano.length} troca${plano.length > 1 ? "s" : ""} sugerida${plano.length > 1 ? "s" : ""}:</p>
+      <ul class="auto-equipar-lista">${plano.map((a) => linhaPlanoHTML(a, personagem)).join("")}</ul>
+      <div class="auto-equipar-confirma">
+        <button class="btn-aplicar-plano">✅ Aplicar tudo</button>
+        <button class="btn-cancelar-plano">Cancelar</button>
+      </div>`;
+    areaPlano.querySelector(".btn-cancelar-plano").onclick = () => { areaPlano.innerHTML = ""; };
+    areaPlano.querySelector(".btn-aplicar-plano").onclick = () => {
+      aplicarPlanoEquipamento(personagem, plano);
+      aoAplicar();
+    };
+  };
+  areaAcoes.appendChild(btn);
+
+  return painel;
+}
+
+// Uma linha do plano: quem, qual slot, o que sai, o que entra e por quê.
+// Reaproveita compararComEquipado() (a mesma comparação que a grade da
+// mochila já mostra) pra o jogador ler a troca com a régua que ele conhece.
+function linhaPlanoHTML(acao, personagemPrincipal) {
+  const quem = acao.alvo === personagemPrincipal ? "" : `<b>${acao.alvoNome}</b> · `;
+  const rotuloSlot = (SLOTS_EQUIPAMENTO.find((s) => s.slot === acao.slot) || { label: acao.slot, icone: "•" });
+  if (!acao.itemAnterior) {
+    return `<li class="auto-equipar-item vazio">${quem}${rotuloSlot.icone} ${rotuloSlot.label}: <i>vazio</i> → <b>${acao.item.nome}</b></li>`;
+  }
+  const cmp = compararComEquipado(acao.item, acao.itemAnterior);
+  const diffs = cmp
+    ? cmp.linhas.map((l) => `<span class="comparacao-stat ${l.melhor ? "melhor" : "pior"}">${l.label} ${l.novo > l.atual ? "+" : ""}${l.novo - l.atual}</span>`).join(" ")
+    : "";
+  return `<li class="auto-equipar-item">${quem}${rotuloSlot.icone} ${rotuloSlot.label}: ${acao.itemAnterior.nome} → <b>${acao.item.nome}</b> ${diffs}</li>`;
 }
 
 // Agrupa itens idênticos (mesmo `id`) da mochila numa única pilha visual —
@@ -177,13 +539,52 @@ function slotEquipadoHTML({ slot, label, icone }, item) {
 // próprio uid, ver InventorySystem.js), isso é só apresentação (task #39).
 // Exportada (e não só usada internamente) pra dar pra testar a lógica de
 // agrupamento sem precisar de DOM — ver scripts/test_inventory_ui.mjs.
+// ORDEM DE RELEVÂNCIA da mochila (pedido: "do mais relevante para o menos").
+//
+// A ordem era a de INSERÇÃO — a ordem em que os itens caíram, que é a mesma
+// coisa que ordem nenhuma. Com 287 itens no catálogo e a mochila crescendo a
+// luta inteira, o que interessa fica soterrado no fim da lista.
+//
+// A régua, de fora para dentro:
+//   1. EQUIPAMENTO antes de consumível, e consumível antes de material.
+//      Material é insumo de forja; nunca é a resposta para "o que eu faço
+//      agora".
+//   2. RARIDADE decrescente. É a leitura que o jogador já faz pela cor.
+//   3. PODER decrescente (soma dos números do item) — desempata dois épicos.
+//   4. NOME, só para a ordem ser estável entre redesenhos: sem isso dois
+//      itens empatados trocam de lugar a cada tecla digitada na busca.
+export const ORDEM_TIPO = { arma: 0, armadura: 1, acessorio: 2, consumivel: 3, material: 4 };
+export const ORDEM_RARIDADE = { lendario: 0, epico: 1, raro: 2, incomum: 3, comum: 4 };
+
+const CAMPOS_PODER_ITEM = ["dano", "danoMagico", "defesa", "bonusCritico", "bonusVelocidade", "bonusCura", "curaHP", "curaMP"];
+export function relevanciaDoItem(item) {
+  const poder = CAMPOS_PODER_ITEM.reduce((s, k) => s + (Number(item[k]) || 0), 0)
+    + Object.values(item.bonusAtributo || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+  return {
+    tipo: ORDEM_TIPO[item.tipo] != null ? ORDEM_TIPO[item.tipo] : 9,
+    raridade: ORDEM_RARIDADE[item.raridade] != null ? ORDEM_RARIDADE[item.raridade] : 9,
+    poder,
+  };
+}
+
+export function ordenarPorRelevancia(pilhas) {
+  return [...pilhas].sort((a, b) => {
+    const ra = relevanciaDoItem(a.item);
+    const rb = relevanciaDoItem(b.item);
+    return ra.tipo - rb.tipo
+      || ra.raridade - rb.raridade
+      || rb.poder - ra.poder
+      || String(a.item.nome).localeCompare(String(b.item.nome));
+  });
+}
+
 export function empilharInventario(inventario) {
   const pilhas = new Map();
   inventario.forEach((item) => {
     if (!pilhas.has(item.id)) pilhas.set(item.id, { item, uids: [] });
     pilhas.get(item.id).uids.push(item.uid);
   });
-  return [...pilhas.values()];
+  return ordenarPorRelevancia([...pilhas.values()]);
 }
 
 // `alvo` (pedido do jogador: equipar/curar convocados do gacha, não só o
@@ -200,106 +601,191 @@ export function empilharInventario(inventario) {
 // "← Voltar" que chama esse callback em vez de só fechar tudo — mesmo
 // padrão já usado por montarDespertar/montarVinculo (AwakeningUI.js/
 // BondUI.js) pra voltar à Coleção.
-export function montarInventario(personagem, onMudar, alvo = personagem, aoVoltar = null) {
+// `contexto` ({ dados, time }) é opcional de propósito: sem ele a tela
+// funciona exatamente como antes, só sem o painel de equipamento
+// automático (que precisa das fórmulas do jogo e do time inteiro pra
+// decidir). Assim nenhum chamador antigo quebra.
+export function montarInventario(personagem, onMudar, alvo = personagem, aoVoltar = null, estadoAba = null, contexto = {}) {
+  const { dados = null, time = null } = contexto;
   const ehOutroAlvo = alvo !== personagem;
-  const corpo = abrirModalBase(ehOutroAlvo ? `Inventário — ${alvo.nome}` : "Inventário");
+  // Estado de navegação da tela (aba e item selecionado). Preservado entre
+  // re-renderizações para o jogador não voltar ao topo da lista toda vez que
+  // equipa alguma coisa.
+  const estado = estadoAba || { aba: "todos", uidSelecionado: null };
+
+  const tela = abrirTela({
+    titulo: ehOutroAlvo ? `Inventário — ${alvo.nome}` : "Inventário",
+    subtitulo: `🪙 ${personagem.ouro}`,
+    largura: LARGURA.larga,
+    classe: "tela-inventario",
+  });
+  const corpo = tela.corpo;
+  registrarEvento("tela_aberta", { tela: "Inventário" });
+
+  const redesenhar = () => montarInventario(personagem, onMudar, alvo, aoVoltar, estado, contexto);
+
+  // ---- Abas por categoria (item 82) -----------------------------------
+  const ABAS = [
+    { id: "equipado", rotulo: "Equipado", icone: "🎽" },
+    { id: "todos", rotulo: "Todos", icone: "🎒" },
+    { id: "arma", rotulo: "Armas", icone: "⚔️" },
+    { id: "armadura", rotulo: "Armaduras", icone: "🛡️" },
+    { id: "acessorio", rotulo: "Acessórios", icone: "💍" },
+    { id: "consumivel", rotulo: "Consumíveis", icone: "🧪" },
+    { id: "material", rotulo: "Materiais", icone: "🪵" },
+  ];
+  tela.definirAbas(ABAS, (id) => { estado.aba = id; estado.uidSelecionado = null; redesenhar(); }, estado.aba);
 
   if (aoVoltar) {
     const btnVoltar = document.createElement("button");
     btnVoltar.textContent = "← Voltar ao Time";
-    btnVoltar.style.cssText = "margin-bottom:8px;";
+    btnVoltar.style.cssText = "margin:0 0 10px;";
     btnVoltar.onclick = aoVoltar;
     corpo.appendChild(btnVoltar);
   }
 
-  const equipDiv = document.createElement("div");
-  equipDiv.innerHTML = ehOutroAlvo ? `<h3>Equipado em ${alvo.nome}</h3>` : "<h3>Equipado</h3>";
-  const gridEquip = document.createElement("div");
-  gridEquip.className = "equip-slots-grid";
-  gridEquip.innerHTML = SLOTS_EQUIPAMENTO.map((s) => slotEquipadoHTML(s, alvo.equipamento[s.slot])).join("");
-  equipDiv.appendChild(gridEquip);
-  corpo.appendChild(equipDiv);
+  // ---- Aba EQUIPADO: painel de slots + conjuntos -----------------------
+  if (estado.aba === "equipado") {
+    const bloco = document.createElement("div");
+    bloco.innerHTML = `<h3>${ehOutroAlvo ? `Equipado em ${alvo.nome}` : "Equipado"}</h3>`;
+    const gridEquip = document.createElement("div");
+    gridEquip.className = "equip-slots-grid";
+    gridEquip.innerHTML = SLOTS_EQUIPAMENTO.map((sl) => slotEquipadoHTML(sl, alvo.equipamento[sl.slot])).join("");
+    bloco.appendChild(gridEquip);
+    corpo.appendChild(bloco);
 
-  // Conjuntos de equipamento (melhoria pós-backlog, ver SetBonusSystem.js):
-  // mostra o progresso de cada conjunto com pelo menos 1 peça equipada, pra
-  // o jogador saber que vestir peças combinando dá um bônus extra.
-  const conjuntosAtivos = conjuntosParaExibir(alvo);
-  if (conjuntosAtivos.length) {
-    const conjDiv = document.createElement("div");
-    conjDiv.innerHTML = "<h3>Conjuntos</h3>";
-    conjuntosAtivos.forEach((c) => {
-      const p = document.createElement("p");
-      p.className = "desc conjunto-resumo" + (c.tiersAtivos > 0 ? " conjunto-ativo" : "");
-      const statusTexto = c.proximoTierEm
-        ? `${c.equipadas}/${c.total} peças — vista mais ${c.proximoTierEm - c.equipadas} pra ativar o próximo bônus`
-        : `${c.equipadas}/${c.total} peças — todos os bônus ativos!`;
-      p.textContent = `${c.nome}: ${statusTexto}`;
-      conjDiv.appendChild(p);
+    const conjuntosAtivos = conjuntosParaExibir(alvo);
+    if (conjuntosAtivos.length) {
+      const conjDiv = document.createElement("div");
+      conjDiv.innerHTML = "<h3>Conjuntos</h3>";
+      conjuntosAtivos.forEach((c) => {
+        const pEl = document.createElement("p");
+        pEl.className = "desc conjunto-resumo" + (c.tiersAtivos > 0 ? " conjunto-ativo" : "");
+        pEl.textContent = `${c.nome}: ${c.proximoTierEm
+          ? `${c.equipadas}/${c.total} peças — vista mais ${c.proximoTierEm - c.equipadas} pra ativar o próximo bônus`
+          : `${c.equipadas}/${c.total} peças — todos os bônus ativos!`}`;
+        conjDiv.appendChild(pEl);
+      });
+      corpo.appendChild(conjDiv);
+    }
+    corpo.querySelectorAll(".btn-desequipar").forEach((b) => b.onclick = () => {
+      desequiparItem(personagem, b.dataset.slot, alvo);
+      onMudar(); redesenhar();
     });
-    corpo.appendChild(conjDiv);
+
+    corpo.appendChild(painelAutoEquipar(personagem, time, dados, () => { onMudar(); redesenhar(); }));
+
+    tela.definirAcoes([], `${SLOTS_EQUIPAMENTO.filter((sl) => alvo.equipamento[sl.slot]).length}/7 slots preenchidos`);
+    return;
   }
 
-  const invDiv = document.createElement("div");
-  invDiv.innerHTML = "<h3>Mochila</h3>";
-  if (personagem.inventario.length === 0) invDiv.innerHTML += "<p>Vazia.</p>";
-  const pilhas = empilharInventario(personagem.inventario);
-  pilhas.forEach(({ item, uids }) => {
-    const qtd = uids.length;
-    const primeiroUid = uids[0];
-    let botoes = "";
-    if (item.tipo === "arma" || item.tipo === "armadura" || item.tipo === "acessorio") {
-      botoes = `<button data-uid="${primeiroUid}" class="btn-equipar">${ehOutroAlvo ? `Equipar em ${alvo.nome}` : "Equipar"}</button>`;
-    } else if (item.tipo === "consumivel") {
-      botoes = `<button data-uid="${primeiroUid}" class="btn-usar">${ehOutroAlvo ? `Usar em ${alvo.nome}` : "Usar"}</button>`;
-    }
-    const precoUnitario = Math.max(1, Math.round((item.valor || 1) * 0.5));
-    botoes += ` <button data-uid="${primeiroUid}" class="btn-vender">Vender (${precoUnitario}o)</button>`;
-    if (qtd > 1) {
-      botoes += ` <button data-id="${item.id}" class="btn-vender-tudo">Vender Tudo (x${qtd}, ${precoUnitario * qtd}o)</button>`;
-    }
-    const nomeComQtd = qtd > 1 ? `${item.nome} <span class="stack-badge">x${qtd}</span>` : item.nome;
-    const div = document.createElement("div");
-    div.innerHTML = itemCardHTML({ ...item, nome: nomeComQtd }, botoes);
-    // Comparação equipado x candidato (melhoria de jogabilidade #16): só pra
-    // itens equipáveis com algo já equipado no mesmo slot pra comparar.
-    const comparacaoHTML = comparacaoEquipamentoHTML(item, alvo);
-    if (comparacaoHTML) div.innerHTML += comparacaoHTML;
-    invDiv.appendChild(div);
-  });
-  corpo.appendChild(invDiv);
+  // ---- Demais abas: GRADE de itens -------------------------------------
+  const pilhas = empilharInventario(personagem.inventario)
+    .filter(({ item }) => estado.aba === "todos" || item.tipo === estado.aba);
 
-  corpo.querySelectorAll(".btn-equipar").forEach((b) => b.onclick = () => {
-    equiparItem(personagem, b.dataset.uid, alvo);
-    onMudar(); montarInventario(personagem, onMudar, alvo, aoVoltar);
+  if (!pilhas.length) {
+    const vazio = document.createElement("p");
+    vazio.className = "desc";
+    vazio.textContent = estado.aba === "todos" ? "Mochila vazia." : "Nenhum item desta categoria na mochila.";
+    corpo.appendChild(vazio);
+    tela.definirAcoes([], `🪙 ${personagem.ouro} de ouro`);
+    return;
+  }
+
+  const grade = criarGrade({ densidade: "densa" });
+  grade.setAttribute("role", "list");
+  for (const { item, uids } of pilhas) {
+    grade.appendChild(criarLadrilhoItem(item, uids, alvo, estado.uidSelecionado));
+  }
+  corpo.appendChild(grade);
+
+  // ---- Seleção: painel contextual (lateral no desktop, sheet no celular)
+  const selecionar = (item, uids) => {
+    estado.uidSelecionado = uids[0];
+    grade.querySelectorAll(".hda-ladrilho").forEach((el) => el.classList.toggle("selecionado", el.dataset.uid === uids[0]));
+    abrirDetalheItem(item, uids, personagem, alvo, ehOutroAlvo, onMudar, redesenhar);
+  };
+  grade.querySelectorAll(".hda-ladrilho").forEach((el) => {
+    const pilha = pilhas.find((x) => x.uids[0] === el.dataset.uid);
+    if (!pilha) return;
+    el.onclick = () => selecionar(pilha.item, pilha.uids);
+    el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); selecionar(pilha.item, pilha.uids); } };
   });
-  corpo.querySelectorAll(".btn-desequipar").forEach((b) => b.onclick = () => {
-    desequiparItem(personagem, b.dataset.slot, alvo);
-    onMudar(); montarInventario(personagem, onMudar, alvo, aoVoltar);
-  });
-  corpo.querySelectorAll(".btn-usar").forEach((b) => b.onclick = () => {
-    const r = usarConsumivel(personagem, b.dataset.uid, alvo);
-    if (r.msg) mostrarMensagem(r.msg);
-    onMudar(); montarInventario(personagem, onMudar, alvo, aoVoltar);
-  });
-  corpo.querySelectorAll(".btn-vender").forEach((b) => b.onclick = () => {
-    const valor = venderItem(personagem, b.dataset.uid);
-    mostrarMensagem(`Vendido por ${valor} de ouro.`);
-    onMudar(); montarInventario(personagem, onMudar, alvo, aoVoltar);
-  });
-  corpo.querySelectorAll(".btn-vender-tudo").forEach((b) => b.onclick = () => {
-    const pilha = pilhas.find((p) => p.item.id === b.dataset.id);
-    let total = 0;
-    if (pilha) pilha.uids.forEach((uid) => { total += venderItem(personagem, uid); });
-    mostrarMensagem(`Vendidos ${pilha ? pilha.uids.length : 0} itens por ${total} de ouro no total.`);
-    onMudar(); montarInventario(personagem, onMudar, alvo, aoVoltar);
-  });
+
+  tela.definirAcoes([], `🪙 ${personagem.ouro} de ouro · ${pilhas.length} ${pilhas.length === 1 ? "tipo de item" : "tipos de item"}`);
 }
 
-// Missões diárias leves (melhoria de jogabilidade pós-backlog original, ver
-// DailyQuestSystem.js): sempre os mesmos 3 objetivos, resetam sozinhos a
-// cada dia. Fica no topo da tela de Missões, separado das missões de NPC —
-// não precisa aceitar nada, o progresso já conta sozinho a partir do
-// momento em que o personagem existe.
+// Ladrilho compacto de item: ícone grande, nome em no máximo duas linhas,
+// raridade pela moldura E pelo rótulo (a cor nunca é o único sinal, item 61)
+// e a quantidade empilhada. Todo o resto vive no painel de detalhes — é a
+// informação progressiva do item 50.
+export function criarLadrilhoItem(item, uids, alvo, uidSelecionado) {
+  const cor = RARITY_COLORS[item.raridade] || "#888";
+  const el = document.createElement("div");
+  el.className = "hda-ladrilho" + (uids[0] === uidSelecionado ? " selecionado" : "");
+  el.dataset.uid = uids[0];
+  // Declara O QUE este ladrilho é; quem monta a ficha é Tooltip.js. O
+  // atributo `title` sai de cena: ele mostra texto puro, demora ~1,5s e não
+  // cabe uma ficha com números, efeitos e requisito.
+  el.dataset.tipItem = uids[0];
+  el.tabIndex = 0;
+  el.setAttribute("role", "listitem");
+  const equipavel = ["arma", "armadura", "acessorio"].includes(item.tipo);
+  const slot = slotDoItemParaComparacao(item);
+  const equipadoAqui = slot && alvo.equipamento[slot];
+  el.innerHTML = `
+    <span class="hda-ladrilho-icone icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" /></span>
+    <span class="hda-ladrilho-nome hda-clamp-2">${item.nome}</span>
+    <span class="hda-ladrilho-rar" style="color:${cor}">${RARITY_LABEL[item.raridade]}</span>
+    ${uids.length > 1 ? `<span class="hda-ladrilho-qtd">x${uids.length}</span>` : ""}
+    ${equipavel && equipadoAqui ? `<span class="hda-ladrilho-marca" title="Você já tem algo neste slot — o detalhe compara os dois">⇄</span>` : ""}
+  `;
+  return el;
+}
+
+// Painel de detalhes do item. Mesmo componente nos dois formatos (item 47):
+// bottom sheet no celular, painel encostado à direita no desktop. As ações
+// ficam no rodapé FIXO do painel, então EQUIPAR/USAR/VENDER nunca dependem
+// de rolagem (item 6/20).
+function abrirDetalheItem(item, uids, personagem, alvo, ehOutroAlvo, onMudar, redesenhar) {
+  const cor = RARITY_COLORS[item.raridade] || "#888";
+  const precoUnitario = Math.max(1, Math.round((item.valor || 1) * 0.5));
+  const comparacao = comparacaoEquipamentoHTML(item, alvo) || "";
+  const corpoHTML = `
+    <div class="hda-det-topo">
+      <span class="icon-frame hda-det-icone" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" /></span>
+      <div class="hda-det-info">
+        <div class="hda-det-nome hda-nome-longo">${item.nome}</div>
+        <div><span class="raridade-badge" style="background:${cor}">${RARITY_LABEL[item.raridade]}</span> <span class="desc">${item.tipo}</span></div>
+      </div>
+    </div>
+    ${uids.length > 1 ? `<p class="desc">Você tem <b>${uids.length}</b> deste item.</p>` : ""}
+    <p class="desc">${item.descricao || ""}</p>
+    ${comparacao}
+    <p class="desc">Valor de venda: <b>${precoUnitario}</b> de ouro cada.</p>
+  `;
+  const acoes = [];
+  if (["arma", "armadura", "acessorio"].includes(item.tipo)) {
+    acoes.push({ rotulo: ehOutroAlvo ? `Equipar em ${alvo.nome}` : "Equipar", classe: "primario",
+      onClick: () => { equiparItem(personagem, uids[0], alvo); fecharSheet(); onMudar(); redesenhar(); } });
+  } else if (item.tipo === "consumivel") {
+    acoes.push({ rotulo: ehOutroAlvo ? `Usar em ${alvo.nome}` : "Usar", classe: "primario",
+      onClick: () => { const r = usarConsumivel(personagem, uids[0], alvo); if (r.msg) mostrarMensagem(r.msg); fecharSheet(); onMudar(); redesenhar(); } });
+  }
+  acoes.push({ rotulo: `Vender (${precoUnitario}o)`,
+    onClick: () => { const v = venderItem(personagem, uids[0]); mostrarMensagem(`Vendido por ${v} de ouro.`); fecharSheet(); onMudar(); redesenhar(); } });
+  if (uids.length > 1) {
+    acoes.push({ rotulo: `Vender tudo (x${uids.length})`, classe: "perigo",
+      onClick: () => {
+        let total = 0;
+        uids.forEach((uid) => { total += venderItem(personagem, uid); });
+        mostrarMensagem(`Vendidos ${uids.length} itens por ${total} de ouro no total.`);
+        fecharSheet(); onMudar(); redesenhar();
+      } });
+  }
+  abrirSheet({ titulo: item.nome, corpoHTML, acoes });
+}
+
 function montarMissoesDiarias(corpo, personagem, onMudar) {
   const bloco = document.createElement("div");
   bloco.innerHTML = "<h3>📅 Missões Diárias</h3><p class=\"desc\">Resetam todo dia. Progresso conta sozinho enquanto você joga normalmente.</p>";
@@ -330,6 +816,30 @@ function montarMissoesDiarias(corpo, personagem, onMudar) {
 
 export function montarMissoes(personagem, dados) {
   const corpo = abrirModalBase("Missões");
+  const jornada = proximoPassoAltaverde(personagem);
+  const painelJornada = document.createElement("section");
+  painelJornada.className = "card";
+  const tituloJornada = document.createElement("h3");
+  tituloJornada.textContent = `Jornada de Altaverde · ${jornada.concluidos}/${jornada.total}`;
+  const objetivoJornada = document.createElement("p");
+  objetivoJornada.textContent = jornada.orientacao;
+  painelJornada.append(tituloJornada, objetivoJornada);
+  if (podeRecrutarAshryn(personagem)) {
+    const historia = document.createElement("p");
+    historia.textContent = "Elric contou a Ashryn Folhaférrea sobre sua investigação. Ela oferece ajuda para descobrir o que está acontecendo com a floresta.";
+    const recrutar = document.createElement("button");
+    recrutar.className = "primario recrutar-aliado";
+    recrutar.textContent = "Convidar Ashryn para o grupo";
+    recrutar.onclick = () => {
+      const resultado = recrutarAshryn(personagem, dados.gachaRoster);
+      if (!resultado.ok) { mostrarMensagem("Não foi possível encontrar a aliada. Tente abrir as missões novamente."); return; }
+      atualizarHUD(personagem);
+      montarMissoes(personagem, dados);
+      mostrarMensagem(resultado.jaPossuia ? "Ashryn reafirma seu compromisso com a jornada. Seu progresso com ela foi preservado." : resultado.noTime ? "Ashryn entrou no time! Abra Time e Mochila para equipá-la." : "Ashryn se juntou à coleção. Escolha seu time em Time e Mochila.", 7000);
+    };
+    painelJornada.append(historia, recrutar);
+  }
+  corpo.appendChild(painelJornada);
   montarMissoesDiarias(corpo, personagem, () => montarMissoes(personagem, dados));
   const hSeparador = document.createElement("h3");
   hSeparador.textContent = "Missões de NPCs";
@@ -384,142 +894,442 @@ function custoTextoAprimoramento(custo, dados) {
   return `${custo.ouro}o + ${materiaisTxt}`;
 }
 
-function montarAprimoramento(corpo, personagem, dados, onMudar) {
-  const bloco = document.createElement("div");
-  bloco.innerHTML = "<h3>⚒️ Aprimorar Equipamento</h3><p class=\"desc\">Gasta ouro e materiais pra fortalecer um item que você já tem, em vez de descartá-lo por um melhor. Máximo +" + MAX_NIVEL_APRIMORAMENTO + ".</p>";
+
+// A ficha do item na forja. Além do custo, mostra os sub-status que ele já
+// tem e AVISA quando o próximo nível é um marco — saber que o +6 traz uma
+// escolha muda a decisão de gastar o material agora ou guardar.
+function montarFichaAprimoramento(item, nivel, custo, check, dados) {
+  if (!custo) {
+    return `<p class="desc">Nível máximo (+${SUB_NIVEL_MAX}) atingido.</p>${fichaSubStats(item)}`;
+  }
+  const proximo = nivel + 1;
+  const ehMarcoProximo = MARCOS.includes(proximo);
+  return `
+    <dl class="hda-ficha">
+      <div><dt>Nível</dt><dd>+${nivel} → +${proximo}</dd></div>
+      <div><dt>Custo</dt><dd>${custoTextoAprimoramento(custo, dados)}</dd></div>
+    </dl>
+    ${ehMarcoProximo ? `<p class="forja-marco-aviso">⭐ +${proximo} é um marco: você vai escolher um sub-status entre três.</p>` : ""}
+    ${fichaSubStats(item)}
+    ${check.ok ? "" : `<p class="desc" style="color:#ff9a9a;">${check.msg}</p>`}`;
+}
+
+function fichaSubStats(item) {
+  const subs = item.subStats || [];
+  if (!subs.length) {
+    return `<p class="desc forja-subs-vazio">Sem sub-status ainda. Eles chegam em +${MARCOS.join(", +")}.</p>`;
+  }
+  return `<div class="forja-subs">
+    <span class="forja-subs-cab">Sub-status</span>
+    ${subs.map((sb) => `<span class="forja-sub" style="border-color:${GRAU_COR[sb.grau] || "#c8b89a"}">${textoSubStatus(sb)}${sb.rolagens > 1 ? ` <i>(${sb.rolagens}×)</i>` : ""}</span>`).join("")}
+  </div>`;
+}
+
+// A ESCOLHA DO MARCO: três cartas, uma decisão, sem volta. É o momento que
+// diferencia duas cópias do mesmo item — e por isso tem tela própria em vez
+// de um `confirm()`.
+function abrirEscolhaDeMarco(item, personagem, onMudar, redesenhar) {
+  const marco = item.marcoPendente;
+  if (!marco) return;
+  const corpoHTML = `
+    <p class="desc">${item.nome} chegou a <b>+${marco.nivel}</b>. Escolha um sub-status — a escolha é permanente.</p>
+    <div class="forja-opcoes">
+      ${marco.candidatos.map((c) => `
+        <button type="button" class="forja-opcao" data-id="${c.id}" style="--grau:${GRAU_COR[c.grau] || "#c8b89a"}">
+          <span class="forja-opcao-valor">${textoSubStatus(c)}</span>
+          <span class="forja-opcao-grau">${GRAU_ROTULO[c.grau] || ""}</span>
+          ${c.repetido ? `<span class="forja-opcao-soma">soma ao que o item já tem</span>` : ""}
+        </button>`).join("")}
+    </div>`;
+  abrirSheet({ titulo: `⭐ +${marco.nivel} — escolha um sub-status`, corpoHTML, acoes: [] });
+  document.querySelectorAll(".forja-opcao").forEach((b) => {
+    b.onclick = () => {
+      const r = escolherSubStatusDoMarco(personagem, item.uid, b.dataset.id);
+      mostrarMensagem(r.ok ? `${item.nome}: ${textoSubStatus(r.escolha)}` : r.msg, 3600);
+      fecharSheet();
+      onMudar();
+      if (redesenhar) redesenhar("aprimorar");
+    };
+  });
+}
+
+function montarAprimoramento(corpo, personagem, dados, onMudar, tela, redesenhar) {
+  const intro = document.createElement("p");
+  intro.className = "desc";
+  intro.textContent = `Gasta ouro e materiais pra fortalecer um item que você já tem. Máximo +${MAX_NIVEL_APRIMORAMENTO} — e em +${MARCOS.join(", +")} o item ganha um sub-status à sua escolha.`;
+  corpo.appendChild(intro);
+
   const itens = itensAprimoraveis(personagem);
   if (!itens.length) {
-    bloco.innerHTML += "<p>Nenhum item aprimorável equipado ou na mochila.</p>";
+    const vazio = document.createElement("p");
+    vazio.className = "desc";
+    vazio.textContent = "Nenhum item aprimorável equipado ou na mochila.";
+    corpo.appendChild(vazio);
+    if (tela) tela.definirAcoes([], "");
+    return;
   }
+
+  const grade = criarGrade({ densidade: "densa" });
+  corpo.appendChild(grade);
   itens.forEach((item) => {
     const nivel = nivelAprimoramento(item);
     const custo = custoProximoNivel(item);
     const check = podeAprimorar(personagem, item);
-    const div = document.createElement("div");
-    div.className = "card";
-    const statusTxt = custo
-      ? `Nível +${nivel} → +${nivel + 1} · Custo: ${custoTextoAprimoramento(custo, dados)}`
-      : `Nível máximo (+${MAX_NIVEL_APRIMORAMENTO}) atingido.`;
-    div.innerHTML = `<div class="info"><div class="nome">${item.nome}</div><div class="desc">${statusTxt}</div></div>
-      <div><button ${check.ok ? "" : "disabled"} title="${!check.ok ? check.msg : ""}" data-uid="${item.uid}" class="btn-aprimorar">Aprimorar</button></div>`;
-    bloco.appendChild(div);
+    const cor = RARITY_COLORS[item.raridade] || "#888";
+    const el = document.createElement("div");
+    el.className = "hda-ladrilho" + (check.ok ? "" : " indisponivel");
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.innerHTML = `
+      <span class="hda-ladrilho-icone icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" /></span>
+      <span class="hda-ladrilho-nome hda-clamp-2">${item.nome}</span>
+      <span class="hda-ladrilho-rar">${temMarcoPendente(item) ? "⭐ escolha pendente" : `+${nivel}${custo ? ` → +${nivel + 1}` : " (máx)"}`}</span>
+      ${(item.subStats || []).length ? `<span class="forja-subs-mini">${item.subStats.map((sb) => textoSubStatus(sb)).join(" · ")}</span>` : ""}`;
+    const abrir = () => {
+      grade.querySelectorAll(".hda-ladrilho").forEach((x) => x.classList.toggle("selecionado", x === el));
+
+      // MARCO PENDENTE tem prioridade sobre tudo: o jogador já pagou por
+      // aquele nível e a escolha ficou devendo. Deixar o botão "Aprimorar"
+      // acessível antes de resolver permitiria acumular marcos e perder de
+      // vista qual pertence a qual nível.
+      if (temMarcoPendente(item)) return abrirEscolhaDeMarco(item, personagem, onMudar, redesenhar);
+
+      abrirSheet({
+        titulo: item.nome,
+        corpoHTML: montarFichaAprimoramento(item, nivel, custo, check, dados),
+        acoes: [{ rotulo: "Aprimorar", classe: "primario btn-aprimorar", desabilitado: !check.ok, titulo: check.ok ? "" : check.msg,
+          onClick: () => {
+            const res = aprimorarItem(personagem, item.uid);
+            if (!res.ok) { mostrarMensagem(res.msg); return; }
+            fecharSheet(); onMudar();
+            // Chegou num marco: a escolha dos três sub-status entra na hora,
+            // como recompensa do nível que acabou de ser pago.
+            if (res.marco) {
+              mostrarMensagem(`⭐ ${res.item.nome} chegou a +${res.novoNivel} — escolha um sub-status!`, 4000);
+              abrirEscolhaDeMarco(res.item, personagem, onMudar, redesenhar);
+              return;
+            }
+            mostrarMensagem(`${res.item.nome} aprimorado!`);
+            if (redesenhar) redesenhar("aprimorar");
+          } }],
+      });
+    };
+    el.onclick = abrir;
+    el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
+    grade.appendChild(el);
   });
-  corpo.appendChild(bloco);
-  bloco.querySelectorAll(".btn-aprimorar").forEach((b) => b.onclick = () => {
-    const res = aprimorarItem(personagem, b.dataset.uid);
-    if (res.ok) mostrarMensagem(`${res.item.nome} aprimorado!`);
-    else mostrarMensagem(res.msg);
-    onMudar(); montarForja(personagem, dados, onMudar);
-  });
+
+  if (tela) tela.definirAcoes([], `🪙 ${personagem.ouro} de ouro · ${itens.filter((i) => podeAprimorar(personagem, i).ok).length} item(ns) aprimorável(is) agora`);
 }
 
-export function montarForja(personagem, dados, onMudar) {
-  const corpo = abrirModalBase("Forja & Alquimia");
-  const receitasBloco = document.createElement("div");
-  receitasBloco.innerHTML = "<h3>🔨 Receitas</h3>";
-  if (dados.recipes.length === 0) receitasBloco.innerHTML += "<p>Nenhuma receita conhecida.</p>";
+// Forja & Alquimia (item 30).
+//
+// Antes: receitas e aprimoramentos empilhados num único bloco de 2371px,
+// cada linha com o próprio botão "Criar" — o botão da última receita ficava
+// a duas telas de distância. Agora: abas (Criar / Aprimorar), grade de
+// ladrilhos, e a receita escolhida abre no painel contextual com materiais,
+// resultado e o botão CRIAR fixo no rodapé desse painel.
+export function montarForja(personagem, dados, onMudar, aba = "criar") {
+  const tela = abrirTela({
+    titulo: "Forja & Alquimia",
+    subtitulo: `🪙 ${personagem.ouro}`,
+    largura: LARGURA.media,
+    classe: "tela-forja",
+  });
+  const corpo = tela.corpo;
+  const redesenhar = (a) => montarForja(personagem, dados, onMudar, a || aba);
+  tela.definirAbas([
+    { id: "criar", rotulo: "Criar", icone: "🔨" },
+    { id: "aprimorar", rotulo: "Aprimorar", icone: "⚒️" },
+  ], (id) => redesenhar(id), aba);
+
+  if (aba === "aprimorar") {
+    montarAprimoramento(corpo, personagem, dados, onMudar, tela, redesenhar);
+    return;
+  }
+
+  if (!dados.recipes.length) {
+    corpo.innerHTML = '<p class="desc">Nenhuma receita conhecida ainda.</p>';
+    tela.definirAcoes([], "Explore e converse com NPCs para aprender receitas.");
+    return;
+  }
+
+  const grade = criarGrade({ densidade: "densa" });
+  corpo.appendChild(grade);
   dados.recipes.forEach((r) => {
     const disponivel = receitaDisponivel(personagem, r);
-    const ingredientesTxt = r.ingredientes.map((i) => {
-      const item = dados.items.itens.find((x) => x.id === i.itemId);
-      return `${item ? item.nome : i.itemId} x${i.quantidade}`;
-    }).join(", ");
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<div class="info"><div class="nome">${r.nome}</div><div class="desc">Requer: ${ingredientesTxt}</div></div>
-      <div><button ${disponivel ? "" : "disabled"} data-id="${r.id}" class="btn-craft">Criar</button></div>`;
-    receitasBloco.appendChild(div);
-  });
-  corpo.appendChild(receitasBloco);
-  corpo.querySelectorAll(".btn-craft").forEach((b) => b.onclick = () => {
-    const receita = dados.recipes.find((r) => r.id === b.dataset.id);
-    const res = craftar(personagem, receita, dados.items.itens);
-    if (res.ok) mostrarMensagem(`Você criou: ${res.item.nome}!`);
-    onMudar(); montarForja(personagem, dados, onMudar);
+    const el = document.createElement("div");
+    el.className = "hda-ladrilho" + (disponivel ? "" : " indisponivel");
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.innerHTML = `
+      <span class="hda-ladrilho-icone icon-frame">${disponivel ? "🔨" : "🔒"}</span>
+      <span class="hda-ladrilho-nome hda-clamp-2">${r.nome}</span>
+      <span class="hda-ladrilho-rar">${disponivel ? "pronto" : "faltam materiais"}</span>`;
+    const abrir = () => {
+      grade.querySelectorAll(".hda-ladrilho").forEach((x) => x.classList.toggle("selecionado", x === el));
+      const ingredientes = r.ingredientes.map((i) => {
+        const item = dados.items.itens.find((x) => x.id === i.itemId);
+        const tem = personagem.inventario.filter((x) => x.id === i.itemId).length;
+        return `<div><dt>${item ? item.nome : i.itemId}</dt><dd>${tem}/${i.quantidade}${tem >= i.quantidade ? " ✓" : ""}</dd></div>`;
+      }).join("");
+      abrirSheet({
+        titulo: r.nome,
+        corpoHTML: `<p class="desc">Materiais necessários:</p><dl class="hda-ficha">${ingredientes}</dl>`,
+        acoes: [{ rotulo: "Criar", classe: "primario btn-craft", desabilitado: !disponivel,
+          titulo: disponivel ? "" : "Faltam materiais",
+          onClick: () => {
+            const res = craftar(personagem, r, dados.items.itens);
+            if (res.ok) mostrarMensagem(`Você criou: ${res.item.nome}!`);
+            fecharSheet(); onMudar(); redesenhar();
+          } }],
+      });
+    };
+    el.onclick = abrir;
+    el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
+    grade.appendChild(el);
   });
 
-  montarAprimoramento(corpo, personagem, dados, onMudar);
+  const prontas = dados.recipes.filter((r) => receitaDisponivel(personagem, r)).length;
+  tela.definirAcoes([], `${prontas} de ${dados.recipes.length} receitas com materiais suficientes`);
 }
 
-// Viagem rápida (melhoria de jogabilidade pós-backlog original, ver
-// FastTravelSystem.js): lista toda zona do mundo aberto já visitada
-// (`ZONAS`, a lista completa, vem de worldMap.js — filtra aqui em vez de
-// receber já filtrada pra poder mostrar as zonas ainda não exploradas como
-// bloqueadas "???" em vez de simplesmente omiti-las, dando ao jogador uma
-// noção de quanto do mapa falta visitar). `zonaAtualId` desabilita o botão
-// da zona onde o personagem já está.
-export function montarViagemRapida(personagem, ZONAS, zonaAtualId, onViajar) {
-  const corpo = abrirModalBase("🧭 Viagem Rápida");
+// Viagem rápida.
+//
+// ETAPA 2, item 27: o destino deixou de ser "uma zona" e passou a ser um
+// LUGAR — a praça de uma capital, a doca de um porto, o poço de um posto de
+// caravana. Ninguém pega carona para "o meio da planície", e era literalmente
+// isso que a viagem rápida fazia: teleportava para o centro geométrico de uma
+// área.
+//
+// `destinos` são os pontos já liberados (ver pontosDeViagemDisponiveis em
+// FastTravelSystem.js — nada aparece antes de o jogador ter estado lá);
+// `bloqueados` é só a contagem do que ainda falta descobrir, para o jogador
+// saber que o mapa continua.
+const ICONE_DESTINO = { CAPITAL: "🏛️", CIDADE: "🏰", VILA: "🏘️", ASSENTAMENTO: "⛺", ACAMPAMENTO: "🔥" };
+const ROTULO_DESTINO = { CAPITAL: "capital", CIDADE: "cidade", VILA: "vila", ASSENTAMENTO: "assentamento", ACAMPAMENTO: "acampamento" };
+
+export function montarViagemRapida(personagem, destinos, zonaAtualId, onViajar, bloqueados = 0) {
+  const tela = abrirTela({ titulo: "🧭 Viagem Rápida", largura: LARGURA.media });
+  const corpo = tela.corpo;
   const intro = document.createElement("p");
   intro.className = "desc";
-  intro.textContent = "Teleporte instantâneo para qualquer zona do mundo aberto que você já visitou.";
+  intro.textContent = "Volte instantaneamente a qualquer lugar em que você já esteve: cidade, porto, posto ou santuário.";
   corpo.appendChild(intro);
 
-  ZONAS.forEach((zona) => {
-    const visitada = zonaFoiVisitada(personagem, zona.id);
-    const div = document.createElement("div");
-    div.className = "card";
-    if (!visitada) {
-      div.innerHTML = `<div class="info"><div class="nome">??? </div><div class="desc">Zona ainda não explorada.</div></div>`;
-      corpo.appendChild(div);
-      return;
+  // Coluna de 120px em vez dos 160px padrão: um destino é um ícone e um
+  // nome curto, e com 160px a lista virava uma coluna única num celular de
+  // 320px — dezesseis ladrilhos empilhados, duas telas de rolagem pra
+  // escolher uma cidade.
+  const grade = criarGrade({ densidade: "", coluna: "120px" });
+  corpo.appendChild(grade);
+  const naoVisitadas = new Array(Math.max(0, bloqueados)).fill(0);
+  const listaVisitadas = destinos;
+  let visitadas = 0;
+  listaVisitadas.forEach((zona) => {
+    const visitada = true;
+    visitadas += 1;
+    const aqui = zona.zonaId === zonaAtualId;
+    const el = document.createElement("div");
+    el.className = "hda-ladrilho compacto" + (visitada ? "" : " desconhecido") + (aqui ? " selecionado" : "");
+    el.tabIndex = visitada && !aqui ? 0 : -1;
+    el.setAttribute("role", "button");
+    el.innerHTML = `
+      <span class="hda-ladrilho-icone icon-frame">${aqui ? "📍" : ICONE_DESTINO[zona.categoria] || "🧭"}</span>
+      <span class="hda-ladrilho-nome hda-clamp-2">${zona.nome}</span>
+      <span class="hda-ladrilho-rar">${aqui ? "você está aqui" : ROTULO_DESTINO[zona.categoria] || "viajar"}</span>`;
+    if (visitada && !aqui) {
+      el.onclick = () => onViajar(zona.id);
+      el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onViajar(zona.id); } };
+    } else {
+      el.classList.add("indisponivel");
+      el.title = aqui ? "Você já está nesta zona." : "Explore esta zona a pé para liberar a viagem rápida.";
     }
-    const aqui = zona.id === zonaAtualId;
-    div.innerHTML = `<div class="info"><div class="nome">${zona.nome}${aqui ? " (você está aqui)" : ""}</div><div class="desc">${zona.descricao || ""}</div></div>
-      <div><button ${aqui ? "disabled" : ""} data-id="${zona.id}" class="btn-viajar">Viajar</button></div>`;
-    corpo.appendChild(div);
+    grade.appendChild(el);
   });
-
-  corpo.querySelectorAll(".btn-viajar").forEach((b) => b.onclick = () => onViajar(b.dataset.id));
+  if (naoVisitadas.length) {
+    const det = document.createElement("details");
+    det.className = "hda-recolhido";
+    det.innerHTML = `<summary>${naoVisitadas.length} lugar(es) ainda por descobrir</summary><p class="desc">Chegue a pé para liberar cada um: ${naoVisitadas.map(() => "???").join(" · ")}</p>`;
+    corpo.appendChild(det);
+  }
+  tela.definirAcoes([], `${visitadas} de ${visitadas + naoVisitadas.length} lugares descobertos`);
 }
 
 export function montarLoja(personagem, dados, onMudar) {
-  // Reputação com a vila (mundo reativo, ver WorldStateSystem.js) muda o
-  // preço de tudo na loja: quem ajudou a vila paga menos, quem é malvisto
-  // paga mais — uma consequência tangível e recorrente das escolhas do
-  // jogador, não só um texto de sabor.
   const multPreco = multiplicadorPrecoLoja(personagem, dados.worldStateVariables);
   const tierAtual = tierDaReputacao(getReputacao(personagem, "vila"), dados.worldStateVariables);
   const tituloDesconto = multPreco !== 1 ? ` (${multPreco < 1 ? "-" : "+"}${Math.abs(Math.round((1 - multPreco) * 100))}% por reputação: ${tierAtual ? tierAtual.nome : ""})` : "";
-  const corpo = abrirModalBase(`Mercador — Seu ouro: ${personagem.ouro}${tituloDesconto}`);
+  const tela = abrirTela({ titulo: "Mercador", subtitulo: `🪙 ${personagem.ouro}`, largura: LARGURA.larga, classe: "tela-loja" });
+  const corpo = tela.corpo;
+
+  if (tituloDesconto) {
+    const p = document.createElement("p");
+    p.className = "desc";
+    p.textContent = `Preços ajustados pela sua reputação${tituloDesconto}.`;
+    corpo.appendChild(p);
+  }
+
   const catalogo = dados.items.itens.filter((i) => i.raridade === "comum" || i.raridade === "incomum").slice(0, 24);
+  const grade = criarGrade({ densidade: "densa" });
+  corpo.appendChild(grade);
   catalogo.forEach((item) => {
     const precoFinal = Math.max(1, Math.round(item.valor * multPreco));
-    const div = document.createElement("div");
-    div.innerHTML = itemCardHTML(item, `<button data-id="${item.id}" class="btn-comprar">Comprar (${precoFinal}o)</button>`);
-    corpo.appendChild(div);
+    const podeComprar = personagem.ouro >= precoFinal;
+    const cor = RARITY_COLORS[item.raridade] || "#888";
+    const el = document.createElement("div");
+    el.className = "hda-ladrilho" + (podeComprar ? "" : " indisponivel");
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.innerHTML = `
+      <span class="hda-ladrilho-icone icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" /></span>
+      <span class="hda-ladrilho-nome hda-clamp-2">${item.nome}</span>
+      <span class="hda-ladrilho-rar">🪙 ${precoFinal}</span>`;
+    const abrir = () => {
+      grade.querySelectorAll(".hda-ladrilho").forEach((x) => x.classList.toggle("selecionado", x === el));
+      abrirSheet({
+        titulo: item.nome,
+        corpoHTML: `<p class="desc">${item.descricao || ""}</p><dl class="hda-ficha"><div><dt>Raridade</dt><dd style="color:${cor}">${RARITY_LABEL[item.raridade]}</dd></div><div><dt>Preço</dt><dd>🪙 ${precoFinal}</dd></div><div><dt>Seu ouro</dt><dd>🪙 ${personagem.ouro}</dd></div></dl>`,
+        acoes: [{ rotulo: `Comprar (${precoFinal}o)`, classe: "primario btn-comprar", desabilitado: !podeComprar,
+          titulo: podeComprar ? "" : "Ouro insuficiente",
+          onClick: () => {
+            const r = comprarItem(personagem, item, multPreco);
+            mostrarMensagem(r.ok ? `Comprou: ${item.nome} (${r.preco}o)!` : r.msg);
+            fecharSheet(); onMudar(); montarLoja(personagem, dados, onMudar);
+          } }],
+      });
+    };
+    el.onclick = abrir;
+    el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
+    grade.appendChild(el);
   });
-  corpo.querySelectorAll(".btn-comprar").forEach((b) => b.onclick = () => {
-    const item = dados.items.itens.find((i) => i.id === b.dataset.id);
-    const r = comprarItem(personagem, item, multPreco);
-    if (!r.ok) mostrarMensagem(r.msg);
-    else mostrarMensagem(`Comprou: ${item.nome} (${r.preco}o)!`);
-    onMudar(); montarLoja(personagem, dados, onMudar);
-  });
+  tela.definirAcoes([], `🪙 <b>${personagem.ouro}</b> de ouro · ${catalogo.length} itens à venda`);
 }
 
-// Ganhos de reputação com a facção "vila" — pequenos e nunca negativos, pra
-// recompensar ajudar sem punir o jogador por simplesmente jogar (ver
-// princípio de design: consequências viram novas rotas/benefícios, não
-// bloqueios).
-const REPUTACAO_POR_TESTE_SUCESSO = 3;
-const REPUTACAO_POR_MISSAO = 5;
-
-export function montarDialogo(npc, dados, personagem, onMudar) {
+export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   const corpo = abrirModalBase(npc.nome);
+
+  // Quem é essa pessoa, em uma linha. Só para NPC com ficha da ETAPA 3 — os
+  // cinco antigos continuam entrando por `npc.dialogo` como sempre.
+  if (npc.papel && npc.profissao) {
+    const cab = document.createElement("p");
+    cab.style.cssText = "opacity:0.7;font-size:0.9em;margin-bottom:0.4em;";
+    cab.textContent = npc.atividade ? `${npc.profissao} — ${npc.atividade}` : npc.profissao;
+    corpo.appendChild(cab);
+  }
+
+  // A FALA DO MOMENTO (ETAPA 3, itens 7 e 8). O NPC tem uma pilha de estados
+  // narrativos e diz o primeiro cuja condição bate — quest ativa, evento em
+  // curso, World State da região, hora, clima. É assim que ele "lembra": o
+  // mundo lembra, e ele lê o mundo. Sem ficha, cai no `dialogo` de sempre.
   const p = document.createElement("p");
-  p.textContent = npc.dialogo;
+  p.textContent = npc.estados ? falaAtual(npc, { personagem, ...contexto }).texto : npc.dialogo;
   corpo.appendChild(p);
 
-  // Mundo reativo: a reputação com a vila muda a saudação de cada NPC — uma
-  // consequência visível, recorrente, das missões e testes de perícia que o
-  // jogador já resolveu (ver WorldStateSystem.js).
-  const tierRep = tierDaReputacao(getReputacao(personagem, "vila"), dados.worldStateVariables);
-  if (tierRep && tierRep.saudacao) {
+  // Reação à reputação (item 15). A ficha nova escreve a reação da própria
+  // pessoa; sem ficha, vale a saudação genérica do tier, como antes.
+  const reacao = npc.reacaoAReputacao
+    ? reacaoPorReputacao(npc, personagem, dados.worldStateVariables, npc.faccaoId || "vila")
+    : null;
+  const tierRep = tierDaReputacao(getReputacao(personagem, npc.faccaoId || "vila"), dados.worldStateVariables);
+  const textoReacao = reacao || (tierRep && tierRep.saudacao);
+  if (textoReacao) {
     const saud = document.createElement("p");
     saud.style.cssText = "opacity:0.85;font-style:italic;";
-    saud.textContent = `"${tierRep.saudacao}" (Reputação: ${tierRep.nome})`;
+    saud.textContent = `"${textoReacao}"${tierRep ? ` (Reputação: ${tierRep.nome})` : ""}`;
     corpo.appendChild(saud);
+  }
+
+  // Passos de questline regional oferecidos por este NPC (itens 16 a 19).
+  // No máximo um por vez, por construção — é o que impede o NPC de virar
+  // terminal de quest.
+  if (npc.regiaoId) {
+    questsOferecidasPor(personagem, npc.id).forEach(({ quest, estado }) => {
+      const div = document.createElement("div");
+      div.className = "card";
+      if (estado === "ativa") {
+        // Um passo `tipo: "decisao"` não se "conclui": ele se DECIDE. O
+        // rótulo do botão diz isso, e o clique abre a cena de decisão em vez
+        // de aplicar um desfecho que o jogador não escolheu.
+        const decide = Array.isArray(quest.escolhas) && quest.escolhas.length > 0;
+        const progresso = progressoObjetivoRegional(personagem, quest.id);
+        div.innerHTML = `<div class="info"><div class="nome">${decide ? "⚖️ " : ""}${quest.nome}</div><div class="desc">${quest.objetivo}</div>
+          <div class="desc">Onde: ${quest.onde.join(", ")}</div></div>
+          <div class="desc">${progresso.texto}</div>
+          <div><button class="${decide ? "primario " : ""}btn-qr-concluir" data-id="${quest.id}" ${progresso.pronto ? "" : "disabled"}>${decide ? "Decidir" : "Concluir"}</button></div>`;
+      } else {
+        div.innerHTML = `<div class="info"><div class="nome">${quest.nome} · ${quest.questline}</div>
+          <div class="desc">${quest.objetivo}</div></div>
+          <div><button class="btn-qr-aceitar" data-id="${quest.id}">Aceitar</button></div>`;
+      }
+      corpo.appendChild(div);
+    });
+    corpo.querySelectorAll(".btn-qr-aceitar").forEach((b) => b.onclick = async () => {
+      const r = aceitarQuestRegional(personagem, b.dataset.id);
+      if (r.ok) {
+        // ABERTURA DA LINHA: aceitar o primeiro passo de uma questline
+        // regional abre uma cena curta que diz o que está em jogo naquela
+        // região, uma vez só. Antes disto, uma linha de quatro passos sobre
+        // uma sucessão de clãs começava com um card e um botão "Aceitar" —
+        // o jogador aceitava sem nunca ter ouvido de que se tratava.
+        const primeiro = PASSOS_INICIAIS.includes(r.quest.id);
+        const cena = primeiro ? cenaDeAbertura(r.quest.regiaoId) : null;
+        if (cena && !jaViu(personagem, cena.id)) {
+          fecharModal();
+          await reproduzirCutscene(cena, personagem, dados);
+        }
+        mostrarMensagem(`Missão regional aceita: ${r.quest.nome}`);
+      }
+      onMudar();
+      montarDialogo(npc, dados, personagem, onMudar, contexto);
+    });
+    corpo.querySelectorAll(".btn-qr-concluir").forEach((b) => b.onclick = async () => {
+      const quest = questRegionalPorId(b.dataset.id);
+      const progresso = progressoObjetivoRegional(personagem, b.dataset.id);
+      if (!progresso.pronto) { mostrarMensagem(progresso.texto, 7000); return; }
+      const mundoQuest = { worldState: contexto.worldState, dadosWorldState: dados.worldStateVariables };
+
+      // PASSO COM ESCOLHA: vira cena. O dilema entra como painel, as saídas
+      // como opções, e o desfecho traz o eco do que mudou no mundo. É o
+      // mesmo motor do prólogo — de propósito: uma decisão que altera uma
+      // região inteira não pode ter menos presença na tela do que um card.
+      if (quest && Array.isArray(quest.escolhas) && quest.escolhas.length) {
+        fecharModal();
+        await reproduzirCutscene({
+          id: `decisao_${quest.id}`,
+          titulo: quest.questline,
+          paineis: [{ arte: "escolha", titulo: quest.nome, texto: [quest.objetivo] }],
+          escolha: {
+            pergunta: "O que você faz?",
+            opcoes: quest.escolhas.map((e) => ({ id: e.id, rotulo: e.rotulo })),
+            // Quem aplica a consequência é o sistema de quests, não a cena:
+            // a cena só encena o que ele devolve.
+            aoEscolher: (opcaoId) => {
+              const r = concluirQuestRegional(personagem, quest.id, mundoQuest, opcaoId);
+              if (!r.ok) return { ok: false };
+              return {
+                ok: true,
+                texto: r.escolha ? r.escolha.resultado : "",
+                linhas: linhasDaConsequencia(r.mudou, dados.worldStateVariables),
+              };
+            },
+          },
+        }, personagem, dados);
+        onMudar();
+        montarDialogo(npc, dados, personagem, onMudar, contexto);
+        return;
+      }
+
+      // Passo comum: conclui direto, mas o aviso agora é uma frase em
+      // português e não o dump das chaves que mudaram.
+      const r = concluirQuestRegional(personagem, b.dataset.id, mundoQuest);
+      if (r.ok) {
+        const resumo = resumoDaConsequencia(r.mudou, dados.worldStateVariables);
+        mostrarMensagem(`${r.quest.nome} concluída.${resumo ? " " + resumo : ""}${r.quest.id === "qr_altaverde_1" ? " Abra Missões (M): Ashryn oferece ajuda à sua jornada." : ""}`, 8000);
+      }
+      onMudar();
+      montarDialogo(npc, dados, personagem, onMudar, contexto);
+    });
   }
 
   if (npc.id === "npc_mercador") {
@@ -543,22 +1353,30 @@ export function montarDialogo(npc, dados, personagem, onMudar) {
       <div><button class="btn-teste-pericia" data-id="${teste.id}">Tentar</button></div>`;
     corpo.appendChild(div);
   });
-  corpo.querySelectorAll(".btn-teste-pericia").forEach((b) => b.onclick = () => {
+  corpo.querySelectorAll(".btn-teste-pericia").forEach((b) => b.onclick = async () => {
     const teste = testes.find((t) => t.id === b.dataset.id);
     const r = realizarTeste(personagem, dados, teste);
     if (teste.unicoPorPersonagem) marcarTesteFeito(personagem, teste.id);
-    const rolagemTxt = `[d20: ${r.d}${r.modAtributo ? ` +${r.modAtributo} atributo` : ""}${r.proficiente ? ` +${r.bonusPericia} perícia` : ""} = ${r.total} vs. DC ${r.dificuldade}]`;
+    // Trava o botão durante a animação: dois cliques rápidos rolariam o
+    // teste duas vezes e dariam a recompensa duas vezes.
+    b.disabled = true;
+    // A conta em texto (`[d20: 14 +2 = 16 vs DC 12]`) sai do aviso e vira a
+    // própria animação: o mesmo conteúdo, num momento em que se olha.
+    const mods = [];
+    if (r.modAtributo) mods.push(`${r.modAtributo > 0 ? "+" : ""}${r.modAtributo} atributo`);
+    if (r.proficiente && r.bonusPericia) mods.push(`+${r.bonusPericia} perícia`);
+    await mostrarRolagemD20(r, { titulo: teste.nome || `Teste · ${teste.pericia || teste.atributo || ""}`, modificadores: mods });
     if (r.sucesso) {
       if (teste.recompensaOuroSucesso) personagem.ouro += teste.recompensaOuroSucesso;
       alterarReputacao(personagem, "vila", REPUTACAO_POR_TESTE_SUCESSO, dados.worldStateVariables);
-      mostrarMensagem(`✅ Sucesso! ${teste.textoSucesso} ${rolagemTxt}${teste.recompensaOuroSucesso ? ` (+${teste.recompensaOuroSucesso} ouro)` : ""} (+${REPUTACAO_POR_TESTE_SUCESSO} reputação)`, 4200);
+      mostrarMensagem(`✅ ${teste.textoSucesso}${teste.recompensaOuroSucesso ? ` (+${teste.recompensaOuroSucesso} ouro)` : ""} (+${REPUTACAO_POR_TESTE_SUCESSO} reputação)`, 4200);
       registrarDecisao(personagem, { icone: "🎲", titulo: `Conversa com ${npc.nome}`, texto: teste.textoSucesso });
     } else {
-      mostrarMensagem(`❌ Falha. ${teste.textoFalha} ${rolagemTxt}`, 4200);
+      mostrarMensagem(`❌ ${teste.textoFalha}`, 4200);
       registrarDecisao(personagem, { icone: "🎲", titulo: `Conversa com ${npc.nome}`, texto: teste.textoFalha });
     }
     onMudar();
-    montarDialogo(npc, dados, personagem, onMudar);
+    montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
 
   const quests = dados.quests.filter((q) => q.npcId === npc.id);
@@ -585,7 +1403,7 @@ export function montarDialogo(npc, dados, personagem, onMudar) {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
     iniciarMissao(personagem, q);
     mostrarMensagem(`Missão aceita: ${q.nome}`);
-    montarDialogo(npc, dados, personagem, onMudar);
+    montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
   corpo.querySelectorAll(".btn-entregar").forEach((b) => b.onclick = () => {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
@@ -594,16 +1412,30 @@ export function montarDialogo(npc, dados, personagem, onMudar) {
       if (r.item) {
         personagem.inventario.push({ ...r.item, uid: cryptoId() });
       }
+      const nivelAntes = personagem.nivel;
       const { subiuNivel } = ganharXP(personagem, r.xp);
       subiuNivel.forEach(() => aplicarCrescimento(personagem, dados));
+      if (subiuNivel.length) celebrarNivel(subiuNivel[subiuNivel.length - 1], nivelAntes);
       if (r.fragmentos) adicionarFragmentos(personagem, r.fragmentos);
       checarConquistas(personagem, {});
       alterarReputacao(personagem, "vila", REPUTACAO_POR_MISSAO, dados.worldStateVariables);
+      // DESFECHO (quests.json): o que aconteceu com quem pediu a missão,
+      // mostrado ANTES do saldo de recompensas. Uma missão que termina só
+      // com "+25 ouro, +20 XP" não tem desfecho — tem extrato. O `desfecho`
+      // é o que transforma "matei três slimes" em "o Tobias tem semente para
+      // o ano que vem", e é ele que fica registrado no diário.
+      if (q.desfecho) {
+        mostrarMensagem(`📜 ${q.desfecho}`, 6500);
+        registrarDecisao(personagem, { icone: "📜", titulo: q.nome, texto: q.desfecho });
+      }
       let msg = `Missão concluída! +${r.ouro} ouro, +${r.xp} XP${r.fragmentos ? `, +${r.fragmentos} Fragmentos de Aethra` : ""}${r.item ? `, item: ${r.item.nome}` : ""} (+${REPUTACAO_POR_MISSAO} reputação com a vila)`;
-      if (escolhaPendente(personagem, dados)) msg += " · 🌟 Nova escolha de habilidade disponível (T)!";
-      mostrarMensagem(msg);
+      if (temCompraDisponivel(personagem, dados)) msg += " · 🌟 Pontos de habilidade para gastar (T)!";
+      // Com desfecho, o saldo entra um pouco depois, para não competir com a
+      // frase — dois avisos ao mesmo tempo viram um só, ilegível.
+      if (q.desfecho) setTimeout(() => mostrarMensagem(msg), 1400);
+      else mostrarMensagem(msg);
     }
     onMudar();
-    montarDialogo(npc, dados, personagem, onMudar);
+    montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
 }

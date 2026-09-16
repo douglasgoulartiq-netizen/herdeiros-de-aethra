@@ -4,6 +4,7 @@
 // personagem) quanto durante o jogo (HUD), já que não depende de
 // `personagem`/`dados`.
 import { abrirModalBase } from "./GameUI.js";
+import { alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "../systems/ViewportSystem.js";
 import {
   VELOCIDADES_MENSAGEM, TAMANHOS_FONTE, VELOCIDADES_ANIMACAO_COMBATE, LIMIARES_HP_AUTOPLAY, DIFICULDADES, VOLUMES_EFEITOS,
   VELOCIDADES_AUTO_EXPLORACAO,
@@ -46,7 +47,7 @@ export function montarAcessibilidade() {
   const corpo = abrirModalBase("Acessibilidade");
   const config = carregarConfigAcessibilidade();
   corpo.innerHTML = `
-    <div class="card" style="flex-direction:column;align-items:flex-start;gap:12px;width:100%;">
+    <div class="card acc-painel" style="flex-direction:column;align-items:flex-start;gap:12px;width:100%;">
       <label style="width:100%;">Velocidade das mensagens na tela
         <select id="acc-velocidade" style="display:block;margin-top:4px;width:100%;">
           ${Object.keys(VELOCIDADES_MENSAGEM).map((v) => `<option value="${v}" ${config.velocidadeMensagem === v ? "selected" : ""}>${LABEL_VELOCIDADE[v] || v}</option>`).join("")}
@@ -85,6 +86,8 @@ export function montarAcessibilidade() {
         </select>
       </label>
       <label><input type="checkbox" id="acc-parar-chefe" ${config.pararAutoAntesDoChefe ? "checked" : ""}/> Automático para (em vez de lutar sozinho) ao encontrar um chefe</label>
+      <label><input type="checkbox" id="acc-auto-cuidar" ${config.autoCuidarDoTime ? "checked" : ""}/> Automático se cuida sozinho: usa poção com HP baixo, descansa só quando elas acabam, e recusa encontro Mortal</label>
+      ${suportaTelaCheia() ? `<button id="acc-tela-cheia" style="width:100%;margin-top:6px;" title="No celular a tela cheia também trava o aparelho em pé, que é a orientação para a qual o jogo é enquadrado.">${emTelaCheia() ? "⛶ Sair da tela cheia" : "⛶ Jogar em tela cheia"}</button>` : ""}
       <p class="desc">As mudanças valem imediatamente e ficam salvas neste dispositivo — inclusive numa Nova Aventura ou New Game+.</p>
     </div>
   `;
@@ -98,4 +101,16 @@ export function montarAcessibilidade() {
   corpo.querySelector("#acc-volume-efeitos").onchange = (e) => { atualizarConfigAcessibilidade({ volumeEfeitos: e.target.value }); };
   corpo.querySelector("#acc-velocidade-auto").onchange = (e) => { atualizarConfigAcessibilidade({ velocidadeAutoExploracao: e.target.value }); };
   corpo.querySelector("#acc-parar-chefe").onchange = (e) => { atualizarConfigAcessibilidade({ pararAutoAntesDoChefe: e.target.checked }); };
+  corpo.querySelector("#acc-auto-cuidar").onchange = (e) => { atualizarConfigAcessibilidade({ autoCuidarDoTime: e.target.checked }); };
+  // Tela cheia NÃO é preferência salva: quem manda é o navegador, e ele pode
+  // sair dela sozinho (Esc, troca de app, uma chamada chegando). Guardar
+  // "ligado" no save daria um botão que mente sobre o estado. O rótulo é
+  // lido do estado real, toda vez.
+  const btnTelaCheia = corpo.querySelector("#acc-tela-cheia");
+  if (btnTelaCheia) {
+    btnTelaCheia.onclick = async () => {
+      await alternarTelaCheia();
+      btnTelaCheia.textContent = emTelaCheia() ? "⛶ Sair da tela cheia" : "⛶ Jogar em tela cheia";
+    };
+  }
 }

@@ -1,8 +1,27 @@
 // Sistema de batalha ATB (Active Time Battle) com regras inspiradas em d20.
+import { statusDoOleo, sincronizarElemento, devolverOleoAoPersonagem, TIPO_STATUS as STATUS_OLEO } from "./WeaponOilSystem.js";
 import { atributosEfetivos, defesaTotal, velocidadeTotal, ataqueBase, critBonusTotal } from "./CharacterFactory.js";
-import { relacaoElemental, multiplicadorElemental } from "./ElementSystem.js";
+import { relacaoElemental, multiplicadorElemental, multiplicadorDaRelacao } from "./ElementSystem.js";
 import { escolherAlvoPorArquetipo, deveHesitar } from "./EnemyAI.js";
 import { FLAGS } from "../data/featureFlags.js";
+import {
+  ehChefe as ehChefeDeFase, garantirBase as garantirBaseDoChefe,
+  checarViradaDeFase, podeUsarHabilidade, marcarHabilidadeUsada,
+  passarTurnoDoChefe, registrarQuebra, habilidadeDoChefe,
+} from "./BossPhaseSystem.js";
+import {
+  modificadoresDeAtaque, aoCausarDano as efeitosAoCausarDano,
+  relacaoPerfurada, melhorRelacao,
+} from "./ItemEffectSystem.js";
+import { penalidadeEquipada } from "./RequisitoSystem.js";
+import { modificadoresDoTime, modificadorDe } from "./PassiveSystem.js";
+import { marcasDe, bonusDeMarcas } from "./RecursoClasseSystem.js";
+import { escalaDoMonstro, escalaDeNivel } from "./EscalaSystem.js";
+// Barramento de eventos visuais: este arquivo é testado em Node, sem DOM, e
+// não pode importar UI. Ele ANUNCIA; quem estiver na tela desenha. Sem
+// ouvinte, cada anunciar() é um no-op — nenhum teste precisou mudar.
+import { anunciar, EVENTO } from "./EventosVisuais.js";
+import { habilidadesEquipadas } from "./LoadoutSystem.js";
 import {
   modificadorDanoRecebidoEstado, modificadorCuraRecebidaEstado, modificadorDefesaEstado,
   modificadorVelocidadeEstado, estaControladoPorEstado, penalidadeD20Estado,
@@ -38,15 +57,47 @@ export function criarCombatenteJogador(personagem, dados, posicao = "frente") {
     ataque: ataqueBase(personagem, dados),
     critBonus: critBonusTotal(personagem, dados),
     elemento: (personagem.equipamento.arma && personagem.equipamento.arma.elemento) || "fisico",
-    habilidades: personagem.habilidades.map((h) => ({ ...h, cooldownAtual: 0 })),
+    // Elemento da ARMA, guardado à parte: enquanto um óleo estiver valendo,
+    // `elemento` acima é sobrescrito, e é daqui que ele volta quando o óleo
+    // expira — sem isso o golpe viraria "físico" no fim do prazo.
+    elementoBase: (personagem.equipamento.arma && personagem.equipamento.arma.elemento) || "fisico",
+    // O equipamento viaja para o combatente por REFERÊNCIA. Dois sistemas
+    // precisam dele durante a luta: os efeitos de item lendário
+    // (ItemEffectSystem) e o requisito de atributo (RequisitoSystem). Antes
+    // só o ELEMENTO da arma vinha, e por isso os efeitos não chegavam ao
+    // combate — a arma tinha "roubo de vida" escrito e nada acontecia.
+    equipamento: personagem.equipamento,
+    // Passivas do convocado (ver PassiveSystem.js). Viajam junto porque o
+    // modificador é calculado sobre o COMBATENTE, não sobre o personagem —
+    // é no combate que elas valem.
+    passivas: personagem.passivas || [],
+    // MARCAS DE CLASSE (ver RecursoClasseSystem.js) — os nós finais de ramo
+    // da árvore de habilidades. Resolvidas AQUI, uma vez, em vez de a cada
+    // golpe: durante a batalha ninguém compra nó novo.
+    marcas: marcasDe(personagem),
+    // A MÃO DE CARDS É O LOADOUT, não a lista inteira (ver LoadoutSystem.js).
+    // Com a árvore nova um personagem chega a 9 ativas; mostrar todas fazia
+    // o jogador ler nove cards por turno e espremia cada card a ponto de o
+    // texto não caber. `habilidadesEquipadas` devolve as 4 escolhidas fora
+    // da batalha — e, para um save antigo sem escolha feita, as 4 primeiras,
+    // que é exatamente o que aparecia antes.
+    habilidades: habilidadesEquipadas(personagem).map((h) => ({ ...h, cooldownAtual: 0 })),
     tracoId: personagem.tracoId,
     racaId: personagem.racaId,
     classeId: personagem.classeId,
     sorteUsada: false,
     primeiroTurno: true,
-    atb: 0,
+    // TRAÇO DO ELFO ("Visão aguçada: +2 de iniciativa em batalha"). Estava em
+    // races.json desde sempre e não existia no código. Iniciativa aqui é a
+    // barra de ATB: o inimigo nasce com `Math.random() * 40`, então 20 de
+    // adiantamento é meia largura desse sorteio — o elfo costuma agir antes,
+    // sem nunca ser garantido.
+    atb: personagem.tracoId === "visao_aguçada" ? 20 : 0,
     atbMax: 100,
-    statusEffects: [],
+    // O óleo pode ter sido usado no MAPA, antes da luta. Ele entra aqui como
+    // estado de combate para pegar de graça o relógio de duração, o ícone na
+    // ficha e a expiração — em vez de um segundo sistema de prazo paralelo.
+    statusEffects: [statusDoOleo(personagem)].filter(Boolean),
     spriteKey: personagem.spriteKey,
     sopro_usado: false,
     defendendo: false,
@@ -91,9 +142,15 @@ export function criarCombatenteInimigo(monstroDef, idx, ngPlus = 0, modoHistoria
   // idêntico ao comportamento de antes desta opção existir.
   const multRecompensa = multiplicadorNgPlus(ngPlus);
   const multEstat = multRecompensa * multiplicadorModoHistoria(modoHistoria) * multiplicadorDificuldade();
-  const hpEscalado = Math.max(1, Math.round(monstroDef.hp * multEstat));
-  const atkEscalado = Math.max(1, Math.round(monstroDef.atk * multEstat));
-  const defesaEscalada = Math.max(0, Math.round(monstroDef.defesa * multEstat));
+  // ESCALA POR NÍVEL E DE CHEFE (ver EscalaSystem.js). Entra aqui, e só
+  // aqui, porque este é o único lugar por onde um monstro vira combatente:
+  // reforço de solo, emboscada, NG+, Modo História e dificuldade já se
+  // multiplicam neste mesmo ponto, então a curva continua sendo um número
+  // só de conferir em vez de seis lugares que podem discordar.
+  const esc = escalaDoMonstro(monstroDef);
+  const hpEscalado = Math.max(1, Math.round(monstroDef.hp * multEstat * esc.hp));
+  const atkEscalado = Math.max(1, Math.round(monstroDef.atk * multEstat * esc.atk));
+  const defesaEscalada = Math.max(0, Math.round(monstroDef.defesa * multEstat * esc.defesa));
   return {
     id: `${monstroDef.id}_${idx}`,
     monstroId: monstroDef.id,
@@ -122,7 +179,27 @@ export function criarCombatenteInimigo(monstroDef, idx, ngPlus = 0, modoHistoria
     postura: 0,
     posturaMax: monstroDef.chefe ? POSTURA_MAX_CHEFE : 0,
     atordoado: false,
+    // Estado das fases (ver BossPhaseSystem.js). Declarado aqui para o objeto
+    // ter forma estável desde o começo — `garantirBase` preenche `__base` no
+    // primeiro uso, com os valores JÁ escalados por NG+/dificuldade acima.
+    faseAtual: 1,
+    quebras: 0,
+    enfurecido: false,
+    recargaHabilidade: 0,
     arquetipo: monstroDef.arquetipo || "aleatorio",
+    // A escala aplicada logo acima vira um campo do combatente só para a
+    // tela poder mostrá-la. O EscalaSystem sobe um monstro em até +75% de
+    // ataque conforme o nível da zona, e nada avisava: a mesma criatura,
+    // com o mesmo nome e o mesmo sprite, batia o dobro numa região
+    // avançada e o jogador concluía que tinha ficado fraco.
+    nivelMonstro: monstroDef.nivel || null,
+    escala: esc,
+    // E a escala SÓ DE NÍVEL, separada. `esc` já embute o multiplicador de
+    // chefe (2,3× de vida), então mostrar `esc` no selo diria "+240% de
+    // vida" para um chefe e o jogador leria isso como reforço da região.
+    // São duas coisas diferentes: a coroa 👑 já conta que é chefe; o selo
+    // conta o que a REGIÃO acrescentou.
+    escalaNivel: escalaDeNivel(monstroDef.nivel),
     defendendo: false,
     // Estado das ações especiais dos arquétipos Ladrão/Invocador — cada um só
     // usa sua habilidade única uma vez por batalha, depois volta a atacar.
@@ -156,6 +233,17 @@ const GANHO_QUEBRA_POR_RELACAO = {
   imune: 0,
 };
 const BONUS_DANO_ATORDOADO = 1.35;
+// Chance de uma arma elemental comum deixar seu estado no alvo. Ver
+// marcarEstadoPorArma para o porquê de não ser 100%.
+// Quais status contam como "efeito negativo". Usado pelo traço do Anão
+// ("Resistente") e pela poção de antídoto, que antes limpava o array inteiro
+// — levando junto a fúria, a guarda e o óleo de arma que o jogador tinha
+// acabado de gastar um turno para aplicar.
+export const ESTADOS_RUINS = new Set([
+  "condicao_veneno", "debuff_velocidade", "furia_debuff", "estado_elemental",
+]);
+
+const CHANCE_ESTADO_POR_ARMA = 0.25;
 
 // Terreno (task #42): elemento dominante do bioma/masmorra deixa esse
 // elemento mais forte para QUALQUER atacante (ex.: fogo no deserto), mas dá
@@ -166,8 +254,8 @@ const BONUS_DANO_ATORDOADO = 1.35;
 // elemento contra a fauna nativa e recompensando esse elemento em qualquer
 // outra situação (chefes de fora do bioma, PvE geral). Aditivo sobre a
 // matriz elemental (ElementSystem.js) — nunca a substitui.
-const BONUS_ATAQUE_TERRENO = 1.2;
-const RESISTENCIA_TERRENO_INIMIGO = 0.8;
+export const BONUS_ATAQUE_TERRENO = 1.2;
+export const RESISTENCIA_TERRENO_INIMIGO = 0.8;
 
 // Clima (melhoria de jogabilidade pós-backlog original, ver WeatherSystem.js):
 // mesma ideia do terreno acima, mas mais fraca de propósito — o terreno é
@@ -175,8 +263,8 @@ const RESISTENCIA_TERRENO_INIMIGO = 0.8;
 // minutos reais). Os dois multiplicadores SOMAM quando o elemento do clima
 // bate com o do terreno (ex.: chuva — água — no meio de um pântano de água),
 // em vez de um substituir o outro.
-const BONUS_ATAQUE_CLIMA = 1.1;
-const RESISTENCIA_CLIMA_INIMIGO = 0.9;
+export const BONUS_ATAQUE_CLIMA = 1.1;
+export const RESISTENCIA_CLIMA_INIMIGO = 0.9;
 
 // Combo elemental entre aliados (melhoria de jogabilidade pós-backlog
 // original): quando um aliado acerta um inimigo, e o PRÓXIMO golpe aliado
@@ -253,6 +341,28 @@ export class Batalha {
     this.climaElemento = climaElemento || null;
     this.ngPlus = ngPlus || 0;
     this.modoHistoria = !!modoHistoria;
+    // "Primeiro Sangue" (efeito de item) precisa saber se ALGUM golpe já saiu
+    // nesta batalha. Mora na Batalha, não no item: o efeito não guarda estado
+    // próprio, senão duas batalhas seguidas compartilhariam a contagem.
+    this.jaHouveGolpe = false;
+    // PASSIVAS (ver PassiveSystem.js). Calculadas UMA vez, no começo da
+    // batalha: recalcular por golpe seria O(time × passivas) num laço quente,
+    // e passiva não muda no meio da luta. `modificadorDe` só faz uma consulta.
+    this.passivas = modificadoresDoTime(time);
+    // HP e Éter máximos podem ser ampliados por passiva. Aplicado aqui,
+    // antes do primeiro turno, para a barra já nascer no tamanho certo.
+    for (const c of time || []) {
+      const m = modificadorDe(this.passivas, c);
+      if (m.vida_max !== 1) {
+        const novo = Math.max(1, Math.round(c.hpMax * m.vida_max));
+        c.hp += novo - c.hpMax; c.hpMax = novo;
+      }
+      if (m.eter_max !== 1) {
+        const novo = Math.max(0, Math.round(c.mpMax * m.eter_max));
+        c.mp += novo - c.mpMax; c.mpMax = novo;
+      }
+      if (m.velocidade !== 1) c.velocidade = Math.max(1, Math.round(c.velocidade * m.velocidade));
+    }
     this.log = [];
     this.terminada = false;
     this.resultado = null; // 'vitoria' | 'derrota' | 'fuga'
@@ -261,6 +371,9 @@ export class Batalha {
     // qualquer que seja o resultado (o furto já aconteceu, vitória não
     // devolve o que foi roubado).
     this.ouroRoubado = 0;
+    // Mesmo padrão de `ultimaRolagem`/`ultimaQuebra`: existe desde o começo
+    // para o objeto ter forma estável (ver `selos` em rolarAtaque).
+    this.ultimosSelos = null;
     // Hordas (task #47): `this.inimigos` só guarda a onda ATUAL (pra IA,
     // alvo e renderização olharem só quem está na arena agora — ver
     // avancarLeva()); `historicoInimigos` acumula TODOS os inimigos de
@@ -319,6 +432,7 @@ export class Batalha {
         const dano = Math.max(1, Math.round(c.hpMax * s.valor));
         this.aplicarDano(c, dano);
         this.registrar(`${c.nome} sofre ${dano} de dano por veneno!`);
+        anunciar(EVENTO.DANO_PERIODICO, { combatente: c, dano, icone: "☠️", nome: "Veneno" });
       }
       // Estados elementais com dano por turno (Caminhos do Herdeiro, task
       // #91) — hoje só Incendiado, ver elementalStates.json.
@@ -326,10 +440,21 @@ export class Batalha {
         const dano = Math.max(1, Math.round(c.hpMax * s.def.danoPorTurnoPercentHpMax));
         this.aplicarDano(c, dano);
         this.registrar(`${s.def.icone || ""} ${c.nome} sofre ${dano} de dano por estar ${s.def.nome}!`);
+        anunciar(EVENTO.DANO_PERIODICO, { combatente: c, dano, icone: s.def.icone || "🔥", nome: s.def.nome });
       }
-      s.duracao -= 1;
+      // TRAÇO DO ANÃO ("Resistente: efeitos negativos duram 1 turno a menos").
+      // Estava escrito em races.json desde sempre e não existia em lugar
+      // nenhum do código. Desconta 2 em vez de 1, e só no que é RUIM — senão
+      // o anão perderia os próprios buffs na metade do tempo.
+      const ruim = ESTADOS_RUINS.has(s.tipo)
+        || (s.tipo === "estado_elemental" && s.def && s.def.beneficio !== true);
+      const passo = (ruim && c.isPlayer && c.tracoId === "resistente") ? 2 : 1;
+      s.duracao -= passo;
       return s.duracao > 0 && c.vivo;
     });
+    // O óleo troca o elemento dos golpes enquanto vale. Como o relógio acima
+    // pode tê-lo acabado de derrubar, a sincronia vem DEPOIS do filtro.
+    sincronizarElemento(c);
   }
 
   modificadorVelocidade(c) {
@@ -350,6 +475,18 @@ export class Batalha {
     }
     prontos.sort((a, b) => b.atb - a.atb);
     return prontos;
+  }
+
+  // Estado que as condições de marca leem. Para um inimigo, "aliados" são os
+  // outros inimigos — assim uma marca concedida a um convocado que lute do
+  // lado errado (nunca acontece hoje, mas o motor não pode assumir isso)
+  // continua significando a mesma coisa.
+  ctxMarcas(portador) {
+    const doJogador = this.time.includes(portador);
+    return {
+      aliados: doJogador ? this.timeVivo() : this.inimigosVivos(),
+      inimigosVivos: doJogador ? this.inimigosVivos().length : this.timeVivo().length,
+    };
   }
 
   defesaEfetiva(c) {
@@ -379,6 +516,13 @@ export class Batalha {
     if (alvo.postura >= alvo.posturaMax) {
       alvo.atordoado = true;
       this.registrar(`💥 ${alvo.nome} perde a postura e fica ATORDOADO! Vai perder a próxima ação e sofrer dano extra.`);
+      // Cada quebra seguinte custa mais caro, e na segunda o chefe enfurece.
+      // Sem isto dava para acorrentar atordoamento acertando a fraqueza
+      // elemental e o chefe nunca jogava — a mecânica de postura virava um
+      // botão de vitória em vez de recompensa.
+      const q = registrarQuebra(alvo);
+      if (q) this.registrar(q.texto);
+      if (q) anunciar(EVENTO.QUEBRA, { alvo: alvo.nome, ...q });
       // Gancho de animação (ver comentário no construtor): a UI usa isso pra
       // dar um momento visual claro à quebra de postura, em vez de só uma
       // linha de log — ver BattleUI.js.
@@ -403,6 +547,25 @@ export class Batalha {
   // limiar de defesa (10 + metade da defesa efetiva do alvo); rolagem menor
   // que o limiar = ataque bloqueado. O flag `defendendo` é consumido aqui,
   // então só protege contra a próxima ação recebida.
+
+  // BUG (auditoria de combate): o RequisitoSystem calculava `acerto` — a
+  // penalidade de ACERTO por usar equipamento pesado demais — e NINGUÉM lia.
+  // Só o dano era penalizado. Convertida aqui para PONTOS de d20, na mesma
+  // escala do Ofuscado: −30% (o teto do sistema) vira −3 na faixa de erro
+  // total. Como o Ofuscado, nunca tira um crítico já rolado.
+  //
+  // Mora numa função só porque `resolverAcaoD20` e `chancesD20` precisam
+  // chegar ao mesmo número — se a prévia e a rolagem discordarem, a barra de
+  // previsão da carta passa a mentir.
+  penalidadeDeAcerto(atacante) {
+    let p = FLAGS.reacoesElementais ? penalidadeD20Estado(atacante) : 0;
+    if (atacante && atacante.isPlayer) {
+      const eq = penalidadeEquipada(atacante);
+      if (eq.penalizado) p += Math.round((1 - eq.acerto) * 10);
+    }
+    return p;
+  }
+
   resolverAcaoD20(atacante, alvo) {
     let d = d20();
     if (d < 4 && atacante.isPlayer && atacante.tracoId === "sortudo" && !atacante.sorteUsada) {
@@ -424,7 +587,7 @@ export class Batalha {
     // Ofuscado (Caminhos do Herdeiro, task #91): penaliza só a faixa de erro
     // total do PRÓPRIO ataque de quem está com o estado — nunca tira um
     // crítico já rolado (d > 16 continua crítico independentemente).
-    const penalidade = FLAGS.reacoesElementais ? penalidadeD20Estado(atacante) : 0;
+    const penalidade = this.penalidadeDeAcerto(atacante);
     const resultado = { d, critico: d > 16, erroTotal: d - penalidade < 4, bloqueado, limiarBloqueio };
     // Gancho de animação (ver comentário no construtor): registra TODA
     // rolagem de d20 de combate, vitoriosa ou não — a UI decide o que fazer
@@ -484,7 +647,9 @@ export class Batalha {
     let resultado = { multiplicador: 1, combo: null };
     if (anterior && anterior.alvo === alvo && anterior.atacante !== atacante) {
       const combo = comboDoisElementos(anterior.elemento, elementoAtacante);
-      if (combo) resultado = { multiplicador: BONUS_DANO_COMBO, combo };
+      // `deQuem` carrega QUEM preparou o combo. Sem isso a tela sabe que houve
+      // combo mas não sabe de onde traçar a linha até aqui.
+      if (combo) resultado = { multiplicador: BONUS_DANO_COMBO, combo, deQuem: anterior.atacante };
     }
     this.ultimoAtaqueAliado = { atacante, alvo, elemento: elementoAtacante };
     return resultado;
@@ -644,7 +809,7 @@ export class Batalha {
   // bloqueio só quando o alvo está defendendo, re-rolagem do traço "sortudo"
   // enquanto ainda não foi usada nesta batalha. Devolve frações 0..1.
   chancesD20(atacante, alvo, { tipoFisico = true, elemento = null } = {}) {
-    const penalidade = FLAGS.reacoesElementais ? penalidadeD20Estado(atacante) : 0;
+    const penalidade = this.penalidadeDeAcerto(atacante);
     const rerolagem = !!(atacante.isPlayer && atacante.tracoId === "sortudo" && !atacante.sorteUsada);
     const limiarErro = Math.min(20, Math.max(0, 4 + penalidade)); // erro se d < limiarErro
     const faces = 20;
@@ -739,7 +904,13 @@ export class Batalha {
     const alvoDef = this.defesaEfetiva(alvo);
     // Bônus de crítico da árvore de habilidades: chance extra de crítico
     // (não se aplica a um erro total natural).
-    if (!critico && !erroTotal && atacante.critBonus && Math.random() < atacante.critBonus) critico = true;
+    // Chance extra de crítico: a fixa (`critBonus`, vinda de nós de árvore e
+    // equipamento) e a CONDICIONAL das marcas de classe (Vantagem, Trama,
+    // Rajada), que só existe contra o alvo certo. Somadas num sorteio só —
+    // dois sorteios separados dariam mais crítico do que a soma anunciada.
+    const critoMarca = bonusDeMarcas(atacante, alvo, this.ctxMarcas(atacante)).critico;
+    const chanceCritExtra = (atacante.critBonus || 0) + critoMarca;
+    if (!critico && !erroTotal && chanceCritExtra > 0 && Math.random() < chanceCritExtra) critico = true;
 
     if (erroTotal) {
       this.registrar(`${atacante.nome} erra completamente o ataque! (d20: ${this.ultimaRolagem.d}, erro total abaixo de 4)`);
@@ -749,6 +920,28 @@ export class Batalha {
       this.registrar(`${alvo.nome} se defende e bloqueia o ataque de ${atacante.nome}! (seu d20 ${this.ultimaRolagem.d} não superou o limiar de defesa ${this.ultimaRolagem.limiarBloqueio})`);
       return { acertou: false, critico: false, dano: 0, relacaoElemental: "neutro", bloqueado: true };
     }
+
+    // SELOS DO GOLPE (auditoria de combate, itens 7, 13, 14 e 15).
+    //
+    // O QUE ISTO RESOLVE. O número de dano é o resultado de até dez
+    // multiplicadores empilhados — item lendário, traço racial, marca de
+    // classe, terreno, clima, atordoamento, formação, penalidade de
+    // equipamento — e o jogador via só o total. Um golpe de 47 e um de 12 no
+    // mesmo inimigo pareciam sorte, e as decisões que de fato produziram a
+    // diferença (quebrar a postura antes, lutar no terreno certo, atacar com
+    // HP baixo) não recebiam crédito nenhum.
+    //
+    // Cada multiplicador que mexe no dano em mais de 5% empurra um selo aqui,
+    // e a tela o desenha colado no número (ver spawnFloatingText em
+    // BattleUI). Um lugar só, na ordem em que os multiplicadores realmente
+    // acontecem — o que também torna esta lista uma leitura honesta da
+    // fórmula, em vez de um comentário que envelhece.
+    const selos = [];
+    const selar = (texto, tom, mult) => {
+      if (mult === undefined || mult === null || Math.abs(mult - 1) < 0.05) return;
+      const pct = Math.round((mult - 1) * 100);
+      selos.push({ texto, tom, pct, rotulo: `${texto} ${pct > 0 ? "+" : ""}${pct}%` });
+    };
 
     const atributo = atributoForcado || atacante.ataque.atributo;
     const baseAtributo = atacante.atributos[atributo] || 0;
@@ -763,18 +956,110 @@ export class Batalha {
     const variancia = 0.85 + Math.random() * 0.3;
     let dano = base * variancia;
     if (critico) dano *= 2;
-    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= 0.3) dano *= 1.3;
+    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= 0.3) { dano *= 1.3; selar("FÚRIA ORC", "bom", 1.3); }
+    // EFEITOS DE ITEM LENDÁRIO (ver ItemEffectSystem.js). Só o time do jogador
+    // carrega equipamento, então para inimigos isto devolve valores neutros e
+    // não custa nada.
+    const efeitos = modificadoresDeAtaque(atacante, alvo, {
+      primeiroGolpe: !this.jaHouveGolpe,
+    });
+    dano *= efeitos.multiplicador;
+    // Um selo por efeito de item que realmente entrou — Ceifador, Algoz,
+    // Primeiro Sangue, Perfurar, Duplo Elemento, Estilhaçador. Os nove
+    // efeitos lendários eram invisíveis em combate: existiam só como texto na
+    // descrição do item, e o jogador não tinha como saber se a arma que
+    // comprou estava fazendo alguma coisa.
+    (efeitos.aplicados || []).forEach((e) => {
+      const nome = (e.def && e.def.nome) ? e.def.nome.toUpperCase() : String(e.id || "").toUpperCase();
+      if (e.mult !== undefined) selar(nome, "item", e.mult);
+      else selos.push({ texto: nome, tom: "item", pct: null, rotulo: nome });
+    });
+    // "Estilhaçador": crítico garantido contra alvo já marcado por estado
+    // elemental. Entra AQUI, antes de o crítico dobrar o dano lá em cima —
+    // o `dano` já foi multiplicado por 2 se `critico` era true, então a
+    // promoção precisa aplicar o dobro por conta própria.
+    if (efeitos.garanteCritico && !critico) { critico = true; dano *= 2; }
+
+    // REQUISITO DE ATRIBUTO (ver RequisitoSystem.js). Arma pesada demais para
+    // o personagem continua equipável — só rende menos, proporcional ao que
+    // falta. Nunca vira item morto na mochila.
+    const pen = penalidadeEquipada(atacante);
+    if (pen.penalizado) { dano *= pen.dano; selar("EQUIPAMENTO PESADO", "ruim", pen.dano); }
+
+    // PASSIVAS do atacante e do alvo. Um ponto só para as duas pontas: aqui
+    // o dano já é o número final antes da defesa, então "causa mais" e
+    // "recebe menos" não podem se aplicar duas vezes por caminhos diferentes.
+    const passivaAtq = modificadorDe(this.passivas, atacante);
+    const passivaAlvo = modificadorDe(this.passivas, alvo);
+    dano *= passivaAtq.dano;
+    dano *= passivaAlvo.defesa;
+    // BUG (auditoria): `resistencia_elemental` também nunca era lida. Vale só
+    // contra golpe COM elemento — contra "fisico" seria uma segunda passiva
+    // de defesa com outro nome, e as duas se acumulariam sem o jogador ter
+    // como entender por quê.
+    const elemDoGolpe = elementoAtacante || atacante.elemento || "fisico";
+    if (elemDoGolpe !== "fisico" && passivaAlvo.resistencia_elemental !== 1) {
+      dano *= passivaAlvo.resistencia_elemental;
+    }
+
+    // MARCAS DE CLASSE (ver RecursoClasseSystem.js). Diferentemente da
+    // passiva, a marca depende da SITUAÇÃO — por isso é avaliada aqui, com
+    // atacante e alvo em mãos, e não uma vez no construtor. Entra no mesmo
+    // ponto das passivas, pelo mesmo motivo: um lugar só decide "causa mais"
+    // e "recebe menos".
+    const marcaAtq = bonusDeMarcas(atacante, alvo, this.ctxMarcas(atacante));
+    const marcaAlvo = bonusDeMarcas(alvo, atacante, this.ctxMarcas(alvo));
+    dano *= marcaAtq.dano;
+    dano *= marcaAlvo.defesa;
+    if (marcaAtq.ativas.length) {
+      this.registrar(`   ${marcaAtq.ativas.map((m) => `${m.icone || "◈"} ${m.nome}`).join(" · ")} em ação.`);
+      // A marca disparava e a única pista era essa linha de log, escrita
+      // DEPOIS do golpe — tarde demais para influenciar a jogada. Agora vem
+      // colada no número.
+      marcaAtq.ativas.forEach((m) => {
+        const r = `${m.icone || "◈"} ${String(m.nome).toUpperCase()}`;
+        selos.push({ texto: r, tom: "marca", pct: null, rotulo: r });
+      });
+    }
+
     const elemResolvido = elementoAtacante || atacante.elemento || "fisico";
     let relacao = "neutro";
     if (FLAGS.elementos && this.dadosElementos) {
       const elemDef = alvo.elemento || "fisico";
       relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
-      dano *= multiplicadorElemental(elemResolvido, elemDef, this.dadosElementos);
+      // GOLPE DE DOIS ELEMENTOS: fica com a melhor das duas relações. É o que
+      // faz o efeito valer — um alvo que resiste a um dos dois não anula o
+      // golpe inteiro.
+      if (efeitos.elementoSecundario) {
+        const relB = relacaoElemental(efeitos.elementoSecundario, elemDef, this.dadosElementos);
+        relacao = melhorRelacao(relacao, relB);
+      }
+      // PERFURAR ELEMENTO: resistência e imunidade viram neutro. Vantagem é
+      // preservada — o efeito impede o alvo de anular, não vira vantagem.
+      if (efeitos.ignoraRelacaoRuim) relacao = relacaoPerfurada(relacao);
+      dano *= multiplicadorDaRelacao(relacao, this.dadosElementos);
     }
-    dano *= this.multiplicadorTerreno(elemResolvido, alvo);
-    dano *= this.multiplicadorClima(elemResolvido, alvo);
+    const multTerreno = this.multiplicadorTerreno(elemResolvido, alvo);
+    const multClima = this.multiplicadorClima(elemResolvido, alvo);
+    dano *= multTerreno;
+    dano *= multClima;
+    // Terreno e clima ficam no cabeçalho da batalha, que o jogador lê uma vez
+    // e esquece. Somados chegam a ×1,32 — a diferença entre lutar no lugar
+    // certo e no lugar errado, e ela nunca aparecia no momento do golpe.
+    selar("TERRENO", "ambiente", multTerreno);
+    selar("CLIMA", "ambiente", multClima);
     const combo = this.verificarComboElemental(atacante, alvo, elemResolvido);
     dano *= combo.multiplicador;
+    if (combo.combo) {
+      // O badge "COMBO!" já existia NA CARTA, antes de jogar. O que faltava
+      // era o momento: nada ligava, na arena, o herói que preparou ao herói
+      // que fechou — e é essa ligação que ensina a jogada.
+      selar("COMBO", "combo", combo.multiplicador);
+      anunciar(EVENTO.COMBO, {
+        primeiro: combo.deQuem || null, segundo: atacante, alvo,
+        nome: combo.combo.nome || "Combo elemental",
+      });
+    }
     // Estados e reações elementais (Caminhos do Herdeiro, task #91): sem
     // nenhum estado ativo no alvo (sempre o caso enquanto nenhuma habilidade
     // nova declarar `aplicaEstado`), tudo isto vira no-op — ver comentário
@@ -786,23 +1071,44 @@ export class Batalha {
       const { ocorreu, reacao, multiplicadorDano } = verificarReacaoElemental(alvo, elemResolvido, true, this.dadosReacoes);
       if (ocorreu) {
         reacaoOcorrida = reacao;
-        dano *= multiplicadorDano;
+        // "Catalisador": a reação em si rende mais. Multiplica só o BÔNUS da
+        // reação, não o dano inteiro — senão um item que só deveria turbinar
+        // reações viraria um multiplicador geral disfarçado.
+        const extra = efeitos.bonusReacao || 0;
+        dano *= extra > 0 ? (1 + (multiplicadorDano - 1) * (1 + extra)) : multiplicadorDano;
         if (reacao.garanteCritico && !critico) { critico = true; dano *= 2; }
         if (reacao.ignoraDefesaRestante) ignoraDefesaExtra = 999;
       }
     }
     const defReduzida = Math.max(0, alvoDef - ignoraDefesa - ignoraDefesaExtra);
     dano = Math.max(1, Math.round(dano - defReduzida * 0.5));
-    if (respeitaFormacao) dano = Math.max(1, Math.round(dano * this.formacaoReducaoDano(alvo)));
-    // Chefe atordoado (barra de quebra): dano bônus enquanto durar.
-    if (alvo.chefe && alvo.atordoado) dano = Math.round(dano * BONUS_DANO_ATORDOADO);
+    if (respeitaFormacao) {
+      const red = this.formacaoReducaoDano(alvo);
+      dano = Math.max(1, Math.round(dano * red));
+      // O jogador batia num alvo da retaguarda, o número vinha menor, e nada
+      // dizia que a linha de frente inimiga estava absorvendo parte do golpe.
+      selar("PROTEGIDO", "ruim", red);
+    }
+    // Chefe atordoado (barra de quebra): dano bônus enquanto durar. É a
+    // recompensa INTEIRA do sistema de postura — encher a barra, quebrar e
+    // bater +35% — e não tinha nenhum sinal no número.
+    if (alvo.chefe && alvo.atordoado) {
+      dano = Math.round(dano * BONUS_DANO_ATORDOADO);
+      selar("ATORDOADO", "postura", BONUS_DANO_ATORDOADO);
+    }
     // Imunidade elemental anula o dano por completo — sobrepõe o piso de 1
     // de dano usado no restante do cálculo.
     if (relacao === "imune") dano = 0;
 
     if (reacaoOcorrida) this.resolverConsequenciasReacao(atacante, alvo, reacaoOcorrida, dano);
 
-    return { acertou: true, critico, dano, relacaoElemental: relacao, combo: combo.combo, reacaoElemental: reacaoOcorrida };
+    // Gancho para a tela, no mesmo padrão de `ultimaQuebra` e
+    // `ultimaViradaDeFase`: a UI monta o efeito visual a partir de
+    // `ultimaRolagem`, que é gravada ANTES do cálculo do dano e portanto não
+    // pode carregar os selos. O `seq` amarra os dois — sem ele, os selos de
+    // um golpe vazariam para o número do golpe seguinte.
+    this.ultimosSelos = { seq: this.rolagemSeq, selos };
+    return { acertou: true, critico, dano, relacaoElemental: relacao, combo: combo.combo, reacaoElemental: reacaoOcorrida, selos };
   }
 
   // Aplica o estado elemental que uma habilidade declare (`habilidade.
@@ -812,10 +1118,30 @@ export class Batalha {
   // isso, então esta função nunca roda em combate hoje sem uma dessas.
   // `habilidade.duracaoEstado` (opcional) sobrescreve a duração padrão do
   // estado; sem ela, usa `duracaoPadrao` do próprio estado.
+  // Qual estado um elemento deixa no alvo. A tabela vive nos DADOS
+  // (elementalStates.json declara `elementoOrigem` em cada estado), então
+  // um estado novo passa a valer sem tocar em código.
+  estadoDoElemento(elemento) {
+    if (!elemento || !this.dadosEstados) return null;
+    const lista = this.dadosEstados.estados || [];
+    const achou = lista.find((e) => e.elementoOrigem === elemento);
+    return achou ? achou.id : null;
+  }
+
   aplicarEstadoDeHabilidade(habilidade, alvo) {
     if (!FLAGS.reacoesElementais || !habilidade.aplicaEstado || !alvo || !alvo.vivo) return;
     const entrada = aplicarEstadoElemental(alvo, habilidade.aplicaEstado, this.dadosEstados, habilidade.duracaoEstado || null);
-    if (entrada && entrada.def) this.registrar(`${entrada.def.icone || ""} ${alvo.nome} fica ${entrada.def.nome}!`);
+    if (entrada && entrada.def) {
+      this.registrar(`${entrada.def.icone || ""} ${alvo.nome} fica ${entrada.def.nome}!`);
+      // A marcação elemental é o que ACENDE todo o sistema de reações — molhar
+      // agora para conduzir depois. Acontecia em silêncio: o ícone aparecia no
+      // card no render seguinte e nada mostrava que veio DA ARMA de quem
+      // acabou de bater.
+      anunciar(EVENTO.MARCA_ELEMENTAL, {
+        alvo, estadoId: entrada.def.id,
+        icone: entrada.def.icone || "✨", elemento: entrada.def.elementoOrigem || null,
+      });
+    }
   }
 
   // Aplica os efeitos colaterais de uma reação elemental que acabou de
@@ -828,6 +1154,14 @@ export class Batalha {
   // principal, que já é aplicado pelo chamador de rolarAtaque/dano_magico).
   resolverConsequenciasReacao(atacante, alvo, reacao, danoFinal) {
     this.registrar(`${reacao.icone || "✨"} Reação Elemental: ${reacao.nome}! ${reacao.descricao || ""}`);
+    // A linha acima existe desde que as reações existem — e some no rolar do
+    // log no meio da luta. O anúncio abaixo dá um letreiro na tela (ver
+    // RevelacoesCombate.js), que é o que faz o jogador descobrir que molhar
+    // o alvo antes do golpe de raio muda alguma coisa.
+    anunciar(EVENTO.REACAO, {
+      nome: reacao.nome, icone: reacao.icone, descricao: reacao.descricao,
+      alvo: alvo ? alvo.nome : "", dano: danoFinal,
+    });
     if (reacao.aplicaEstado) {
       aplicarEstadoElemental(alvo, reacao.aplicaEstado, this.dadosEstados);
     }
@@ -849,10 +1183,174 @@ export class Batalha {
   }
 
   aplicarDano(alvo, dano) {
+    // ELETRIZADO — o estado que não fazia nada.
+    //
+    // `elementalStates.json` declara `propagaCentelha: true` e
+    // `centelhaPercent: 0.4` no Eletrizado desde que o arquivo existe, e
+    // NENHUMA linha do jogo lia esses dois campos. O jogador aplicava o
+    // estado, via o ícone, e nada acontecia nunca.
+    //
+    // A regra: quem está Eletrizado e leva dano espalha uma fração dele para
+    // outro do MESMO LADO. `__emCentelha` é a trava contra recursão — sem ela
+    // dois eletrizados de lados opostos se descarregariam um no outro para
+    // sempre e a batalha travaria dentro de uma pilha de chamadas.
+    const centelha = (FLAGS.reacoesElementais && !this.__emCentelha && alvo.vivo && dano > 0)
+      ? this.centelhaDe(alvo) : null;
+
     alvo.hp = Math.max(0, alvo.hp - dano);
     if (alvo.hp <= 0) {
       alvo.vivo = false;
       this.registrar(`${alvo.nome} foi derrotado!`);
+      return;
+    }
+    // FASES DE CHEFE (ver BossPhaseSystem.js). O chefe era estatisticamente
+    // um monstro comum com mais HP: caía em ~1 rodada de time e nunca fazia
+    // nada. Agora a luta muda em 66% e 33% da vida dele. A checagem mora
+    // aqui, no único ponto por onde TODO dano passa — colocá-la em cada
+    // golpe seria esquecer um.
+    const virada = checarViradaDeFase(alvo);
+    if (virada) {
+      this.registrar(virada.texto);
+      if (virada.liberaHabilidade && virada.habilidade) {
+        this.registrar(`   ${virada.habilidade.icone} ${alvo.nome} agora pode usar ${virada.habilidade.nome}.`);
+      }
+      // Gancho de animação, mesmo padrão de `ultimaQuebra`: a UI dá um
+      // momento visual à virada em vez de só uma linha no registro.
+      this.faseSeq = (this.faseSeq || 0) + 1;
+      this.ultimaViradaDeFase = { seq: this.faseSeq, alvo, ...virada };
+      anunciar(EVENTO.FASE_CHEFE, {
+        chefe: alvo.nome, fase: virada.fase, nome: virada.nome,
+        habilidade: virada.liberaHabilidade ? virada.habilidade : null,
+      });
+    }
+
+    // A centelha do Eletrizado salta DEPOIS de o dano original ter sido
+    // resolvido por inteiro — inclusive a virada de fase acima. Assim a
+    // ordem dos acontecimentos na tela é a mesma da lógica.
+    if (centelha) this.propagarCentelha(alvo, dano, centelha);
+  }
+
+  // O estado Eletrizado ativo num combatente, ou null.
+  centelhaDe(c) {
+    const s = (c.statusEffects || []).find(
+      (e) => e.tipo === "estado_elemental" && e.def && e.def.propagaCentelha
+    );
+    return s ? s.def : null;
+  }
+
+  propagarCentelha(origem, dano, def) {
+    const mesmoLado = origem.isPlayer ? this.timeVivo() : this.inimigosVivos();
+    const outros = mesmoLado.filter((c) => c !== origem && c.vivo);
+    if (!outros.length) return;
+    const destino = outros[Math.floor(Math.random() * outros.length)];
+    const salto = Math.max(1, Math.round(dano * (def.centelhaPercent || 0.4)));
+    this.__emCentelha = true;
+    try {
+      this.aplicarDano(destino, salto);
+    } finally {
+      this.__emCentelha = false;
+    }
+    this.registrar(`${def.icone || "⚡"} A centelha salta de ${origem.nome} para ${destino.nome}: ${salto} de dano!`);
+    anunciar(EVENTO.REACAO, {
+      nome: "Centelha", icone: def.icone || "⚡",
+      descricao: `A carga de ${origem.nome} salta para ${destino.nome}.`,
+      alvo: destino.nome, dano: salto,
+    });
+  }
+
+  // ARMA ELEMENTAL MARCA O ALVO — com CHANCE, não sempre.
+  //
+  // É isto que faz as reações elementais acontecerem jogando: uma espada de
+  // água deixa o alvo Molhado, e o golpe seguinte de Raio vira Condução
+  // (dano extra + a corrente salta para outro inimigo); um golpe físico
+  // contra alvo Congelado vira Estilhaçar (crítico garantido).
+  //
+  // A chance é baixa de propósito. Aplicar SEMPRE faria toda luta virar uma
+  // cascata de reações e o efeito deixaria de ser especial — vira ruído. Com
+  // 25%, a reação é um momento; e quem quiser garantia usa uma arma lendária
+  // com Ressonância, que aplica todo golpe. Aí o lendário vale por uma
+  // REGRA, não por um número maior.
+  marcarEstadoPorArma(atacante, alvo) {
+    if (!FLAGS.reacoesElementais || !alvo || !alvo.vivo) return;
+    const arma = atacante.equipamento && atacante.equipamento.arma;
+    // O elemento vem do COMBATENTE, não da arma: com a arma untada o golpe é
+    // do óleo, e a marca elemental tem de acompanhar — era esse o sentido de
+    // "marcando o alvo para reações elementais" na descrição do item.
+    const elementoAtual = atacante.elemento;
+    if (!elementoAtual || elementoAtual === "fisico") return;
+    // Ressonância já aplica todo golpe em aplicarEfeitosPosDano — sem esta
+    // guarda, a arma lendária rolaria a chance duas vezes.
+    const temRessonancia = !!arma && Array.isArray(arma.efeitos) && arma.efeitos.includes("ressonancia");
+    if (temRessonancia) return;
+    if (Math.random() >= CHANCE_ESTADO_POR_ARMA) return;
+    const estado = this.estadoDoElemento(elementoAtual);
+    if (estado) this.aplicarEstadoDeHabilidade({ aplicaEstado: estado }, alvo);
+  }
+
+  // Consequências de efeito de item DEPOIS de o dano sair (ver
+  // ItemEffectSystem.js). Concentradas aqui, num lugar só, porque cura e
+  // repetição de golpe são operações da Batalha — deixar cada efeito
+  // aplicá-las por conta própria criaria um segundo caminho de dano.
+  aplicarEfeitosPosDano(atacante, alvo, dano, contexto = {}) {
+    // BUG (auditoria): a passiva `roubo_vida` existia no PassiveSystem, era
+    // somada no modificador do combatente e NUNCA era lida pelo combate — só
+    // o efeito de item lendário de mesmo nome funcionava. Entra aqui, no
+    // mesmo ponto e com o mesmo formato do efeito de item, para não haver
+    // dois caminhos de cura-por-dano que possam discordar.
+    const passivaDoAtacante = modificadorDe(this.passivas, atacante);
+    if (passivaDoAtacante.roubo_vida > 0 && atacante.vivo && dano > 0) {
+      const cura = Math.max(1, Math.round(dano * passivaDoAtacante.roubo_vida));
+      const antes = atacante.hp;
+      atacante.hp = Math.min(atacante.hpMax, atacante.hp + cura);
+      if (atacante.hp - antes > 0) {
+        this.registrar(`🩸 ${atacante.nome} drena ${atacante.hp - antes} de vida.`);
+        anunciar(EVENTO.DRENO, { atacante, alvo, cura: atacante.hp - antes });
+      }
+    }
+    const consequencias = efeitosAoCausarDano(atacante, alvo, dano, contexto);
+    for (const c of consequencias) {
+      if (c.tipo === "curar_atacante") {
+        const antes = atacante.hp;
+        atacante.hp = Math.min(atacante.hpMax, atacante.hp + c.valor);
+        const curou = atacante.hp - antes;
+        if (curou > 0) {
+          this.registrar(`${c.efeito.def.icone} ${atacante.nome} drena ${curou} de vida.`);
+          anunciar(EVENTO.DRENO, { atacante, alvo, cura: curou });
+        }
+      } else if (c.tipo === "postura_extra") {
+        // Reusa a mesma porta de sempre: acumularQuebra continua sendo o
+        // único lugar que enche postura, e o efeito só empurra mais vezes.
+        const voltas = Math.max(1, Math.round(c.mult) - 1);
+        for (let i = 0; i < voltas; i += 1) this.acumularQuebra(atacante, alvo, "neutro");
+      } else if (c.tipo === "aplicar_estado") {
+        // RESSONÂNCIA: a arma marca o alvo com o estado do próprio elemento.
+        // É o que ACENDE o sistema de reações elementais — ele existia
+        // inteiro (8 reações prontas em elementalReactions.json) e ficava
+        // inerte porque nada no jogo aplicava estado nenhum.
+        this.aplicarEstadoDeHabilidade({ aplicaEstado: this.estadoDoElemento(c.elemento) }, alvo);
+      } else if (c.tipo === "repetir_golpe") {
+        // `semEco: true` na repetição — sem isso o eco ecoaria sozinho para
+        // sempre e um golpe poderia não terminar nunca.
+        if (!alvo.vivo) continue;
+        this.registrar(`${c.efeito.def.icone} O golpe ecoa!`);
+        anunciar(EVENTO.ECO, { atacante, alvo });
+        // O ECO NÃO PODE ROUBAR A ROLAGEM DO GOLPE ORIGINAL.
+        //
+        // `rolarAtaque` grava `ultimaRolagem`/`ultimosSelos`, e a tela lê os
+        // dois DEPOIS que a ação inteira termina — inclusive este eco, que
+        // roda por último. Sem o resguardo abaixo, a batalha animava o d20 do
+        // eco, herdava dele o crítico e a cor elemental e, quando o eco
+        // errava, escrevia "ESQUIVOU!" em cima de um alvo que tinha acabado
+        // de levar o dano cheio do primeiro golpe. Parecia bug porque era.
+        const rolagemOriginal = this.ultimaRolagem;
+        const selosOriginais = this.ultimosSelos;
+        const seqOriginal = this.rolagemSeq;
+        const eco = this.rolarAtaque(atacante, alvo, { multiplicador: c.mult });
+        if (eco.acertou) this.aplicarDano(alvo, eco.dano);
+        this.ultimaRolagem = rolagemOriginal;
+        this.ultimosSelos = selosOriginais;
+        this.rolagemSeq = seqOriginal;
+      }
     }
   }
 
@@ -860,6 +1358,9 @@ export class Batalha {
     const r = this.rolarAtaque(atacante, alvo);
     if (r.acertou) {
       this.aplicarDano(alvo, r.dano);
+      this.jaHouveGolpe = true;
+      this.marcarEstadoPorArma(atacante, alvo);
+      this.aplicarEfeitosPosDano(atacante, alvo, r.dano, { semEco: false });
       this.registrar(`${atacante.nome} ataca ${alvo.nome} e causa ${r.dano} de dano${r.critico ? " (CRÍTICO!)" : ""}.`);
       this.registrarReacaoElemental(r.relacaoElemental);
       this.acumularQuebra(atacante, alvo, r.relacaoElemental);
@@ -946,7 +1447,16 @@ export class Batalha {
         break;
       }
       case "cura": {
-        let cura = Math.round(atacante.atributos.INT * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
+        // A cura escalava só com INT. Isso funcionava enquanto só o Clérigo e
+        // o Mago curavam; com "Segundo Fôlego" (Bárbaro) e "Ervas de Cura"
+        // (Patrulheiro) na árvore, um Bárbaro de INT 3 curaria 5 de HP no
+        // nível 20. Passa a escalar pelo MAIOR entre INT e CON — quem cura
+        // por fé usa INT, quem cura por teimosia usa CON, e nenhuma classe
+        // fica com uma habilidade decorativa.
+        const atributoCura = Math.max(atacante.atributos.INT || 0, atacante.atributos.CON || 0);
+        let cura = Math.round(atributoCura * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
+        cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
+        cura = Math.round(cura * modificadorDe(this.passivas, atacante).cura_recebida);
         if (FLAGS.reacoesElementais) cura = Math.round(cura * modificadorCuraRecebidaEstado(atacante));
         atacante.hp = Math.min(atacante.hpMax, atacante.hp + cura);
         this.registrar(`${atacante.nome} usa ${habilidade.nome} e recupera ${cura} de HP.`);
@@ -969,6 +1479,81 @@ export class Batalha {
         this.registrar(`${atacante.nome} usa ${habilidade.nome} em ${alvoOuAlvos.nome}, reduzindo sua velocidade!`);
         break;
       }
+      // --- ÁREA E TIME (adicionados para as habilidades do gacha) ---------
+      //
+      // O motor só sabia acertar UM alvo. Habilidade de área e buff de time
+      // eram impossíveis de declarar — e sem elas o convocado não tinha como
+      // ter identidade tática, só um golpe um pouco mais forte.
+      //
+      // Reusam as mesmas portas de sempre: `rolarAtaque` por alvo (mesma
+      // régua de d20, crítico, elemento e reação) e `statusEffects` para o
+      // buff. Nada aqui é um caminho paralelo de dano.
+      case "dano_area": {
+        const alvos = this.inimigosVivos();
+        if (!alvos.length) break;
+        this.registrar(`${atacante.nome} usa ${habilidade.nome} contra ${alvos.length} inimigo(s)!`);
+        let totalCausado = 0;
+        for (const alvo of alvos) {
+          const r = this.rolarAtaque(atacante, alvo, {
+            multiplicador: habilidade.multiplicador,
+            elementoAtacante: habilidade.elemento,
+            respeitaFormacao: false,
+          });
+          if (!r.acertou) { this.registrar(`   ${alvo.nome} escapa.`); continue; }
+          this.aplicarDano(alvo, r.dano);
+          this.acumularQuebra(atacante, alvo, r.relacaoElemental);
+          this.aplicarEstadoDeHabilidade(habilidade, alvo);
+          totalCausado += r.dano;
+          this.registrar(`   ${alvo.nome} sofre ${r.dano}${r.critico ? " (CRÍTICO!)" : ""}.`);
+          eventos.push({ tipo: "dano", alvo: alvo.id, valor: r.dano, critico: r.critico });
+        }
+        this.registrar(`   Total: ${totalCausado} de dano em área.`);
+        break;
+      }
+      case "cura_area": {
+        const aliados = this.timeVivo();
+        let total = 0;
+        for (const a of aliados) {
+          let cura = Math.round(Math.max(atacante.atributos.INT || 0, atacante.atributos.CON || 0) * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
+          // Marca de quem CURA (Fé, Louvor, Elo) e passiva de quem RECEBE
+          // (Mãos Cálidas) — as duas pontas, cada uma uma vez.
+          cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
+          cura = Math.round(cura * modificadorDe(this.passivas, a).cura_recebida);
+          if (FLAGS.reacoesElementais) cura = Math.round(cura * modificadorCuraRecebidaEstado(a));
+          const antes = a.hp;
+          a.hp = Math.min(a.hpMax, a.hp + cura);
+          total += a.hp - antes;
+          eventos.push({ tipo: "cura", alvo: a.id, valor: a.hp - antes });
+        }
+        this.registrar(`${atacante.nome} usa ${habilidade.nome} e restaura ${total} de vida no time.`);
+        break;
+      }
+      case "buff_time": {
+        // Um buff para o grupo inteiro. `alvoBuff` diz o que reforçar:
+        // "defesa" (reduz dano recebido) ou "ataque" (amplia o próximo golpe).
+        const aliados = this.timeVivo();
+        const tipoBuff = habilidade.alvoBuff === "ataque" ? "buff_ataque_proximo" : "buff_defesa";
+        for (const a of aliados) {
+          a.statusEffects.push({
+            tipo: tipoBuff,
+            duracao: (habilidade.duracao || 2) + 1,
+            valor: habilidade.valor,
+            nome: habilidade.nome,
+            icone: habilidade.icone || "🛡️",
+          });
+        }
+        this.registrar(`${atacante.nome} usa ${habilidade.nome}: o time inteiro fica reforçado por ${habilidade.duracao || 2} turnos!`);
+        break;
+      }
+      case "debuff_area": {
+        const alvos = this.inimigosVivos();
+        for (const alvo of alvos) {
+          alvo.statusEffects.push({ tipo: "debuff_velocidade", duracao: (habilidade.duracao || 2) + 1, valor: habilidade.valor });
+        }
+        this.registrar(`${atacante.nome} usa ${habilidade.nome}: ${alvos.length} inimigo(s) ficam mais lentos!`);
+        break;
+      }
+
       case "fuga": {
         this.resultado = "fuga";
         this.terminada = true;
@@ -1042,6 +1627,18 @@ export class Batalha {
   // pela UI (ver BattleUI.js), então precisa de um jeito de checar/consumir
   // o turno perdido a partir de fora, sem duplicar FLAGS.reacoesElementais
   // e a lógica de log em cada lugar que chama.
+  // O combatente perdeu a ação. Anunciado para a tela poder mostrar o gelo
+  // rachando em cima do sprite — antes o turno era simplesmente pulado e a
+  // única pista era uma linha no log.
+  anunciarTurnoPerdido(c, ativo) {
+    const def = ativo && ativo.def;
+    anunciar(EVENTO.TURNO_PERDIDO, {
+      combatente: c,
+      icone: (def && def.icone) || "❄️",
+      nome: (def && def.nome) || "Controlado",
+    });
+  }
+
   jogadorControladoPorEstado(c) {
     return !!(FLAGS.reacoesElementais && c && c.vivo && estaControladoPorEstado(c));
   }
@@ -1049,6 +1646,7 @@ export class Batalha {
   perderTurnoJogadorPorEstado(c) {
     const ativo = estadoElementalAtivo(c);
     this.registrar(`${(ativo && ativo.def && ativo.def.icone) || "❄️"} ${c.nome} está ${(ativo && ativo.def && ativo.def.nome) || "controlado"} e perde o turno!`);
+    this.anunciarTurnoPerdido(c, ativo);
     c.primeiroTurno = false;
     c.atb = 0;
     this.aplicarStatusTick(c);
@@ -1084,6 +1682,14 @@ export class Batalha {
     if (FLAGS.iaInimigos && deveHesitar(inimigo, this.inimigos, inimigo.arquetipo)) {
       return { tipo: "hesitar", alvo: null };
     }
+    // HABILIDADE ASSINADA DE CHEFE. Vem ANTES da ação de arquétipo comum: a
+    // partir da fase 2 é ela que dá cara à luta. Tem recarga própria, então
+    // não vira o ataque padrão — o chefe alterna entre ela e o resto.
+    if (podeUsarHabilidade(inimigo)) {
+      const hab = habilidadeDoChefe(inimigo);
+      const plano = this.planoDaHabilidadeDeChefe(inimigo, hab);
+      if (plano) return plano;
+    }
     if (FLAGS.iaInimigos) {
       const especial = this.decidirAcaoEspecialArquetipo(inimigo);
       if (especial) return especial;
@@ -1097,7 +1703,16 @@ export class Batalha {
   // comportamento de jogo não muda — só a decisão do alvo é separada da
   // execução.
   executarAcao(inimigo, plano) {
+    // Recarga da assinatura do chefe anda a cada turno DELE, não a cada turno
+    // do jogo — senão um chefe lento teria a habilidade pronta muito mais
+    // vezes que um rápido, ao contrário do que a velocidade deveria dizer.
+    passarTurnoDoChefe(inimigo);
     switch (plano.tipo) {
+      case "habilidade_chefe":
+        this.usarHabilidadeDeChefe(inimigo, plano);
+        inimigo.primeiroTurno = false;
+        inimigo.atb = 0;
+        return;
       case "atordoado":
         this.registrar(`💫 ${inimigo.nome} está atordoado e perde o turno!`);
         // Consome o turno perdido e reseta a postura — o chefe volta a
@@ -1110,6 +1725,7 @@ export class Batalha {
       case "controlado_elemental": {
         const ativo = estadoElementalAtivo(inimigo);
         this.registrar(`${(ativo && ativo.def && ativo.def.icone) || "❄️"} ${inimigo.nome} está ${(ativo && ativo.def && ativo.def.nome) || "controlado"} e perde o turno!`);
+        this.anunciarTurnoPerdido(inimigo, ativo);
         inimigo.primeiroTurno = false;
         inimigo.atb = 0;
         return;
@@ -1145,6 +1761,65 @@ export class Batalha {
         if (alvo) this.ataqueBasico(inimigo, alvo);
         return;
       }
+    }
+  }
+
+  // Traduz a habilidade declarada em BossPhaseSystem num plano que
+  // executarAcao entende. Devolve null quando não há alvo válido — e aí o
+  // chefe cai no comportamento normal em vez de perder o turno.
+  planoDaHabilidadeDeChefe(inimigo, hab) {
+    if (!hab || !hab.efeito) return null;
+    const vivosTime = this.timeVivo();
+    if (!vivosTime.length) return null;
+    const e = hab.efeito;
+    if (e.tipo === "cura") return { tipo: "habilidade_chefe", hab, alvo: inimigo };
+    if (e.tipo === "guarda") return { tipo: "habilidade_chefe", hab, alvo: inimigo };
+    if (e.tipo === "area") return { tipo: "habilidade_chefe", hab, alvo: null };
+    if (e.alvo === "mais_ferido") {
+      const alvo = vivosTime.slice().sort((a, b) => a.hp / a.hpMax - b.hp / b.hpMax)[0];
+      return alvo ? { tipo: "habilidade_chefe", hab, alvo } : null;
+    }
+    const alvo = this.escolherAlvoIA(inimigo) || vivosTime[0];
+    return alvo ? { tipo: "habilidade_chefe", hab, alvo } : null;
+  }
+
+  // Executa a assinatura. O dano reusa rolarAtaque (mesma régua de d20,
+  // crítico e elemento do resto do jogo) e só multiplica no fim — assim a
+  // habilidade de chefe não vira um caminho paralelo com regras próprias.
+  usarHabilidadeDeChefe(inimigo, plano) {
+    const hab = plano.hab;
+    const e = hab.efeito;
+    this.registrar(`${hab.icone} ${inimigo.nome} usa ${hab.nome}!`);
+    marcarHabilidadeUsada(inimigo);
+
+    if (e.tipo === "cura") {
+      const cura = Math.max(1, Math.round(inimigo.hpMax * e.mult));
+      inimigo.hp = Math.min(inimigo.hpMax, inimigo.hp + cura);
+      this.registrar(`   ${inimigo.nome} recupera ${cura} de vida.`);
+      return;
+    }
+    if (e.tipo === "guarda") {
+      inimigo.defendendo = true;
+      // BUG (auditoria de combate): isto gravava `turnos: 2`, mas o relógio de
+      // status (`aplicarStatusTick`) desconta de `duracao`. Resultado: a guarda
+      // do chefe — que corta metade do dano recebido — NUNCA expirava, e valia
+      // a luta inteira a partir do primeiro uso. `+1` porque o tick já desconta
+      // no mesmo turno em que o efeito entra, igual a todos os outros.
+      inimigo.statusEffects.push({ tipo: "buff_defesa", valor: e.reducao, duracao: 3, nome: hab.nome, icone: hab.icone });
+      this.registrar(`   ${inimigo.nome} ergue a guarda.`);
+      return;
+    }
+    const alvos = e.tipo === "area" ? this.timeVivo() : [plano.alvo].filter(Boolean);
+    for (const alvo of alvos) {
+      const r = this.rolarAtaque(inimigo, alvo);
+      if (!r.acertou) { this.registrar(`   ${hab.nome} errou ${alvo.nome}.`); continue; }
+      let dano = Math.round(r.dano * (e.mult || 1));
+      // Perfurante ignora parte da defesa: devolve o pedaço que a defesa
+      // tinha tirado, na mesma proporção declarada.
+      if (e.ignoraDefesa) dano = Math.round(dano + (alvo.defesa || 0) * e.ignoraDefesa);
+      dano = Math.max(1, dano);
+      this.aplicarDano(alvo, dano);
+      this.registrar(`   ${alvo.nome} sofre ${dano} de dano.`);
     }
   }
 

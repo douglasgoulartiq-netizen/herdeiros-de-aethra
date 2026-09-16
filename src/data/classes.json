@@ -11,7 +11,7 @@
       "INT": 3
     },
     "crescimento": {
-      "FOR": 3,
+      "FOR": 2,
       "DES": 1,
       "CON": 2,
       "INT": 0
@@ -56,7 +56,7 @@
       "FOR": 0,
       "DES": 1,
       "CON": 1,
-      "INT": 3
+      "INT": 2
     },
     "vidaBase": 22,
     "manaBase": 26,
@@ -97,7 +97,7 @@
     },
     "crescimento": {
       "FOR": 1,
-      "DES": 3,
+      "DES": 2,
       "CON": 1,
       "INT": 0
     },
@@ -178,7 +178,7 @@
       "INT": 2
     },
     "crescimento": {
-      "FOR": 3,
+      "FOR": 2,
       "DES": 0,
       "CON": 2,
       "INT": 0

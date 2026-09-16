@@ -2,45 +2,91 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Herdeiros de Aethra - RPG</title>
 <link rel="stylesheet" href="src/style.css" />
+<!-- Sistema de interface responsivo (casca de tela, abas, grade, bottom
+     sheet, navegação inferior). Entre style.css e battle-cards.css: depende
+     da paleta do primeiro e é base do segundo. -->
+<link rel="stylesheet" href="src/hda-ui.css" />
 <!-- Mão de cards de batalha: camada nova, carregada DEPOIS de style.css para
      herdar a paleta --hda-* e poder sobrepor pontos específicos do combate.
      Mantida em arquivo separado de propósito — remover esta linha devolve o
      visual de combate anterior sem tocar em nenhuma outra tela. -->
 <link rel="stylesheet" href="src/battle-cards.css" />
+<!-- Faixa de status no topo e trilho lateral de 4 abas. Carregada por ÚLTIMO
+     de propósito: ela reescreve o posicionamento do #hud que style.css e
+     hda-ui.css definem, e ser a última é o que dispensa !important em cada
+     linha. Remover esta linha devolve o HUD anterior (caixa de identidade no
+     meio da tela, coluna de botões na direita) sem tocar em mais nada. -->
+<link rel="stylesheet" href="src/hud-topo.css" />
+<!-- Cenas (prólogo e aberturas de questline). Camada de tela cheia própria,
+     acima de tudo — não sobrepõe nem depende de nenhuma outra folha, então a
+     posição dela aqui é indiferente. Remover esta linha deixa o motor de
+     cenas funcionando sem estilo nenhum; remover a chamada em main.js é o
+     que desliga as cenas de fato. -->
+<link rel="stylesheet" href="src/cutscene.css" />
+<!-- Minimapa do HUD e mapa-múndi interativo. Depois de hud-topo.css porque o
+     minimapa se ancora na altura da faixa de status (--hud-faixa-alt) definida
+     lá. Remover esta linha tira a aparência dos dois mapas de uma vez. -->
+<link rel="stylesheet" href="src/mapa.css" />
+<!-- Cartões de decisão (canto da tela) e animação de subir de nível. Depois de
+     hud-topo.css e mapa.css: o cartão se ancora na altura da faixa e na largura
+     do trilho, e precisa vir depois de quem define essas variáveis. -->
+<link rel="stylesheet" href="src/cartao.css" />
+<!-- Painel "Como você está": reúne sete sistemas que antes só existiam
+     no cálculo (conjuntos, passivas, sinergias, rivalidades, óleo,
+     escala do mundo). -->
+<link rel="stylesheet" href="src/estado.css" />
+<!-- Letreiros de combate (reação elemental, virada de fase do chefe, fúria) e
+     os selos permanentes de escala/fase no card do inimigo. Depois de
+     battle-cards.css porque os selos ficam na mesma linha dos badges de
+     formação/papel definidos lá. Remover esta linha devolve o combate
+     exatamente como estava — os anúncios continuam acontecendo, sem tela. -->
+<link rel="stylesheet" href="src/revelacoes.css" />
+<!-- Camada visual das mecânicas de combate que só existiam no cálculo: aura
+     dos nove estados elementais, contador de turnos em cada efeito, escudo da
+     guarda, anel de buff/debuff, dano por turno, prisão de turno e os selos
+     colados no número de dano. Depois de revelacoes.css porque compartilha as
+     mesmas âncoras dentro do card do combatente. Remover esta linha devolve o
+     combate ao visual anterior sem tocar em nenhuma regra do jogo. -->
+<link rel="stylesheet" href="src/efeitos-combate.css" />
+<!-- Layout da batalha: a PISTA DE ANÚNCIOS reservada no meio do campo (dado,
+     letreiros e faixas moram lá, e nada mais é desenhado ali), os textos
+     flutuantes acima do card em vez de por cima do sprite, e a limpeza do
+     card derrotado. Por último de propósito: reescreve a altura das fileiras
+     que battle-cards.css define, e ser a última é o que dispensa !important.
+     Remover esta linha devolve o layout anterior inteiro. -->
+<link rel="stylesheet" href="src/batalha-layout.css" />
+<link rel="stylesheet" href="src/animacoes-polimento.css" />
+<link rel="stylesheet" href="src/design-polimento.css" />
 </head>
 <body>
   <div id="app">
     <canvas id="game-canvas" width="960" height="640"></canvas>
 
+    <!-- HUD em duas peças, e só duas: uma FAIXA no topo (quem você é, como
+         você está, o que você tem) e um TRILHO na direita (para onde ir).
+         Antes eram cinco caixas soltas dentro de um flex centrado — e como o
+         flex centrava verticalmente contra a altura da coluna de botões, a
+         identidade acabava desenhada no meio da tela, em cima do próprio
+         personagem. O conteúdo do trilho é montado por montarNavegacao()
+         (GameUI.js) a partir de HUBS; aqui fica só a casca. -->
     <div id="hud" class="hidden">
-      <div id="hud-bars">
-        <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra"><div id="hud-hp" class="barra-fill hp"></div></div></div>
-        <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra"><div id="hud-mp" class="barra-fill mp"></div></div></div>
-        <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra"><div id="hud-xp" class="barra-fill xp"></div></div></div>
+      <div id="hud-topo">
+        <div id="hud-info"></div>
+        <div id="hud-bars">
+          <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra"><div id="hud-hp" class="barra-fill hp"></div></div><span class="barra-num" id="hud-hp-num"></span></div>
+          <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra"><div id="hud-mp" class="barra-fill mp"></div></div><span class="barra-num" id="hud-mp-num"></span></div>
+          <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra"><div id="hud-xp" class="barra-fill xp"></div></div><span class="barra-num" id="hud-xp-num"></span></div>
+        </div>
+        <div id="hud-direita">
+          <div id="hud-bolsa"></div>
+          <div id="hud-clima"></div>
+          <div id="hud-salvo" class="hidden"></div>
+        </div>
       </div>
-      <div id="hud-info"></div>
-      <div id="hud-clima"></div>
-      <div id="hud-salvo" class="hidden"></div>
-      <div id="hud-buttons">
-        <button data-action="inventario">Inventário (I)</button>
-        <button data-action="missoes">Missões (M)</button>
-        <button data-action="forja">Forja (F)</button>
-        <button data-action="gacha">Time (G)</button>
-        <button data-action="arvore">Habilidades (T)</button>
-        <button data-action="caminhos" id="btn-caminhos" class="hidden">🌌 Caminhos do Herdeiro (H)</button>
-        <button data-action="compendio">Compêndio (C)</button>
-        <button data-action="viagem">Viagem Rápida (V)</button>
-        <button data-action="atlas">🗺️ Atlas (U)</button>
-        <button data-action="sair_masmorra" title="Retorna à superfície de dentro de uma masmorra">🚪 Sair da Masmorra</button>
-        <button data-action="diario">Diário (D)</button>
-        <button data-action="descansar" title="Recupera todo o HP e MP do time inteiro">💤 Descansar (R)</button>
-        <button data-action="salvar">Salvar (S)</button>
-        <button data-action="auto" id="btn-auto">▶ Automático (P)</button>
-        <button data-action="acessibilidade">Acessibilidade</button>
-      </div>
+      <div id="hud-buttons"></div>
     </div>
 
     <div id="mensagem-topo" class="hidden"></div>
@@ -65,7 +111,7 @@
       <div id="painel-login" style="margin-top:14px;"></div>
       <p style="margin-top:24px;font-size:0.8em;color:#8a7a5c;max-width:420px;text-align:center;">
         No computador: setas do teclado para mover · E para interagir (NPCs, baús, nós de coleta, masmorra)
-        · I inventário · M missões · F forja · G time · T habilidades · S salvar · P automático · Esc fechar janelas<br/>
+        · U mapa · K estado · I inventário · M missões · F forja · G time · T habilidades · S salvar · P automático · Esc fechar janelas<br/>
         No celular: use o direcional e o botão "E" que aparecem na tela.
       </p>
     </div>

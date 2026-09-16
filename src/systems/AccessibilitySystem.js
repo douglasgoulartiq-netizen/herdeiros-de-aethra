@@ -70,6 +70,13 @@ const PADRAO = {
   // (automático enfrenta o chefe sem perguntar) — só quem ligar isso aqui
   // ganha a pausa antes do chefe.
   pararAutoAntesDoChefe: false,
+  // Autocuidado do automático (ver AutoCareSystem.js): usa poção quando
+  // alguém do time cai abaixo de metade do HP, e só descansa quando as
+  // poções acabam. Nasce LIGADA — ao contrário das opções acima, o
+  // comportamento antigo (lutar até o time cair) não é algo que alguém
+  // escolheria de propósito. Quem quiser o antigo desliga aqui, e a opção
+  // "parar com HP baixo" volta a ser a única rede de segurança.
+  autoCuidarDoTime: true,
 };
 
 let cache = null;
@@ -96,6 +103,7 @@ export function mesclarConfig(parcial) {
     volumeEfeitos: p.volumeEfeitos in VOLUMES_EFEITOS ? p.volumeEfeitos : PADRAO.volumeEfeitos,
     velocidadeAutoExploracao: p.velocidadeAutoExploracao in VELOCIDADES_AUTO_EXPLORACAO ? p.velocidadeAutoExploracao : PADRAO.velocidadeAutoExploracao,
     pararAutoAntesDoChefe: typeof p.pararAutoAntesDoChefe === "boolean" ? p.pararAutoAntesDoChefe : PADRAO.pararAutoAntesDoChefe,
+    autoCuidarDoTime: typeof p.autoCuidarDoTime === "boolean" ? p.autoCuidarDoTime : PADRAO.autoCuidarDoTime,
   };
 }
 
@@ -170,6 +178,13 @@ export function multiplicadorVelocidadeAutoExploracao() {
 // contra um chefe. false (padrão) = comportamento de sempre.
 export function pararAutoAntesDoChefe() {
   return carregarConfigAcessibilidade().pararAutoAntesDoChefe;
+}
+
+// true (padrão) = o automático usa poção quando alguém do time cai abaixo
+// de metade do HP e descansa só quando as poções acabam; também recusa
+// encontro classificado como Mortal. Ver AutoCareSystem.js e tickAutoPlay.
+export function autoCuidarDoTime() {
+  return carregarConfigAcessibilidade().autoCuidarDoTime;
 }
 
 // Só pra testes: reseta o cache em memória (localStorage real não existe em

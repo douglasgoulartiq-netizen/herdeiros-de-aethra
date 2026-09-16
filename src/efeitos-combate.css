@@ -1,0 +1,550 @@
+/* EFEITOS DE COMBATE — a camada visual das mecânicas que existiam só no
+ * cálculo. Criada a partir da auditoria "20 mecânicas que não aparecem".
+ *
+ * REGRA QUE GOVERNA ESTA FOLHA: nada aqui pode competir com o número de dano
+ * nem tapar o sprite. Aura é contorno, não preenchimento; o contador de turno
+ * é pequeno; o anel de buff dura menos de um segundo. O combate continua
+ * legível com tudo aceso ao mesmo tempo — que é o caso normal, não o extremo.
+ */
+
+/* =====================================================================
+ * 1. AURA DE ESTADO ELEMENTAL
+ * =====================================================================
+ * Os nove estados eram completamente invisíveis: a linha de ícones filtrava
+ * por `STATUS_INFO`, e `estado_elemental` não está lá (nem pode estar — são
+ * nove estados diferentes com o mesmo tipo). O jogador molhava o alvo, o
+ * dano de gelo subia 40%, e nada na tela ligava as duas coisas.
+ *
+ * A aura é um halo na cor do estado + uma animação com o "gesto" dele:
+ * gotejar, cristalizar, queimar, rachar, apodrecer, prender, pulsar.
+ */
+
+.combatente.aura-estado .sprite-wrap {
+  position: relative;
+  border-radius: 8px;
+}
+.combatente.aura-estado .sprite-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+  border: 2px solid var(--aura-cor, #7ab5e0);
+  box-shadow: inset 0 0 14px -2px var(--aura-cor, #7ab5e0),
+              0 0 12px -3px var(--aura-cor, #7ab5e0);
+  animation: aura-respira var(--aura-ritmo, 1900ms) ease-in-out infinite;
+}
+
+/* Cada estado tem cor e ritmo próprios. O ritmo carrega tanta informação
+   quanto a cor: congelado é lento e parado, incendiado é rápido e inquieto,
+   e quem joga sem distinguir bem as cores lê a diferença pela cadência. */
+.combatente.aura-molhado    { --aura-cor: #4a9fd8; --aura-ritmo: 2600ms; }
+.combatente.aura-congelado  { --aura-cor: #8fd8e8; --aura-ritmo: 3400ms; }
+.combatente.aura-incendiado { --aura-cor: #e0602a; --aura-ritmo: 900ms; }
+.combatente.aura-exposto    { --aura-cor: #e0b24a; --aura-ritmo: 1400ms; }
+.combatente.aura-corrompido { --aura-cor: #8b5ac8; --aura-ritmo: 2200ms; }
+.combatente.aura-enraizado  { --aura-cor: #6fa84a; --aura-ritmo: 3000ms; }
+.combatente.aura-eletrizado { --aura-cor: #f0d848; --aura-ritmo: 600ms; }
+.combatente.aura-instavel   { --aura-cor: #d858c8; --aura-ritmo: 1100ms; }
+.combatente.aura-precisao_reduzida { --aura-cor: #9aa4ae; --aura-ritmo: 2000ms; }
+
+@keyframes aura-respira {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* Congelado é o único estado que TIRA o turno, então é o mais forte dos nove:
+ * a aura ganha uma segunda borda, mais grossa e mais fria. (Não uso
+ * `::after` aqui pelo mesmo motivo do escudo acima — a sombra de chão.) */
+.combatente.aura-congelado .sprite-wrap::before {
+  border-width: 3px;
+  box-shadow: inset 0 0 22px -2px var(--aura-cor), 0 0 16px -2px var(--aura-cor);
+}
+
+/* Incendiado: brasas subindo por trás do sprite. */
+.combatente.aura-incendiado .sprite-wrap {
+  animation: tremula-fogo 260ms steps(2, end) infinite;
+}
+@keyframes tremula-fogo {
+  0%, 100% { filter: none; }
+  50%      { filter: brightness(1.12) saturate(1.15); }
+}
+
+/* =====================================================================
+ * 2. ÍCONES DE EFEITO COM CONTADOR DE TURNOS
+ * =====================================================================
+ * Os ícones já existiam; o contador não. "Ataco o congelado agora ou ele
+ * descongela antes?" é a decisão central do combate e o número não estava
+ * na tela em lugar nenhum.
+ */
+
+.status-icone { position: relative; }
+
+.status-turnos {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  min-width: 11px;
+  height: 11px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: #1b1309;
+  border: 1px solid #6a5636;
+  color: #f1e9d8;
+  font-size: 8px;
+  font-weight: normal;
+  line-height: 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Último turno: o efeito acaba na próxima vez que este combatente agir. É
+   uma informação de decisão, não de sabor — por isso muda de cor E pisca,
+   em vez de só uma das duas. */
+.status-turnos.ultimo {
+  background: #5a1c14;
+  border-color: #c96b6b;
+  color: #ffd9d0;
+}
+.status-icone.expirando { animation: status-expirando 620ms ease-in-out infinite; }
+@keyframes status-expirando {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* A guarda — o buff mais forte de um turno inteiro, e o único que não era um
+   `statusEffect`, então nunca teve ícone. */
+.status-icone.status-guarda {
+  color: #9ad0f0;
+  text-shadow: 0 0 7px rgba(122, 181, 224, 0.85);
+}
+.status-icone.status-elemental { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35)); }
+
+/* =====================================================================
+ * 3. ESCUDO DA GUARDA
+ * =====================================================================
+ * Além do ícone, o card inteiro ganha um escudo semitransparente na frente.
+ * O ícone diz "está em guarda"; o escudo faz o jogador VER isso de longe,
+ * enquanto decide em quem bater.
+ */
+/* NOTA DE COLISÃO: este escudo começou em `.sprite-wrap::after` e não
+ * aparecia. Aquele pseudo-elemento já é a SOMBRA DE CHÃO do sprite
+ * (battle-cards.css:1239), e a regra de lá é mais específica — o escudo
+ * perdia em silêncio. Vive no `::after` do próprio card, que estava livre. */
+/* SEGUNDA COLISÃO, achada na revisão: `.combatente.origem-combo::after`
+ * (battle-cards.css:772) desenha o elo 🔗 do combo elemental no MESMO
+ * pseudo-elemento. Num card que está em guarda E é origem de combo, esta
+ * folha carrega depois e apagava o 🔗, misturando as duas aparências.
+ * O escudo passa para `::before` do card — que estava livre (a aura usa o
+ * `::before` do `.sprite-wrap`, que é outro elemento). */
+.combatente.em-guarda { position: relative; }
+.combatente.em-guarda::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 9px;
+  pointer-events: none;
+  z-index: 2;
+  border: 2px solid rgba(154, 208, 240, 0.85);
+  background: linear-gradient(115deg,
+    rgba(154, 208, 240, 0) 35%,
+    rgba(154, 208, 240, 0.32) 50%,
+    rgba(154, 208, 240, 0) 65%);
+  background-size: 260% 100%;
+  animation: guarda-varre 2100ms linear infinite;
+}
+@keyframes guarda-varre {
+  from { background-position: 160% 0; }
+  to   { background-position: -60% 0; }
+}
+
+/* =====================================================================
+ * 4. ANEL DE BUFF / DEBUFF ENTRANDO
+ * =====================================================================
+ * Ganhar +50% de defesa e levar −40% de velocidade apareciam idênticos: o
+ * mesmo texto cinza, na mesma posição. O anel dá direção — bom sobe, ruim
+ * desce — e isso é lido antes de qualquer palavra.
+ */
+.anel-efeito {
+  position: absolute;
+  left: 50%;
+  width: 118%;
+  height: 26%;
+  margin-left: -59%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+}
+.anel-bom {
+  bottom: 0;
+  border: 2px solid #6fc47a;
+  box-shadow: 0 0 14px -2px #6fc47a;
+  animation: anel-sobe 720ms ease-out forwards;
+}
+.anel-ruim {
+  top: 0;
+  border: 2px solid #b06ac8;
+  box-shadow: 0 0 14px -2px #b06ac8;
+  animation: anel-desce 720ms ease-out forwards;
+}
+@keyframes anel-sobe {
+  from { transform: translateY(0) scale(0.7); opacity: 0; }
+  30%  { opacity: 1; }
+  to   { transform: translateY(-115%) scale(1.15); opacity: 0; }
+}
+@keyframes anel-desce {
+  from { transform: translateY(0) scale(1.15); opacity: 0; }
+  30%  { opacity: 1; }
+  to   { transform: translateY(115%) scale(0.7); opacity: 0; }
+}
+
+/* =====================================================================
+ * 5. DANO POR TURNO (veneno, incendiado)
+ * =====================================================================
+ * Deliberadamente diferente do número de golpe: sai deslocado, sobe mais
+ * devagar e carrega o ícone da fonte. O jogador precisa ler, sem pensar,
+ * "isto não foi um ataque — isto é o veneno correndo".
+ */
+.dano-periodico {
+  color: #c88fe0;
+  font-size: 0.92em;
+  text-shadow: 0 1px 0 #000, 0 0 9px rgba(200, 143, 224, 0.6);
+  animation: dp-sobe 1250ms ease-out forwards;
+}
+.dano-periodico .dp-icone { font-size: 0.85em; }
+@keyframes dp-sobe {
+  from { transform: translate(-50%, 0) scale(0.85); opacity: 0; }
+  18%  { transform: translate(-50%, -6px) scale(1); opacity: 1; }
+  to   { transform: translate(-50%, -30px) scale(1); opacity: 0; }
+}
+
+/* =====================================================================
+ * 6. PRISÃO DE TURNO (perdeu a ação)
+ * =====================================================================
+ * O turno era simplesmente pulado. O jogador via o inimigo "não fazer nada"
+ * e não tinha como saber que foi o congelamento dele que causou isso.
+ */
+.prisao-turno {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+  pointer-events: none;
+  z-index: 4;
+  animation: prisao-racha 900ms cubic-bezier(0.3, 0, 0.2, 1) forwards;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.8);
+}
+@keyframes prisao-racha {
+  0%   { transform: scale(0.5); opacity: 0; }
+  25%  { transform: scale(1.25); opacity: 1; }
+  60%  { transform: scale(1.1) rotate(-6deg); opacity: 1; }
+  to   { transform: scale(1.5) rotate(4deg); opacity: 0; }
+}
+
+/* =====================================================================
+ * ACESSIBILIDADE
+ * =====================================================================
+ * A aura, o contador e o escudo permanecem — são INFORMAÇÃO. O que para é o
+ * movimento: nada pulsa, nada varre, nada treme.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .combatente.aura-estado .sprite-wrap::before,
+  .combatente.aura-incendiado .sprite-wrap,
+  .combatente.em-guarda::before,
+  .status-icone.expirando,
+  .anel-efeito,
+  .prisao-turno { animation: none; }
+  .combatente.aura-estado .sprite-wrap::before { opacity: 1; }
+  .combatente.em-guarda::before { background-position: 50% 0; }
+}
+
+@media (max-width: 719px) {
+  .status-turnos { min-width: 9px; height: 9px; font-size: 7px; line-height: 8px; }
+  .prisao-turno { font-size: 1.5rem; }
+  .dano-periodico { font-size: 0.84em; }
+}
+
+/* =====================================================================
+ * 7. SELOS COLADOS NO NÚMERO DE DANO
+ * =====================================================================
+ * Um golpe passa por até dez multiplicadores — item lendário, traço racial,
+ * marca de classe, terreno, clima, atordoamento, formação, penalidade de
+ * equipamento — e o jogador via só o total. Os selos dizem QUAIS entraram.
+ *
+ * Eles são deliberadamente pequenos e opacos: quem quer só jogar lê o número
+ * grande e ignora; quem quer entender a fórmula tem a resposta na tela, sem
+ * abrir menu nenhum. Por isso o tom é uma borda lateral e não um fundo — o
+ * selo informa sem gritar.
+ */
+.selo-golpe {
+  font-size: 0.56em;
+  letter-spacing: 0.05em;
+  padding: 1px 6px 1px 5px;
+  border-radius: 3px;
+  border-left: 2px solid currentColor;
+  background: rgba(14, 10, 6, 0.82);
+  white-space: nowrap;
+  animation: selo-entra 1150ms ease-out forwards;
+}
+
+/* O tom diz de ONDE veio o bônus, que é a pergunta seguinte à do número. */
+.selo-bom      { color: #8fc47a; }  /* traço racial */
+.selo-item     { color: #e0b24a; }  /* efeito de item lendário */
+.selo-marca    { color: #c89af0; }  /* marca de classe */
+.selo-ambiente { color: #7ab5e0; }  /* terreno e clima */
+.selo-postura  { color: #9ad0f0; }  /* chefe atordoado */
+.selo-ruim     { color: #e08a7a; }  /* penalidade: equipamento, formação */
+
+@keyframes selo-entra {
+  from { transform: translate(-50%, 6px); opacity: 0; }
+  16%  { transform: translate(-50%, 0); opacity: 1; }
+  74%  { opacity: 1; }
+  to   { transform: translate(-50%, -8px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selo-golpe { animation: none; opacity: 1; }
+}
+@media (max-width: 719px) {
+  /* No celular os selos só encolhem. Uma versão anterior tentava esconder do
+     terceiro em diante com `:nth-of-type(n+3)` — e escondia QUASE TODOS: os
+     selos não são irmãos entre si dentro de um container próprio, eles vão
+     direto para a fx-layer junto com o número, o sub-rótulo, a ruptura e as
+     partículas. `:nth-of-type` conta `div` irmão, não `.selo-golpe`, então o
+     primeiro selo já era o terceiro div — e o resultado ainda variava com o
+     que estivesse animando na camada. O teto de verdade é no JS
+     (`extras.selos.slice(0, 3)` em spawnFloatingText). */
+  .selo-golpe { font-size: 0.5em; padding: 0 4px; }
+}
+
+/* =====================================================================
+ * 8. PARTÍCULAS QUE VIAJAM ENTRE CARDS (roubo de vida)
+ * =====================================================================
+ * Vivem na fx-layer, que nunca é limpa — a viagem sobrevive à recriação dos
+ * cards a cada tique do ATB. Sem isso a partícula sumiria no meio do caminho.
+ */
+.particula-viajante {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 12;
+  animation: viaja 640ms cubic-bezier(0.4, 0, 0.5, 1) forwards;
+}
+.particula-viajante.dreno {
+  background: #d2342c;
+  box-shadow: 0 0 9px #d2342c;
+}
+@keyframes viaja {
+  from { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  15%  { opacity: 1; }
+  to   { transform: translate(var(--dx), var(--dy)) scale(1.25); opacity: 0; }
+}
+
+/* =====================================================================
+ * 9. ELO DE COMBO ENTRE ALIADOS
+ * =====================================================================
+ * Um retângulo fino girado, não uma linha SVG: uma linha exigiria uma camada
+ * de <svg> própria só para isto, e o resultado na tela é o mesmo.
+ */
+.elo-combo {
+  position: absolute;
+  height: 3px;
+  margin-top: -1.5px;
+  transform-origin: 0 50%;
+  pointer-events: none;
+  z-index: 11;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    rgba(245, 165, 36, 0) 0%, rgba(245, 165, 36, 0.95) 50%, rgba(245, 165, 36, 0) 100%);
+  box-shadow: 0 0 12px rgba(245, 165, 36, 0.8);
+  animation: elo-acende 900ms ease-out forwards;
+}
+@keyframes elo-acende {
+  from { opacity: 0; filter: brightness(2); }
+  22%  { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* =====================================================================
+ * 10. ESTILHAÇOS DO ELEMENTO NO IMPACTO
+ * =====================================================================
+ * A cor vem do próprio elemento (ElementIdentity), aplicada inline — assim
+ * um elemento novo nos dados não precisa de uma regra nova aqui.
+ */
+.estilhaco-elemental {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 12;
+  animation: estilhaca 520ms ease-out forwards;
+}
+@keyframes estilhaca {
+  from { transform: translate(0, 0) scale(1.4) rotate(0deg); opacity: 1; }
+  to   { transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(180deg); opacity: 0; }
+}
+
+/* =====================================================================
+ * 11. ECO — o segundo golpe fantasma
+ * =====================================================================
+ * O golpe se repetia e dois números saíam em sequência. Sem nada na tela, a
+ * leitura natural é "bug", não "minha arma tem Eco".
+ */
+.combatente.eco-fantasma { animation: eco-repete 500ms ease-out; }
+@keyframes eco-repete {
+  0%   { transform: translateX(0); opacity: 1; }
+  35%  { transform: translateX(14px) scale(1.03); opacity: 0.45; filter: brightness(1.5); }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.faixa-eco {
+  color: #c89af0;
+  text-shadow: 0 0 14px rgba(200, 154, 240, 0.9), 0 2px 0 #000;
+}
+
+/* =====================================================================
+ * 12. MARCA ELEMENTAL DA ARMA
+ * =====================================================================
+ * O ícone do estado sobe do ponto de impacto antes de virar o ícone fixo na
+ * linha de status. É o que liga "a arma bateu" a "o alvo ficou molhado".
+ */
+.marca-elemental {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  margin-left: -0.5em;
+  font-size: 1.6rem;
+  pointer-events: none;
+  z-index: 5;
+  animation: marca-sobe 800ms cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  filter: drop-shadow(0 0 10px var(--aura-cor, #7ab5e0));
+}
+@keyframes marca-sobe {
+  from { transform: translateY(10px) scale(0.4); opacity: 0; }
+  30%  { transform: translateY(0) scale(1.3); opacity: 1; }
+  to   { transform: translateY(-18px) scale(0.9); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Estes são OVERLAYS: zerar a opacidade apaga o efeito, que é o desejado. */
+  .particula-viajante, .elo-combo, .estilhaco-elemental,
+  .marca-elemental { animation: none; opacity: 0; }
+  /* `.eco-fantasma` NÃO é um overlay — é o card inteiro do atacante. A regra
+     anterior o incluía aqui e fazia o herói DESAPARECER por meio segundo para
+     quem tem redução de movimento no sistema operacional. Aqui só o
+     movimento para; o card continua visível. */
+  .combatente.eco-fantasma { animation: none; }
+  /* O pulso dos ícones de status vem de style.css e não estava coberto por
+     nenhum bloco de redução — ficava pulsando para sempre. */
+  .status-icone { animation: none !important; }
+}
+
+/* =====================================================================
+ * 13. MORTE DO COMBATENTE
+ * =====================================================================
+ * O card só passava a ser desenhado em cinza — e num combate por ATB, em que
+ * os cards se redesenham a cada 140ms, a troca de estilo é imperceptível. O
+ * inimigo que o jogador acabou de derrubar não tinha momento nenhum.
+ *
+ * O sprite tomba para o lado e dissolve; o `.morto` cinza assume depois.
+ */
+.combatente.tombando .sprite-wrap {
+  animation: tomba 740ms cubic-bezier(0.55, 0, 0.75, 0.2) forwards;
+  transform-origin: 50% 100%;
+}
+@keyframes tomba {
+  0%   { transform: rotate(0) translateY(0); opacity: 1; filter: none; }
+  22%  { transform: rotate(-6deg) translateY(-4px); opacity: 1; filter: brightness(2.2) saturate(0); }
+  to   { transform: rotate(74deg) translateY(16px); opacity: 0; filter: brightness(0.4) blur(2px); }
+}
+
+/* =====================================================================
+ * 14. PILAR DE LUZ DA CURA
+ * =====================================================================
+ * `--forca` vem da FRAÇÃO de HP recuperada, não do número absoluto: é a
+ * pergunta que o jogador realmente faz ("isso me tirou do vermelho?"), e é o
+ * que faz uma cura de 8 e uma de 60 pararem de parecer a mesma coisa.
+ */
+.pilar-cura {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 46%;
+  height: 100%;
+  margin-left: -23%;
+  pointer-events: none;
+  z-index: 3;
+  border-radius: 50% 50% 8px 8px;
+  background: linear-gradient(to top,
+    rgba(111, 196, 122, 0.75) 0%,
+    rgba(143, 224, 154, 0.35) 45%,
+    rgba(143, 224, 154, 0) 100%);
+  transform-origin: 50% 100%;
+  animation: pilar-sobe 800ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+@keyframes pilar-sobe {
+  from { transform: scaleY(0.05) scaleX(0.7); opacity: 0; }
+  25%  { opacity: 1; }
+  to   { transform: scaleY(var(--forca, 1)) scaleX(1); opacity: 0; }
+}
+
+/* A faixa da leva nova reusa a mecânica das faixas centrais já existentes;
+   só a cor é própria, para não ser lida como "postura rompida". */
+.faixa-leva {
+  color: #7ab5e0;
+  text-shadow: 0 0 16px rgba(122, 181, 224, 0.9), 0 2px 0 #000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combatente.tombando .sprite-wrap, .pilar-cura { animation: none; }
+  .pilar-cura { opacity: 0; }
+}
+
+/* =====================================================================
+ * 15. MARCA DE CLASSE ARMADA
+ * =====================================================================
+ * A condição da marca está atendida AGORA. Pulsa de propósito: é a única
+ * coisa no card que muda de turno para turno por causa da situação, e é uma
+ * janela — atacar agora aproveita o bônus, esperar pode perdê-lo.
+ */
+.badge-marca-armada {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid #c89af0;
+  border-radius: 999px;
+  background: rgba(96, 58, 130, 0.42);
+  color: #e0c8f8;
+  font-size: 0.62em;
+  white-space: nowrap;
+  animation: marca-armada 1500ms ease-in-out infinite;
+}
+@keyframes marca-armada {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 154, 240, 0); }
+  50%      { box-shadow: 0 0 9px 1px rgba(200, 154, 240, 0.55); }
+}
+@media (prefers-reduced-motion: reduce) { .badge-marca-armada { animation: none; } }
+@media (max-width: 719px) { .badge-marca-armada { font-size: 0.56em; padding: 0 5px; } }
+
+/* =====================================================================
+ * COR DO TEXTO FLUTUANTE DE EFEITO
+ * =====================================================================
+ * `style.css` colore `.status-flutuante.status-bom` e `.status-ruim`, que
+ * eram as duas únicas classes que existiam. A ficha de efeitos nova produz
+ * também `status-elemental` (os nove estados) e `status-guarda` — e o aviso
+ * mais importante do combate, "💧 Molhado 3", saía sem cor nenhuma.
+ */
+.status-flutuante.status-elemental {
+  color: #9fd8f0;
+  text-shadow: 0 1px 2px #000, 0 0 8px rgba(122, 181, 224, 0.75);
+}
+.status-flutuante.status-guarda {
+  color: #9ad0f0;
+  text-shadow: 0 1px 2px #000, 0 0 8px rgba(122, 181, 224, 0.75);
+}

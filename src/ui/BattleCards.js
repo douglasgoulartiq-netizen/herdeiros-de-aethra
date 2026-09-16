@@ -149,58 +149,97 @@ export function criarPainelDeCards(opcoes) {
     const badges = [];
     const detalhado = modoDanoPrevisto() === "detalhado";
 
-    if (p.execucao === "garantida") badges.push({ txt: "💀 EXECUÇÃO GARANTIDA", cls: "badge-exec badge-exec-forte" });
-    else if (p.execucao === "possivel") badges.push({ txt: "💀 POSSÍVEL EXECUÇÃO", cls: "badge-exec" });
+    // RÓTULO CURTO NA CARTA, FRASE INTEIRA NA SOBREPOSIÇÃO.
+    //
+    // Antes o rótulo curto era escolhido por `window.innerWidth < 720` — que
+    // mede a coisa errada. A carta é estreita mesmo num monitor de 1440px,
+    // porque são até 7 cartas numa linha só (≈130px cada). Dava o pior dos
+    // dois mundos: no desktop entrava o texto longo e saía cortado em
+    // "POSSÍVEL EXE…", que não informa nada e ainda parece defeito.
+    //
+    // A regra agora: a carta SEMPRE usa o rótulo curto, que cabe em qualquer
+    // largura, e o texto por extenso vai no campo `completo`, que a
+    // sobreposição de detalhe mostra inteiro. Nada fica escondido — o que
+    // muda é onde cada versão aparece. O teste test-cartas-legiveis.mjs
+    // falha se qualquer selo voltar a truncar.
+    if (p.execucao === "garantida") {
+      badges.push({ txt: "💀 EXECUTA", cls: "badge-exec badge-exec-forte", completo: "Execução garantida — este golpe derruba o alvo." });
+    } else if (p.execucao === "possivel") {
+      badges.push({ txt: "💀 PODE MATAR", cls: "badge-exec", completo: "Possível execução — dependendo da rolagem, este golpe derruba o alvo." });
+    }
 
-    if (p.interrompe) badges.push({ txt: p.interrompe.garantida ? "⚡ INTERROMPE" : "⚡ PODE INTERROMPER", cls: "badge-interrupt" });
+    if (p.interrompe) {
+      badges.push({
+        txt: p.interrompe.garantida ? "⚡ INTERROMPE" : "⚡ INTERROMPE?",
+        cls: "badge-interrupt",
+        completo: p.interrompe.garantida
+          ? "Interrompe a ação que o inimigo está preparando."
+          : "Pode interromper a ação que o inimigo está preparando.",
+      });
+    }
 
     // Rótulo curto de propósito: o nome completo da reação/combo e a
     // descrição inteira vivem no painel de detalhe. Na badge só cabe (e só
     // interessa) o gatilho.
-    if (p.reacao) badges.push({ txt: `${p.reacao.icone || "✦"} ${p.reacao.nome.toUpperCase()}`, cls: "badge-combo" });
-    else if (p.combo) badges.push({ txt: `${p.combo.icone} COMBO!`, cls: "badge-combo" });
+    if (p.reacao) badges.push({ txt: `${p.reacao.icone || "✦"} ${p.reacao.nome.toUpperCase()}`, cls: "badge-combo", completo: `Reação elemental: ${p.reacao.nome}${p.reacao.descricao ? ` — ${p.reacao.descricao}` : ""}` });
+    else if (p.combo) badges.push({ txt: `${p.combo.icone} COMBO!`, cls: "badge-combo", completo: `Combo${p.combo.nome ? `: ${p.combo.nome}` : ""} — encadeia com a ação anterior.` });
 
     if (p.dano) {
       const rel = rotuloRelacao(p.dano.relacaoElemental);
-      if (rel) badges.push({ txt: `${rel.icone} ${rel.texto}`, cls: `badge-rel ${rel.classe}` });
+      if (rel) badges.push({ txt: `${rel.icone} ${rel.texto}`, cls: `badge-rel ${rel.classe}`, completo: `Relação elemental: ${rel.texto.toLowerCase()} contra este alvo.` });
     }
 
     if (p.ruptura) {
-      if (p.ruptura.quebra) badges.push({ txt: "🛡️💥 ROMPE POSTURA", cls: "badge-ruptura badge-ruptura-forte" });
-      else if (p.ruptura.ganho >= p.ruptura.restante * 0.6) badges.push({ txt: "🛡️ QUASE ROMPE", cls: "badge-ruptura" });
-      else if (detalhado) badges.push({ txt: `🛡️ RUPTURA ${p.ruptura.ganho}`, cls: "badge-ruptura" });
+      if (p.ruptura.quebra) badges.push({ txt: "🛡️💥 ROMPE", cls: "badge-ruptura badge-ruptura-forte", completo: "Rompe a postura do alvo agora — ele fica exposto." });
+      else if (p.ruptura.ganho >= p.ruptura.restante * 0.6) badges.push({ txt: "🛡️ QUASE", cls: "badge-ruptura", completo: `Quase rompe a postura: +${p.ruptura.ganho}, faltariam ${Math.max(0, p.ruptura.restante - p.ruptura.ganho)}.` });
+      else if (detalhado) badges.push({ txt: `🛡️ RUPTURA ${p.ruptura.ganho}`, cls: "badge-ruptura", completo: `Soma ${p.ruptura.ganho} de ruptura à postura do alvo.` });
     }
 
     if (p.status) {
       const chanceTxt = p.status.garantido || p.status.chance >= 0.999 ? "" : ` ${pct(p.status.chance)}`;
-      badges.push({ txt: `${p.status.icone} ${p.status.nome.toUpperCase()}${chanceTxt}`, cls: "badge-status" });
+      badges.push({
+        txt: `${p.status.icone} ${p.status.nome.toUpperCase()}${chanceTxt}`,
+        cls: "badge-status",
+        completo: `Aplica ${p.status.nome}${p.status.detalhe ? ` (${p.status.detalhe})` : ""} — ${p.status.garantido ? "garantido" : pct(p.status.chance)}.`,
+      });
     }
 
     if (p.chances) {
       // Item 14: só polui o card quando é relevante.
       if (p.chances.acerto < 0.999 && (detalhado || p.chances.acerto < 0.8)) {
-        badges.push({ txt: `${p.chances.acerto < 0.7 ? "⚠ " : ""}ACERTO ${pct(p.chances.acerto)}`, cls: p.chances.acerto < 0.7 ? "badge-acerto badge-acerto-baixo" : "badge-acerto" });
+        badges.push({
+          txt: `${p.chances.acerto < 0.7 ? "⚠ " : ""}ACERTO ${pct(p.chances.acerto)}`,
+          cls: p.chances.acerto < 0.7 ? "badge-acerto badge-acerto-baixo" : "badge-acerto",
+          completo: `Chance de acertar: ${pct(p.chances.acerto)}${p.chances.acerto < 0.7 ? " — arriscado." : "."}`,
+        });
       }
       // Item 15.
-      if (p.chances.criticoGarantido) badges.push({ txt: "✹ CRÍTICO GARANTIDO", cls: "badge-critico badge-critico-forte" });
+      if (p.chances.criticoGarantido) badges.push({ txt: "✹ CRÍTICO!", cls: "badge-critico badge-critico-forte", completo: "Crítico garantido neste golpe." });
       else if (p.chances.critico > 0.25 || (detalhado && p.chances.critico > 0)) {
-        badges.push({ txt: `✹ CRÍTICO ${pct(p.chances.critico)}`, cls: "badge-critico" });
+        badges.push({ txt: `✹ CRÍTICO ${pct(p.chances.critico)}`, cls: "badge-critico", completo: `Chance de crítico: ${pct(p.chances.critico)}.` });
       }
     }
 
-    if (p.area && p.area.aliadosNaArea.length) badges.push({ txt: "⚠ ALIADO NA ÁREA", cls: "badge-friendly-fire" });
+    if (p.area && p.area.aliadosNaArea.length) {
+      badges.push({ txt: "⚠ ALIADO NA ÁREA", cls: "badge-friendly-fire", completo: `Atinge também: ${p.area.aliadosNaArea.map((c) => c.nome).join(", ")}.` });
+    }
 
-    if (card.ultimate) badges.push({ txt: p.disponivel ? "✦ DEFINITIVA · PRONTA" : "✦ DEFINITIVA", cls: "badge-ultimate" });
+    if (card.ultimate) badges.push({ txt: "✦ DEFINITIVA", cls: "badge-ultimate", completo: `Habilidade definitiva${p.disponivel ? " — pronta para usar." : " — ainda não disponível."}` });
 
-    if (p.vantagem && p.vantagem.nivel === "vantagem" && detalhado) badges.push({ txt: "▲ VANTAGEM", cls: "badge-vantagem" });
-    if (p.vantagem && p.vantagem.nivel === "desvantagem") badges.push({ txt: "▼ DESVANTAGEM", cls: "badge-desvantagem" });
+    if (p.vantagem && p.vantagem.nivel === "vantagem" && detalhado) badges.push({ txt: "▲ VANTAGEM", cls: "badge-vantagem", completo: "Com vantagem: rola dois dados e fica com o melhor." });
+    if (p.vantagem && p.vantagem.nivel === "desvantagem") badges.push({ txt: "▼ DESVANTAGEM", cls: "badge-desvantagem", completo: "Com desvantagem: rola dois dados e fica com o pior." });
 
     // Selos de origem (itens 52/53/54): a habilidade sabe de onde veio?
-    if (card.habilidade && card.habilidade.origemTalento) badges.push({ txt: "🌳 TALENTO ATIVO", cls: "badge-sinergia" });
-    if (card.habilidade && card.habilidade.sinergiaArma) badges.push({ txt: "🗡️ SINERGIA DE ARMA", cls: "badge-sinergia" });
+    if (card.habilidade && card.habilidade.origemTalento) badges.push({ txt: "🌳 TALENTO", cls: "badge-sinergia", completo: "Habilidade vinda da sua árvore de talentos." });
+    if (card.habilidade && card.habilidade.sinergiaArma) badges.push({ txt: "🗡️ SINERGIA", cls: "badge-sinergia", completo: "Sinergia com a arma que você tem equipada." });
 
     const limite = modoInfoTatica() === "avancada" || detalhado ? 5 : 3;
-    return badges.slice(0, limite);
+    // `todos` viaja junto para a sobreposição poder listar TUDO por extenso,
+    // inclusive o que não coube nos 3 selos da carta. É essa a diferença
+    // entre "cortar informação" e "escolher onde mostrar cada parte".
+    const visiveis = badges.slice(0, limite);
+    visiveis.todos = badges;
+    return visiveis;
   }
 
   function classesDeEstado(card, p, avaliacao, ehSelecionado, ehFoco) {
@@ -404,7 +443,20 @@ export function criarPainelDeCards(opcoes) {
     const avancado = forcarAvancado || modoInfoTatica() === "avancada";
     const linhas = [];
 
+    // O título com o nome inteiro já é montado no innerHTML lá embaixo — não
+    // repetir aqui. (Repeti na primeira versão e o nome saiu duas vezes; a
+    // captura de tela pegou.)
     if (card.descricao) linhas.push(`<p class="detalhe-desc">${card.descricao}</p>`);
+
+    // Cada selo da carta, dito por extenso — inclusive os que não couberam
+    // no limite de 3 do card. É a resposta direta ao "não mostra tudo":
+    // o que na carta é "💀 PODE MATAR" aqui é a frase completa.
+    const selos = (badgesDoCard(card, p, avaliacao) || {}).todos || [];
+    if (selos.length) {
+      linhas.push(`<div class="detalhe-selos">${selos
+        .map((b) => `<div class="detalhe-selo-linha"><span class="badge-carta ${b.cls}">${b.txt}</span><span class="detalhe-selo-texto">${b.completo || ""}</span></div>`)
+        .join("")}</div>`);
+    }
 
     if (p.dano && !p.dano.imune) {
       const cr = `<span class="detalhe-crit">crítico ${faixaTexto(p.dano.minCritico, p.dano.maxCritico)}</span>`;
@@ -569,8 +621,10 @@ export function criarPainelDeCards(opcoes) {
       );
     }
 
-    // --- Linha do tempo de iniciativa (itens 69/70)
-    blocos.push(desenharTimeline(estado));
+    // A linha do tempo de iniciativa saiu daqui: a infobar do palco agora
+    // mostra a ordem de turnos em retratos compactos (ver renderTimeline em
+    // BattleUI.js). Manter as duas era ocupar duas faixas com a mesma
+    // informação — e a daqui, feita de nomes, mudava de largura a cada turno.
 
     // --- Dica de iniciante (item 48)
     if (modoInicianteAtivo() && cacheAvaliacao) {
@@ -787,6 +841,71 @@ export function criarPainelDeCards(opcoes) {
   };
   document.addEventListener("keydown", cancelarPorEscape);
 
+  // ---- CURSOR POR TECLADO -------------------------------------------------
+  //
+  // "como se eu entrasse numa caixa e pudesse usar o cursor para mexer nas
+  // opções e a barra de espaço para selecionar".
+  //
+  // As setas movem o cursor entre as cartas; a barra de espaço seleciona; Esc
+  // volta. Cada carta já é focável e já responde a Espaço/Enter — o que
+  // faltava era ALGUÉM MOVER O FOCO. Sem isso o jogador tinha que apertar Tab
+  // um monte de vezes para chegar na carta, e no meio do caminho passava por
+  // botões da tela toda.
+  //
+  // Mover o foco (em vez de manter um índice próprio) é de propósito: o foco
+  // do navegador já dispara o `focus` da carta, que abre a sobreposição de
+  // detalhe. Assim andar com as setas JÁ vai lendo a previsão completa de cada
+  // carta — que é a outra metade do pedido.
+  // A mão é reconstruída a cada render, então é consultada na hora em vez de
+  // guardada: `maoEl` de dentro de desenhar() nem existe neste escopo, e uma
+  // referência velha apontaria para um nó já removido do DOM.
+  const maoAtual = () => acoesEl.querySelector("#mao-cards");
+
+  function cartasFocaveis() {
+    const mao = maoAtual();
+    return mao ? [...mao.querySelectorAll(".carta-batalha")] : [];
+  }
+
+  const navegarPorTeclado = (ev) => {
+    // Só age quando a mão está na tela e ninguém está digitando num campo.
+    const mao = maoAtual();
+    if (!mao || !mao.offsetParent) return;
+    const alvo = ev.target;
+    if (alvo && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return;
+    if (alvo && alvo.isContentEditable) return;
+
+    const SETAS = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    const passo = SETAS[ev.key];
+
+    if (passo) {
+      const cartas = cartasFocaveis();
+      if (!cartas.length) return;
+      ev.preventDefault();
+      const atual = cartas.indexOf(document.activeElement);
+      // Sem carta focada, a primeira seta entra na mão em vez de pular uma.
+      // Dá a sensação de "entrar na caixa", que é como o pedido descreve.
+      const proximo = atual === -1
+        ? (passo > 0 ? 0 : cartas.length - 1)
+        : (atual + passo + cartas.length) % cartas.length;
+      try { cartas[proximo].focus({ preventScroll: true }); } catch (e) { cartas[proximo].focus(); }
+      return;
+    }
+
+    // Espaço: seleciona a carta sob o cursor. Se ainda não há cursor, a
+    // primeira barra de espaço entra na mão — nunca dispara uma ação às
+    // cegas, que seria irreversível no meio de uma batalha.
+    if (ev.key === " " || ev.key === "Spacebar") {
+      const cartas = cartasFocaveis();
+      if (!cartas.length) return;
+      if (!cartas.includes(document.activeElement)) {
+        ev.preventDefault();
+        try { cartas[0].focus({ preventScroll: true }); } catch (e) { cartas[0].focus(); }
+      }
+      // Com uma carta já focada, o handler da própria carta cuida do Espaço.
+    }
+  };
+  document.addEventListener("keydown", navegarPorTeclado);
+
   return {
     desenhar,
     invalidar,
@@ -809,6 +928,7 @@ export function criarPainelDeCards(opcoes) {
     destruir() {
       document.removeEventListener("click", cancelarPorClicoFora);
       document.removeEventListener("keydown", cancelarPorEscape);
+      document.removeEventListener("keydown", navegarPorTeclado);
       acoesEl.removeEventListener("click", marcarOrigem, true);
       clearTimeout(timerToqueLongo);
     },

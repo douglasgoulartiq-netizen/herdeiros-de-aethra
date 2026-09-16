@@ -1,15 +1,20 @@
 import { carregarDados, carregarTodasImagens } from "./data/loader.js";
 import {
-  SOLID_TILES, zonaNoPonto, ZONAS,
-  buildOverworld, buildDungeon, buildDungeon2, OVERWORLD_W, OVERWORLD_H, DUNGEON_W, DUNGEON_H,
-  DUNGEON2_W, DUNGEON2_H,
-  CHESTS_OVERWORLD, NODES_OVERWORLD, NPC_POSICOES, DUNGEON_ENTRANCE, DUNGEON_SPAWN,
-  DUNGEON_EXIT_ZONE, CHESTS_DUNGEON, BOSS_TILE,
-  DUNGEON2_ENTRANCE, DUNGEON2_SPAWN, DUNGEON2_EXIT_ZONE, CHESTS_DUNGEON2, BOSS_TILE2,
+  SOLID_TILES, zonaNoPonto, ZONAS, OVERWORLD_W, OVERWORLD_H,
+  buildDungeon, buildDungeon2, DUNGEON_W, DUNGEON_H, DUNGEON2_W, DUNGEON2_H,
+  DUNGEON_SPAWN, DUNGEON_EXIT_ZONE, CHESTS_DUNGEON, BOSS_TILE,
+  DUNGEON2_SPAWN, DUNGEON2_EXIT_ZONE, CHESTS_DUNGEON2, BOSS_TILE2,
+  OVERWORLD_SPAWN,
 } from "./data/worldMap.js";
+// ETAPA 2: o mundo aberto deixou de ser um punhado de constantes escritas à
+// mão e passou a ser CONSTRUÍDO a partir dos dados de src/data/world/ — baú,
+// nó, POI, assentamento, boca de masmorra e chefe saem todos daqui, cada um
+// num tile andável da própria zona. Ver src/systems/WorldBuilder.js.
+import { mundoDaSemente } from "./systems/WorldBuilder.js";
 import { Renderer } from "./render/Renderer.js";
+import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
 import { montarCriacaoPersonagem } from "./ui/CharacterCreationUI.js";
-import { atualizarHUD, mostrarMensagem, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida } from "./ui/GameUI.js";
+import { atualizarHUD, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao } from "./ui/GameUI.js";
 import { iniciarBatalha } from "./ui/BattleUI.js";
 import { montarGacha } from "./ui/GachaUI.js";
 import { montarArvoreHabilidades } from "./ui/SkillTreeUI.js";
@@ -17,41 +22,109 @@ import { montarCaminhoHerdeiro } from "./ui/TalentTreeUI.js";
 import { montarCompendio } from "./ui/CompendiumUI.js";
 import { montarAtlas } from "./ui/AtlasUI.js";
 import { mostrarAmeaca } from "./ui/ThreatUI.js";
-import { escolhaPendente, aplicarEscolhaArvore } from "./systems/CharacterFactory.js";
+import { escolhaAutomatica, escolherNo } from "./systems/SkillTreeSystem.js";
+import {
+  garantirEstadoMasmorras, progressoDaMasmorra, masmorraEmEspera,
+  marcarMasmorraLimpa, textoDeEspera,
+} from "./systems/DungeonSystem.js";
 import { FLAGS } from "./data/featureFlags.js";
-import { sortearEncontroDeLista, deveDispararEncontro, deveSerHorda, sortearLevasHorda, reforcarEmboscada } from "./systems/EncounterSystem.js";
-import { sortearLoot, descansar } from "./systems/InventorySystem.js";
+import { sortearEncontroDeLista, deveDispararEncontro, deveSerHorda, sortearLevasHorda, reforcarEmboscada, chanceAjustadaPeloGrupo, iniciarTregua } from "./systems/EncounterSystem.js";
+import { sortearLoot, descansar, usarConsumivel } from "./systems/InventorySystem.js";
 import { marcarExploracao } from "./systems/QuestSystem.js";
-import { salvarJogo, carregarJogo, existeSave, migrarSave } from "./systems/SaveSystem.js";
+import { salvarJogo, carregarJogo, existeSave, migrarSave, LAYOUT_MUNDO } from "./systems/SaveSystem.js";
 import { iniciarLoginGoogle, processarRetornoLogin, usuarioAtual, sair, salvarNaNuvem, carregarDaNuvem } from "./systems/CloudSave.js";
 import { estadoGachaInicial, membrosDoTime, adicionarFragmentos, checarConquistas } from "./systems/GachaSystem.js";
+import {
+  garantirEstadoDePets, petAtivo, alvosDoPet, idDaFonte, rumoAte,
+  fatorDeTregua, INTERVALO_ACAO_MS,
+} from "./systems/PetSystem.js";
 import { FRAGMENTOS } from "./data/economyConfig.js";
 import { testesDoContexto, realizarTeste } from "./systems/SkillCheckSystem.js";
 import { autoPlayState, zerarResumoAuto, registrarResultadoBatalhaAuto, registrarGanhosAuto, textoResumoAuto } from "./systems/AutoPlayState.js";
+import { autoEquiparSlotsVazios, textoAcoesEquipamento } from "./systems/AutoEquipSystem.js";
+import { decidirPassoExploracao, PRIORIDADE } from "./systems/AutoExploreAI.js";
 import { facaoDaZona, deveEmboscar } from "./systems/WorldStateSystem.js";
-import { marcarZonaVisitada, pontoDeChegada } from "./systems/FastTravelSystem.js";
+import { marcarZonaVisitada, marcarMacroVisitada, pontoDeChegada, pontosDeViagemDisponiveis } from "./systems/FastTravelSystem.js";
+import {
+  NEVOA, garantirNevoa, estadoDaZona, aoEntrarNaZona, verificarLandmarks,
+  reavaliarDominio, resumoNevoa, promoverLocal,
+} from "./systems/FogOfWarSystem.js";
+import { novaSemente, normalizarSemente, formatarSemente, lerSemente } from "./systems/WorldSeed.js";
+import { macroDaZona, zonaPorId, trilha, INTERIORES, resumoHierarquia, vizinhasDaZona } from "./data/worldHierarchy.js";
+import {
+  gradeDeChunks, criarIndice, objetosPerto, objetosNoRaioDeTiles,
+  chunksAtivos, diferencaDeChunks, estatisticasDoIndice,
+} from "./systems/ChunkSystem.js";
 import { registrarProgressoDiario } from "./systems/DailyQuestSystem.js";
 import { elegivelParaNgPlus, aplicarNewGamePlus } from "./systems/NewGamePlusSystem.js";
 import { climaAtualDaZona, horaDoDiaAtual } from "./systems/WeatherSystem.js";
+import { posicionarNpcs } from "./systems/NpcPlacement.js";
+import {
+  garantirMemoriaNpcs, registrarConversa, registrarEncontroRecorrente,
+  memoriaParaSave, carregarMemoriaDoSave,
+} from "./systems/NpcSystem.js";
+import {
+  garantirQuestsRegionais, questsRegionaisParaSave, carregarQuestsRegionaisDoSave,
+  podeInvestigarElric, investigarElric,
+  registrarConversaAltaverde, podeExaminarPortaAltaverde, examinarPortaAltaverde,
+} from "./systems/RegionalQuestSystem.js";
+// Cenas: o prólogo (uma vez, em jogo novo) e as aberturas de questline
+// regional (disparadas de dentro do diálogo do NPC, em GameUI.js).
+import { reproduzirCutscene } from "./ui/CutsceneUI.js";
+import { cutscenePorId } from "./systems/CutsceneSystem.js";
+// Mapas: o minimapa do HUD (arredores, canto superior esquerdo) e o
+// mapa-múndi inteiro (regiões, zonas e níveis). Ver MapaSystem.js para a
+// camada de dados que os dois compartilham.
+import { montarMinimapa, atualizarMinimapa } from "./ui/MinimapaUI.js";
+import { montarMapaMundo } from "./ui/MapaMundoUI.js";
+import { montarPainelEstado } from "./ui/PainelEstadoUI.js";
+import { faixaDeNivel, ameacaRelativa, zonaDoMundoPorId } from "./systems/MapaSystem.js";
+// Cartões de decisão: o jogo passa a CONTAR o que já sabia (item melhor na
+// mochila, habilidade destravada, material suficiente para forjar). Ver
+// GatilhosCartao.js para a lista do que pode interromper o jogador.
+import { iniciarCartoes, mostrarProximo, registrarAoSubirNivel } from "./ui/CartaoUI.js";
+import { enfileirar, tiquear, GANHO_MINIMO_PADRAO } from "./systems/CartaoSystem.js";
+import { gatilhosDoMomento } from "./systems/GatilhosCartao.js";
+import {
+  reavaliar as reavaliarEventos, aplicarNoWorldState, eventosAtivos as listarEventosAtivos,
+  efeitosNaZona, eventosParaSave, carregarEventosDoSave, garantirEventos,
+  resumoDosEventos,
+} from "./systems/RegionalEventSystem.js";
 import { montarAcessibilidade, aplicarClassesAcessibilidade } from "./ui/AccessibilityUI.js";
-import { limiteHpAutoPlay, multiplicadorVelocidadeAutoExploracao, pararAutoAntesDoChefe } from "./systems/AccessibilitySystem.js";
+import { limiteHpAutoPlay, multiplicadorVelocidadeAutoExploracao, pararAutoAntesDoChefe, autoCuidarDoTime } from "./systems/AccessibilitySystem.js";
+import { planejarCuidado, textoCuidado, deveEvitarEncontro } from "./systems/AutoCareSystem.js";
+import { gerarPontosDescanso, gerarPontoDescansoMasmorra, podeDescansar } from "./systems/RestSystem.js";
 import { registrarEvento, resumoTelemetria } from "./systems/TelemetrySystem.js";
 import { deveDispararEventoExploracao, sortearEventoExploracao } from "./systems/ExplorationEventSystem.js";
 import { mostrarEventoExploracao } from "./ui/ExplorationEventUI.js";
 import { montarDiarioDeDecisoes } from "./ui/DecisionJournalUI.js";
 import { deveAparecerMercador, sortearEstoqueMercador } from "./systems/TravelingMerchantSystem.js";
 import { mostrarMercadorItinerante } from "./ui/TravelingMerchantUI.js";
+import { ligarCursorTeclado } from "./ui/CursorTeclado.js";
+import { montarParty } from "./ui/PartyUI.js";
 
 let usuarioLogado = null;
 let intervaloAutoSave = null;
 let intervaloClima = null; // melhoria pós-backlog: refresh periódico do indicador de clima/hora do dia
+let intervaloPet = null;   // relógio do companheiro de mapa (ver PetSystem.js)
 
 const canvas = document.getElementById("game-canvas");
 let renderer, imagens, dados;
+// Recalcula o enquadramento do canvas e as áreas ocupadas por HUD e
+// controles. Guardado porque precisa ser chamado de novo quando o HUD e os
+// controles APARECEM (ao começar a jogar): até esse momento eles não têm
+// tamanho, e a dica de interação seria posicionada sobre um rodapé que ainda
+// não existia — foi assim que ela nasceu em cima do direcional.
+let ajustarViewport = null;
 let personagem = null;
 
 const mundo = {
   mapaAtual: "overworld",
+  // Semente do mundo (task #34). É ela, e não a grade, que vai pro save: o
+  // mapa inteiro é reconstruído a partir dela no boot, idêntico tile por
+  // tile. Definida em iniciarMundo() — jogo novo sorteia uma, save antigo
+  // recebe SEMENTE_LEGADO na migração v2->v3 (ver SaveSystem.js).
+  semente: null,
   grid: null,
   gridDungeon: null,
   player: { x: 6, y: 5, dir: "baixo", frame: 0, ultimoMovimento: 0 },
@@ -66,6 +139,70 @@ async function boot() {
   // navegador) — HDA_TELEMETRIA() no console mostra o resumo, igual ao
   // padrão HDA_PLAYTEST()/HDA_COMMUNITY_REPORT() de outras cópias do jogo.
   window.HDA_TELEMETRIA = () => { const r = resumoTelemetria(); console.log(r); return r; };
+  // Diagnóstico de enquadramento — quantos tiles cabem na tela agora e com
+  // que tamanho. É o que o teste de celular lê pra saber se o jogador enxerga
+  // o bastante à frente (ver scripts/test-mobile-retrato.mjs).
+  window.HDA_TELA = () => {
+    if (!renderer) return null;
+    const t = renderer.tilesVisiveis();
+    return { ...t, tilePx: renderer.tilePx, escala: +renderer.escala.toFixed(2) };
+  };
+  // Personagem vivo, para verificação automatizada. Mesmo padrão dos outros
+  // ganchos de diagnóstico: só leitura, nada do jogo depende dele. Usado por
+  // scripts/ver-retratos-gacha.mjs para montar um estado real de coleção em
+  // vez de forjar objetos de personagem à mão.
+  window.HDA_PERSONAGEM = () => personagem;
+  // Setas andam entre as opções da janela aberta, barra de espaço seleciona.
+  // Ligado uma vez, no boot: o cursor descobre sozinho o que está na tela, e
+  // sai do caminho quando a batalha (que tem cursor próprio) está aberta.
+  ligarCursorTeclado();
+  // Diagnóstico da geografia (ETAPA 1) — mesmo padrão do HDA_TELEMETRIA():
+  // mostra a semente do mundo, onde o jogador está na hierarquia inteira e o
+  // retrato da estrutura (quantas macro-regiões, quantas derivadas, quanto
+  // mapa ainda está sem zona).
+  window.HDA_MUNDO = () => {
+    const indice = mundo.indices && mundo.indices[mundo.mapaAtual];
+    const r = {
+      semente: mundo.semente, sementeLegivel: formatarSemente(mundo.semente),
+      mapaAtual: mundo.mapaAtual,
+      onde: mundo.mapaAtual === "overworld" ? trilha(mundo.player.x, mundo.player.y) : mundo.mapaAtual,
+      ...resumoHierarquia(),
+      // Posição crua: os testes precisam saber SE o personagem andou, e
+      // `onde` é texto de trilha — igual pra tiles vizinhos.
+      jogadorX: mundo.player.x, jogadorY: mundo.player.y,
+      chunksCarregados: mundo.chunksAtivos ? [...mundo.chunksAtivos].join(" ") : "—",
+      indice: indice ? estatisticasDoIndice(indice) : null,
+      objetosDesenhados: objetosAtivos().length,
+      // Estado das masmorras: quantos baús faltam, se o chefe está de pé e
+      // se o lugar está em espera depois de concluído (ver DungeonSystem.js).
+      // Só leitura — é o que permite a um teste afirmar "o automático
+      // concluiu a masmorra" em vez de "o automático andou bastante".
+      masmorras: Object.fromEntries(Object.entries(MASMORRAS).map(([id, m]) => {
+        const prog = progressoDaMasmorra(mundo, m, () => chefeDaMasmorraDisponivel(m));
+        return [id, { ...prog, emEspera: masmorraEmEspera(mundo, id), entrada: { ...m.entrance } }];
+      })),
+    };
+    console.log(r);
+    return r;
+  };
+  // Gancho só de teste, no mesmo espírito de HDA_MUNDO/HDA_PERSONAGEM: põe o
+  // personagem num ponto do mapa. Sem isso, um teste que quer verificar a
+  // masmorra teria de esperar o automático ATRAVESSAR o mundo aberto até a
+  // entrada — centenas de passos de caminhada que não são o que está sendo
+  // testado. Não muda nada em nenhuma partida: é uma função a mais no
+  // `window`, nunca chamada pelo jogo.
+  window.HDA_TELEPORTE = (x, y) => {
+    mundo.player.x = x;
+    mundo.player.y = y;
+    atualizarChunksAtivos();
+    return { x: mundo.player.x, y: mundo.player.y, mapa: mundo.mapaAtual };
+  };
+  // Ganchos de diagnóstico da reconstrução do mapa (PASS 2): dão acesso à
+  // grade ativa e ao renderer pra um teste poder conferir enquadramento e
+  // camada de props sem depender de olhar a imagem.
+  window.HDA_GRID = () => gridAtiva();
+  window.HDA_PROPS = () => propsAtivos();
+  window.HDA_RENDERER = () => renderer;
   processarRetornoLogin();
   // Acessibilidade (melhoria pós-backlog, ver AccessibilitySystem.js):
   // aplica a preferência salva (tamanho de fonte/alto contraste) já no
@@ -76,6 +213,16 @@ async function boot() {
   dados = await carregarDados();
   imagens = await carregarTodasImagens(dados);
   renderer = new Renderer(canvas, imagens);
+  // Tela cheia (ETAPA 2): o canvas acompanha a viewport de verdade — barra de
+  // endereço recolhendo, rotação, teclado abrindo. Ver ViewportSystem.js.
+  ajustarViewport = ligarAjusteDeViewport(renderer);
+  // Tela cheia de navegador + trava de retrato só podem ser pedidas dentro de
+  // um gesto do jogador, então ficam penduradas no botão que começa o jogo.
+  pedirTelaCheiaNoPrimeiroGesto([
+    document.getElementById("btn-novo-jogo"),
+    document.getElementById("btn-continuar"),
+    document.getElementById("btn-ng-plus"),
+  ]);
 
   document.getElementById("btn-novo-jogo").onclick = () => iniciarCriacao();
   if (existeSave()) {
@@ -97,9 +244,11 @@ async function boot() {
   await atualizarPainelLogin();
 
   window.addEventListener("keydown", onKeyDown);
-  document.querySelectorAll("#hud-buttons button").forEach((b) => {
-    b.addEventListener("click", () => onHudAction(b.dataset.action));
-  });
+  // Navegação por hubs: uma definição só (ver HUBS em GameUI.js) alimenta a
+  // coluna agrupada do desktop e a barra inferior do celular.
+  montarNavegacao(onHudAction);
+  window.addEventListener("resize", () => montarNavegacao(onHudAction));
+  // (o clique de cada botão já é ligado por montarNavegacao, que é quem os cria)
   configurarControlesToque();
 }
 
@@ -130,10 +279,20 @@ function iniciarCriacao() {
   document.getElementById("screen-boot").classList.add("hidden");
   const tela = document.getElementById("screen-criacao");
   tela.classList.remove("hidden");
-  montarCriacaoPersonagem(tela, dados, (p) => {
+  montarCriacaoPersonagem(tela, dados, async (p) => {
     personagem = p;
     personagem.gacha = estadoGachaInicial();
     tela.classList.add("hidden");
+    // O PRÓLOGO roda aqui, entre a criação e o primeiro frame do mundo: é o
+    // único momento em que o jogador já tem um personagem (o texto da cena
+    // interpola nome/raça/classe) e ainda não tem nada para fazer, então a
+    // cena não interrompe nada. A escolha do fim da cena mexe em reputação e
+    // flag do próprio `personagem`, que só depois é passado a iniciarMundo()
+    // — por isso o await, e por isso esta chamada vem ANTES e não depois.
+    //
+    // Só em jogo novo: continuarJogo()/continuarDaNuvem() não passam por
+    // aqui, então quem carrega um save nunca reassiste ao prólogo.
+    await reproduzirCutscene(cutscenePorId("prologo"), personagem, dados);
     iniciarMundo();
   });
 }
@@ -176,18 +335,43 @@ function aplicarEstadoSalvo(salvo) {
   migrarSave(salvo);
   personagem = salvo.personagem;
   mundo.mapaAtual = salvo.mundo.mapaAtual;
+  // Semente do mundo (task #34): a migração v2->v3 garante que todo save
+  // tenha uma, então normalizarSemente() aqui é cinto de segurança pra um
+  // save vindo da nuvem gravado por uma versão antiga do jogo.
+  mundo.semente = normalizarSemente(salvo.mundo.semente);
   mundo.player = salvo.mundo.player;
   mundo.chests = salvo.mundo.chests;
   mundo.nodes = salvo.mundo.nodes;
   mundo.zonaAtualId = salvo.mundo.zonaAtualId || "vila";
+  // Macro-região atual (task #37): a migração v3->v4 já garantiu que ela
+  // bate com a zona, que por sua vez bate com a posição salva.
+  mundo.macroAtualId = salvo.mundo.macroAtualId || (macroDaZona(mundo.zonaAtualId) || {}).id || null;
   // Mescla por id em vez de substituir o array inteiro: um save antigo não
   // tem os baús secretos adicionados nas masmorras (ver worldMap.js), então
   // qualquer baú novo que exista na definição atual mas não no save vira um
   // baú fechado adicionado ao array salvo, em vez de simplesmente sumir.
   if (salvo.mundo.chestsDungeon) mundo.chestsDungeon = mesclarBaus(salvo.mundo.chestsDungeon, CHESTS_DUNGEON);
   if (salvo.mundo.chestsDungeon2) mundo.chestsDungeon2 = mesclarBaus(salvo.mundo.chestsDungeon2, CHESTS_DUNGEON2);
+  // Mundo habitado (ETAPA 3). A memória dos NPCs, o estado das questlines e
+  // os eventos regionais viajam dentro de `personagem` e por isso já vieram
+  // no save — o que se faz aqui é validá-los contra o conteúdo atual, para
+  // que um NPC ou uma quest removida do jogo não deixe lixo no save de quem
+  // continua jogando. O World State regional fica em `mundo` porque é do
+  // mundo, não do herdeiro.
+  carregarMemoriaDoSave(personagem, salvo.personagem.npcs);
+  carregarQuestsRegionaisDoSave(personagem, salvo.personagem.questsRegionais);
+  carregarEventosDoSave(personagem, salvo.personagem.eventosRegionais);
+  mundo.worldStateRegional = { ...(salvo.mundo.worldStateRegional || {}) };
+  cacheNpcs = { periodo: null, semente: null, lista: [] };
   document.getElementById("screen-boot").classList.add("hidden");
   iniciarMundo(true);
+  // O mundo mudou de forma debaixo deste save (ETAPA 2): o jogador foi
+  // trazido de volta à vila porque a coordenada antiga não aponta mais pro
+  // mesmo lugar. Avisar é o mínimo — sem isso ele acha que perdeu progresso.
+  if (salvo.mundo && salvo.mundo.mundoRefeito) {
+    delete salvo.mundo.mundoRefeito;
+    mostrarMensagem("🗺️ Aethra foi remapeada e ficou muito maior. Seu herdeiro voltou à Vila; nível, itens e time continuam intactos.", 7000);
+  }
 }
 
 function mesclarBaus(salvos, definicaoAtual) {
@@ -200,8 +384,11 @@ function estadoAtualParaSalvar() {
   return {
     personagem,
     mundo: {
-      mapaAtual: mundo.mapaAtual, player: mundo.player, chests: mundo.chests, nodes: mundo.nodes,
-      zonaAtualId: mundo.zonaAtualId, chestsDungeon: mundo.chestsDungeon, chestsDungeon2: mundo.chestsDungeon2,
+      mapaAtual: mundo.mapaAtual, semente: mundo.semente, layoutMundo: LAYOUT_MUNDO,
+      player: mundo.player, chests: mundo.chests, nodes: mundo.nodes,
+      zonaAtualId: mundo.zonaAtualId, macroAtualId: mundo.macroAtualId,
+      chestsDungeon: mundo.chestsDungeon, chestsDungeon2: mundo.chestsDungeon2,
+      worldStateRegional: mundo.worldStateRegional || {},
     },
   };
 }
@@ -222,6 +409,15 @@ function marcarIndicadorSalvo() {
 }
 
 async function salvarProgresso({ silencioso = false } = {}) {
+  // Poda antes de gravar: só vão para o disco os NPCs que o jogador de fato
+  // conheceu e os passos de quest que saíram do padrão. Sem isso, um save
+  // novo carregaria cem fichas vazias de memória e sessenta e cinco quests
+  // "indisponível" — dados que o próprio conteúdo já sabe recriar.
+  if (personagem) {
+    personagem.npcs = memoriaParaSave(personagem);
+    personagem.questsRegionais = questsRegionaisParaSave(personagem);
+    personagem.eventosRegionais = eventosParaSave(personagem);
+  }
   const estado = estadoAtualParaSalvar();
   const okLocal = salvarJogo(estado);
   let msg = okLocal ? "Jogo salvo com sucesso!" : "Falha ao salvar localmente.";
@@ -235,21 +431,28 @@ async function salvarProgresso({ silencioso = false } = {}) {
 
 // Registro das masmorras do mundo (permite ter mais de uma sem duplicar
 // toda a lógica de transição/objetos/encontros).
+// Registro das masmorras. O que descreve o INTERIOR (tamanho, pool de
+// monstros, chefe, elemento, facção) vem dos dados do mundo
+// (src/data/world/settlements.js → MASMORRAS_MUNDO); o que descreve a BOCA
+// (`entrance`) é preenchido pelo gerador em iniciarMundo(), porque depende do
+// terreno gerado — item 19 do pedido: a entrada tem que estar ligada ao
+// território, não largada numa coordenada fixa que pode virar parede.
 const MASMORRAS = {
   dungeon1: {
-    build: buildDungeon, entrance: DUNGEON_ENTRANCE, spawn: DUNGEON_SPAWN,
+    build: buildDungeon, entrance: { x: 0, y: 0 }, spawn: DUNGEON_SPAWN,
     exitZone: DUNGEON_EXIT_ZONE, chests: CHESTS_DUNGEON, boss: BOSS_TILE,
-    gridKey: "gridDungeon", chestsKey: "chestsDungeon", monstros: ["esqueleto", "aranha_gigante"],
-    elementoDominante: "sombrio", // terreno: masmorra antiga tomada por mortos-vivos (task #42)
-    facaoId: "ordem_dos_arquivistas", // regionalidade: ruína antiga infestada de mortos-vivos (task #44)
+    gridKey: "gridDungeon", chestsKey: "chestsDungeon", descansoKey: "descansoDungeon",
+    monstros: ["esqueleto", "aranha_gigante", "morcego", "rato_gigante"],
+    elementoDominante: "sombrio",
+    facaoId: "ordem_dos_arquivistas",
   },
   dungeon2: {
-    build: buildDungeon2, entrance: DUNGEON2_ENTRANCE, spawn: DUNGEON2_SPAWN,
+    build: buildDungeon2, entrance: { x: 0, y: 0 }, spawn: DUNGEON2_SPAWN,
     exitZone: DUNGEON2_EXIT_ZONE, chests: CHESTS_DUNGEON2, boss: BOSS_TILE2,
-    gridKey: "gridDungeon2", chestsKey: "chestsDungeon2",
+    gridKey: "gridDungeon2", chestsKey: "chestsDungeon2", descansoKey: "descansoDungeon2",
     monstros: ["gargula", "wyvern", "senhor_da_cinza", "necromante_errante", "troll_das_cavernas", "golem_de_pedra"],
-    elementoDominante: "fogo", // terreno: Covil das Cinzas (task #42)
-    facaoId: "legiao_das_cinzas", // regionalidade: mesma facção do Covil do Dragão (task #44)
+    elementoDominante: "fogo",
+    facaoId: "legiao_das_cinzas",
   },
 };
 
@@ -289,35 +492,158 @@ function climaAtual() {
   return climaAtualDaZona(zona.id, Date.now());
 }
 
-// Atualiza o indicador de clima/hora do dia da HUD (melhoria pós-backlog
-// original) — chamado ao entrar/trocar de zona e periodicamente (o clima
-// muda sozinho com o relógio real, mesmo parado no lugar). Some (fica
-// vazio) na vila e dentro de masmorras, onde não há clima.
+// Faixa de lugar e ambiente da HUD — chamada ao entrar/trocar de zona e
+// periodicamente (o clima muda sozinho com o relógio real, mesmo com o
+// jogador parado).
+//
+// Com a hierarquia (task #35) ela deixou de ser só clima e passou a
+// responder "onde eu estou", no formato macro-região › zona:
+//
+//   Costa da Maré › Costa da Aurora · 🌧️ Chuva · ☀️ Dia
+//
+// A macro-região só aparece quando ela existe no atlas do mapa-múndi; para
+// as sete zonas cuja macro é derivada da própria zona (ver
+// worldHierarchy.js), repetir o nome duas vezes não informaria nada. Na
+// vila e dentro das masmorras não há clima, mas o lugar aparece do mesmo
+// jeito — antes desta task a faixa ficava simplesmente vazia lá.
 function atualizarIndicadorClima() {
   const el = document.getElementById("hud-clima");
   if (!el) return;
+  const partes = [];
+  if (mundo.mapaAtual === "overworld") {
+    const zona = zonaNoPonto(mundo.player.x, mundo.player.y);
+    if (zona) {
+      const macro = macroDaZona(zona.id);
+      partes.push(macro && !macro.derivado ? `${macro.nome} › ${zona.nome}` : zona.nome);
+    }
+  } else {
+    const interior = INTERIORES.find((i) => i.id === mundo.mapaAtual);
+    if (interior) {
+      // BUG ANTIGO, achado pelo teste da masmorra: aqui lia
+      // `interior.entrada.x`, mas INTERIORES não tem `entrada` — a
+      // coordenada da boca foi tirada de lá de propósito (ver o comentário
+      // em worldHierarchy.js) e sobrou `boca`, que é TEXTO descritivo.
+      // Resultado: toda vez que o jogador estava dentro de uma masmorra,
+      // este trecho lançava TypeError — inclusive no timer de 15s do clima —
+      // e a barra de localização nunca mostrava o nome da masmorra.
+      // A zona vem direto de `zonaId`, que é o dado certo e sempre existe.
+      const zonaEntrada = zonaPorId(interior.zonaId);
+      partes.push(zonaEntrada ? `${zonaEntrada.nome} › ${interior.nome}` : interior.nome);
+    }
+  }
   const clima = climaAtual();
-  const hora = horaDoDiaAtual(Date.now());
-  el.textContent = clima ? `${clima.icone} ${clima.nome} · ${hora.icone} ${hora.nome}` : "";
+  if (clima) {
+    const hora = horaDoDiaAtual(Date.now());
+    partes.push(`${clima.icone} ${clima.nome}`, `${hora.icone} ${hora.nome}`);
+  }
+  el.textContent = partes.join(" · ");
+
+  // EVENTO REGIONAL NA ZONA ATUAL.
+  //
+  // O evento já gritava uma vez, no instante em que abria (o `mostrarMensagem`
+  // com o `aviso`, em reavaliarMundoVivo). Depois disso ele sumia da tela e
+  // continuava valendo por horas de jogo: a loja seguia 35% mais cara, a caça
+  // seguia fora da mata, e o jogador não tinha como saber que aquilo ainda
+  // estava em vigor — nem a que atribuí-lo. Este selo é a permanência que
+  // faltava, e some sozinho quando o evento encerra.
+  const evs = personagem ? resumoDosEventos(personagem, mundo.zonaAtualId).filter((e) => e.aqui) : [];
+  let selo = document.getElementById("hud-evento");
+  if (!evs.length) { if (selo) selo.remove(); return; }
+  if (!selo) {
+    selo = document.createElement("div");
+    selo.id = "hud-evento";
+    selo.className = "hud-evento";
+    // Abre o painel "Como você está", que é onde a lista completa mora — em
+    // vez de inventar uma tela nova para três linhas de texto.
+    selo.onclick = () => abrirPainelEstado();
+    el.parentElement.appendChild(selo);
+  }
+  selo.textContent = evs.length === 1 ? `⚠ ${evs[0].nome}` : `⚠ ${evs.length} eventos aqui`;
+  selo.title = evs.map((e) => `${e.nome} — ${e.aviso}${e.efeitos.length ? `\n   ${e.efeitos.join(" · ")}` : ""}`).join("\n\n")
+    + "\n\nClique (ou tecla K) para ver tudo.";
+}
+
+// Semente escolhida pelo jogador na URL: index.html?semente=XVZ66N (o código
+// que HDA_MUNDO() mostra) ou ?semente=floresta bonita — qualquer texto vale,
+// vira semente por hash. Só vale pra JOGO NOVO: um save carregado traz a
+// semente dele e ninguém troca o mundo de alguém pelo meio.
+//
+// Existe por dois motivos, os dois consequência direta do mundo virar função
+// da semente: dá pra combinar um mundo com outra pessoa passando um link, e
+// dá pra escrever teste que depende do mapa sem ficar na mão da sorte.
+function sementeDaURL() {
+  try {
+    const bruto = new URLSearchParams(window.location.search).get("semente");
+    return bruto ? lerSemente(bruto) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 function iniciarMundo(jaCarregado = false) {
-  mundo.grid = buildOverworld();
-  mundo.gridDungeon = buildDungeon();
-  mundo.gridDungeon2 = buildDungeon2();
+  // A semente precisa existir ANTES de construir qualquer grade. Jogo novo
+  // sorteia uma (único Math.random() de mundo que sobrou, e ele roda uma vez
+  // na vida do save); um save carregado já trouxe a dele por
+  // aplicarEstadoSalvo(), e um save de antes desta task recebeu
+  // SEMENTE_LEGADO na migração.
+  if (!mundo.semente) mundo.semente = jaCarregado ? normalizarSemente(null) : (sementeDaURL() || novaSemente());
+  // O MUNDO INTEIRO de uma vez: grade, assentamentos, estradas, pontes, rios,
+  // POIs, landmarks, bocas de masmorra, baús, nós, chefes e vagas de NPC.
+  mundo.gerado = mundoDaSemente(mundo.semente);
+  mundo.grid = mundo.gerado.grid;
+  // Arte das construções (casa, templo). Vem do mundo gerado, não do save: é
+  // função da semente, igual à grade. Nenhum save antigo precisa migrar — quem
+  // carregar uma partida velha recebe os prédios junto com o mesmo mapa que
+  // já tinha, porque a semente é a mesma.
+  mundo.props = mundo.gerado.props || [];
+  mundo.gridDungeon = buildDungeon(mundo.semente);
+  mundo.gridDungeon2 = buildDungeon2(mundo.semente);
+  // Bocas de masmorra escolhidas no terreno gerado.
+  mundo.gerado.masmorras.forEach((m) => {
+    if (MASMORRAS[m.id]) MASMORRAS[m.id].entrance = { ...m.entrada };
+  });
   if (!jaCarregado) {
     mundo.mapaAtual = "overworld";
-    mundo.player = { x: 5, y: 5, dir: "baixo", frame: 0, ultimoMovimento: 0 };
-    mundo.chests = CHESTS_OVERWORLD.map((c) => ({ ...c }));
-    mundo.nodes = NODES_OVERWORLD.map((n) => ({ ...n }));
+    mundo.player = { ...mundo.gerado.spawn, dir: "baixo", frame: 0, ultimoMovimento: 0 };
+    mundo.chests = mundo.gerado.baus.map((c) => ({ ...c }));
+    mundo.nodes = mundo.gerado.nos.map((n) => ({ ...n }));
     mundo.zonaAtualId = "vila";
   } else if (mundo.mapaAtual === "masmorra") {
     mundo.mapaAtual = "dungeon1"; // migração de saves antigos (uma só masmorra)
   }
+  // Fogueiras (pontos de descanso): calculadas da grade recém-construída,
+  // nunca salvas — o mapa é regerado a cada carregamento, então salvar
+  // coordenada seria salvar um ponto que pode virar parede no boot seguinte.
+  // Ver RestSystem.js.
+  gerarTodosPontosDescanso();
+  // Índice espacial dos objetos (task #36) — depende das grades e das
+  // fogueiras, então vem depois das duas.
+  construirIndicesDeChunk();
+
   if (jaCarregado) reposicionarSePresoEmParede();
   document.getElementById("hud").classList.remove("hidden");
+  // Minimapa: montado uma vez por sessão (a função sai cedo se já existir) e
+  // atualizado dentro de loopRender. Vem depois do HUD ficar visível porque
+  // se ancora na altura da faixa de status.
+  montarMinimapa(contextoDoMinimapa, abrirMapaMundo);
+  // Cartões: a casca é montada uma vez; o que aparece nela é decidido pelos
+  // gatilhos. `onAcao` existe para o HUD refletir na hora o que o botão do
+  // cartão fez (equipar muda HP/defesa).
+  iniciarCartoes({
+    personagem, dados,
+    onAcao: ({ retorno }) => { atualizarHUD(personagem); if (retorno) mostrarMensagem(retorno, 3200); },
+  });
+  // Depois da animação de nível, os gatilhos de "o que abriu com isso".
+  registrarAoSubirNivel((novoNivel, nivelAnterior) => verificarCartoes("nivel", 250, { nivelAnterior }));
+  // Agora que HUD, barra de navegação e controles existem na tela, o
+  // enquadramento é recalculado com os tamanhos reais deles.
+  if (ajustarViewport) ajustarViewport();
   atualizarHUD(personagem);
   requestAnimationFrame(loopRender);
+
+  if (!jaCarregado) {
+    mostrarMensagem("🧭 Você está na Vila de Aethra. Aproxime-se de um morador e pressione E para conversar; as setas movem seu herdeiro.", 6200);
+  }
 
   if (intervaloAutoSave) clearInterval(intervaloAutoSave);
   if (usuarioLogado) {
@@ -330,7 +656,44 @@ function iniciarMundo(jaCarregado = false) {
   // quando o jogador entrou na zona, mesmo minutos depois.
   atualizarIndicadorClima();
   if (intervaloClima) clearInterval(intervaloClima);
-  intervaloClima = setInterval(atualizarIndicadorClima, 15000);
+  intervaloClima = setInterval(() => { atualizarIndicadorClima(); reavaliarMundoVivo(); }, 15000);
+  // Relógio do pet: ele age sozinho a cada poucos segundos, não a cada
+  // quadro. Um pet que agisse por quadro limparia a clareira antes de o
+  // jogador chegar nela — o companheiro tem de trabalhar À VISTA, senão o
+  // jogo só mostra um número subindo.
+  if (intervaloPet) clearInterval(intervaloPet);
+  intervaloPet = setInterval(tickDoPet, INTERVALO_ACAO_MS);
+}
+
+// O PET AGINDO NO MAPA.
+//
+// Quem decide o que ele alcança é o PetSystem (função pura, testável). Quem
+// EXECUTA é aqui, chamando abrirBau/coletarNo — as mesmas funções da tecla E.
+// É a razão de aquelas duas terem saído de dentro de interagir().
+function tickDoPet() {
+  if (!personagem || !mundo || !dados || !dados.pets) return;
+  if (mundo.emBatalha || document.getElementById("screen-batalha")?.classList.contains("hidden") === false) return;
+  const def = petAtivo(personagem, dados.pets);
+  if (!def) return;
+  const indice = indiceAtivo();
+  if (!indice) return;
+
+  const estado = garantirEstadoDePets(personagem);
+  if (!Array.isArray(estado.revelados)) estado.revelados = [];
+  const jaRevelados = new Set(estado.revelados);
+  const fontes = objetosPerto(indice, mundo.player.x, mundo.player.y);
+  const alvos = alvosDoPet(def, mundo.player, fontes, jaRevelados);
+
+  for (const f of alvos.coletar) {
+    if (f.tipo === "bau") abrirBau(f, def.nome);
+    else if (f.tipo === "no") coletarNo(f, def.nome);
+  }
+  for (const r of alvos.revelar) {
+    estado.revelados.push(r.id);
+    const nome = (r.fonte.ref && (r.fonte.ref.nome || r.fonte.ref.monstroId)) || r.fonte.tipo;
+    const passos = Math.max(Math.abs(r.fonte.x - mundo.player.x), Math.abs(r.fonte.y - mundo.player.y));
+    mostrarMensagem(`🐾 ${def.nome} farejou: ${nome} — ${passos} passos ao ${rumoAte(mundo.player, r.fonte)}.`, 3600);
+  }
 }
 
 // Salvaguarda de migração: como as masmorras são reconstruídas do zero a
@@ -345,16 +708,58 @@ function reposicionarSePresoEmParede() {
   if (!grid || !p || !grid[p.y] || grid[p.y][p.x] === undefined) return;
   if (!SOLID_TILES.has(grid[p.y][p.x])) return;
   const spawn = mundo.mapaAtual === "overworld"
-    ? { x: 5, y: 5 }
-    : (MASMORRAS[mundo.mapaAtual] ? MASMORRAS[mundo.mapaAtual].spawn : { x: 5, y: 5 });
+    ? (mundo.gerado ? mundo.gerado.spawn : OVERWORLD_SPAWN)
+    : (MASMORRAS[mundo.mapaAtual] ? MASMORRAS[mundo.mapaAtual].spawn : OVERWORLD_SPAWN);
   mundo.player.x = spawn.x;
   mundo.player.y = spawn.y;
+}
+
+// Uma fogueira por região perigosa do mundo aberto e uma por masmorra. As
+// cidades ficam de fora de propósito: elas já são ponto de descanso
+// inteiras (ver ehZonaDeDescanso em RestSystem.js).
+function gerarTodosPontosDescanso() {
+  const bloqueadoEm = (grid) => (x, y) => !grid[y] || grid[y][x] === undefined || SOLID_TILES.has(grid[y][x]);
+  mundo.pontosDescanso = gerarPontosDescanso(ZONAS, OVERWORLD_W, OVERWORLD_H, bloqueadoEm(mundo.grid));
+  Object.entries(MASMORRAS).forEach(([id, m]) => {
+    const grid = mundo[m.gridKey];
+    if (!grid) return;
+    const ponto = gerarPontoDescansoMasmorra(
+      id, m.spawn, grid[0].length, grid.length, bloqueadoEm(grid),
+      [...m.chests.map(({ x, y }) => ({ x, y })), m.boss, { x: m.exitZone.x0, y: m.exitZone.y0 }]
+    );
+    mundo[m.descansoKey] = ponto ? [ponto] : [];
+  });
+}
+
+// Pontos de descanso do mapa em que o jogador está agora.
+function pontosDescansoAtuais() {
+  if (mundo.mapaAtual === "overworld") return mundo.pontosDescanso || [];
+  const m = MASMORRAS[mundo.mapaAtual];
+  return (m && mundo[m.descansoKey]) || [];
 }
 
 function gridAtiva() {
   if (mundo.mapaAtual === "overworld") return mundo.grid;
   const masmorra = MASMORRAS[mundo.mapaAtual];
   return masmorra ? mundo[masmorra.gridKey] : mundo.grid;
+}
+
+// Props POSICIONADOS À MÃO no mapa atual (casas de uma cidade, ponte, poste).
+// São diferentes dos props derivados do tile (árvore, rocha), que o
+// propRegistry sorteia sozinho a partir do grid — estes são colocados por
+// quem monta o mapa. Masmorra não tem: o interior é desenhado só por tiles.
+function propsAtivos() {
+  if (mundo.mapaAtual !== "overworld") return [];
+  return mundo.props || [];
+}
+
+// Tema visual da região onde o jogador está: muda a MISTURA de árvores sem
+// trocar um tile sequer (mata fechada em Altaverde, pinheiro em Morranvell).
+// Ver TEMAS em propRegistry.js.
+function temaAtivo() {
+  if (mundo.mapaAtual !== "overworld") return null;
+  const zona = zonaNoPonto(mundo.player.x, mundo.player.y);
+  return (zona && zona.tema) || null;
 }
 
 // Tempo que um chefe some do mapa depois de derrotado, antes de "renascer"
@@ -365,66 +770,243 @@ function chefeDisponivel(ref) {
   return !ref.derrotadoEm || (Date.now() - ref.derrotadoEm) >= RESPAWN_CHEFE_MS;
 }
 
-function objetosAtivos() {
-  const objetos = [];
-  if (mundo.mapaAtual === "overworld") {
-    mundo.chests.forEach((c) => objetos.push({ x: c.x, y: c.y, imgKey: c.aberto ? "bau_aberto" : "bau_fechado", ref: c, tipo: "bau" }));
-    mundo.nodes.forEach((n) => { if (n.disponivel) objetos.push({ x: n.x, y: n.y, imgKey: `no_${n.tipo}`, ref: n, tipo: "no" }); });
-    Object.values(MASMORRAS).forEach((m) => {
-      objetos.push({ x: m.entrance.x, y: m.entrance.y, imgKey: "entrada_masmorra", ref: m.entrance, tipo: "entrada" });
+// CHEFE DE MASMORRA NÃO SEGUE O RELÓGIO DE CHEFE DE CAMPO.
+//
+// Bug medido no teste da masmorra: `RESPAWN_CHEFE_MS` é 30 segundos, e uma
+// incursão completa (matar o chefe e achar os dois baús no labirinto) leva
+// mais que isso. O chefe voltava a contar como VIVO enquanto o jogador ainda
+// estava lá dentro, e a masmorra nunca fechava — era uma corrida contra um
+// cronômetro que não devia estar correndo.
+//
+// A regra certa: dentro de uma incursão, chefe derrotado fica derrotado. Ele
+// só volta quando a masmorra sai da espera e uma incursão NOVA começa (ver
+// prepararIncursao, chamada na entrada).
+function chefeDaMasmorraDisponivel(m) {
+  return !m.boss.derrotadoEm;
+}
+
+// Uma incursão nova começa do zero: baús fechados e chefe de pé. Chamada só
+// quando a masmorra já saiu da espera — é o que faz "voltar depois" valer a
+// pena em vez de encontrar um lugar vazio.
+function prepararIncursao(id, m) {
+  if (masmorraEmEspera(mundo, id)) return;
+  const limpas = garantirEstadoMasmorras(mundo);
+  if (!limpas[id]) return;          // nunca foi concluída: nada a reiniciar
+  delete limpas[id];
+  m.boss.derrotadoEm = null;
+  mundo[m.chestsKey] = m.chests.map((c) => ({ ...c, aberto: false }));
+  construirIndicesDeChunk();
+}
+
+// --- ÍNDICE DE OBJETOS POR CHUNK (task #36) -------------------------------
+//
+// Antes desta task, objetosAtivos() era chamada a cada quadro e reconstruía
+// a lista do mundo inteiro do zero — inclusive um `dados.monsters.find()`
+// por chefe de zona (21 chefes x ~50 monstros = mais de mil comparações),
+// sessenta vezes por segundo, pra desenhar os cinco ou seis objetos que
+// cabem na tela.
+//
+// Agora cada mapa tem um índice espacial construído UMA VEZ (ver
+// ChunkSystem.js). O índice guarda REFERÊNCIAS aos objetos do jogo, nunca
+// cópias: o baú aberto continua sendo o mesmo objeto indexado, então nada
+// fica desatualizado e não existe invalidação pra esquecer. O que muda a
+// cada quadro é só a leitura do estado (aberto / disponível / chefe em
+// descanso), e só dos objetos dos chunks ao redor do jogador.
+//
+// `camada` existe pra preservar a ordem de desenho que a versão antiga
+// tinha de graça pela ordem dos pushes: fogueira é cenário e vai por baixo
+// de baú e chefe quando dois caem no mesmo tile.
+const CAMADA_CENARIO = 0;
+const CAMADA_OBJETO = 1;
+
+function garantirBausMasmorra(masmorra) {
+  if (!mundo[masmorra.chestsKey]) mundo[masmorra.chestsKey] = masmorra.chests.map((c) => ({ ...c }));
+  return mundo[masmorra.chestsKey];
+}
+
+// Sprite do chefe resolvido UMA vez, na indexação, em vez de a cada quadro.
+function spriteDoChefe(monstroId) {
+  const m = dados.monsters.find((mm) => mm.id === monstroId);
+  return m ? m.sprite : "mob_dragao_jovem";
+}
+
+function fontesDoMapa(mapaId) {
+  const fontes = [];
+  const descanso = mapaId === "overworld"
+    ? (mundo.pontosDescanso || [])
+    : (MASMORRAS[mapaId] ? (mundo[MASMORRAS[mapaId].descansoKey] || []) : []);
+  descanso.forEach((f) => fontes.push({ x: f.x, y: f.y, tipo: "descanso", ref: f, imgKey: "fogueira", camada: CAMADA_CENARIO }));
+
+  if (mapaId === "overworld") {
+    mundo.chests.forEach((c) => fontes.push({ x: c.x, y: c.y, tipo: "bau", ref: c, camada: CAMADA_OBJETO }));
+    mundo.nodes.forEach((n) => fontes.push({ x: n.x, y: n.y, tipo: "no", ref: n, camada: CAMADA_OBJETO }));
+    Object.values(MASMORRAS).forEach((m) => fontes.push({
+      x: m.entrance.x, y: m.entrance.y, tipo: "entrada", ref: m.entrance, imgKey: "entrada_masmorra", camada: CAMADA_OBJETO,
+    }));
+    // Chefe obrigatório de cada zona (task #45): ponto fixo dentro da zona,
+    // sempre lá, sem sorteio. Some do mapa por RESPAWN_CHEFE_MS depois de
+    // derrotado — mas continua indexado, porque some por ESTADO e não por
+    // posição, e volta sozinho quando o tempo passa.
+    (mundo.gerado ? mundo.gerado.chefes : []).forEach((c) => {
+      fontes.push({ x: c.x, y: c.y, tipo: "chefe", ref: c, imgKey: spriteDoChefe(c.monstroId), camada: CAMADA_OBJETO });
     });
-    // Chefe obrigatório de cada zona do mundo aberto (task #45) — parado num
-    // ponto fixo dentro da própria zona, igual à entrada de masmorra: sempre
-    // visível e sempre lá, sem sorteio, diferente dos encontros aleatórios.
-    // Some do mapa por RESPAWN_CHEFE_MS depois de derrotado (ver chefeDisponivel).
-    ZONAS.forEach((z) => {
-      if (!z.chefe) return;
-      if (!chefeDisponivel(z.chefe)) {
-        // Marcador visual de "chefe se recuperando" (melhoria de jogabilidade
-        // #1): enquanto o chefe está em cooldown ele NÃO aparece mais como
-        // objeto interagível (chefeDisponivel() já barra isso em
-        // objetoInteragivelProximo(), sem mudança nenhuma ali) — mas o ponto
-        // no mapa não devia simplesmente sumir sem explicação, então
-        // continua sendo desenhado, só que com um `tipo` puramente visual
-        // que o Renderer trata como "sumido, recuperando" (sem sprite, sem
-        // texto de interação). Renderer.js calcula o tempo restante sozinho
-        // a partir de `derrotadoEm`/RESPAWN_CHEFE_MS pra não precisar
-        // recalcular e repassar isso a cada frame.
-        objetos.push({ x: z.chefe.x, y: z.chefe.y, tipo: "chefe_recuperando", ref: z.chefe, respawnMs: RESPAWN_CHEFE_MS });
-        return;
-      }
-      const bossMonstro = dados.monsters.find((mm) => mm.id === z.chefe.monstroId);
-      objetos.push({ x: z.chefe.x, y: z.chefe.y, imgKey: bossMonstro ? bossMonstro.sprite : "mob_dragao_jovem", ref: z.chefe, tipo: "chefe" });
+    // NPCs no lugar em que a ficha deles diz que estão AGORA (ETAPA 3).
+    //
+    // Antes, os cinco NPCs eram encaixados nas dez vagas que o gerador abre ao
+    // redor da praça da vila, na ordem do array — o campo `regiao` da ficha
+    // era decorativo. Com cem NPCs isso empilharia o mundo inteiro numa praça
+    // só. Agora quem decide é a rotina de cada um (ver NpcPlacement.js), e a
+    // lista é recalculada quando o período do dia vira, não a cada quadro.
+    npcsPosicionados().forEach((n) => {
+      fontes.push({ x: n.x, y: n.y, tipo: "npc", ref: n, camada: CAMADA_OBJETO });
     });
+    // POIs, landmarks e assentamentos do mundo gerado (ETAPA 2): entram no
+    // índice como qualquer outro objeto, então já ganham de graça o
+    // carregamento por chunk e o desenho por proximidade.
+    (mundo.gerado ? mundo.gerado.pois : []).forEach((p) => fontes.push({
+      x: p.x, y: p.y, tipo: "poi", ref: p, imgKey: "npc_marker", camada: CAMADA_OBJETO,
+    }));
+    (mundo.gerado ? mundo.gerado.landmarks : []).forEach((l) => fontes.push({
+      x: l.x, y: l.y, tipo: "landmark", ref: l, imgKey: "npc_marker", camada: CAMADA_CENARIO,
+    }));
   } else {
-    const masmorra = MASMORRAS[mundo.mapaAtual];
+    const masmorra = MASMORRAS[mapaId];
     if (masmorra) {
-      (mundo[masmorra.chestsKey] || (mundo[masmorra.chestsKey] = masmorra.chests.map((c) => ({ ...c })))).forEach((c) =>
-        objetos.push({ x: c.x, y: c.y, imgKey: c.aberto ? "bau_aberto" : "bau_fechado", ref: c, tipo: "bau" }));
-      if (chefeDisponivel(masmorra.boss)) {
-        const bossMonstro = dados.monsters.find((mm) => mm.id === masmorra.boss.monstroId);
-        objetos.push({ x: masmorra.boss.x, y: masmorra.boss.y, imgKey: bossMonstro ? bossMonstro.sprite : "mob_dragao_jovem", ref: masmorra.boss, tipo: "chefe" });
-      } else {
-        // Ver comentário equivalente na ramificação do overworld acima.
-        objetos.push({ x: masmorra.boss.x, y: masmorra.boss.y, tipo: "chefe_recuperando", ref: masmorra.boss, respawnMs: RESPAWN_CHEFE_MS });
-      }
-      // Correção de bug reportado: a saída da masmorra (m.exitZone) sempre
-      // funcionou (ver verificarTransicaoMasmorra abaixo), mas era um tile
-      // 1x1 sem nenhuma marca visual no meio do labirinto gerado — pro
-      // jogador isso é indistinguível de "não ter saída". Reaproveita o
-      // mesmo sprite da entrada (mesma ideia de "portal", os dois sentidos)
-      // só pra ficar visível e virar um objeto interagível de verdade (ver
-      // objetoInteragivelProximo()/interagir() abaixo) — além do botão
-      // "Sair da Masmorra" no HUD, que não depende de achar esse tile.
-      objetos.push({ x: masmorra.exitZone.x0, y: masmorra.exitZone.y0, imgKey: "entrada_masmorra", ref: masmorra, tipo: "saida" });
+      garantirBausMasmorra(masmorra).forEach((c) => fontes.push({ x: c.x, y: c.y, tipo: "bau", ref: c, camada: CAMADA_OBJETO }));
+      fontes.push({
+        x: masmorra.boss.x, y: masmorra.boss.y, tipo: "chefe", ref: masmorra.boss,
+        imgKey: spriteDoChefe(masmorra.boss.monstroId), camada: CAMADA_OBJETO,
+      });
+      // A saída da masmorra sempre funcionou, mas era um tile 1x1 sem marca
+      // visual no meio do labirinto — indistinguível de "não ter saída".
+      // Reaproveita o sprite da entrada (mesma ideia de portal, os dois
+      // sentidos) e é interagível com E, além do botão do HUD.
+      fontes.push({
+        x: masmorra.exitZone.x0, y: masmorra.exitZone.y0, tipo: "saida", ref: masmorra,
+        imgKey: "entrada_masmorra", camada: CAMADA_OBJETO,
+      });
     }
   }
+  return fontes;
+}
+
+// --- NPCs do mundo habitado (ETAPA 3) --------------------------------------
+// A lista de NPCs posicionados é CACHEADA por período do dia. Recalcular os
+// cem a cada quadro seria caro e inútil: nada na rotina muda dentro de um
+// período. Quando o período vira (a cada 4 minutos reais, pelo WeatherSystem),
+// `npcsPosicionados()` percebe sozinho e refaz — e como as posições entram no
+// índice de chunks, refazer também exige reindexar o mundo aberto.
+let cacheNpcs = { periodo: null, semente: null, lista: [] };
+
+function contextoDeNpc() {
+  return {
+    personagem,
+    agora: Date.now(),
+    zonaId: mundo.zonaAtualId,
+    worldState: (mundo.worldStateRegional = mundo.worldStateRegional || {}),
+    eventosAtivos: personagem ? listarEventosAtivos(personagem) : [],
+    regiaoAtual: mundo.macroAtualId,
+    dadosWorldState: dados.worldStateVariables,
+    visitados: (personagem && personagem.biomaVisitados) || [],
+  };
+}
+
+function npcsPosicionados() {
+  if (!mundo.gerado) return [];
+  const periodo = horaDoDiaAtual(Date.now()).id;
+  const chave = `${periodo}:${mundo.semente}:${(personagem && Object.keys(personagem.questsRegionais || {}).length) || 0}`;
+  if (cacheNpcs.periodo === chave) return cacheNpcs.lista;
+  const { npcs, semLugar } = posicionarNpcs(mundo.gerado, contextoDeNpc());
+  if (semLugar.length) console.warn("NPCs sem lugar no mapa:", semLugar);
+  cacheNpcs = { periodo: chave, semente: mundo.semente, lista: npcs };
+  return npcs;
+}
+
+// Chamado pelo mesmo intervalo que atualiza o indicador de clima: se o período
+// virou, os NPCs mudaram de lugar e o índice precisa saber.
+function reavaliarMundoVivo() {
+  if (!personagem || !mundo.gerado) return;
+  const periodoAntes = cacheNpcs.periodo;
+  const resultado = reavaliarEventos(personagem, contextoDeNpc());
+  if (resultado.abriram.length || resultado.fecharam.length) {
+    aplicarNoWorldState(mundo.worldStateRegional, resultado);
+    resultado.abriram.forEach((ev) => mostrarMensagem(`⚠ ${ev.nome}: ${ev.aviso}`, 6000));
+  }
+  npcsPosicionados();
+  if (cacheNpcs.periodo !== periodoAntes && mundo.mapaAtual === "overworld") {
+    mundo.indices.overworld = criarIndice(gradeDeChunks(OVERWORLD_W, OVERWORLD_H), fontesDoMapa("overworld"));
+  }
+}
+
+// Reconstrói os três índices (mundo aberto e as duas masmorras). Chamado em
+// iniciarMundo(), depois das grades e das fogueiras — que é de onde as
+// posições saem.
+function construirIndicesDeChunk() {
+  mundo.indices = {};
+  mundo.indices.overworld = criarIndice(gradeDeChunks(OVERWORLD_W, OVERWORLD_H), fontesDoMapa("overworld"));
+  Object.entries(MASMORRAS).forEach(([id]) => {
+    const grid = mundo[MASMORRAS[id].gridKey];
+    if (!grid) return;
+    mundo.indices[id] = criarIndice(gradeDeChunks(grid[0].length, grid.length), fontesDoMapa(id));
+  });
+  mundo.chunksAtivos = null;
+  atualizarChunksAtivos();
+}
+
+const indiceAtivo = () => (mundo.indices && mundo.indices[mundo.mapaAtual]) || null;
+
+// Recalcula o conjunto de chunks carregados ao redor do jogador. Hoje o
+// resultado só alimenta o diagnóstico HDA_MUNDO(); o valor de verdade é o
+// gancho: quando a ETAPA 2 tiver conteúdo gerado por chunk, é aqui que
+// "carregar o que entrou / descarregar o que saiu" se pendura, e nada mais
+// no jogo precisa saber disso.
+function atualizarChunksAtivos() {
+  const indice = indiceAtivo();
+  if (!indice) return { entrando: [], saindo: [], mudou: false };
+  const atuais = chunksAtivos(mundo.player.x, mundo.player.y, indice.grade);
+  const dif = diferencaDeChunks(mundo.chunksAtivos, atuais);
+  mundo.chunksAtivos = atuais;
+  return dif;
+}
+
+// Converte uma fonte indexada no objeto de desenho que o Renderer espera.
+// Devolve null pro que não deve aparecer agora (nó já coletado).
+function fonteParaDesenho(f) {
+  if (f.tipo === "bau") return { x: f.x, y: f.y, imgKey: f.ref.aberto ? "bau_aberto" : "bau_fechado", ref: f.ref, tipo: "bau", camada: f.camada };
+  if (f.tipo === "no") return f.ref.disponivel ? { x: f.x, y: f.y, imgKey: `no_${f.ref.tipo}`, ref: f.ref, tipo: "no", camada: f.camada } : null;
+  if (f.tipo === "npc") return null; // NPCs vão pela lista própria do Renderer
+  if (f.tipo === "chefe" && !chefeDisponivel(f.ref)) {
+    // Marcador de "chefe se recuperando": sem sprite, desenhado só com
+    // formas de canvas pelo Renderer, que calcula o tempo restante sozinho a
+    // partir de derrotadoEm/RESPAWN_CHEFE_MS.
+    return { x: f.x, y: f.y, tipo: "chefe_recuperando", ref: f.ref, respawnMs: RESPAWN_CHEFE_MS, camada: f.camada };
+  }
+  return { x: f.x, y: f.y, imgKey: f.imgKey, ref: f.ref, tipo: f.tipo, camada: f.camada };
+}
+
+function objetosAtivos() {
+  const indice = indiceAtivo();
+  if (!indice) return [];
+  const objetos = [];
+  for (const f of objetosPerto(indice, mundo.player.x, mundo.player.y)) {
+    const o = fonteParaDesenho(f);
+    if (o) objetos.push(o);
+  }
+  // Cenário por baixo, objetos por cima — a garantia que a ordem dos pushes
+  // dava antes. Ordenação estável, então dentro da mesma camada a ordem
+  // continua sendo a de inserção no índice.
+  objetos.sort((a, b) => a.camada - b.camada);
   return objetos;
 }
 
+// NPCs do mapa atual, também vindos do índice (só os chunks perto) — a
+// lista era remontada com spread a cada quadro.
 function npcsAtivos() {
-  if (mundo.mapaAtual !== "overworld") return [];
-  return dados.npcs.map((n) => ({ ...n, x: NPC_POSICOES[n.id].x, y: NPC_POSICOES[n.id].y }));
+  const indice = indiceAtivo();
+  if (!indice || mundo.mapaAtual !== "overworld") return [];
+  return objetosPerto(indice, mundo.player.x, mundo.player.y)
+    .filter((f) => f.tipo === "npc")
+    .map((f) => ({ ...f.ref, x: f.x, y: f.y }));
 }
 
 // Suaviza o deslocamento visual do jogador entre tiles (o movimento lógico
@@ -454,18 +1036,87 @@ function atualizarPosicaoRenderizada() {
   }
 }
 
+// O PET SEGUE PELO RASTRO, não por uma conta de perseguição.
+//
+// Guardar as últimas posições desenhadas do jogador e pôr o bicho algumas
+// casas atrás custa quase nada e resolve sozinho tudo o que uma perseguição
+// teria de tratar à mão: ele contorna a mesma parede que você contornou,
+// atravessa a mesma ponte, e nunca fica preso numa quina — porque só anda
+// onde você já andou.
+const RASTRO_MAXIMO = 14;
+const ATRASO_DO_PET = 8;   // quantas posições atrás o companheiro caminha
+const rastroDoJogador = [];
+
+function atualizarRastro() {
+  const p = mundo.player;
+  const ultimo = rastroDoJogador[rastroDoJogador.length - 1];
+  if (ultimo && Math.abs(ultimo.x - p.renderX) < 0.05 && Math.abs(ultimo.y - p.renderY) < 0.05) return;
+  // Teleporte (trocar de mapa, derrota): o rastro é jogado fora, senão o pet
+  // vem "andando" do outro lado do mundo atravessando tudo.
+  if (ultimo && Math.hypot(ultimo.x - p.renderX, ultimo.y - p.renderY) > 3) rastroDoJogador.length = 0;
+  rastroDoJogador.push({ x: p.renderX, y: p.renderY, dir: p.dir });
+  if (rastroDoJogador.length > RASTRO_MAXIMO) rastroDoJogador.shift();
+}
+
+function petParaDesenho() {
+  if (!dados || !dados.pets) return null;
+  const def = petAtivo(personagem, dados.pets);
+  if (!def) return null;
+  const alvo = rastroDoJogador[Math.max(0, rastroDoJogador.length - 1 - ATRASO_DO_PET)];
+  const pos = alvo || { x: mundo.player.renderX, y: mundo.player.renderY, dir: mundo.player.dir };
+  return {
+    spriteKey: `pet_${def.id}`,
+    x: pos.x, y: pos.y, dir: pos.dir,
+    // Dois quadros, alternados pelo relógio: o bicho continua se mexendo
+    // parado, que é o que faz ele parecer vivo em vez de colado no chão.
+    frame: Math.floor(Date.now() / 320) % 2,
+  };
+}
+
 function loopRender() {
   const grid = gridAtiva();
   mundo.player.spriteKey = personagem.spriteKey;
   atualizarPosicaoRenderizada();
+  atualizarRastro();
   renderer.desenhar({
     grid,
     player: { ...mundo.player, x: mundo.player.renderX, y: mundo.player.renderY },
     npcs: npcsAtivos(),
     objetos: objetosAtivos(),
-    mostrarPronto: objetoInteragivelProximo() ? "Pressione E para interagir" : null,
+    props: propsAtivos(),
+    tema: temaAtivo(),
+    pet: petParaDesenho(),
+    mostrarPronto: objetoInteragivelProximo() ? "Pressione E para interagir" :
+      podeInvestigarElric(personagem, localDaInvestigacao()) ? "Pressione E para examinar as armadilhas de Elric" :
+      podeExaminarPortaAltaverde(personagem, localDaInvestigacao()) ? "Pressione E para examinar a marca da porta" : null,
   });
+  // O minimapa sai cedo sozinho quando nada mudou (ver MinimapaUI:
+  // `ultimaChave`), então chamá-lo a cada quadro custa uma comparação de
+  // string — e é o que garante que ele nunca fica atrasado em relação ao
+  // mundo desenhado logo acima.
+  atualizarMinimapa();
   requestAnimationFrame(loopRender);
+}
+
+// O que o minimapa precisa saber do mundo, montado sob demanda. Uma função em
+// vez de um objeto porque o minimapa vive fora do loop e pergunta "como está
+// agora?" — assim main.js não precisa empurrar estado a cada quadro.
+function contextoDoMinimapa() {
+  if (!personagem || !mundo.grid) return null;
+  const zona = mundo.mapaAtual === "overworld" ? zonaDoMundoPorId(mundo.zonaAtualId) : null;
+  const masmorra = mundo.mapaAtual !== "overworld" ? MASMORRAS[mundo.mapaAtual] : null;
+  const nivel = zona ? faixaDeNivel(zona) : null;
+  const ameaca = zona ? ameacaRelativa(zona, personagem.nivel) : null;
+  return {
+    mapaAtual: mundo.mapaAtual,
+    grid: gridAtiva(),
+    player: mundo.player,
+    npcs: npcsAtivos(),
+    objetos: objetosAtivos(),
+    zonaNome: zona ? zona.nome : (masmorra ? masmorra.nome || "Masmorra" : ""),
+    nivelTexto: nivel ? nivel.texto : "",
+    nivelCor: ameaca ? ameaca.cor : null,
+  };
 }
 
 function estaBloqueado(x, y, grid) {
@@ -502,13 +1153,15 @@ function onKeyDown(e) {
   } else if (e.key.toLowerCase() === "e") {
     tentarInteragir();
   } else if (e.key.toLowerCase() === "i") {
-    if (podeJogarNoMundo()) onHudAction("inventario");
+    if (podeJogarNoMundo()) onHudAction("party");
   } else if (e.key.toLowerCase() === "m") {
     if (podeJogarNoMundo()) onHudAction("missoes");
   } else if (e.key.toLowerCase() === "f") {
     if (podeJogarNoMundo()) onHudAction("forja");
   } else if (e.key.toLowerCase() === "s") {
     if (podeJogarNoMundo()) onHudAction("salvar");
+  } else if (e.key.toLowerCase() === "y") {
+    if (podeJogarNoMundo()) onHudAction("party");
   } else if (e.key.toLowerCase() === "g") {
     if (podeJogarNoMundo()) onHudAction("gacha");
   } else if (e.key.toLowerCase() === "t") {
@@ -522,7 +1175,12 @@ function onKeyDown(e) {
   } else if (e.key.toLowerCase() === "d") {
     if (podeJogarNoMundo()) onHudAction("diario");
   } else if (e.key.toLowerCase() === "u") {
-    if (podeJogarNoMundo()) onHudAction("atlas");
+    // U passou a abrir o MAPA (o instrumento) em vez do Atlas (a ilustração):
+    // é o mapa que se consulta no meio da exploração, dezenas de vezes por
+    // sessão. O Atlas continua na aba Jornada, sem atalho.
+    if (podeJogarNoMundo()) onHudAction("mapa");
+  } else if (e.key.toLowerCase() === "k") {
+    if (podeJogarNoMundo()) onHudAction("estado");
   } else if (e.key.toLowerCase() === "r") {
     if (podeJogarNoMundo()) onHudAction("descansar");
   } else if (e.key.toLowerCase() === "p") {
@@ -593,6 +1251,10 @@ function mover(dx, dy) {
 
   verificarTransicaoMasmorra(nx, ny);
   verificarMudancaDeZona(nx, ny);
+  // Streaming de chunks (task #36): recalculado a cada passo, não a cada
+  // quadro. verificarTransicaoMasmorra() pode ter trocado o mapa inteiro
+  // logo acima, então esta chamada vem depois dela de propósito.
+  atualizarChunksAtivos();
   verificarEncontroAleatorio(grid, nx, ny);
 }
 
@@ -601,20 +1263,104 @@ function verificarMudancaDeZona(x, y) {
   const zona = zonaNoPonto(x, y);
   if (zona && zona.id !== mundo.zonaAtualId) {
     mundo.zonaAtualId = zona.id;
+    // Hierarquia (task #35): trocar de MACRO-REGIÃO é um acontecimento maior
+    // que trocar de zona — é sair da Costa da Maré e entrar em Sombralith.
+    // Anunciado antes, com o subtítulo canônico do atlas e mais tempo na
+    // tela. Macro derivada não é anunciada: o nome dela é o nome da própria
+    // zona, então a mensagem seria a mesma frase duas vezes.
+    const macro = macroDaZona(zona.id);
+    const entrouEmMacro = macro && macro.id !== mundo.macroAtualId && !macro.derivado;
+    if (macro) mundo.macroAtualId = macro.id;
     const clima = zona.id === "vila" ? null : climaAtualDaZona(zona.id, Date.now());
-    mostrarMensagem(clima ? `📍 ${zona.nome} · ${clima.icone} ${clima.nome}` : `📍 ${zona.nome}`, 2600);
+    // Uma mensagem só: mostrarMensagem() substitui a anterior na hora, então
+    // duas chamadas seguidas fariam a primeira nunca ser lida.
+    const texto = [
+      entrouEmMacro ? `🗺️ ${macro.nome}` : null,
+      `📍 ${zona.nome}`,
+      clima ? `${clima.icone} ${clima.nome}` : null,
+    ].filter(Boolean).join(" · ");
+    mostrarMensagem(texto, entrouEmMacro ? 3400 : 2600);
     atualizarIndicadorClima();
   }
   // Viagem rápida (melhoria pós-backlog): pisar numa zona a marca como
   // disponível pra teleporte depois, mesmo que o jogador só tenha passado
   // por ela sem ficar (marcarZonaVisitada é idempotente).
-  if (zona) marcarZonaVisitada(personagem, zona.id);
+  if (zona) {
+    marcarZonaVisitada(personagem, zona.id);
+    // E a macro-região correspondente entra no que este herdeiro já
+    // conhece de Aethra (task #37) — sempre derivado de zona pisada.
+    const macroZona = macroDaZona(zona.id);
+    if (macroZona) marcarMacroVisitada(personagem, macroZona.id);
+    // Névoa de guerra (ETAPA 2): pisar DESCOBRE a zona e põe as vizinhas em
+    // RUMOR. Só isso — nada é revelado de graça.
+    aoEntrarNaZona(personagem, zona.id, vizinhasDaZona(zona.id));
+  }
+  // Marco visível de longe põe a zona dele em rumor, de onde quer que se
+  // esteja. É o vulcão no horizonte: você ainda não foi, mas já sabe que
+  // existe e para que lado fica (itens 10 e 26).
+  if (mundo.gerado) {
+    verificarLandmarks(personagem, x, y, mundo.gerado.landmarks).forEach((l) => {
+      mostrarMensagem(`👁️ Você avista ao longe: ${l.nome}`, 3000);
+    });
+  }
+}
+
+const NOME_DA_MASMORRA = { dungeon1: "A masmorra antiga", dungeon2: "O Covil das Cinzas" };
+function nomeDaMasmorra(id) { return NOME_DA_MASMORRA[id] || "A masmorra"; }
+
+// Chamado depois de QUALQUER coisa que possa concluir a masmorra: abrir o
+// último baú, derrotar o chefe. Registra a conclusão uma única vez e avisa.
+//
+// Fica num lugar só, e é chamado de dois pontos, porque a ordem entre baú e
+// chefe não é fixa: quem termina por último é que fecha a masmorra.
+function checarConclusaoDaMasmorra() {
+  const id = mundo.mapaAtual;
+  const m = MASMORRAS[id];
+  if (!m) return false;
+  const prog = progressoDaMasmorra(mundo, m, () => chefeDaMasmorraDisponivel(m));
+  if (!prog.completa) return false;
+  if (!marcarMasmorraLimpa(mundo, id)) return false;
+  const noAutomatico = autoPlayState.ativo;
+  notificarSucesso(
+    `🏆 ${nomeDaMasmorra(id)} está limpa — ${prog.bausTotal} baús e o chefe.` +
+    (noAutomatico ? " Voltando à superfície…" : " A saída está liberada quando você quiser."),
+    4200,
+  );
+  return noAutomatico;
+}
+
+// A saída não pode acontecer no meio da tela de batalha: `sairDaMasmorra`
+// recusa (com razão) enquanto a batalha está aberta, e o chefe morre COM a
+// tela ainda aberta — o jogador ainda vai clicar em "Continuar". Então a
+// saída fica pendente e tenta de novo até a tela fechar.
+let saidaDeMasmorraPendente = false;
+function agendarSaidaDaMasmorra() {
+  saidaDeMasmorraPendente = true;
+  tentarSaidaPendente();
+}
+function tentarSaidaPendente() {
+  if (!saidaDeMasmorraPendente) return;
+  if (mundo.mapaAtual === "overworld") { saidaDeMasmorraPendente = false; return; }
+  const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
+  if (emBatalha) { setTimeout(tentarSaidaPendente, 600); return; }
+  saidaDeMasmorraPendente = false;
+  sairDaMasmorra();
 }
 
 function verificarTransicaoMasmorra(x, y) {
   if (mundo.mapaAtual === "overworld") {
     for (const [id, m] of Object.entries(MASMORRAS)) {
       if (x === m.entrance.x && y === m.entrance.y) {
+        // Masmorra recém-concluída fica em silêncio por um tempo, igual a um
+        // chefe derrotado (ver DungeonSystem.js). Sem isto, "limpei a
+        // masmorra" nunca era um evento: dava para reentrar no segundo
+        // seguinte e o lugar estava idêntico.
+        if (masmorraEmEspera(mundo, id)) {
+          mostrarMensagem(textoDeEspera(mundo, id, nomeDaMasmorra(id)), 3200);
+          return;
+        }
+        // Saiu da espera: a masmorra volta cheia (baús fechados, chefe de pé).
+        prepararIncursao(id, m);
         mundo.mapaAtual = id;
         mundo.player.x = m.spawn.x;
         mundo.player.y = m.spawn.y;
@@ -648,7 +1394,13 @@ function verificarEncontroAleatorio(grid, x, y) {
     idsCandidatos = masmorra.monstros;
     chance = 0.06;
   }
-  if (deveDispararEncontro(chance)) {
+  // A chance cai conforme o grupo cresce (ver chanceAjustadaPeloGrupo): o
+  // que fica constante é o número de MONSTROS por passo, não o de lutas.
+  // Pet de trégua (Lebre, Javali): o bicho vai à frente e o que estava à
+  // espreita muda de ideia. Multiplica a chance já ajustada pelo grupo, em
+  // vez de somar — assim ele vale o mesmo em qualquer nível.
+  const chanceFinal = chanceAjustadaPeloGrupo(chance, personagem.nivel) * fatorDeTregua(personagem, dados.pets);
+  if (deveDispararEncontro(chanceFinal)) {
     const candidatos = idsCandidatos.map((id) => dados.monsters.find((m) => m.id === id)).filter(Boolean);
     // Horda (task #47): 10% dos encontros disparados viram horda — 5 ondas
     // sucessivas do mesmo pool da zona, em vez de 1 grupo só. A "ameaça"
@@ -662,7 +1414,7 @@ function verificarEncontroAleatorio(grid, x, y) {
       }
       return;
     }
-    const grupo = aplicarEmboscadaSeAplicavel(sortearEncontroDeLista(candidatos), candidatos);
+    const grupo = aplicarEmboscadaSeAplicavel(sortearEncontroDeLista(candidatos, personagem.nivel), candidatos);
     if (grupo.length) iniciarEncontroComAmeaca(grupo);
     return;
   }
@@ -708,14 +1460,31 @@ function aplicarEmboscadaSeAplicavel(grupo, candidatos) {
 // que já existia antes deste sistema. `levasExtras` (task #47): ondas 2-5
 // de uma horda, ou vazio pra um encontro comum.
 function iniciarEncontroComAmeaca(monstrosDef, levasExtras = [], onVitoria) {
+  const timeAtual = [personagem, ...membrosDoTime(personagem)];
+  // Recusa de encontro Mortal (escolha do jogador: só Mortal, "Perigosa" o
+  // automático continua encarando). Vale só pro encontro ALEATÓRIO — chefe
+  // já foi filtrado na escolha de alvo por chefeMortalDemais(), justamente
+  // pra não virar um vai-e-volta na frente dele.
+  if (
+    autoPlayState.ativo &&
+    autoCuidarDoTime() &&
+    !monstrosDef.some((m) => m && m.chefe) &&
+    deveEvitarEncontro(timeAtual, monstrosDef)
+  ) {
+    mostrarMensagem("💀 Automático evitou um encontro Mortal — inimigos muito acima do time.", 3200);
+    return;
+  }
   if (!FLAGS.ameacaPreCombate) { dispararBatalha(monstrosDef, levasExtras, onVitoria); return; }
-  const time = [personagem, ...membrosDoTime(personagem)];
+  const time = timeAtual;
   mostrarAmeaca(monstrosDef, time, dados, () => dispararBatalha(monstrosDef, levasExtras, onVitoria), () => mostrarMensagem("Você evitou o combate."), terrenoElementoAtual(), levasExtras.length);
 }
 
 function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
   document.getElementById("hud").classList.add("hidden");
   const tela = document.getElementById("screen-batalha");
+  tela.classList.remove("hda-batalha-saida");
+  tela.classList.add("hda-batalha-entrada");
+  setTimeout(() => tela.classList.remove("hda-batalha-entrada"), 380);
   const membrosExtras = membrosDoTime(personagem);
   const clima = climaAtual();
   // Snapshot de ouro pra alimentar o resumo do automático (item 16) — ouro
@@ -729,9 +1498,38 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
   // do que já é local ao dispositivo dele mesmo.
   const inicioBatalhaMs = Date.now();
   registrarEvento("batalha_inicio", { composicao: [personagem.classeId, ...membrosExtras.map((m) => m.classeId)], nInimigos: monstrosDef.length, ehChefe: monstrosDef.some((m) => m.chefe) });
+  // Contexto do cenário: ids REAIS do lugar onde a batalha começou (zona,
+  // masmorra, tile pisado, clima). A tela de batalha usa isso pra desenhar o
+  // chão com os tiles do próprio mapa e escrever o cabeçalho — nunca inventa
+  // região; sem esses dados ela cai em "Campo Aberto".
+  const zonaDaBatalha = mundo.mapaAtual === "overworld" ? zonaNoPonto(mundo.player.x, mundo.player.y) : null;
+  const gridDaBatalha = gridAtiva();
+  const linhaTile = gridDaBatalha && gridDaBatalha[mundo.player.y];
+  const contextoCenario = {
+    mapaAtual: mundo.mapaAtual,
+    zonaId: zonaDaBatalha ? zonaDaBatalha.id : null,
+    zonaNome: zonaDaBatalha ? zonaDaBatalha.nome : null,
+    zonaDescricao: zonaDaBatalha ? zonaDaBatalha.descricao : null,
+    tile: linhaTile ? linhaTile[mundo.player.x] : null,
+    climaNome: clima ? clima.nome : null,
+    climaIcone: clima ? clima.icone : null,
+  };
   iniciarBatalha(tela, imagens, dados, personagem, membrosExtras, monstrosDef, terrenoElementoAtual(), clima ? clima.elementoBonus : null, facaoAtual(), levasExtras, (resultado) => {
+    tela.classList.add("hda-batalha-saida");
+    setTimeout(() => tela.classList.remove("hda-batalha-saida"), 300);
     document.getElementById("hud").classList.remove("hidden");
     atualizarHUD(personagem);
+    // Trégua: alguns passos sem sorteio de encontro logo depois da luta
+    // (ver EncounterSystem.js). Sem ela, com os grupos maiores, sair de uma
+    // batalha e cair na próxima dois passos adiante fazia a masmorra virar
+    // um corredor de combate — medido: 86% dos ticks com a tela de batalha
+    // aberta e 59 casas visitadas em 443 ticks.
+    iniciarTregua();
+    // Momento "calmo": a luta acabou, o jogador está de volta ao mundo e tem
+    // loot novo na mochila. É a hora certa de sugerir o que fazer com ele
+    // (forjar, aprimorar, trocar) — nunca no meio do combate. Vitória apenas:
+    // depois de uma derrota o jogador quer voltar a jogar, não ler conselho.
+    if (resultado !== "derrota") verificarCartoes("calmo", 2600);
     registrarEvento("batalha_fim", { resultado, duracaoMs: Date.now() - inicioBatalhaMs, causa: resultado === "derrota" ? "hp_zerado" : null });
     if (Math.max(0, personagem.ouro - ouroAntes) > 0) registrarEvento("moeda", { fonte: "batalha", valor: Math.max(0, personagem.ouro - ouroAntes) });
     if (autoPlayState.ativo) {
@@ -752,112 +1550,233 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
     }
     if (autoPlayState.ativo && !intervaloAuto) { if (!ligadoAutoEm) ligadoAutoEm = Date.now(); agendarProximoTickAuto(); }
     if (resultado === "derrota") {
-      // A aventura nunca termina: o time é resgatado e volta para a vila.
+      // A aventura nunca termina: o time é resgatado e volta ao assentamento
+      // habitado mais próximo do ponto onde caiu (em vez de sempre reaparecer
+      // na Vila de Aethra).
+      const queda = { x: mundo.player.x, y: mundo.player.y };
       mundo.mapaAtual = "overworld";
-      mundo.player.x = 5; mundo.player.y = 5;
+      const assentamentos = mundo.gerado?.assentamentos || [];
+      const vilaMaisProxima = assentamentos
+        .filter((a) => ["VILA", "ALDEIA", "POSTO", "CIDADE"].includes(String(a.categoria || "").toUpperCase()))
+        .sort((a, b) => ((a.x - queda.x) ** 2 + (a.y - queda.y) ** 2) - ((b.x - queda.x) ** 2 + (b.y - queda.y) ** 2))[0];
+      const casa = vilaMaisProxima ? { x: vilaMaisProxima.x, y: vilaMaisProxima.y } : (mundo.gerado ? mundo.gerado.spawn : OVERWORLD_SPAWN);
+      mundo.player.x = casa.x; mundo.player.y = casa.y;
+      atualizarChunksAtivos();
+      mostrarMensagem(`🛟 Você foi resgatado e voltou para ${vilaMaisProxima?.nome || "a Vila de Aethra"}.`, 4200);
     }
     if (personagem.hp <= 0) personagem.hp = 1;
     if (resultado === "vitoria") {
       autoSalvarSeAutomatico();
       if (onVitoria) onVitoria();
     }
-  });
+  }, contextoCenario);
 }
 
+// Ordem de prioridade quando há mais de uma coisa encostada. A fogueira é
+// a última de propósito: com um baú e uma fogueira lado a lado, o jogador
+// quer abrir o baú. A saída da masmorra vem antes da fogueira e depois do
+// resto, igual era antes do índice existir.
+const PRIORIDADE_INTERACAO = ["bau", "no", "npc", "chefe", "saida", "descanso"];
+
+// Agora consulta só os chunks que o quadrado de raio 1 encosta (ver
+// ChunkSystem.js), em vez de varrer as listas inteiras do mundo. A ordem de
+// prioridade acima é aplicada explicitamente — antes ela era implícita na
+// sequência dos `if`s, o que dava no mesmo mas não estava escrito em lugar
+// nenhum.
 function objetoInteragivelProximo() {
+  const indice = indiceAtivo();
+  if (!indice) return null;
   const p = mundo.player;
-  const perto = (ox, oy) => Math.max(Math.abs(ox - p.x), Math.abs(oy - p.y)) <= 1;
-  if (mundo.mapaAtual === "overworld") {
-    const bau = mundo.chests.find((c) => !c.aberto && perto(c.x, c.y));
-    if (bau) return { tipo: "bau", ref: bau };
-    const no = mundo.nodes.find((n) => n.disponivel && perto(n.x, n.y));
-    if (no) return { tipo: "no", ref: no };
-    const npc = dados.npcs.find((n) => perto(NPC_POSICOES[n.id].x, NPC_POSICOES[n.id].y));
-    if (npc) return { tipo: "npc", ref: npc };
-    const zonaChefe = ZONAS.find((z) => z.chefe && chefeDisponivel(z.chefe) && perto(z.chefe.x, z.chefe.y));
-    if (zonaChefe) return { tipo: "chefe", ref: zonaChefe.chefe };
-  } else {
-    const masmorra = MASMORRAS[mundo.mapaAtual];
-    if (!masmorra) return null;
-    const bau = (mundo[masmorra.chestsKey] || []).find((c) => !c.aberto && perto(c.x, c.y));
-    if (bau) return { tipo: "bau", ref: bau };
-    if (chefeDisponivel(masmorra.boss) && perto(masmorra.boss.x, masmorra.boss.y)) return { tipo: "chefe", ref: masmorra.boss };
-    // Correção de bug: saída interagível (ver objetosAtivos() acima) — "E"
-    // perto do marcador também leva de volta à superfície, sem precisar
-    // pisar exatamente no tile central de exitZone.
-    if (perto(masmorra.exitZone.x0, masmorra.exitZone.y0)) return { tipo: "saida", ref: masmorra };
+  let melhor = null;
+  let melhorPeso = Infinity;
+  for (const f of objetosNoRaioDeTiles(indice, p.x, p.y, 1)) {
+    if (f.tipo === "bau" && f.ref.aberto) continue;
+    if (f.tipo === "no" && !f.ref.disponivel) continue;
+    if (f.tipo === "chefe" && !chefeDisponivel(f.ref)) continue;
+    if (f.tipo === "entrada") continue; // entrada de masmorra é por pisar em cima, não por E
+    const peso = PRIORIDADE_INTERACAO.indexOf(f.tipo);
+    if (peso === -1 || peso >= melhorPeso) continue;
+    melhorPeso = peso;
+    melhor = { tipo: f.tipo, ref: f.ref };
   }
-  return null;
+  return melhor;
+}
+
+// Equipamento automático (pedido do jogador): chamado depois de QUALQUER
+// entrada de item na mochila. Só preenche slot vazio — nunca substitui
+// peça que o jogador escolheu (pra isso existe o botão "⚡ Otimizar" no
+// inventário). Silencioso quando não há nada a vestir, porque é chamado o
+// tempo todo; só avisa na tela quando realmente equipou alguma coisa.
+// O equipamento em si é aplicado NA HORA (o estado do jogo nunca fica
+// pendurado num timer), mas o aviso na tela espera um instante: quem
+// chamou isto acabou de mostrar "Baú aberto! Você encontrou: X", e
+// sobrescrever essa mensagem no mesmo frame faria o jogador nunca ler o
+// que ganhou.
+function equiparAutomatico(atrasoAviso = 1200) {
+  if (!personagem) return [];
+  const time = [personagem, ...membrosDoTime(personagem)];
+  const acoes = autoEquiparSlotsVazios(personagem, time, dados);
+  // Slot VAZIO continua sendo preenchido sozinho (não desfaz escolha nenhuma).
+  // O que é novo é o passo seguinte: propor a TROCA de uma peça já equipada,
+  // que nunca acontece sozinha — vira cartão e o jogador decide.
+  verificarCartoes("item", atrasoAviso);
+  if (!acoes.length) return acoes;
+  atualizarHUD(personagem);
+  const texto = `🎽 Equipado: ${textoAcoesEquipamento(acoes, personagem)}`;
+  if (atrasoAviso > 0) setTimeout(() => mostrarMensagem(texto, 3000), atrasoAviso);
+  else mostrarMensagem(texto, 3000);
+  return acoes;
+}
+
+// PONTO ÚNICO de entrada dos cartões. Recebe o momento ("item", "nivel",
+// "calmo") e deixa GatilhosCartao decidir o que cabe ali. O atraso existe
+// pelo mesmo motivo do aviso de auto-equipar: quem chamou isto acabou de
+// mostrar "Você encontrou X", e um cartão no mesmo quadro cobriria a leitura.
+function verificarCartoes(momento, atraso = 900, extras = {}) {
+  if (!personagem || !dados) return;
+  tiquear(personagem);
+  const rodar = () => {
+    const time = [personagem, ...membrosDoTime(personagem)];
+    const cartoes = gatilhosDoMomento(momento, {
+      personagem, time, dados,
+      minimo: GANHO_MINIMO_PADRAO,
+      ...extras,
+      abrir: {
+        arvore: () => onHudAction("arvore"),
+        caminhos: () => onHudAction("caminhos"),
+        forja: (aba) => montarForja(personagem, dados, () => atualizarHUD(personagem), aba),
+      },
+    });
+    cartoes.forEach((c) => enfileirar(personagem, c));
+    if (cartoes.length) mostrarProximo();
+  };
+  if (atraso > 0) setTimeout(rodar, atraso); else rodar();
+}
+
+
+// ABRIR UM BAÚ e COLHER UM NÓ saíram de dentro de interagir().
+//
+// Não é arrumação: o pet de coleta precisa fazer exatamente a MESMA coisa que
+// a tecla E faz — sortear no loot table, rolar o teste de perícia, dar os
+// Fragmentos de exploração, registrar o progresso diário, checar se a
+// masmorra terminou, salvar. Copiar isso para o sistema de pets criaria dois
+// caminhos para "um baú foi aberto", e o dia em que um deles ganhasse mais um
+// efeito o outro ficaria para trás em silêncio.
+//
+// `porQuem` só muda o texto do aviso: "Baú aberto!" quando foi você, "🐾 O
+// Ratão Farejador abriu um baú" quando foi o bicho.
+function abrirBau(alvo, porQuem = null) {
+  alvo.ref.aberto = true;
+  const tabela = dados.lootTables[alvo.ref.tier];
+  let msgFragmentos = "";
+  if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
+  if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
+    personagem.locaisExplorados.push(alvo.ref.id);
+    adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA);
+    msgFragmentos = ` (+${FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA} Fragmentos de Aethra)`;
+  }
+  let msgTeste = "";
+  if (tabela) {
+    const item = sortearLoot(tabela.pool, dados.items.itens);
+    if (item) {
+      personagem.inventario.push({ ...item, uid: "id_" + Math.random().toString(36).slice(2, 10) });
+      // Teste de perícia opcional (Furtividade): sucesso encontra um item
+      // extra no mesmo baú — ver skillChecks.json, contexto "bau".
+      const [testeBau] = testesDoContexto(dados.skillChecks, "bau");
+      if (testeBau && testeBau.bonusLootSucesso) {
+        const r = realizarTeste(personagem, dados, testeBau);
+        if (r.sucesso) {
+          const extra = sortearLoot(tabela.pool, dados.items.itens);
+          if (extra) {
+            personagem.inventario.push({ ...extra, uid: "id_" + Math.random().toString(36).slice(2, 10) });
+            msgTeste = ` 🎲 ${testeBau.textoSucesso} (+${extra.nome})`;
+          }
+        }
+      }
+      const abertura = porQuem ? `🐾 ${porQuem} abriu um baú e trouxe:` : "Baú aberto! Você encontrou:";
+      mostrarMensagem(`${abertura} ${item.nome}${msgFragmentos}${msgTeste}`, msgTeste ? 4200 : 2200);
+    }
+  }
+  equiparAutomatico(msgTeste ? 4400 : 2400);
+  // Este baú pode ter sido o último que faltava — e o chefe já estar
+  // morto. A ordem entre baú e chefe não é fixa, então os dois caminhos
+  // perguntam a mesma coisa a `checarConclusaoDaMasmorra`.
+  if (checarConclusaoDaMasmorra()) agendarSaidaDaMasmorra();
+  autoSalvarSeAutomatico();
+}
+
+function coletarNo(alvo, porQuem = null) {
+  const itemMaterial = dados.items.itens.find((i) => i.id === alvo.ref.tipo);
+  let quantidade = 1;
+  let msgTeste = "";
+  // Teste de perícia opcional (Sobrevivência): sucesso dobra a coleta —
+  // ver skillChecks.json, contexto "no".
+  const [testeNo] = testesDoContexto(dados.skillChecks, "no");
+  if (testeNo && testeNo.bonusColetaSucesso) {
+    const r = realizarTeste(personagem, dados, testeNo);
+    if (r.sucesso) { quantidade = 2; msgTeste = ` 🎲 ${testeNo.textoSucesso}`; }
+  }
+  if (itemMaterial) {
+    for (let i = 0; i < quantidade; i++) {
+      personagem.inventario.push({ ...itemMaterial, uid: "id_" + Math.random().toString(36).slice(2, 10) });
+    }
+    const colheita = porQuem ? `🐾 ${porQuem} colheu:` : "Você coletou:";
+    mostrarMensagem(`${colheita} ${itemMaterial.nome}${quantidade > 1 ? ` x${quantidade}` : ""}!${msgTeste}`, msgTeste ? 4200 : 2200);
+    registrarProgressoDiario(personagem, "coleta", quantidade);
+  }
+  if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
+  if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
+    personagem.locaisExplorados.push(alvo.ref.id);
+    adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_NO_RECOMPENSA);
+  }
+  alvo.ref.disponivel = false;
+  setTimeout(() => { alvo.ref.disponivel = true; }, 25000);
+  // Nó de coleta só dá material (erva/minério/madeira), que não é
+  // equipável — a chamada fica aqui mesmo assim porque forja e receitas
+  // podem transformar isso em peça, e o custo de não achar nada é zero.
+  equiparAutomatico(msgTeste ? 4400 : 2400);
+  autoSalvarSeAutomatico();
+}
+
+function localDaInvestigacao() {
+  return { mapaAtual: mundo.mapaAtual, zonaId: mundo.zonaAtualId, x: mundo.player.x, y: mundo.player.y };
 }
 
 function interagir() {
   const alvo = objetoInteragivelProximo();
-  if (!alvo) return;
+  if (!alvo) {
+    const pista = podeExaminarPortaAltaverde(personagem, localDaInvestigacao())
+      ? examinarPortaAltaverde(personagem, localDaInvestigacao())
+      : investigarElric(personagem, localDaInvestigacao());
+    if (pista.ok) mostrarMensagem(pista.texto, 7000);
+    return;
+  }
   if (alvo.tipo === "bau") {
-    alvo.ref.aberto = true;
-    const tabela = dados.lootTables[alvo.ref.tier];
-    let msgFragmentos = "";
-    if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
-    if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
-      personagem.locaisExplorados.push(alvo.ref.id);
-      adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA);
-      msgFragmentos = ` (+${FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA} Fragmentos de Aethra)`;
-    }
-    let msgTeste = "";
-    if (tabela) {
-      const item = sortearLoot(tabela.pool, dados.items.itens);
-      if (item) {
-        personagem.inventario.push({ ...item, uid: "id_" + Math.random().toString(36).slice(2, 10) });
-        // Teste de perícia opcional (Furtividade): sucesso encontra um item
-        // extra no mesmo baú — ver skillChecks.json, contexto "bau".
-        const [testeBau] = testesDoContexto(dados.skillChecks, "bau");
-        if (testeBau && testeBau.bonusLootSucesso) {
-          const r = realizarTeste(personagem, dados, testeBau);
-          if (r.sucesso) {
-            const extra = sortearLoot(tabela.pool, dados.items.itens);
-            if (extra) {
-              personagem.inventario.push({ ...extra, uid: "id_" + Math.random().toString(36).slice(2, 10) });
-              msgTeste = ` 🎲 ${testeBau.textoSucesso} (+${extra.nome})`;
-            }
-          }
-        }
-        mostrarMensagem(`Baú aberto! Você encontrou: ${item.nome}${msgFragmentos}${msgTeste}`, msgTeste ? 4200 : 2200);
-      }
-    }
-    autoSalvarSeAutomatico();
+    abrirBau(alvo);
   } else if (alvo.tipo === "no") {
-    const itemMaterial = dados.items.itens.find((i) => i.id === alvo.ref.tipo);
-    let quantidade = 1;
-    let msgTeste = "";
-    // Teste de perícia opcional (Sobrevivência): sucesso dobra a coleta —
-    // ver skillChecks.json, contexto "no".
-    const [testeNo] = testesDoContexto(dados.skillChecks, "no");
-    if (testeNo && testeNo.bonusColetaSucesso) {
-      const r = realizarTeste(personagem, dados, testeNo);
-      if (r.sucesso) { quantidade = 2; msgTeste = ` 🎲 ${testeNo.textoSucesso}`; }
-    }
-    if (itemMaterial) {
-      for (let i = 0; i < quantidade; i++) {
-        personagem.inventario.push({ ...itemMaterial, uid: "id_" + Math.random().toString(36).slice(2, 10) });
-      }
-      mostrarMensagem(`Você coletou: ${itemMaterial.nome}${quantidade > 1 ? ` x${quantidade}` : ""}!${msgTeste}`, msgTeste ? 4200 : 2200);
-      registrarProgressoDiario(personagem, "coleta", quantidade);
-    }
-    if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
-    if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
-      personagem.locaisExplorados.push(alvo.ref.id);
-      adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_NO_RECOMPENSA);
-    }
-    alvo.ref.disponivel = false;
-    setTimeout(() => { alvo.ref.disponivel = true; }, 25000);
-    autoSalvarSeAutomatico();
+    coletarNo(alvo);
   } else if (alvo.tipo === "npc") {
-    montarDialogo(alvo.ref, dados, personagem, () => atualizarHUD(personagem));
+    registrarConversaAltaverde(personagem, alvo.ref.id);
+    // Conversar deixa marca: o NPC passa a estar em `personagem.npcs` e conta
+    // as conversas. É a memória do item 8, e é o que vai para o save.
+    if (alvo.ref.regiaoId) {
+      registrarConversa(personagem, alvo.ref.id);
+      if (Array.isArray(alvo.ref.recorrente) && alvo.ref.regiaoId !== mundo.macroAtualId) {
+        registrarEncontroRecorrente(personagem, alvo.ref.id, mundo.macroAtualId);
+      }
+    }
+    montarDialogo(alvo.ref, dados, personagem, () => atualizarHUD(personagem), contextoDeNpc());
   } else if (alvo.tipo === "chefe") {
     const def = dados.monsters.find((m) => m.id === alvo.ref.monstroId);
     // Ao vencer, o chefe some do mapa por RESPAWN_CHEFE_MS antes de renascer —
     // impede que o modo automático reengaje o mesmo chefe na sequência.
-    iniciarEncontroComAmeaca([def], [], () => { alvo.ref.derrotadoEm = Date.now(); });
+    iniciarEncontroComAmeaca([def], [], () => {
+      alvo.ref.derrotadoEm = Date.now();
+      // O chefe pode ter sido a última coisa que faltava aqui dentro.
+      if (checarConclusaoDaMasmorra()) agendarSaidaDaMasmorra();
+    });
+  } else if (alvo.tipo === "descanso") {
+    descansarTime();
   } else if (alvo.tipo === "saida") {
     sairDaMasmorra();
   }
@@ -883,11 +1802,15 @@ function sairDaMasmorra() {
   mundo.mapaAtual = "overworld";
   mundo.player.x = m.entrance.x - 1;
   mundo.player.y = m.entrance.y;
+  atualizarChunksAtivos();
   mostrarMensagem("Você retorna à superfície.");
 }
 
 function onHudAction(action) {
-  if (action === "inventario") montarInventario(personagem, () => atualizarHUD(personagem));
+  // O `contexto` ({ dados, time }) é o que liga o painel de equipamento
+  // automático dentro da tela — sem ele o inventário abre igual a antes.
+  if (action === "inventario") montarInventario(personagem, () => atualizarHUD(personagem), personagem, null, null, { dados, time: [personagem, ...membrosDoTime(personagem)] });
+  else if (action === "party") montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, () => atualizarHUD(personagem));
   else if (action === "missoes") montarMissoes(personagem, dados);
   else if (action === "forja") montarForja(personagem, dados, () => atualizarHUD(personagem));
   else if (action === "salvar") salvarProgresso();
@@ -897,6 +1820,8 @@ function onHudAction(action) {
   else if (action === "compendio") montarCompendio(personagem, dados);
   else if (action === "viagem") abrirViagemRapida();
   else if (action === "atlas") abrirAtlas();
+  else if (action === "mapa") abrirMapaMundo();
+  else if (action === "estado") abrirPainelEstado();
   else if (action === "auto") alternarModoAutomatico();
   else if (action === "acessibilidade") montarAcessibilidade();
   else if (action === "diario") montarDiarioDeDecisoes(personagem, dados);
@@ -908,11 +1833,27 @@ function onHudAction(action) {
 // (principal + convocados do gacha) de uma vez, fora de batalha — só
 // aparece no HUD, que já fica escondido durante batalha (ver início/fim de
 // batalha mais abaixo), então não precisa de guarda extra aqui.
-function descansarTime() {
+// Descansar deixou de valer em qualquer lugar (pedido do jogador): só numa
+// cidade ou ao lado de uma fogueira. Ver RestSystem.js pro porquê — enquanto
+// era grátis em qualquer canto, poção não tinha razão de existir e o mundo
+// aberto não tinha risco nenhum. Devolve true quando descansou de verdade,
+// pra quem chamou saber se precisa tratar a recusa.
+function descansarTime({ silencioso = false } = {}) {
+  const permissao = podeDescansar({
+    zona: mundo.mapaAtual === "overworld" ? zonaNoPonto(mundo.player.x, mundo.player.y) : null,
+    pontos: pontosDescansoAtuais(),
+    x: mundo.player.x,
+    y: mundo.player.y,
+  });
+  if (!permissao.ok) {
+    if (!silencioso) mostrarMensagem(`🚫 ${permissao.motivo}`, 4200);
+    return false;
+  }
   const time = [personagem, ...membrosDoTime(personagem)];
   descansar(time);
   atualizarHUD(personagem);
-  mostrarMensagem("💤 O time descansou e recuperou todo o HP e MP.");
+  if (!silencioso) mostrarMensagem(`💤 ${permissao.motivo} HP e MP restaurados.`, 3200);
+  return true;
 }
 
 // --- Viagem rápida (melhoria de jogabilidade pós-backlog original) --------
@@ -927,7 +1868,12 @@ function abrirViagemRapida() {
     mostrarMensagem("Viagem rápida só funciona no mundo aberto.");
     return;
   }
-  montarViagemRapida(personagem, ZONAS, mundo.zonaAtualId, (zonaId) => viajarParaZona(zonaId));
+  // Destinos = LUGARES já descobertos (item 27), não zonas. A contagem do
+  // que falta vem do total de pontos declarados menos os liberados, pra o
+  // jogador saber que o mapa continua.
+  const todos = (mundo.gerado ? mundo.gerado.assentamentos : []).filter((a) => a.viagemRapida);
+  const destinos = pontosDeViagemDisponiveis(personagem, mundo.gerado ? mundo.gerado.assentamentos : [], (z) => estadoDaZona(personagem, z));
+  montarViagemRapida(personagem, destinos, mundo.zonaAtualId, (id) => viajarParaPonto(id), todos.length - destinos.length);
 }
 
 // Atlas do Mapa-Múndi (mitologia): mesma restrição da viagem rápida — só
@@ -940,6 +1886,40 @@ function abrirAtlas() {
     return;
   }
   montarAtlas(personagem, ZONAS, mundo.zonaAtualId, (zonaId) => { fecharModal(); viajarParaZona(zonaId); });
+}
+
+// O MAPA (tecla U, clique no minimapa, aba Jornada). Diferente do Atlas, que
+// é a pintura de lore com hotspots: este é desenhado do mapa de posse real,
+// mostra os níveis das regiões e respeita a névoa de guerra. Os dois
+// coexistem de propósito — um é ilustração, o outro é instrumento.
+// O painel "Como você está" (tecla K). Junta num lugar só o que sete sistemas
+// calculavam em silêncio — ver PainelEstadoUI.js. O contexto de mundo (clima,
+// hora, zona, eventos ativos) é montado aqui porque só main.js tem acesso a
+// `mundo`; a tela não sabe nada sobre o mapa.
+function abrirPainelEstado() {
+  if (!personagem) return;
+  const zona = mundo.mapaAtual === "overworld" ? zonaDoMundoPorId(mundo.zonaAtualId) : null;
+  const nivelZona = zona ? faixaDeNivel(zona) : null;
+  montarPainelEstado(personagem, dados, {
+    time: [personagem, ...membrosDoTime(personagem)],
+    clima: climaAtualDaZona(mundo.zonaAtualId, Date.now()),
+    hora: horaDoDiaAtual(Date.now()),
+    zonaNome: zona ? zona.nome : null,
+    zonaNivel: nivelZona ? nivelZona.texto : null,
+    // `listarEventosAtivos` devolve IDs crus; o painel mostrava
+    // "ev_tempestade_eter_altaverde" ao jogador. `resumoDosEventos` traduz.
+    eventosAtivos: resumoDosEventos(personagem, mundo.zonaAtualId),
+  });
+}
+
+function abrirMapaMundo() {
+  if (!personagem) return;
+  montarMapaMundo(personagem, {
+    mapaAtual: mundo.mapaAtual,
+    zonaAtualId: mundo.zonaAtualId,
+    jogador: mundo.player,
+    onViajar: (zonaId) => viajarParaZona(zonaId),
+  });
 }
 
 function encontrarTileAndavelProximo(grid, x, y, raioMax = 6) {
@@ -956,6 +1936,24 @@ function encontrarTileAndavelProximo(grid, x, y, raioMax = 6) {
   return { x, y }; // não achou nada livre por perto — usa o ponto bruto mesmo assim
 }
 
+// Viagem para um PONTO (cidade, porto, posto). O teleporte em si continua
+// sendo o mesmo de sempre — achar o tile andável mais próximo do alvo —, o
+// que mudou é o alvo: a praça de um lugar, e não o centro geométrico de uma
+// área.
+function viajarParaPonto(pontoId) {
+  const ponto = (mundo.gerado ? mundo.gerado.assentamentos : []).find((a) => a.id === pontoId);
+  if (!ponto) return;
+  const destino = encontrarTileAndavelProximo(mundo.grid, ponto.x, ponto.y);
+  mundo.player.x = destino.x;
+  mundo.player.y = destino.y;
+  atualizarChunksAtivos();
+  const zona = zonaNoPonto(destino.x, destino.y);
+  if (zona) mundo.zonaAtualId = zona.id;
+  fecharModal();
+  mostrarMensagem(`🧭 Viagem rápida: ${ponto.nome}`, 2600);
+  verificarMudancaDeZona(destino.x, destino.y);
+}
+
 function viajarParaZona(zonaId) {
   const zona = ZONAS.find((z) => z.id === zonaId);
   if (!zona) return;
@@ -964,6 +1962,7 @@ function viajarParaZona(zonaId) {
   const destino = encontrarTileAndavelProximo(mundo.grid, alvo.x, alvo.y);
   mundo.player.x = destino.x;
   mundo.player.y = destino.y;
+  atualizarChunksAtivos();
   mundo.zonaAtualId = zona.id;
   fecharModal();
   mostrarMensagem(`🧭 Viagem rápida: ${zona.nome}`, 2600);
@@ -1026,6 +2025,61 @@ function autoSalvarSeAutomatico() {
 // própria BattleUI.js se resolve sozinha durante o combate em si; aqui só
 // evita que o automático ENTRE em outra briga logo depois com o time já
 // combalido).
+// Autocuidado do automático (ver AutoCareSystem.js pra regra e pro porquê
+// de poção vir antes de descanso). Aplica UMA ação por tick e devolve true
+// quando fez algo — aí o tick termina aqui: curar É a jogada daquele
+// quadro, e o passo seguinte já enxerga o time melhor.
+function cuidarDoTimeAutomatico() {
+  if (!autoCuidarDoTime() || !personagem) return false;
+  const time = [personagem, ...membrosDoTime(personagem)];
+  const plano = planejarCuidado(personagem, time);
+  if (!plano) return false;
+
+  if (plano.tipo === "pocao") {
+    // usarConsumivel devolve {ok:false} se o item sumiu entre planejar e
+    // aplicar (venda pela loja aberta noutro tick, por exemplo) — nesse
+    // caso não faz nada e deixa o próximo tick replanejar com a mochila
+    // real, em vez de mentir "usou poção" numa mensagem.
+    if (!usarConsumivel(personagem, plano.item.uid, plano.alvo).ok) return false;
+  } else if (plano.tipo === "descanso") {
+    // Descanso agora tem lugar (cidade ou fogueira). Se não dá pra descansar
+    // AQUI, o cuidado não acontece neste tick — e é de propósito: devolver
+    // false deixa o tick seguir pro passo de exploração, que já vai ter a
+    // fogueira mais próxima no topo da lista de alvos (ver
+    // alvosAutoExploracao). Ou seja, o automático CAMINHA até o descanso em
+    // vez de ficar parado repetindo que não consegue.
+    if (!descansarTime({ silencioso: true })) return false;
+  } else {
+    return false; // sem_recurso: quem decide é a regra de parada abaixo
+  }
+
+  atualizarHUD(personagem);
+  mostrarMensagem(textoCuidado(plano, personagem), 2200);
+  autoSalvarSeAutomatico();
+  return true;
+}
+
+// Chefe fora do alcance do time: mesma régua da tela de ameaça
+// (ThreatSystem), aplicada ANTES de escolher o alvo. Tratar o chefe aqui, e
+// não na hora de entrar na luta, é o que impede o automático de andar até
+// ele, recusar, andar de volta e repetir pra sempre — encontro aleatório
+// pode ser recusado à vontade porque ele não fica parado no mapa esperando.
+// O time está ferido e sem poção? Então a fogueira/cidade mais próxima vira
+// o destino do automático. Usa o MESMO planejador do autocuidado pra não
+// existirem duas regras de "está na hora de descansar" que possam divergir.
+function precisaIrDescansar() {
+  if (!autoCuidarDoTime() || !personagem) return false;
+  const plano = planejarCuidado(personagem, [personagem, ...membrosDoTime(personagem)]);
+  return !!plano && plano.tipo === "descanso";
+}
+
+function chefeMortalDemais(ref) {
+  if (!autoCuidarDoTime() || !ref || !ref.monstroId || !personagem) return false;
+  const def = dados.monsters.find((m) => m.id === ref.monstroId);
+  if (!def) return false;
+  return deveEvitarEncontro([personagem, ...membrosDoTime(personagem)], [def]);
+}
+
 function autoPlayDevePararPorHpBaixo() {
   const limite = limiteHpAutoPlay();
   if (limite <= 0 || !personagem) return false;
@@ -1039,6 +2093,13 @@ function tickAutoPlay() {
   if (!autoPlayState.ativo || !personagem) return;
   const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
   if (emBatalha) return; // a própria batalha se resolve sozinha (ver BattleUI.js)
+
+  // Cuidar vem ANTES de qualquer outra coisa: não adianta abrir baú com o
+  // time em pé de guerra. Com a opção ligada (padrão) isso na prática torna
+  // a parada por HP baixo logo abaixo inalcançável — de propósito: quem
+  // quer que o automático PARE em vez de se curar desliga o autocuidado em
+  // Acessibilidade e recupera exatamente o comportamento antigo.
+  if (cuidarDoTimeAutomatico()) return;
 
   if (autoPlayDevePararPorHpBaixo()) {
     alternarModoAutomatico();
@@ -1070,16 +2131,17 @@ function tickAutoPlay() {
     return;
   }
 
-  // Escolha de árvore de habilidade pendente: resolve sozinho (escolhe um
-  // dos dois ramos ao acaso) para nunca travar o modo automático esperando
-  // uma decisão manual.
-  const pendente = escolhaPendente(personagem, dados);
-  if (pendente) {
-    const escolhido = pendente.opcoes[Math.floor(Math.random() * pendente.opcoes.length)];
-    const r = aplicarEscolhaArvore(personagem, dados, escolhido.id);
+  // Pontos de árvore parados: o automático gasta sozinho para nunca travar
+  // esperando uma decisão manual. A versão anterior sorteava entre as duas
+  // opções do tier; com 3 ramos e nós finais que exigem 7 pontos NO MESMO
+  // ramo, sortear garantiria três ramos rasos e nenhum nó final. Por isso
+  // `escolhaAutomatica` aprofunda sempre o ramo já mais investido.
+  const proximoNo = escolhaAutomatica(personagem, dados);
+  if (proximoNo) {
+    const r = escolherNo(personagem, dados, proximoNo.id);
     if (r.ok) {
       atualizarHUD(personagem);
-      mostrarMensagem(`🌟 Habilidade escolhida automaticamente: ${escolhido.nome}`);
+      mostrarMensagem(`🌟 Ponto de habilidade gasto: ${proximoNo.nome} (restam ${r.pontosRestantes})`);
       autoSalvarSeAutomatico();
     }
     return;
@@ -1096,6 +2158,27 @@ function tickAutoPlay() {
       mostrarMensagem("⏸ Automático parou: um chefe está por perto. Continue manualmente quando quiser enfrentá-lo.", 5000);
       return;
     }
+    // FOGUEIRA: mesma armadilha do NPC, e ela passou batido.
+    //
+    // Baú e nó de recurso somem depois de usados, então o automático nunca
+    // volta neles. NPC não some — por isso existe a trava `ultimoNpcInteragido`
+    // logo abaixo. A FOGUEIRA também não some, e ficou sem trava nenhuma:
+    // chegando perto de uma, `objetoInteragivelProximo()` a devolvia todo
+    // tick, `tentarInteragir()` descansava (mesmo de HP cheio, porque
+    // descansar de novo é permitido), o tick terminava ali e `autoAndar()`
+    // nunca era chamado. Resultado medido: 44 ticks seguidos parado na
+    // mesma casa, com o time de HP cheio.
+    //
+    // A trava certa aqui não é "já usei esta fogueira" e sim "descansar
+    // ainda mudaria alguma coisa?". Com o time inteiro, não muda nada — então
+    // o automático passa direto e continua explorando. Isso se resolve
+    // sozinho: depois de descansar, o time fica cheio e a condição vira
+    // falsa no tick seguinte, sem precisar guardar estado nenhum.
+    //
+    // Vale só para o automático. No manual, apertar E numa fogueira continua
+    // descansando quando o jogador quiser, mesmo de HP cheio.
+    if (alvo.tipo === "descanso" && !precisaIrDescansar()) { autoAndar(); return; }
+
     // NPCs não desaparecem depois de conversar (diferente de baús/nós), então
     // sem essa trava o modo automático ficaria preso conversando pra sempre
     // com o mesmo NPC em vez de seguir explorando. Só conversa de novo depois
@@ -1113,7 +2196,76 @@ function tickAutoPlay() {
   autoAndar();
 }
 
-function autoAndar() {
+// Pontos de interesse do mapa atual, no formato que AutoExploreAI.js
+// espera ({x, y, tipo, prioridade}). Este é o único lugar que conhece
+// baús/nós/masmorras — o pathfinding não sabe o que é nada disso.
+//
+// Duas travas anti-loop importantes:
+//   - a ENTRADA de masmorra só entra na lista se aquela masmorra ainda tem
+//     algo dentro (baú fechado ou chefe disponível). Sem isso o automático
+//     entraria e sairia da mesma masmorra vazia pra sempre.
+//   - a SAÍDA só entra quando não sobrou mais nada a fazer lá dentro, e com
+//     prioridade mínima — é a válvula de escape, não um destino.
+function masmorraTemAlgoAFazer(id, m) {
+  // Em espera depois de concluída: não há o que fazer lá, nem entrar dá.
+  if (masmorraEmEspera(mundo, id)) return false;
+  // `garantirBausMasmorra` é o MESMO acessor que o índice de chunks usa. Ler
+  // `mundo[m.chestsKey]` direto devolvia `undefined` numa partida nova (a
+  // lista é criada preguiçosamente), e com isso "a masmorra ainda tem baú?"
+  // respondia NÃO desde sempre.
+  const baus = garantirBausMasmorra(m);
+  if (baus.some((c) => !c.aberto)) return true;
+  return chefeDaMasmorraDisponivel(m) && !pararAutoAntesDoChefe() && !chefeMortalDemais(m.boss);
+}
+
+function alvosAutoExploracao() {
+  const alvos = [];
+  // Ferido e sem poção: a fogueira entra na lista com a maior prioridade de
+  // todas. Fora desse caso ela nem aparece — não faz sentido o automático
+  // ir descansar de HP cheio.
+  if (precisaIrDescansar()) {
+    pontosDescansoAtuais().forEach((f) => alvos.push({ x: f.x, y: f.y, tipo: "descanso", prioridade: PRIORIDADE.descanso }));
+  }
+  if (mundo.mapaAtual === "overworld") {
+    mundo.chests.forEach((c) => { if (!c.aberto) alvos.push({ x: c.x, y: c.y, tipo: "bau", prioridade: PRIORIDADE.bau }); });
+    mundo.nodes.forEach((n) => { if (n.disponivel) alvos.push({ x: n.x, y: n.y, tipo: "no", prioridade: PRIORIDADE.no }); });
+    Object.entries(MASMORRAS).forEach(([id, m]) => {
+      if (!masmorraTemAlgoAFazer(id, m)) return;
+      alvos.push({ x: m.entrance.x, y: m.entrance.y, tipo: "entrada", prioridade: PRIORIDADE.entrada, exigeMesmoTile: true });
+    });
+    if (!pararAutoAntesDoChefe()) {
+      (mundo.gerado ? mundo.gerado.chefes : []).forEach((c) => {
+        if (chefeDisponivel(c) && !chefeMortalDemais(c)) alvos.push({ x: c.x, y: c.y, tipo: "chefe", prioridade: PRIORIDADE.chefe });
+      });
+    }
+    // NPC já conversado nesta parada vira alvo inválido — mesma trava que
+    // tickAutoPlay() usa pra não ficar preso num diálogo em looping. As
+    // posições vêm das vagas que o gerador abriu na praça da vila.
+    const vagasAuto = (mundo.gerado && mundo.gerado.vagasNpc) || [];
+    dados.npcs.forEach((n, i) => {
+      if (n.id === ultimoNpcInteragido) return;
+      const pos = vagasAuto[i % Math.max(1, vagasAuto.length)];
+      if (pos) alvos.push({ x: pos.x, y: pos.y, tipo: "npc", prioridade: PRIORIDADE.npc });
+    });
+  } else {
+    const m = MASMORRAS[mundo.mapaAtual];
+    if (!m) return alvos;
+    garantirBausMasmorra(m).forEach((c) => { if (!c.aberto) alvos.push({ x: c.x, y: c.y, tipo: "bau", prioridade: PRIORIDADE.bau }); });
+    if (chefeDaMasmorraDisponivel(m) && !pararAutoAntesDoChefe() && !chefeMortalDemais(m.boss)) {
+      alvos.push({ x: m.boss.x, y: m.boss.y, tipo: "chefe", prioridade: PRIORIDADE.chefe });
+    }
+    if (!alvos.length) {
+      alvos.push({ x: m.exitZone.x0, y: m.exitZone.y0, tipo: "saida", prioridade: PRIORIDADE.saida, exigeMesmoTile: true });
+    }
+  }
+  return alvos;
+}
+
+// Passeio aleatório de antes — continua existindo como PLANO B, pra quando
+// não há nenhum alvo alcançável (mapa já limpo, ou tudo atrás de água).
+// Nesse caso andar a esmo é de fato o comportamento certo: é assim que o
+// automático encontra encontros aleatórios e ganha XP.
+function autoAndarAleatorio() {
   const grid = gridAtiva();
   const direcoes = [[0, -1], [0, 1], [-1, 0], [1, 0]];
   if (direcaoAuto) {
@@ -1128,6 +2280,30 @@ function autoAndar() {
   if (!opcoes.length) return;
   direcaoAuto = opcoes[Math.floor(Math.random() * opcoes.length)];
   tentarMover(...direcaoAuto);
+}
+
+function autoAndar() {
+  const grid = gridAtiva();
+  const decisao = decidirPassoExploracao({
+    origem: { x: mundo.player.x, y: mundo.player.y },
+    alvos: alvosAutoExploracao(),
+    // Dimensões tiradas da própria grade, não das constantes por mapa —
+    // assim overworld/dungeon1/dungeon2 usam o mesmo caminho de código e
+    // uma masmorra nova funciona sem tocar aqui.
+    largura: grid[0].length,
+    altura: grid.length,
+    bloqueado: (x, y) => estaBloqueado(x, y, grid),
+  });
+  if (decisao) {
+    // Guarda a direção também no modo dirigido: se o alvo sumir no tick
+    // seguinte (outro jogador não existe, mas um baú pode ter respawnado
+    // ou o chefe entrado em cooldown), o plano B continua de onde parou em
+    // vez de dar um passo pra trás.
+    direcaoAuto = decisao.passo;
+    tentarMover(decisao.passo[0], decisao.passo[1]);
+    return;
+  }
+  autoAndarAleatorio();
 }
 
 boot();

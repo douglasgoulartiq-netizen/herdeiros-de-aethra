@@ -4,6 +4,7 @@
 import { avaliarEncontro } from "../systems/ThreatSystem.js";
 import { relacaoElemental } from "../systems/ElementSystem.js";
 import { fecharModal } from "./GameUI.js";
+import { dicasDoChefe } from "../systems/PreparacaoChefeSystem.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
@@ -53,8 +54,11 @@ export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir,
   const hordaHtml = totalOndasExtras > 0
     ? `<p style="color:#f5a524;font-weight:bold;" title="O time não recupera HP/MP entre as ondas.">🌊 HORDA! ${totalOndas} ondas de inimigos, sem descanso entre elas.</p>`
     : "";
+  const dicas = dicasDoChefe(monstrosDef, personagens, dados);
+  const dicasHtml = dicas.length ? `<section class="preparacao-chefe"><h3>Prepare sua estratégia</h3><ul>${dicas.map((d) => `<li>${d}</li>`).join("")}</ul></section>` : "";
 
   const temSolo = monstrosDef.length === 1 && monstrosDef[0].solo;
+  conteudo().classList.toggle("preparacao-chefe-modal", !!info.temChefe);
   // Fala do chefe (task #45): personalidade própria mostrada antes do
   // combate, só quando o encontro é exatamente o chefe único da zona (não
   // aparece em encontros comuns/hordas, que não têm o campo "fala").
@@ -70,6 +74,7 @@ export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir,
       ${hordaHtml}
       ${elementosHtml ? `<p>Elementos: ${elementosHtml}</p>` : ""}
       ${terrenoHtml}
+      ${dicasHtml}
       <p style="font-size:0.8em;opacity:0.75">Diferença de nível em relação ao grupo: ${info.ameaca.diferenca > 0 ? "+" : ""}${info.ameaca.diferenca}</p>
       <div style="margin-top:10px;">
         <button class="btn-lutar primario">⚔️ Lutar</button>

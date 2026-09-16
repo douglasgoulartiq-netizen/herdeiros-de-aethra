@@ -1,0 +1,295 @@
+/* CENAS (cutscenes) — camada de tela cheia acima de tudo.
+ *
+ * z-index 90: acima do modal-overlay (30), das bottom sheets (59/60) e da
+ * navbar (40). Uma cena é a única coisa na tela enquanto dura; se qualquer
+ * outra camada pudesse aparecer por cima dela, a cena deixaria de ser uma
+ * cena e viraria mais um painel.
+ *
+ * SEM IMAGEM NOVA: cada `arte-*` é um gradiente com um glifo grande ao fundo
+ * (::after). Dezoito ilustrações seriam a parte cara e a menos importante do
+ * trabalho; o que faz a cena funcionar é o ritmo do texto. A exceção é
+ * `arte-retrato.com-imagem`, que recebe o retrato HD do próprio personagem
+ * via background-image inline (CutsceneUI.js).
+ *
+ * Remover o <link> deste arquivo no index.html devolve o jogo ao estado sem
+ * cenas sem quebrar nada: o motor continuaria funcionando, só sem estilo.
+ */
+
+.cutscene {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: #0b0810;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.cutscene.visivel { opacity: 1; }
+.cutscene.saindo { opacity: 0; }
+
+/* Enquanto uma cena roda, nada mais recebe clique nem rola atrás dela. */
+body.com-cutscene { overflow: hidden; }
+
+/* --- Arte de fundo ------------------------------------------------------ */
+.cutscene-arte {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 22%;
+  transition: background-image 420ms ease, opacity 420ms ease;
+}
+/* Véu por cima da arte: o texto é a peça principal e precisa de contraste
+   garantido, inclusive sobre um retrato claro. */
+.cutscene-arte::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 8, 16, 0.55) 0%, rgba(11, 8, 16, 0.78) 45%, rgba(11, 8, 16, 0.96) 100%);
+}
+/* Glifo temático: grande, quase apagado, atrás de tudo. */
+.cutscene-arte::after {
+  content: attr(data-glifo);
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(140px, 30vw, 380px);
+  line-height: 1;
+  opacity: 0.07;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
+.cutscene-arte.arte-eter     { background: radial-gradient(120% 90% at 30% 20%, #2b1f4a 0%, #120d1f 60%, #0b0810 100%); }
+.cutscene-arte.arte-eter::after     { content: "✧"; }
+.cutscene-arte.arte-ruinas   { background: radial-gradient(120% 90% at 70% 25%, #3a2f22 0%, #191309 60%, #0b0810 100%); }
+.cutscene-arte.arte-ruinas::after   { content: "🏛"; }
+.cutscene-arte.arte-selos    { background: radial-gradient(120% 90% at 50% 15%, #4a2a1c 0%, #1d1110 60%, #0b0810 100%); }
+.cutscene-arte.arte-selos::after    { content: "◈"; }
+.cutscene-arte.arte-retrato  { background: radial-gradient(120% 90% at 50% 20%, #2a2438 0%, #15111f 60%, #0b0810 100%); }
+.cutscene-arte.arte-retrato::after  { content: ""; }
+/* Quando o retrato do personagem carrega, o JS troca só o background-IMAGE
+   — e o shorthand `background` acima já zerou size/repeat para os valores
+   iniciais, então sem estas três linhas o retrato entra ladrilhado no tamanho
+   nativo. background-color sobrevive à troca e segura o fundo no lugar do
+   gradiente que a imagem substituiu. O retrato vai para a direita porque o
+   texto ocupa a esquerda, e `pixelated` é o que mantém a arte nítida em vez
+   de borrada ao ser ampliada. */
+.cutscene-arte.arte-retrato.com-imagem {
+  background-repeat: no-repeat;
+  background-size: auto 48%;
+  background-position: 84% 42%;
+  background-color: #15111f;
+  image-rendering: pixelated;
+}
+/* O véu padrão é vertical e escureceria o retrato junto com o resto. Neste
+   painel ele vira horizontal: fechado do lado esquerdo, onde o texto precisa
+   de contraste, e quase aberto do lado direito, onde está o rosto. Sem isto
+   o retrato aparece como um vulto de 22% de luminosidade — tecnicamente
+   presente, visualmente ausente. */
+.cutscene-arte.arte-retrato.com-imagem::before {
+  background:
+    linear-gradient(90deg, rgba(11, 8, 16, 0.97) 0%, rgba(11, 8, 16, 0.93) 44%, rgba(11, 8, 16, 0.3) 70%, rgba(11, 8, 16, 0.5) 100%),
+    linear-gradient(180deg, rgba(11, 8, 16, 0.25) 0%, rgba(11, 8, 16, 0.12) 55%, rgba(11, 8, 16, 0.8) 100%);
+}
+.cutscene-arte.arte-vazio    { background: radial-gradient(120% 90% at 50% 40%, #171522 0%, #0e0c15 60%, #0b0810 100%); }
+.cutscene-arte.arte-vazio::after    { content: "◌"; }
+.cutscene-arte.arte-vila     { background: radial-gradient(120% 90% at 35% 25%, #2d3320 0%, #15180f 60%, #0b0810 100%); }
+.cutscene-arte.arte-vila::after     { content: "🏘"; }
+.cutscene-arte.arte-bosque   { background: radial-gradient(120% 90% at 40% 20%, #1d3524 0%, #101a12 60%, #0b0810 100%); }
+.cutscene-arte.arte-bosque::after   { content: "🌲"; }
+.cutscene-arte.arte-arvore   { background: radial-gradient(120% 90% at 50% 30%, #24401f 0%, #121c0f 60%, #0b0810 100%); }
+.cutscene-arte.arte-arvore::after   { content: "🌳"; }
+.cutscene-arte.arte-gelo     { background: radial-gradient(120% 90% at 45% 20%, #1e3446 0%, #101a24 60%, #0b0810 100%); }
+.cutscene-arte.arte-gelo::after     { content: "❄"; }
+.cutscene-arte.arte-vento    { background: radial-gradient(120% 90% at 55% 25%, #2a3a44 0%, #141d22 60%, #0b0810 100%); }
+.cutscene-arte.arte-vento::after    { content: "🜁"; }
+.cutscene-arte.arte-mare     { background: radial-gradient(120% 90% at 40% 30%, #16394a 0%, #0d1d26 60%, #0b0810 100%); }
+.cutscene-arte.arte-mare::after     { content: "🌊"; }
+.cutscene-arte.arte-regiao   { background: radial-gradient(120% 90% at 50% 25%, #2b2a3c 0%, #16151f 60%, #0b0810 100%); }
+.cutscene-arte.arte-regiao::after   { content: "🗺"; }
+.cutscene-arte.arte-escolha  { background: radial-gradient(120% 90% at 50% 20%, #4a3a1c 0%, #1e1710 60%, #0b0810 100%); }
+.cutscene-arte.arte-escolha::after  { content: "⚖"; }
+
+/* --- Frente ------------------------------------------------------------- */
+.cutscene-frente {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;
+  padding: clamp(14px, 3vw, 28px);
+  gap: clamp(10px, 2vh, 20px);
+}
+
+.cutscene-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+.cutscene-titulo {
+  font-size: clamp(0.72rem, 1.6vw, 0.84rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--hda-gold, #f5a524);
+  opacity: 0.85;
+}
+.cutscene-pular {
+  background: transparent;
+  border: 1px solid rgba(241, 233, 216, 0.22);
+  color: rgba(241, 233, 216, 0.72);
+  font-size: 0.8rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.cutscene-pular:hover { border-color: rgba(245, 165, 36, 0.6); color: var(--hda-gold, #f5a524); }
+
+/* O corpo cresce e centra o texto verticalmente: a cena respira, em vez de
+   o texto ficar colado no topo numa tela de 1440x900. */
+.cutscene-corpo {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(8px, 1.6vh, 16px);
+  overflow-y: auto;
+  cursor: pointer;
+}
+
+.cutscene-epigrafe {
+  font-style: italic;
+  color: var(--hda-muted, #c8b89a);
+  opacity: 0.75;
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  border-left: 2px solid rgba(245, 165, 36, 0.45);
+  padding-left: 14px;
+  margin: 0;
+}
+.cutscene-subtitulo {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  line-height: 1.15;
+  color: var(--hda-text, #f1e9d8);
+  letter-spacing: 0.01em;
+}
+
+.cutscene-texto { display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 14px); }
+
+.cutscene-p {
+  margin: 0;
+  font-size: clamp(1rem, 2.3vw, 1.2rem);
+  line-height: 1.62;
+  color: #efe6d4;
+  max-width: 62ch;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 420ms ease, transform 420ms ease;
+  text-wrap: pretty;
+}
+.cutscene-p.visivel { opacity: 1; transform: none; }
+
+/* O ECO: o que a escolha mudou no mundo, uma frase por linha. É a peça que
+   transforma uma consequência existente no código numa consequência sentida
+   pelo jogador — por isso tem destaque próprio (borda dourada à esquerda) e
+   não é só mais um parágrafo. */
+.cutscene-eco {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 12px 0 12px 16px;
+  border-left: 2px solid rgba(245, 165, 36, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 62ch;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 460ms ease 160ms, transform 460ms ease 160ms;
+}
+.cutscene-eco.visivel { opacity: 1; transform: none; }
+.cutscene-eco li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: clamp(0.9rem, 1.9vw, 1rem);
+  line-height: 1.45;
+  color: #e6dcc6;
+}
+.cutscene-eco-icone { flex: 0 0 1.2em; text-align: center; color: var(--hda-gold, #f5a524); }
+
+/* --- Escolha ------------------------------------------------------------ */
+.cutscene-opcoes { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; max-width: 62ch; }
+.cutscene-opcao {
+  text-align: left;
+  background: rgba(32, 24, 17, 0.72);
+  border: 1px solid var(--hda-line, #4a3a26);
+  color: var(--hda-text, #f1e9d8);
+  padding: 14px 18px;
+  border-radius: var(--hda-radius, 6px);
+  font-size: clamp(0.95rem, 2.1vw, 1.08rem);
+  line-height: 1.45;
+  cursor: pointer;
+  min-height: 48px;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.cutscene-opcao:hover {
+  border-color: var(--hda-gold, #f5a524);
+  background: rgba(58, 44, 26, 0.85);
+  transform: translateX(3px);
+}
+
+/* --- Rodapé ------------------------------------------------------------- */
+.cutscene-rodape {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.cutscene-pontos { display: flex; gap: 7px; }
+.cutscene-pontos.hidden { display: none; }
+.cutscene-pontos i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(241, 233, 216, 0.22);
+  transition: background 260ms ease, transform 260ms ease;
+}
+.cutscene-pontos i.ativo { background: var(--hda-gold, #f5a524); transform: scale(1.15); }
+.cutscene-avancar { min-height: 46px; padding: 0 28px; }
+.cutscene-avancar.hidden { display: none; }
+
+/* --- Celular ------------------------------------------------------------ */
+@media (max-width: 719px) {
+  .cutscene-frente { padding: 14px 16px; gap: 12px; }
+  .cutscene-corpo { justify-content: flex-start; padding-top: 6px; }
+  .cutscene-arte::after { font-size: 220px; right: -6%; opacity: 0.05; }
+  .cutscene-arte.arte-retrato.com-imagem { background-position: center 6%; background-size: auto 40%; }
+  .cutscene-arte.arte-retrato.com-imagem::before {
+    background: linear-gradient(180deg, rgba(11, 8, 16, 0.3) 0%, rgba(11, 8, 16, 0.92) 42%, rgba(11, 8, 16, 0.99) 100%);
+  }
+  /* Com o retrato ocupando o topo, o texto desce para não escrever em cima
+     do rosto — é o único painel que precisa disso. */
+  .cutscene:has(.arte-retrato.com-imagem) .cutscene-corpo { justify-content: flex-end; padding-bottom: 4px; }
+  .cutscene-avancar { flex: 1; }
+  .cutscene-rodape { gap: 10px; }
+}
+
+/* Telas baixas (notebook 768p com barra do navegador): reduz o respiro
+   vertical antes de deixar o texto encolher. */
+@media (max-height: 680px) {
+  .cutscene-frente { gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+  .cutscene-p { line-height: 1.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cutscene, .cutscene-p, .cutscene-eco, .cutscene-arte, .cutscene-opcao { transition: none !important; }
+  .cutscene-p { transform: none; }
+}

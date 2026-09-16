@@ -1,0 +1,122 @@
+/* PAINEL "COMO VOCÊ ESTÁ".
+ *
+ * A tela reúne sete sistemas que antes eram invisíveis, então a hierarquia
+ * visual tem de deixar claro, num relance, o que é bom, o que é ruim e o que
+ * está a um passo — daí o `tom` em cada item, que é a única cor da tela.
+ */
+
+.estado-secao { margin-bottom: 22px; }
+.estado-secao:last-child { margin-bottom: 4px; }
+
+.estado-titulo {
+  margin: 0 0 3px;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hda-gold, #f5a524);
+}
+.estado-desc { margin: 0 0 10px; font-size: 0.8rem; color: var(--hda-muted, #c8b89a); opacity: 0.85; line-height: 1.45; }
+.estado-rotulo {
+  margin: 14px 0 6px; font-size: 0.68rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--hda-muted, #c8b89a); opacity: 0.75;
+}
+
+/* --- Os números --- */
+.estado-numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.estado-ficha {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 10px 12px;
+  background: rgba(43, 33, 24, 0.55);
+  border: 1px solid var(--hud-borda, #4a3a26);
+  border-radius: 6px;
+}
+.estado-ficha-rot { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--hda-muted, #c8b89a); }
+.estado-ficha-val { font-size: 1.32rem; line-height: 1.15; color: var(--hda-text, #f1e9d8); font-variant-numeric: tabular-nums; }
+.estado-ficha-sub { font-size: 0.7rem; color: #8fc47a; }
+
+/* --- Sub-status por item --- */
+.estado-subs { display: flex; flex-direction: column; gap: 6px; }
+.estado-sub-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.estado-sub-item { font-size: 0.82rem; color: var(--hda-text, #f1e9d8); min-width: 9em; }
+.estado-sub-chip {
+  display: inline-flex; padding: 2px 9px;
+  border: 1px solid #c8b89a; border-radius: 999px;
+  font-size: 0.75rem; color: #f1e9d8;
+  background: rgba(43, 33, 24, 0.6);
+}
+
+/* --- Listas --- */
+.estado-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.estado-item {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 9px 12px;
+  background: rgba(43, 33, 24, 0.42);
+  border-left: 3px solid var(--hud-borda, #4a3a26);
+  border-radius: 0 5px 5px 0;
+  font-size: 0.85rem; line-height: 1.45;
+  color: #e4dac6;
+}
+.estado-item-icone { flex: 0 0 1.3em; text-align: center; }
+/* O tom é a única cor da tela, e é o que responde "isso é bom ou ruim?" sem
+   o jogador precisar ler a frase inteira. */
+.estado-item.tom-bom { border-left-color: #6fc47a; }
+.estado-item.tom-ruim { border-left-color: #c96b6b; }
+.estado-item.tom-aviso { border-left-color: #e0b24a; }
+.estado-item.tom-quase { border-left-color: var(--hda-gold, #f5a524); background: rgba(245, 165, 36, 0.1); }
+.estado-item.tom-neutro { border-left-color: #6a7a8a; }
+
+.estado-vazio { margin: 0; font-size: 0.83rem; font-style: italic; color: var(--hda-muted, #c8b89a); opacity: 0.7; }
+
+@media (max-width: 719px) {
+  .estado-numeros { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; }
+  .estado-ficha { padding: 8px 10px; }
+  .estado-ficha-val { font-size: 1.15rem; }
+  .estado-sub-item { min-width: 100%; }
+  .estado-item { font-size: 0.82rem; padding: 8px 10px; }
+}
+
+/* SELO DE EVENTO REGIONAL NO HUD.
+ *
+ * Mora na coluna direita da faixa de status, debaixo do clima, e só existe
+ * quando a zona em que o jogador está tem evento em curso. É a permanência
+ * que faltava: o `aviso` do evento aparecia UMA vez, num `mostrarMensagem`
+ * de 6 segundos, e depois o evento continuava valendo por horas — lojas mais
+ * caras, caça migrada — sem nada na tela que o ligasse à causa.
+ */
+.hud-evento {
+  margin-top: 3px;
+  padding: 2px 8px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #c07a2a;
+  border-radius: 999px;
+  background: rgba(120, 66, 18, 0.55);
+  color: #f3cf9a;
+  font-size: 0.68rem;
+  cursor: pointer;
+  animation: hud-evento-surge 400ms ease-out;
+}
+.hud-evento:hover { background: rgba(150, 84, 24, 0.75); color: #fde7c2; }
+
+@keyframes hud-evento-surge {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .hud-evento { animation: none; } }
+
+@media (max-width: 719px) {
+  .hud-evento { max-width: 128px; font-size: 0.6rem; padding: 1px 6px; }
+}
+
+/* Os efeitos traduzidos do evento, dentro do painel: mesma linha, peso menor,
+   porque são a consequência e não o título. */
+.estado-item em { font-style: normal; display: block; margin-top: 3px; font-size: 0.78em; color: #c8b89a; opacity: 0.9; }
+.estado-item strong { font-weight: normal; color: #f5d79a; }

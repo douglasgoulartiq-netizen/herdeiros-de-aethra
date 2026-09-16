@@ -16,6 +16,9 @@
 import { garantirEstadoCaminho } from "./TalentSystem.js";
 import { garantirConfigAutoBatalha } from "./AutoBattleAI.js";
 import { estadoGachaInicial } from "./GachaSystem.js";
+import { SEMENTE_LEGADO } from "./WorldSeed.js";
+import { zonaNoPonto, OVERWORLD_SPAWN, OVERWORLD_W, OVERWORLD_H } from "../data/worldMap.js";
+import { macroDaZona } from "../data/worldHierarchy.js";
 
 const SAVE_KEY = "rpg_pt_save_v1";
 
@@ -24,7 +27,32 @@ const SAVE_KEY = "rpg_pt_save_v1";
 // quebrar. Cada migração vira uma função NOVA no array MIGRACOES abaixo,
 // nunca uma edição numa já existente — o histórico de migrações fica
 // preservado e legível, igual um changelog.
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 7;
+
+// Versão do LAYOUT do mundo. Diferente de saveVersion: esta sobe quando o
+// mapa muda de forma a ponto de uma coordenada antiga não querer dizer mais
+// nada. A ETAPA 2 trocou um mundo de 106x72 com 22 zonas retangulares por um
+// de 224x176 com 48 territórios orgânicos — a posição (30, 50) existia nos
+// dois e apontava para lugares sem nenhuma relação.
+export const LAYOUT_MUNDO = 3;
+
+// Mapas que existem hoje. Um `mapaAtual` fora desta lista num save antigo
+// significa mapa removido do jogo: o jogador volta pra superfície em vez de
+// ficar preso num mapa que não é mais construído.
+const MAPAS_CONHECIDOS = new Set(["overworld", "dungeon1", "dungeon2"]);
+
+// Estado de repouso das variáveis regionais da ETAPA 3. "Repouso" é o mundo
+// antes de o jogador mexer nele: a vila comendo, o recife vivo, o Coração do
+// Vale frio, as passarelas de Thalgor inteiras. Um save que não tem essas chaves não é um
+// save de um mundo em crise — é um save de antes de a crise existir.
+export const WORLD_STATE_REGIONAL_PADRAO = {
+  vila_aethra_estado: "provida",
+  recife_estado: "vivo",
+  coracao_petrificado_estado: "frio",
+  thalgor_passarelas: "inteiras",
+  titas_acampamento: "normal",
+  maris_doca: "normal",
+};
 
 // MIGRACOES[i] leva um save da versão i pra i+1. `salvo.saveVersion`
 // ausente conta como versão 0 (o formato mais antigo que existe, de antes
@@ -58,6 +86,165 @@ const MIGRACOES = [
     garantirEstadoCaminho(p);
     garantirConfigAutoBatalha(p);
     ((p.gacha && p.gacha.personagensObtidos) || []).forEach((convocado) => garantirEstadoCaminho(convocado));
+  },
+  // v2 -> v3: semente do mundo (ETAPA 1, task #34). Até aqui o mapa era
+  // sorteado do zero a cada carregamento — o save guardava a posição do
+  // jogador num mundo que nunca mais voltaria a existir. Agora o mundo é
+  // função da semente, e um save antigo não tem nenhuma.
+  //
+  // Todos eles recebem a MESMA semente, SEMENTE_LEGADO, e isso é
+  // intencional: qualquer valor serve pra tornar o mundo estável dali em
+  // diante, mas um valor único e fixo faz com que dois jogadores antigos
+  // conversando sobre "a floresta com o lago na diagonal" estejam falando do
+  // mesmo lugar. Este número não pode mudar nunca mais — é o mundo dessas
+  // pessoas.
+  (salvo) => {
+    if (!salvo.mundo) salvo.mundo = {};
+    if (!salvo.mundo.semente) salvo.mundo.semente = SEMENTE_LEGADO;
+  },
+  // v3 -> v4: a nova geografia (ETAPA 1, task #37). O save passa a carregar
+  // a posição do jogador na HIERARQUIA — em que mapa, em que zona, em que
+  // macro-região —, além de onde ele já esteve, e passa a ser conferido
+  // contra o mundo que existe hoje em vez de acreditar no que está escrito.
+  //
+  // As três consertadas que valem por si só, mesmo pra quem nunca vai ver a
+  // ETAPA 2:
+  //
+  //   • mapa que não existe mais → volta pra superfície, em vez de o jogo
+  //     tentar construir uma grade nula e travar na tela preta;
+  //   • posição fora dos limites do mapa → volta pro spawn. Antes de haver
+  //     onde conferir isso, um save com coordenada estragada empurrava o
+  //     erro pra dentro do render;
+  //   • zona salva que não bate com a posição salva → a POSIÇÃO ganha. Ela
+  //     é o dado primário; a zona é derivada dela, e derivado desatualizado
+  //     se recalcula em vez de mandar no jogo.
+  (salvo) => {
+    const m = salvo.mundo || (salvo.mundo = {});
+    if (!MAPAS_CONHECIDOS.has(m.mapaAtual)) m.mapaAtual = "overworld";
+    if (!m.player || !Number.isFinite(m.player.x) || !Number.isFinite(m.player.y)) {
+      m.player = { ...OVERWORLD_SPAWN, dir: "baixo", frame: 0, ultimoMovimento: 0 };
+    }
+    // Fora dos limites só dá pra conferir no mundo aberto: o tamanho das
+    // masmorras é conhecido, mas quem cuida de jogador dentro de parede lá é
+    // reposicionarSePresoEmParede(), com a grade já construída em mãos.
+    if (m.mapaAtual === "overworld") {
+      const forax = m.player.x < 0 || m.player.x >= OVERWORLD_W;
+      const foray = m.player.y < 0 || m.player.y >= OVERWORLD_H;
+      if (forax || foray) { m.player.x = OVERWORLD_SPAWN.x; m.player.y = OVERWORLD_SPAWN.y; }
+      const zona = zonaNoPonto(m.player.x, m.player.y);
+      // Sem zona no ponto = o jogador está no vão sem região do canto
+      // inferior direito (ver AREA_SEM_ZONA em worldHierarchy.js). Não dá
+      // pra deixar: sem zona não há pool de monstros, nem clima, nem
+      // descanso. Volta pro spawn.
+      if (!zona) { m.player.x = OVERWORLD_SPAWN.x; m.player.y = OVERWORLD_SPAWN.y; }
+      const zonaFinal = zonaNoPonto(m.player.x, m.player.y);
+      m.zonaAtualId = zonaFinal ? zonaFinal.id : "vila";
+      const macro = macroDaZona(m.zonaAtualId);
+      m.macroAtualId = macro ? macro.id : null;
+    } else {
+      if (!m.zonaAtualId) m.zonaAtualId = "vila";
+      if (m.macroAtualId === undefined) {
+        const macro = macroDaZona(m.zonaAtualId);
+        m.macroAtualId = macro ? macro.id : null;
+      }
+    }
+    if (!Array.isArray(m.chests)) m.chests = [];
+    if (!Array.isArray(m.nodes)) m.nodes = [];
+
+    // Descoberta de macro-região derivada das zonas que o jogador já pisou —
+    // nada é concedido de graça, e quem já andou meio mundo não recomeça o
+    // Atlas zerado.
+    const p = salvo.personagem;
+    if (!Array.isArray(p.macrosDescobertas)) p.macrosDescobertas = [];
+    const visitadas = Array.isArray(p.biomaVisitados) ? p.biomaVisitados : [];
+    [...visitadas, m.zonaAtualId, "vila"].forEach((zid) => {
+      const macro = macroDaZona(zid);
+      if (macro && !p.macrosDescobertas.includes(macro.id)) p.macrosDescobertas.push(macro.id);
+    });
+  },
+  // v4 -> v5: o mundo da ETAPA 2.
+  //
+  // Esta é a migração mais delicada da série, porque é a única em que a
+  // COORDENADA SALVA DEIXA DE FAZER SENTIDO. O mapa era 106x72 com 22 zonas
+  // retangulares; virou 224x176 com 48 territórios orgânicos. A posição
+  // (30, 50) existe nos dois mundos e aponta para lugares que não têm nada a
+  // ver um com o outro — pior, no mundo novo ela pode ser o fundo de um lago.
+  //
+  // Não existe conversão honesta entre os dois. O que existe é uma escolha, e
+  // a escolha é: quem estava no mundo antigo VOLTA PARA CASA. Nível,
+  // inventário, time, talentos, reputação e missões são do personagem e
+  // atravessam intactos. O que se perde é onde ele tinha parado, que é a
+  // menor coisa que dá pra perder aqui.
+  //
+  // Os baús também são refeitos: os ids antigos (bau1..bau23) não existem no
+  // mundo novo, onde cada um é `bau_<zona>_<n>`. Manter a lista velha faria o
+  // jogo desenhar 23 baús em coordenadas do mapa antigo, vários dentro de
+  // pedra. Zerada, ela é repovoada pelo gerador no primeiro boot.
+  (salvo) => {
+    const m = salvo.mundo || (salvo.mundo = {});
+    const p = salvo.personagem;
+    if (m.layoutMundo !== LAYOUT_MUNDO) {
+      m.layoutMundo = LAYOUT_MUNDO;
+      m.mapaAtual = "overworld";
+      m.player = { ...OVERWORLD_SPAWN, dir: "baixo", frame: 0, ultimoMovimento: 0 };
+      m.zonaAtualId = "vila";
+      const macroInicial = macroDaZona("vila");
+      m.macroAtualId = macroInicial ? macroInicial.id : null;
+      m.chests = [];
+      m.nodes = [];
+      m.chestsDungeon = [];
+      m.chestsDungeon2 = [];
+      // Marca pro jogo poder AVISAR, em vez de o jogador ser teleportado pra
+      // vila sem explicação e achar que perdeu o progresso.
+      m.mundoRefeito = true;
+    }
+    // Névoa de guerra (item 26). Um save antigo não tem nenhuma, e as zonas
+    // que ele já visitou entram como DESCOBERTAS — quem andou meio mundo não
+    // recomeça com o mapa apagado. Nada além disso é revelado.
+    if (!p.nevoa || typeof p.nevoa !== "object") p.nevoa = {};
+    if (!p.nevoa.zonas) p.nevoa.zonas = {};
+    if (!p.nevoa.locais) p.nevoa.locais = {};
+    const jaVistas = Array.isArray(p.biomaVisitados) ? p.biomaVisitados : [];
+    [...jaVistas, "vila"].forEach((zid) => {
+      if (!p.nevoa.zonas[zid]) p.nevoa.zonas[zid] = "descoberto";
+    });
+  },
+  // v5 -> v6: o mundo habitado da ETAPA 3.
+  //
+  // Ao contrário da v5, esta migração NÃO mexe em coordenada nenhuma. A
+  // geografia da ETAPA 2 continua idêntica — as regiões, zonas, cidades,
+  // estradas, POIs, masmorras e chunks são os mesmos, e um save da v5 abre no
+  // exato lugar onde parou. O que muda é que agora existe gente, bicho com
+  // horário e quest regional, e o save precisa de três gavetas novas:
+  //
+  //   personagem.npcs             memória por NPC (conhecido, conversas,
+  //                               favor, e o que aquele NPC guarda de você)
+  //   personagem.questsRegionais  estado de cada passo das 17 linhas
+  //   personagem.eventosRegionais eventos ativos e os já resolvidos
+  //
+  // Todas as três nascem no estado de quem nunca conheceu ninguém, e é isso
+  // que se quer: um save antigo não deve começar com relação nenhuma
+  // inventada. A única exceção é o World State regional, que recebe os
+  // valores de repouso das regiões (vila provida, recife vivo, Coração frio)
+  // — sem eles, as falas condicionais dos NPCs cairiam todas no estado
+  // "base" mesmo em regiões cuja história já deveria estar em repouso.
+  (salvo) => {
+    const p = salvo.personagem;
+    if (!p.npcs || typeof p.npcs !== "object") p.npcs = {};
+    if (!p.questsRegionais || typeof p.questsRegionais !== "object") p.questsRegionais = {};
+    if (!p.eventosRegionais || typeof p.eventosRegionais !== "object") {
+      p.eventosRegionais = { ativos: [], encerrados: [] };
+    }
+    if (!Array.isArray(p.eventosRegionais.ativos)) p.eventosRegionais.ativos = [];
+    if (!Array.isArray(p.eventosRegionais.encerrados)) p.eventosRegionais.encerrados = [];
+
+    const m = salvo.mundo || (salvo.mundo = {});
+    if (!m.worldStateRegional || typeof m.worldStateRegional !== "object") {
+      m.worldStateRegional = {};
+    }
+    Object.entries(WORLD_STATE_REGIONAL_PADRAO).forEach(([chave, valor]) => {
+      if (m.worldStateRegional[chave] === undefined) m.worldStateRegional[chave] = valor;
+    });
   },
 ];
 

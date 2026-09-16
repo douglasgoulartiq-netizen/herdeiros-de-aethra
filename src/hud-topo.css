@@ -1,0 +1,365 @@
+/* =========================================================================
+   HUD DO MUNDO — FAIXA NO TOPO + TRILHO DE 4 ABAS
+   =========================================================================
+   Carregada por último (ver index.html). Reescreve só o POSICIONAMENTO do
+   HUD; nenhuma regra de jogo, nenhuma tela, nenhum id novo obrigatório.
+
+   O QUE ESTAVA ERRADO
+   -------------------
+   O #hud era `display:flex; align-items:center` esticado sobre a tela, com
+   cinco filhos soltos: barras, identidade, clima, "salvo" e a coluna de
+   botões. Dois efeitos disso, medidos na tela de 1440x900:
+
+     • a coluna tinha 17 botões = 760px de altura. Como o flex centrava os
+       filhos VERTICALMENTE contra o filho mais alto, a caixa de identidade
+       era desenhada em (400, 360) — o meio da tela, em cima do personagem.
+       A "barra de status central" não estava centralizada por escolha: ela
+       era o efeito colateral da altura da torre de botões.
+
+     • a torre ocupava 197px da direita. O mundo aparecia inteiro, mas um
+       quinto dele ficava atrás de um menu permanentemente aberto, e o
+       personagem — que o Renderer desenha no centro da JANELA — nascia
+       visualmente à esquerda do centro da área realmente visível.
+
+   O QUE ELA FAZ
+   -------------
+   Duas peças, cada uma com um trabalho:
+
+     ┌──────────────────────────────────────────────┐
+     │ FAIXA: quem você é · como está · o que tem   │ 52px, topo
+     ├──────────────────────────────────────────────┤
+     │                                         ┌──┐ │
+     │              o mundo, inteiro           │AB│ │ trilho: 4 abas
+     │                                         │AS│ │ + Automático
+     │                                         └──┘ │
+     └──────────────────────────────────────────────┘
+
+   Fechado, o menu custa 68px de largura em vez de 197. Aberto, ele é um
+   painel que some no próximo clique. O centro visual do mundo volta a ser o
+   centro da janela, que é onde o Renderer desenha o personagem.
+   ========================================================================= */
+
+:root {
+  --hud-faixa-alt: 52px;
+  --hud-trilho-larg: 68px;
+  --hud-borda: #4a3a26;
+  --hud-ouro: #f5a524;
+  --hud-texto: #f1e9d8;
+  --hud-apagado: #c8b89a;
+  --hud-fundo: rgba(22, 17, 13, 0.92);
+}
+
+/* O contêiner cobre a tela para poder ancorar faixa no topo e trilho na
+   direita, mas não intercepta nada: só as duas peças recebem o ponteiro.
+   Sem isto, metade da tela vira uma parede invisível entre o clique e o
+   mundo — foi o que aconteceu no celular antes da tira compacta. */
+#hud {
+  position: absolute; inset: 0; z-index: 10;
+  display: block; padding: 0;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------------------
+   1. A FAIXA
+   ------------------------------------------------------------------------- */
+#hud-topo {
+  pointer-events: auto;
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: clamp(10px, 2vw, 28px);
+  min-height: var(--hud-faixa-alt);
+  padding: 6px clamp(10px, 1.6vw, 20px);
+  padding-top: calc(6px + var(--hda-safe-top, 0px));
+  padding-left: calc(clamp(10px, 1.6vw, 20px) + var(--hda-safe-left, 0px));
+  padding-right: calc(clamp(10px, 1.6vw, 20px) + var(--hda-safe-right, 0px));
+  color: var(--hud-texto);
+  /* Fundo sólido em cima e dissolvido embaixo: a faixa se apoia no mundo em
+     vez de cortar um retângulo dentro dele. A borda dourada de 1px é o que
+     separa faixa de mundo quando o cenário embaixo é claro (areia, pedra). */
+  background:
+    linear-gradient(180deg, rgba(18, 14, 11, 0.95) 0%, rgba(18, 14, 11, 0.86) 62%, rgba(18, 14, 11, 0) 100%);
+  border-bottom: 1px solid rgba(245, 165, 36, 0.22);
+  backdrop-filter: blur(2px);
+}
+
+/* Identidade — a única coisa da faixa que se lê como frase. */
+#hud-info {
+  pointer-events: auto;
+  flex: 0 1 auto; min-width: 0;
+  background: none; border: 0; padding: 0; border-radius: 0;
+  font-size: 0.86em; text-align: left;
+}
+#hud-info > span { display: block; }
+#hud-info .hud-linha-identidade {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  line-height: 1.15;
+}
+#hud-info .hud-linha-identidade b {
+  color: var(--hud-ouro); font-size: 1.04em; letter-spacing: 0.2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch;
+}
+/* Nível e classe viram fichas: o olho separa "Nv. 7" de "Guerreiro" sem
+   precisar de hífen, travessão ou vírgula no meio do nome. */
+#hud-info .hud-nivel,
+#hud-info .hud-classe {
+  font-size: 0.78em; line-height: 1;
+  padding: 3px 7px; border-radius: 999px;
+  border: 1px solid var(--hud-borda); background: rgba(58, 44, 30, 0.75);
+  color: var(--hud-apagado); white-space: nowrap;
+}
+#hud-info .hud-nivel { color: var(--hud-ouro); border-color: rgba(245, 165, 36, 0.4); }
+/* "Faltam N XP para o nível X" sai da faixa: o número ao lado da barra de XP
+   já diz isso, a dois centímetros de distância. A frase inteira continua
+   disponível como dica ao passar o mouse na barra (ver atualizarHUD). O
+   elemento permanece no HTML porque outras telas podem querer lê-lo. */
+#hud-info .hud-linha-xp { display: none; }
+
+/* As três barras, lado a lado e no centro da faixa. */
+#hud-bars {
+  pointer-events: auto;
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-direction: row; align-items: center;
+  justify-content: center; gap: clamp(8px, 1.4vw, 18px);
+  background: none; border: 0; padding: 0; border-radius: 0;
+}
+#hud-bars .barra-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
+#hud-bars .barra-label {
+  width: auto; font-size: 0.64em; letter-spacing: 0.08em;
+  color: var(--hud-apagado); font-weight: bold;
+}
+#hud-bars .barra {
+  width: clamp(64px, 9vw, 132px); height: 11px;
+  background: #1b1410; border: 1px solid #5a4327; border-radius: 3px;
+  /* Brilho interno no topo: dá volume à barra sem custar altura, que é o
+     recurso escasso numa faixa de 52px. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+#hud-bars .barra-fill { border-radius: 2px; }
+#hud-bars .barra-num {
+  font-size: 0.68em; color: var(--hud-apagado);
+  font-variant-numeric: tabular-nums; min-width: 6ch;
+}
+
+/* Bolsa, clima e "salvo" — o canto do que você TEM. */
+#hud-direita {
+  pointer-events: auto;
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+  /* Espaço para o trilho não encostar nas fichas. */
+  margin-right: calc(var(--hud-trilho-larg) + 8px);
+}
+#hud-bolsa { display: flex; align-items: center; gap: 6px; }
+.hud-ficha {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.78em; line-height: 1;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--hud-borda); background: rgba(36, 27, 20, 0.85);
+  color: var(--hud-texto); font-variant-numeric: tabular-nums;
+}
+#hud-clima {
+  margin: 0; font-size: 0.76em; color: var(--hud-apagado);
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--hud-borda); background: rgba(36, 27, 20, 0.7);
+  white-space: nowrap;
+}
+#hud-clima:empty { display: none; }
+#hud-salvo {
+  margin: 0; font-size: 0.74em; color: #8fd14f;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgba(143, 209, 79, 0.45); background: rgba(30, 48, 24, 0.8);
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------
+   2. O TRILHO
+   ------------------------------------------------------------------------- */
+#hud-buttons.hud-trilho {
+  pointer-events: none;
+  position: absolute; top: 50%; right: 0; transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: flex-end;
+  /* Anula o `max-height: calc(100dvh - 24px); overflow-y: auto` da seção 14
+     do hda-ui.css: com quatro abas não há o que rolar, e um contêiner
+     rolável aqui roubava a roda do mouse do mundo. */
+  max-height: none; overflow: visible;
+  padding-right: calc(8px + var(--hda-safe-right, 0px));
+  gap: 8px;
+}
+
+.hud-abas {
+  pointer-events: auto;
+  display: flex; flex-direction: column; gap: 6px;
+  width: var(--hud-trilho-larg);
+  padding: 8px 6px;
+  background: var(--hud-fundo);
+  border: 1px solid var(--hud-borda);
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -4px 0 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Cada aba: ícone grande em cima, rótulo pequeno embaixo. O rótulo fica —
+   um trilho só de ícones obriga a decorar seis desenhos, e decorar por
+   tentativa e erro é exatamente o que a reforma quer acabar. */
+#hud-buttons.hud-trilho .hud-abas button {
+  margin: 0; padding: 7px 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: transparent; border: 1px solid transparent; border-radius: 8px;
+  color: var(--hud-apagado); font-size: 1em; line-height: 1;
+  cursor: pointer; transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+#hud-buttons.hud-trilho .hud-abas button:hover {
+  background: rgba(245, 165, 36, 0.09); color: var(--hud-texto);
+  border-color: rgba(245, 165, 36, 0.28); transform: none;
+}
+#hud-buttons.hud-trilho .hud-abas button.ativa {
+  background: rgba(245, 165, 36, 0.16); color: var(--hud-ouro);
+  border-color: rgba(245, 165, 36, 0.55);
+}
+#hud-buttons.hud-trilho .hud-abas button:focus-visible {
+  outline: 2px solid var(--hud-ouro); outline-offset: 1px;
+}
+.hud-aba-icone { font-size: 1.32em; line-height: 1; }
+.hud-aba-rotulo {
+  font-size: 0.56em; letter-spacing: 0.04em; text-transform: uppercase;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* O Automático é separado das abas por uma linha: ele não abre menu, ele
+   liga e desliga um estado. A regra de `.ativo` (verde pulsante) continua
+   valendo, definida em style.css sobre o mesmo #btn-auto. */
+#hud-buttons.hud-trilho .hud-abas .hud-aba-auto {
+  margin-top: 4px; padding-top: 9px;
+  border-top: 1px solid var(--hud-borda); border-radius: 8px;
+}
+
+/* O painel aberto. Entra à esquerda das abas, na altura do trilho. */
+.hud-paineis { pointer-events: none; display: flex; align-items: center; }
+.hud-painel {
+  pointer-events: auto;
+  width: min(268px, 46vw);
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 10px;
+  background: var(--hud-fundo);
+  border: 1px solid var(--hud-borda); border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  animation: hud-painel-entra 0.13s ease-out;
+}
+@keyframes hud-painel-entra {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-painel { animation: none; }
+}
+.hud-painel-rotulo {
+  font-size: 0.64em; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #8a7a5c; padding: 0 2px 6px; margin-bottom: 4px;
+  border-bottom: 1px solid #3a2f22;
+}
+#hud-buttons.hud-trilho .hud-painel button {
+  margin: 0; padding: 8px 10px;
+  display: flex; align-items: center; gap: 9px;
+  text-align: left; font-size: 0.86em; line-height: 1.2;
+  background: transparent; border: 1px solid transparent; border-radius: 7px;
+  color: var(--hud-texto); cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+#hud-buttons.hud-trilho .hud-painel button:hover {
+  background: rgba(245, 165, 36, 0.11); border-color: rgba(245, 165, 36, 0.3);
+  transform: none;
+}
+#hud-buttons.hud-trilho .hud-painel button:focus-visible {
+  outline: 2px solid var(--hud-ouro); outline-offset: -1px;
+}
+.hud-acao-icone { font-size: 1.05em; width: 1.4em; text-align: center; flex: 0 0 auto; }
+.hud-acao-rotulo { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A tecla de atalho aparece onde ela é útil: ao lado do que ela faz. Antes
+   vinha entre parênteses no meio do rótulo, competindo com o nome da ação. */
+#hud-buttons.hud-trilho .hud-painel kbd {
+  flex: 0 0 auto; font: inherit; font-size: 0.78em;
+  padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--hud-borda); background: #1b1410; color: #9d8e74;
+}
+
+/* Toque grosso (tablet, laptop com tela sensível): alvos maiores, sem mexer
+   no desktop de mouse. Anula o `padding: 12px 16px` que style.css aplicava a
+   TODO botão dentro de #hud-buttons — numa aba de 68px aquilo estourava. */
+@media (pointer: coarse) {
+  body.touch #hud-buttons.hud-trilho .hud-abas button { padding: 9px 2px; font-size: 1em; }
+  body.touch #hud-buttons.hud-trilho .hud-painel button { padding: 11px 10px; font-size: 0.9em; }
+}
+
+/* Telas baixas (notebook 768px de altura, celular deitado): a faixa encolhe
+   e o "faltam N XP" sai — ele é o único item da faixa que também está a um
+   clique de distância em Habilidades. */
+@media (max-height: 700px) {
+  :root { --hud-faixa-alt: 44px; }
+  #hud-info .hud-linha-xp { display: none; }
+  #hud-bars .barra { height: 9px; }
+}
+
+/* Largura média: o rótulo das abas sai antes do trilho inteiro sair. */
+@media (max-width: 1000px) and (min-width: 720px) {
+  :root { --hud-trilho-larg: 52px; }
+  .hud-aba-rotulo { display: none; }
+  #hud-bars .barra-num { display: none; }
+}
+
+/* -------------------------------------------------------------------------
+   3. CELULAR — a composição que já funcionava, preservada
+   -------------------------------------------------------------------------
+   Aqui embaixo o trilho não existe: quem navega é a barra inferior de hubs
+   (hda-ui.css seção 7). A faixa vira a tira compacta de sempre — duas
+   linhas curtas coladas no topo, o mínimo de mundo tapado. */
+@media (max-width: 719px) {
+  #hud-topo {
+    flex-direction: column; align-items: flex-start; gap: 3px;
+    min-height: 0; padding: calc(4px + var(--hda-safe-top, 0px)) 8px 10px;
+    background: linear-gradient(180deg, rgba(18, 14, 11, 0.9) 0%, rgba(18, 14, 11, 0.72) 55%, rgba(18, 14, 11, 0) 100%);
+    border-bottom: 0; backdrop-filter: none;
+  }
+  #hud-bars { justify-content: flex-start; gap: 8px; width: 100%; order: 1; }
+  #hud-bars .barra { width: min(19vw, 78px); height: 8px; }
+  #hud-bars .barra-num { display: none; }
+  #hud-info { order: 2; font-size: 0.74em; }
+  #hud-info .hud-linha-xp { display: none; }
+  #hud-info .hud-linha-identidade b { max-width: 14ch; }
+  #hud-direita { order: 3; margin-right: 0; gap: 6px; flex-wrap: wrap; }
+  .hud-ficha, #hud-clima, #hud-salvo { font-size: 0.7em; padding: 3px 7px; }
+  /* Ouro e fragmentos ficam no desktop e saem daqui — a decisão é a mesma de
+     antes desta reforma (seção 10 do hda-ui.css): numa tela cheia de 390px,
+     cada linha no topo é mundo que o jogador não vê na direção em que anda, e
+     os dois números estão a um toque em Mochila. Clima e "salvo" ficam:
+     um muda o jogo agora, o outro é confirmação de uma ação que acabou de
+     acontecer. */
+  #hud-bolsa { display: none; }
+  #hud-buttons.hud-trilho { display: none; }
+}
+
+/* O TEXTO DO BOTÃO NÃO PODE SAIR DO TRILHO.
+ *
+ * Visto em jogo: "Automático" escapava do botão para os dois lados, passando
+ * por cima do mundo. `.hud-aba-rotulo` já se protege com ellipsis, mas o
+ * botão do Automático recebe o texto sem esse wrapper — e um botão flex com
+ * largura automática não corta nada por conta própria.
+ *
+ * A regra é defensiva de propósito: vale para qualquer botão do trilho, hoje
+ * e depois, em vez de consertar só o caso que apareceu.
+ */
+#hud-buttons.hud-trilho .hud-abas button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+}
+#hud-buttons.hud-trilho .hud-abas button > * {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Nota: o rótulo do Automático é "Auto" e sempre coube. O "Automático" que
+   aparecia vazando para fora do trilho nas capturas era o TOOLTIP NATIVO do
+   atributo `title`, desenhado pelo navegador fora do documento — nada de CSS
+   o alcança, e ele some sozinho quando o ponteiro sai. Deixo registrado para
+   ninguém perder tempo caçando isso de novo. */

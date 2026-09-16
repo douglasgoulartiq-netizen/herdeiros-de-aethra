@@ -5,6 +5,7 @@
 // o modal-overlay já usado por inventário/missões/forja/etc.
 import { abrirModalBase, fecharModal, mostrarMensagem } from "./GameUI.js";
 import { realizarTeste } from "../systems/SkillCheckSystem.js";
+import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { opcaoDisponivel, aplicarEscolhaEvento, aplicarAchadoEvento, aplicarResultadoTesteExploracao } from "../systems/ExplorationEventSystem.js";
 import { registrarDecisao } from "../systems/WorldStateSystem.js";
 
@@ -40,14 +41,29 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
     const btnTentar = document.createElement("button");
     btnTentar.className = "primario btn-evento-tentar";
     btnTentar.textContent = "Tentar";
-    btnTentar.onclick = () => {
+    btnTentar.onclick = async () => {
+      // O resultado é decidido ANTES da animação: `mostrarRolagemD20` só
+      // encena o que já aconteceu, nunca sorteia. Assim a animação não pode
+      // alterar o jogo, e pular a animação (Acessibilidade → velocidade
+      // instantânea) dá exatamente o mesmo desfecho.
       const resultado = realizarTeste(personagem, dados, evento);
       const r = aplicarResultadoTesteExploracao(personagem, evento, resultado);
-      const rolagemTxt = `[d20: ${resultado.d}${resultado.modAtributo ? ` +${resultado.modAtributo} atributo` : ""}${resultado.proficiente ? ` +${resultado.bonusPericia} perícia` : ""} = ${resultado.total} vs. DC ${resultado.dificuldade}]`;
-      const icone = resultado.sucesso ? "✅" : "❌";
-      mostrarMensagem(`${icone} ${r.texto} ${rolagemTxt}${r.ouroDelta ? ` (+${r.ouroDelta} ouro)` : ""}`, 4500);
-      registrarDecisao(personagem, { icone: evento.icone || "🎲", titulo: evento.titulo, texto: r.texto });
+
+      // Trava o botão: sem isto, clicar duas vezes durante o segundo de
+      // animação rolaria o teste de novo e aplicaria o efeito duas vezes.
+      btnTentar.disabled = true;
       fecharModal();
+
+      const mods = [];
+      if (resultado.modAtributo) mods.push(`${resultado.modAtributo > 0 ? "+" : ""}${resultado.modAtributo} atributo`);
+      if (resultado.proficiente && resultado.bonusPericia) mods.push(`+${resultado.bonusPericia} perícia`);
+      await mostrarRolagemD20(resultado, {
+        titulo: evento.titulo || "Teste de perícia",
+        modificadores: mods,
+      });
+
+      mostrarMensagem(`${resultado.sucesso ? "✅" : "❌"} ${r.texto}${r.ouroDelta ? ` (+${r.ouroDelta} ouro)` : ""}`, 4200);
+      registrarDecisao(personagem, { icone: evento.icone || "🎲", titulo: evento.titulo, texto: r.texto });
       onFim();
     };
     corpo.appendChild(btnTentar);

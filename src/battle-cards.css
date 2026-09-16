@@ -24,6 +24,12 @@
    1. TOKENS
    ========================================================================= */
 #batalha-acoes {
+  /* `justify-content: center` (herdado de style.css) num container que rola
+     empurra o conteúdo excedente para CIMA do topo, onde scrollTop não
+     alcança — o primeiro card ficava inacessível no celular. Centralizar só
+     é seguro com a palavra-chave `safe`, que desiste da centralização quando
+     não cabe. Este é o mesmo bug que afetava `.tela` e o campo da arena. */
+  justify-content: flex-start;
   --carta-larg: 152px;
   --carta-alt: 190px;
   --carta-raio: 10px;
@@ -35,6 +41,12 @@
 
   flex-direction: column;
   align-items: stretch;
+  /* `flex-wrap: wrap` vem de style.css, de quando isto era uma FILEIRA de
+     botões. Numa coluna com altura limitada, "wrap" faz o conteúdo excedente
+     virar uma SEGUNDA COLUNA ao lado — foi assim que a mão inteira apareceu
+     316px à direita da tela no celular. Numa coluna, nada deve embrulhar:
+     quem embrulha é a grade de cards, lá dentro. */
+  flex-wrap: nowrap;
   gap: 8px;
   width: 100%;
   max-width: 980px;
@@ -192,10 +204,15 @@
 .carta-nome {
   font-weight: bold; font-size: 0.86em; line-height: 1.18;
   color: #f1e9d8;
-  /* Nomes longos quebram em duas linhas em vez de estourar o card. */
+  /* Nomes longos quebram em linhas em vez de estourar o card.
+     Eram DUAS linhas, e "Recuar para a Retaguarda" não cabia: virava
+     "Recuar para a…", escondendo justamente o que decide a jogada (para
+     ONDE se recua). Três linhas acomodam o nome mais longo da mão dentro
+     da mesma altura de card. O teste test-cartas-legiveis.mjs mede isto em
+     cada largura e falha se voltar a cortar. */
   overflow-wrap: anywhere; hyphens: auto;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  max-height: 2.4em;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  max-height: 3.6em;
 }
 
 .carta-elemento { min-height: 15px; z-index: 1; }
@@ -234,10 +251,17 @@
 .badge-carta {
   font-size: 0.56em; font-weight: bold; letter-spacing: 0.04em;
   padding: 1px 5px; border-radius: 7px;
-  border: 1px solid transparent; white-space: nowrap;
-  /* Uma badge longa (ex.: nome de reação) nunca pode vazar para fora do
-     card — encurta com reticências em vez de estourar a borda. */
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  border: 1px solid transparent;
+  /* ANTES: `white-space: nowrap` + reticências. Uma badge longa não vazava
+     do card, mas era CORTADA — "💀 PODE MATAR" virava "💀 PODE MAT…" numa
+     carta de 110px. Reticência aqui não é elegância, é informação perdida
+     bem no momento de decidir a jogada.
+     AGORA: o texto quebra em duas linhas dentro do próprio selo. Ocupa uma
+     linha a mais e diz a coisa inteira. A frase por extenso continua na
+     sobreposição de detalhe (.detalhe-selos). */
+  max-width: 100%;
+  white-space: normal; overflow-wrap: anywhere; line-height: 1.25;
+  text-align: center;
 }
 .badge-exec { background: rgba(224, 85, 85, 0.2); border-color: #a33c3c; color: #ffd0d0; }
 .badge-exec-forte { background: rgba(224, 85, 85, 0.42); border-color: #ff6b6b; color: #fff; }
@@ -895,4 +919,645 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
 @media (hover: none) {
   .carta-batalha:hover { transform: none; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45); }
   .carta-batalha.estado-selecionado { transform: translateY(-6px) scale(1.03); }
+}
+
+/* =========================================================================
+   13. COMPOSIÇÃO DA TELA DE BATALHA (itens 32-36, 56-58)
+
+   Desktop e celular usam os MESMOS elementos, em duas composições:
+
+     Desktop (>=720px)          Celular (<720px)
+     ────────────────           ─────────────────
+     contexto (chips)           contexto (chips compactos)
+     retratos do time           retratos compactos
+     campo (arena)              CAMPO — cresce e rola por dentro
+     registro (aberto)          registro recolhido (1 linha)
+     contexto tático            contexto tático (enxuto)
+     mão de cards               MÃO — ancorada embaixo, sempre visível
+
+   A regra que sustenta as duas: a tela é um flex column de altura fixa
+   (100dvh) em que só o CAMPO cresce. Assim a mão de cards nunca é empurrada
+   para fora da viewport, que era exatamente a falha da auditoria em
+   mobile-390/375/360/320 e no celular deitado.
+   ========================================================================= */
+#screen-batalha {
+  justify-content: flex-start;
+  gap: 6px;
+  overflow: hidden;              /* quem rola é o campo, não a tela */
+  padding: calc(8px + var(--hda-safe-top, 0px)) var(--hda-gap, 10px)
+           calc(8px + var(--hda-safe-bottom, 0px));
+}
+#screen-batalha::before, #screen-batalha::after { content: none; }
+
+.batalha-campo {
+  flex: 1 1 auto;
+  min-height: 0;                 /* deixa o campo encolher em telas baixas */
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* Centraliza quando cabe; quando não cabe, alinha ao início em vez de
+     jogar metade da arena para fora do alcance da rolagem. */
+  align-items: center;
+  align-items: safe center;
+  justify-content: center;
+  justify-content: safe center;
+}
+.batalha-campo .batalha-arena { margin-bottom: 0; }
+
+/* Registro de combate recolhível. */
+#batalha-log-wrap {
+  flex: 0 0 auto; width: 100%; max-width: 900px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px;
+}
+#batalha-log-resumo {
+  cursor: pointer; list-style: none;
+  padding: 4px 10px; font-size: 0.76em; color: var(--hda-muted, #c8b89a);
+  min-height: 26px; display: flex; align-items: center; gap: 6px;
+}
+#batalha-log-resumo::-webkit-details-marker { display: none; }
+#batalha-log-resumo::before { content: "▸"; opacity: 0.6; flex: 0 0 auto; }
+#batalha-log-wrap[open] > #batalha-log-resumo::before { content: "▾"; }
+#batalha-log-resumo .log-ultima { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+#batalha-log-wrap[open] > #batalha-log-resumo .log-ultima { white-space: normal; opacity: 0.7; }
+#batalha-log-wrap #batalha-log {
+  border: 0; border-top: 1px solid var(--hda-line, #4a3a26);
+  border-radius: 0; margin: 0; height: clamp(56px, 12vh, 96px); background: transparent;
+}
+
+#batalha-acoes { flex: 0 0 auto; }
+
+/* --- Celular retrato ---------------------------------------------------- */
+@media (max-width: 719px) {
+  #screen-batalha { gap: 4px; padding-left: 6px; padding-right: 6px; }
+  .batalha-contexto { font-size: 0.72em; padding: 3px 6px; gap: 6px; }
+  .batalha-contexto button { padding: 3px 8px; font-size: 0.9em; margin: 0; min-height: 32px; }
+  .batalha-retratos { gap: 5px; margin-bottom: 4px; }
+  .retrato-card img, .retrato-card .retrato-vazio { width: 34px; height: 34px; }
+  .batalha-arena { gap: 10px; padding: 6px 4px 2px; }
+  .combatente { width: 96px; }
+  .combatente .sprite-canvas { width: 68px; height: 68px; }
+  .sprite-wrap { width: 68px; height: 68px; }
+  .combatente .barra, .combatente .atb-barra, .combatente .postura-barra { width: 88px; }
+  .combatente .nome-c { font-size: 0.72em; }
+  /* Badges de papel/comportamento/formação são contexto de leitura longa:
+     no celular saem da arena e continuam disponíveis no toque do card. */
+  .combatente .formacao-linha { display: none; }
+  #batalha-log-wrap { max-width: 100%; }
+  #batalha-log-wrap #batalha-log { height: 84px; }
+
+  /* Item 35: 3 cards por linha, mais baixos, com o essencial (item 36). */
+  #batalha-acoes {
+    --carta-larg: calc(33.333% - 6px);
+    --carta-alt: 128px;
+    /* A mão tem teto de altura E rola por dentro: com muitos cards, quem
+       rola é a mão, nunca a tela — assim o campo nunca é empurrado para
+       fora e o primeiro card nunca fica abaixo da dobra. */
+    max-height: 48dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* O contexto tático também tem teto: sem ele, três faixas somavam 107px
+     numa tela de 568px e comiam o espaço da mão. */
+  #batalha-contexto-tatico { max-height: 22dvh; overflow-y: auto; gap: 3px; }
+  .mao-cards { gap: 5px; }
+  .carta-batalha { padding: 6px 5px; }
+  .carta-nome { font-size: 0.7em; -webkit-line-clamp: 3; max-height: 3.6em; }
+  .carta-valor-num { font-size: 0.98em; }
+  .carta-valor-rotulo { font-size: 0.5em; }
+  .carta-elem-selo { font-size: 0.6em; padding: 0 4px; }
+  .carta-custo-item { font-size: 0.55em; }
+  /* Só UMA badge no celular: a de maior prioridade (item 36/51). */
+  .carta-badges .badge-carta:nth-child(n + 2) { display: none; }
+  .badge-carta { font-size: 0.52em; }
+  .carta-runa { font-size: 1.1em; top: 2px; right: 4px; }
+  /* O detalhe do card vira uma faixa compacta acima da mão. */
+  .carta-detalhe { font-size: 0.72em; padding: 5px 8px; max-height: 22dvh; overflow-y: auto; }
+  .mao-cabecalho { font-size: 0.74em; gap: 5px; }
+  .faixa-timeline, .faixa-dica { font-size: 0.68em; }
+  /* Item 58: poucos turnos à frente, não a fila inteira. */
+  .faixa-timeline .tl-chip:nth-of-type(n + 5),
+  .faixa-timeline .tl-chip:nth-of-type(n + 5) + .tl-seta { display: none; }
+}
+
+/* Celular muito pequeno: 2 cards por linha ficam mais legíveis que 3. */
+@media (max-width: 359px) {
+  #batalha-acoes { --carta-larg: calc(50% - 4px); --carta-alt: 118px; max-height: 44dvh; }
+  /* Numa tela de 568px, a dica escrita compete com a mão. Os ícones e as
+     previsões nos cards continuam contando a mesma história (item 51). */
+  .faixa-dica { display: none; }
+  .combatente { width: 84px; }
+  .combatente .sprite-canvas, .sprite-wrap { width: 56px; height: 56px; }
+  .combatente .barra, .combatente .atb-barra, .combatente .postura-barra { width: 78px; }
+}
+
+/* --- Celular deitado (itens 55, 56) -------------------------------------
+   Sobra largura e falta altura: o campo vai para a esquerda e a mão ocupa a
+   coluna da direita, em vez de empilhar tudo e empurrar os cards para fora. */
+/* O bloco de duas colunas com `grid-template-areas` que existia aqui foi
+   removido junto com o layout antigo: ele descrevia áreas ("ctx", "campo",
+   "mao") de elementos que não existem mais, e as duas colunas que ele criava
+   atropelavam a coluna única do tabuleiro novo — o campo ia parar fora da
+   tela em celular deitado. O tabuleiro cuida do deitado pelo --dock-alt, que
+   encolhe a faixa de cards onde falta altura. Ficaram só os ajustes de
+   TAMANHO dos combatentes e dos cards, que continuam valendo. */
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen .bt-dock { --carta-larg: clamp(84px, 13vw, 130px); --carta-alt: 108px; }
+  #screen-batalha.bt-screen .bt-row-inimigos { top: 1%; height: 44%; }
+  #screen-batalha.bt-screen .bt-row-herois { bottom: 0; height: 46%; }
+  .combatente { width: 78px; }
+  .combatente .sprite-canvas, .sprite-wrap { width: 52px; height: 52px; }
+  .combatente .barra, .combatente .atb-barra, .combatente .postura-barra { width: 72px; }
+  .carta-detalhe { display: none; }
+  .faixa-dica { display: none; }
+}
+
+/* --- Desktop: aproveitar a largura (item 33) ---------------------------- */
+@media (min-width: 1280px) {
+  .batalha-arena { max-width: min(1100px, 92vw); }
+  #batalha-acoes { max-width: min(1100px, 92vw); }
+  #batalha-contexto-tatico { max-width: min(1100px, 92vw); }
+  #batalha-log-wrap { max-width: min(1100px, 92vw); }
+  #batalha-acoes { --carta-larg: 164px; }
+}
+
+/* Nenhuma animação de card pode gerar rolagem (item 39): a mão é a última
+   fronteira, e o brilho/scale fica contido nela. */
+.mao-cards { overflow: visible; }
+#batalha-acoes { overflow-x: clip; }
+
+/* Item 34: no celular a leitura começa pelo INIMIGO. A arena empilha em duas
+   linhas nessa largura, e sem esta reordenação o time do jogador ficava em
+   cima e os inimigos abaixo da dobra do campo — o oposto da prioridade
+   pedida. Só a ORDEM muda; a estrutura é a mesma dos dois formatos. */
+@media (max-width: 820px) {
+  .batalha-arena { flex-direction: column; align-items: center; }
+  .batalha-arena .coluna-inimigos { order: -1; }
+  .batalha-arena .coluna-time { order: 0; }
+}
+
+/* =========================================================================
+   TABULEIRO DE BATALHA — layout fixo, zero deslocamento
+   =========================================================================
+   Substitui a pilha vertical antiga (.batalha-campo / .batalha-arena / duas
+   colunas flex com wrap). A regra que sustenta tudo: NENHUMA área
+   estrutural tira sua altura do conteúdo.
+
+     - a tela é um grid de 4 faixas; só o CAMPO usa minmax(0,1fr);
+     - o campo é position:relative + overflow:hidden, então o que estiver
+       dentro dele jamais empurra nada;
+     - as fileiras são absolutas dentro do campo, com grid de colunas fixas;
+     - cada slot tem tamanho vindo do grid, e o card ocupa o slot inteiro
+       (inset:0), então mudar nome, status, barra ou matar o combatente não
+       altera caixa nenhuma;
+     - o painel do log é absoluto, ancorado acima da barra — abrir e fechar
+       não muda a altura da infobar (o <details> antigo mudava);
+     - badges de sinergia/horda viraram overlays absolutos dentro do campo.
+   ========================================================================= */
+#screen-batalha.bt-screen {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: 100%;
+  align-items: stretch;
+  justify-items: stretch;
+  height: 100vh;
+  height: 100dvh;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  background: #0d0b0e;
+}
+
+/* ---- 1. Cabeçalho do terreno ------------------------------------------ */
+.bt-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(6px, 1.5vw, 18px);
+  padding: calc(4px + var(--hda-safe-top, 0px)) clamp(8px, 2vw, 20px) 4px;
+  background: linear-gradient(180deg, rgba(10, 8, 10, 0.94), rgba(10, 8, 10, 0.72));
+  border-bottom: 1px solid var(--hda-line, #4a3a26);
+  min-height: 46px;
+}
+.bt-header-local { display: flex; flex-direction: column; min-width: 0; }
+.bt-header-nome {
+  font-size: 0.92em; color: var(--hda-gold, #f5a524); font-weight: bold;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bt-header-desc {
+  font-size: 0.68em; color: var(--hda-muted, #c8b89a); font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bt-header-mods { display: flex; gap: 6px; flex-wrap: nowrap; overflow: hidden; }
+.bt-mod {
+  font-size: 0.68em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid transparent; background: rgba(0, 0, 0, 0.4);
+}
+.bt-mod b { font-style: normal; }
+.bt-mod-bonus { color: #8ce49a; border-color: rgba(140, 228, 154, 0.35); }
+.bt-mod-penalidade { color: #ff9c8a; border-color: rgba(255, 156, 138, 0.35); }
+.bt-mod-neutro { color: var(--hda-muted, #c8b89a); border-color: rgba(200, 184, 154, 0.25); }
+.bt-header-acoes { display: flex; gap: 4px; }
+.bt-header-acoes button { margin: 0; padding: 4px 10px; font-size: 0.78em; min-height: 30px; }
+.bt-header-acoes button.ativo { background: #6b4d1c; border-color: var(--hda-gold, #f5a524); }
+
+/* ---- 2. Campo --------------------------------------------------------- */
+.bt-field { position: relative; overflow: hidden; min-height: 0; }
+.bt-cena {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; image-rendering: pixelated;
+}
+.bt-overlays { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+.bt-overlays > * { pointer-events: auto; }
+
+.bt-row {
+  position: absolute; left: 0; right: 0;
+  display: grid; gap: clamp(2px, 0.8vw, 14px);
+  padding: 0 clamp(4px, 3vw, 56px);
+  z-index: 3;
+}
+.bt-row-inimigos {
+  top: 3%; height: 44%;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: start;
+}
+.bt-row-herois {
+  bottom: 1%; height: 46%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+}
+/* O slot é o lugar. Ele existe mesmo vazio — é isso que impede os vizinhos
+   de correrem para o buraco quando alguém morre. */
+.bt-slot { position: relative; min-width: 0; height: 100%; }
+.bt-slot[data-ocupado="0"] { visibility: hidden; }
+
+/* O card ocupa o slot inteiro. Como a caixa vem do slot, nada que aconteça
+   dentro dela pode mudar o layout: nome longo, status novo, barra de
+   postura de chefe, morte — tudo acontece DENTRO. */
+.bt-slot .combatente {
+  position: absolute; inset: 0; width: auto;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; gap: 1px;
+  padding: 2px; overflow: hidden;
+}
+.bt-row-inimigos .bt-slot .combatente { justify-content: flex-start; }
+/* O sprite é a parte elástica: se o topo do card precisar de mais linhas, o
+   sprite cede espaço em vez de o card crescer. */
+.bt-slot .combatente .sprite-wrap {
+  flex: 1 1 auto; min-height: 0; width: auto;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+/* `width:auto` + `max-width:100%` NÃO preserva proporção: quando a coluna do
+   slot é estreita e alta — o caso do celular em pé — a altura ia a 100% e a
+   largura era cortada pelo max-width, esticando o sprite quadrado numa figura
+   comprida e magra. `object-fit: contain` encaixa o quadro inteiro na caixa
+   mantendo o 1:1, que é o que faz o pixel continuar quadrado; `center bottom`
+   mantém os pés na linha do slot, como manda a regra 3 do contrato de arte. */
+.bt-slot .combatente .sprite-canvas {
+  width: 100%; height: 100%;
+  max-height: 100%; max-width: 100%;
+  object-fit: contain; object-position: center bottom;
+}
+.bt-slot .combatente > .nome-c {
+  flex: 0 0 auto; max-width: 100%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: clamp(0.6em, 1.4vw, 0.78em);
+}
+.bt-slot .combatente > .barra,
+.bt-slot .combatente > .atb-barra,
+.bt-slot .combatente > div,
+.bt-slot .combatente > button { flex: 0 0 auto; max-width: 100%; }
+.bt-slot .combatente .barra,
+.bt-slot .combatente .atb-barra,
+.bt-slot .combatente .postura-barra { width: min(100%, 132px); }
+.bt-slot .combatente .formacao-linha {
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bt-slot .combatente .btn-alvo { margin-top: 2px; }
+/* Sombra de chão: ancora o sprite no cenário em vez de deixá-lo flutuando. */
+.bt-slot .combatente .sprite-wrap::after {
+  content: ""; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 56%; height: 8px; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+.bt-slot .combatente .sprite-wrap { position: relative; }
+/* Derrotado: o slot continua ali, o combatente é que apaga. */
+.bt-slot .combatente.morto { opacity: 0.32; filter: grayscale(1); }
+.bt-slot .combatente.morto .sprite-wrap { transform: translateY(6px) scaleY(0.86); }
+
+.bt-field .fx-layer, .bt-field .dado-layer {
+  position: absolute; inset: 0; pointer-events: none; z-index: 8;
+}
+/* Badges que antes empurravam a tela: agora flutuam sobre o campo. */
+.bt-overlays .sinergia-badge, .bt-overlays .horda-badge {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  margin: 0; white-space: nowrap;
+}
+.bt-overlays .horda-badge { top: 6px; }
+.bt-overlays .sinergia-badge { top: 30px; font-size: 0.7em; }
+.bt-overlays .sinergia-badge:nth-of-type(2) { top: 52px; }
+.bt-overlays .sinergia-badge:nth-of-type(3) { top: 74px; }
+
+/* ---- 3. Infobar: timeline + log --------------------------------------- */
+.bt-infobar {
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: 8px;
+  padding: 3px clamp(8px, 2vw, 20px);
+  min-height: 34px;
+  background: rgba(10, 8, 10, 0.9);
+  border-top: 1px solid var(--hda-line, #4a3a26);
+}
+.bt-timeline { display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.bt-timeline .tl-item {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; flex: 0 0 auto;
+  border: 1px solid var(--hda-line, #4a3a26); border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45); font-size: 0.72em; overflow: hidden;
+}
+.bt-timeline .tl-item img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.bt-timeline .tl-item.tl-ativo { border-color: var(--hda-gold, #f5a524); box-shadow: 0 0 0 1px var(--hda-gold, #f5a524); }
+.bt-timeline .tl-item.tl-inimigo { border-color: #7a3b3b; }
+.bt-timeline .tl-seta { color: var(--hda-muted, #c8b89a); opacity: 0.5; flex: 0 0 auto; font-size: 0.7em; }
+
+.bt-log-toggle {
+  display: flex; align-items: center; gap: 8px; margin: 0;
+  max-width: min(52vw, 460px); min-height: 28px;
+  padding: 2px 10px; font-size: 0.72em;
+  background: rgba(0, 0, 0, 0.4); border: 1px solid var(--hda-line, #4a3a26);
+}
+.bt-log-ultima { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bt-log-seta { transition: transform 0.15s; }
+.bt-log-toggle.aberto .bt-log-seta { transform: rotate(180deg); }
+/* ABSOLUTO: é isto que faz abrir o log não empurrar os cards. */
+.bt-log-panel {
+  position: absolute; bottom: 100%; right: clamp(8px, 2vw, 20px);
+  width: min(520px, calc(100% - 2 * clamp(8px, 2vw, 20px)));
+  margin-bottom: 4px; z-index: 12;
+  background: rgba(8, 6, 8, 0.96);
+  border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+.bt-log-lista {
+  height: clamp(90px, 22vh, 200px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 6px 10px; font-size: 0.74em; line-height: 1.5;
+}
+
+/* ---- 4. Dock de cards ------------------------------------------------- */
+#screen-batalha.bt-screen .bt-dock {
+  min-height: var(--dock-alt, clamp(150px, 24vh, 210px));
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 4px clamp(8px, 2vw, 20px) calc(4px + var(--hda-safe-bottom, 0px));
+  background: linear-gradient(180deg, rgba(10, 8, 10, 0.85), rgba(10, 8, 10, 0.97));
+  border-top: 1px solid var(--hda-line, #4a3a26);
+  /* ERA `overflow: hidden` — e era ELE que apagava a informação da carta.
+     O painel de detalhe é `position: absolute; bottom: calc(100% + 4px)`:
+     mora ACIMA do dock. Com o overflow escondido, o navegador recortava o
+     painel inteiro. Medido: o painel existia, tinha 1100×141, conteúdo
+     certo, `visibility: visible`, e nunca chegava a um pixel na tela. Era
+     esse o "não mostra toda a informação".
+     A contenção de que o dock precisa de verdade é a da mão de cards, e
+     essa continua: `.mao-cards` tem `overflow: hidden` própria. */
+  overflow: visible;
+}
+
+/* ---- Celular ---------------------------------------------------------- */
+@media (max-width: 719px) {
+  .bt-header { grid-template-columns: minmax(0, 1fr) auto; min-height: 40px; }
+  .bt-header-mods { display: none; }        /* resumo cabe no toque do nome */
+  .bt-header-nome { font-size: 0.78em; }
+  .bt-header-desc { font-size: 0.62em; }
+  .bt-row { padding: 0 4px; gap: 2px; }
+  .bt-row-inimigos { top: 2%; height: 42%; }
+  .bt-row-herois { bottom: 0; height: 48%; }
+  .bt-slot .combatente .barra,
+  .bt-slot .combatente .atb-barra,
+  .bt-slot .combatente .postura-barra { width: min(100%, 84px); }
+  .bt-slot .combatente .formacao-linha { display: none; }
+  .bt-timeline .tl-item { width: 22px; height: 22px; }
+  .bt-log-panel { left: 8px; right: 8px; width: auto; }
+  #screen-batalha.bt-screen .bt-dock { min-height: var(--dock-alt, clamp(132px, 27vh, 190px)); }
+}
+@media (max-height: 460px) and (orientation: landscape) {
+  .bt-header-desc { display: none; }
+  #screen-batalha.bt-screen .bt-dock { min-height: var(--dock-alt, clamp(104px, 34vh, 150px)); }
+}
+
+/* ---- Dock: altura definida, conteúdo se acomoda dentro -----------------
+   Sem isto o dock cresce com o conteúdo (cabeçalho + contexto tático +
+   cards + detalhe + erro davam ~487px em 1366x768) e come o campo, que é
+   justamente o que o pedido chama de "batalha parecendo interface de cards
+   com sprites espremidos acima". Agora a faixa do grid é fixa e QUEM se
+   acomoda é o miolo: os cards ficam na linha elástica, e detalhe do card e
+   painel de configuração viram sobreposições ancoradas ao dock (item 52/67:
+   informação secundária não aumenta a tela principal). */
+#screen-batalha.bt-screen {
+  /* header · CAMPO · infobar · contexto tático · dock */
+  grid-template-rows: auto minmax(0, 1fr) auto auto var(--dock-alt, clamp(150px, 23vh, 208px));
+}
+#screen-batalha.bt-screen .bt-dock {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 2px;
+  justify-items: center;
+}
+#screen-batalha.bt-screen .bt-dock > * { width: 100%; max-width: 1100px; }
+#screen-batalha.bt-screen #batalha-contexto-tatico {
+  margin: 0; max-height: 3.4em; overflow: hidden;
+  padding: 2px clamp(8px, 2vw, 20px);
+}
+#screen-batalha.bt-screen .mao-cabecalho { margin: 0; }
+#screen-batalha.bt-screen .mao-cards {
+  min-height: 0; overflow: hidden; align-content: center; margin: 0;
+}
+#screen-batalha.bt-screen .carta-erro { margin: 0; }
+/* Sobreposições: saem do fluxo do dock e por isso não mudam a altura de nada. */
+#screen-batalha.bt-screen .carta-detalhe,
+#screen-batalha.bt-screen .cards-config-painel {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(100% + 4px); width: min(1100px, calc(100% - 16px));
+  max-height: 34vh; overflow-y: auto; z-index: 14;
+  background: rgba(8, 6, 8, 0.97);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.55);
+}
+/* O detalhe só aparece quando há card em foco — vazio, some de vez, em vez
+   de ficar uma faixa "Passe o mouse..." roubando espaço permanente. */
+#screen-batalha.bt-screen .carta-detalhe.vazio { display: none; }
+
+/* O canvas do cenário precisa ganhar de qualquer regra genérica de <canvas>
+   herdada do resto do jogo (o mapa usa #game-canvas com borda e tamanho
+   próprios). Sem isto o fundo aparecia só na metade esquerda do campo. */
+#screen-batalha.bt-screen .bt-cena {
+  position: absolute; inset: 0;
+  width: 100% !important; height: 100% !important;
+  max-width: none; max-height: none; border: 0; margin: 0; background: transparent;
+}
+/* Mão de cards: uma linha só, encolhendo os cards até o piso legível. Duas
+   linhas dentro de um dock de altura fixa cortariam a segunda (era o que
+   acontecia com 7 cards em 1366px). */
+#screen-batalha.bt-screen .mao-cards {
+  display: flex; flex-wrap: nowrap; gap: 6px;
+  align-items: stretch; justify-content: center;
+}
+#screen-batalha.bt-screen .mao-cards > .carta-batalha {
+  flex: 1 1 0; min-width: 0; width: auto;
+  max-width: var(--carta-larg, 150px); height: auto; min-height: 0;
+}
+
+/* hda-ui.css tem `.tela > * { max-width: min(100%, 640px) }` — regra boa pras
+   telas de formulário, fatal para o tabuleiro: era ela que prendia o campo
+   em 640px enquanto a coluna do grid tinha 1366. Aqui a batalha se declara
+   como exceção explícita. */
+#screen-batalha.bt-screen > * { max-width: none; width: auto; }
+/* Contexto tático: uma linha por bloco, com reticências. Cortar texto no
+   meio de uma linha (o que a altura máxima sozinha fazia) parece defeito. */
+#screen-batalha.bt-screen #batalha-contexto-tatico { max-height: 2.4em; }
+#screen-batalha.bt-screen #batalha-contexto-tatico > * {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---- Correção apontada pelo teste de layout shift ----------------------
+   O contexto tático tinha faixa própria de altura `auto` no grid. Como o
+   texto muda com o personagem ativo (intenção do inimigo, dica de
+   iniciante, fase de chefe), a faixa mudava de altura — e como o CAMPO é a
+   faixa elástica, ele absorvia a diferença: trocar de personagem mexia na
+   altura do campo e empurrava a infobar. Exatamente o bug que o redesenho
+   existe pra matar, só que uma camada acima.
+
+   A solução é a mesma do log: sair do fluxo. Agora ele é uma sobreposição
+   ancorada logo acima do dock, então pode crescer, encolher ou sumir sem
+   custar um pixel de ninguém. */
+#screen-batalha.bt-screen {
+  --dock-alt: clamp(150px, 23vh, 208px);
+  grid-template-rows: auto minmax(0, 1fr) auto var(--dock-alt);
+}
+#screen-batalha.bt-screen #batalha-contexto-tatico {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  z-index: 11; max-height: 2.4em; overflow: hidden;
+  margin: 0; padding: 2px clamp(8px, 2vw, 20px);
+  background: linear-gradient(180deg, rgba(10, 8, 10, 0), rgba(10, 8, 10, 0.92));
+  pointer-events: none;
+}
+#screen-batalha.bt-screen #batalha-contexto-tatico > * { pointer-events: auto; }
+@media (max-width: 719px) {
+  #screen-batalha.bt-screen { --dock-alt: clamp(132px, 27vh, 190px); }
+}
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen { --dock-alt: clamp(104px, 34vh, 150px); }
+}
+
+/* A faixa do contexto tático é RESERVADA no rodapé do campo: altura fixa,
+   sempre presente (mesmo vazia), com a fileira de heróis terminando acima
+   dela. Sem a reserva, a faixa cobria as barras de HP dos heróis quando
+   aparecia — e reservar só quando há texto seria, de novo, altura dependendo
+   de conteúdo. */
+#screen-batalha.bt-screen { --ctx-alt: 34px; }
+#screen-batalha.bt-screen #batalha-contexto-tatico {
+  height: var(--ctx-alt); max-height: var(--ctx-alt);
+  display: flex; align-items: center; gap: 8px;
+}
+#screen-batalha.bt-screen .bt-row-herois { bottom: var(--ctx-alt); height: 42%; }
+@media (max-width: 719px) {
+  #screen-batalha.bt-screen { --ctx-alt: 28px; }
+  #screen-batalha.bt-screen .bt-row-herois { bottom: var(--ctx-alt); height: 44%; }
+}
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen { --ctx-alt: 26px; }
+  #screen-batalha.bt-screen .bt-row-herois { bottom: var(--ctx-alt); height: 44%; }
+}
+
+/* Celular: uma fileira única espremeria 7 cards em 390px e sobraria duas
+   letras por título ("A t.", "G o."). Item 72 do pedido é explícito — card
+   pequeno demais não serve. Aqui a mão quebra em 3 por linha e rola DENTRO
+   do dock, cuja altura continua fixa (a rolagem é interna, a página não
+   cresce). */
+@media (max-width: 719px) {
+  #screen-batalha.bt-screen .mao-cards {
+    flex-wrap: wrap; overflow-y: auto; overscroll-behavior: contain;
+    align-content: flex-start; justify-content: flex-start; gap: 4px;
+  }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha {
+    flex: 0 0 calc(33.333% - 3px); max-width: none; min-height: 78px;
+  }
+}
+
+/* =========================================================================
+   SELOS POR EXTENSO NA SOBREPOSIÇÃO DE DETALHE
+   -------------------------------------------------------------------------
+   Na carta o selo é curto porque a carta é estreita (até 7 numa linha). Aqui
+   ele aparece ao lado da frase inteira: o jogador lê "💀 PODE MATAR" no card
+   e, ao pousar o cursor, "Possível execução — dependendo da rolagem, este
+   golpe derruba o alvo".
+
+   A sobreposição já é `position: absolute` ancorada ao dock, então crescer
+   aqui NÃO mexe no campo de batalha — é o que o medidor de instabilidade
+   permite a sobreposições e proíbe às faixas estruturais.
+   ========================================================================= */
+.detalhe-selos {
+  display: flex; flex-direction: column; gap: 3px;
+  margin: 5px 0 4px;
+  padding: 5px 0 1px;
+  border-top: 1px dashed #3a2f22;
+}
+.detalhe-selo-linha {
+  display: flex; align-items: baseline; gap: 7px;
+  line-height: 1.32;
+}
+.detalhe-selo-linha .badge-carta {
+  flex-shrink: 0;
+  /* Aqui NUNCA encurta: é o lugar onde o texto é lido por inteiro. */
+  max-width: none; overflow: visible; text-overflow: clip; white-space: nowrap;
+}
+.detalhe-selo-texto { color: #d8cbb0; }
+
+/* Título do detalhe com o nome inteiro da carta — sem o limite de duas
+   linhas que a carta precisa ter. */
+.carta-detalhe .detalhe-titulo {
+  font-size: 1.04em; line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================================
+   CURSOR POR TECLADO
+   -------------------------------------------------------------------------
+   Marca de onde o cursor está, nos menus e na batalha. Só `outline` e
+   `box-shadow`: nenhuma das duas ocupa espaço no layout, então mover o
+   cursor não empurra nada — mesma disciplina do resto da tela de combate.
+   ========================================================================= */
+.cursor-teclado,
+.carta-batalha:focus-visible,
+.carta-batalha:focus {
+  outline: 2px solid var(--hda-gold, #f5a524);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(245, 165, 36, 0.18);
+}
+/* Sem animação para quem pediu menos movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  .cursor-teclado { transition: outline-color 0.12s ease, box-shadow 0.12s ease; }
+}
+
+/* =========================================================================
+   NOME DA CARTA NA FAIXA APERTADA (600–900px)
+   -------------------------------------------------------------------------
+   Aqui a mão tem 7 cartas numa linha só e cada uma fica com ~110px — mais
+   estreita que no celular, onde as cartas são 2 por linha. É a largura em
+   que "Recuar para a Retaguarda" não cabia nem em três linhas.
+
+   Tentei antes resolver com container query na carta (`container-type:
+   inline-size`), que seria o instrumento certo — mede a CARTA, não a
+   janela. Mas a contenção mudou o cálculo de largura dos filhos e passou a
+   cortar TODOS os nomes e valores, em todas as telas. O teste pegou na
+   hora. Fica a media query, que é mais burra e funciona.
+   ========================================================================= */
+@media (min-width: 600px) and (max-width: 900px) {
+  #screen-batalha.bt-screen .carta-nome {
+    font-size: 0.72em; line-height: 1.16;
+    -webkit-line-clamp: 4; max-height: 4.7em;
+  }
+  #screen-batalha.bt-screen .badge-carta { font-size: 0.52em; }
 }

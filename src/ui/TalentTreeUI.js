@@ -26,6 +26,8 @@ export function personagemTemCaminhoHerdeiro(personagem) {
   return CLASSES_SUPORTADAS.has(personagem && personagem.classeId);
 }
 
+import { abrirSheet, fecharSheet, cabeDuasColunas } from "./HdaUI.js";
+
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
 
@@ -148,9 +150,9 @@ export function layoutLista(nodes) {
   return pos;
 }
 
-const COL_W = 150;
-const ROW_H = 140;
-const SUB_LANE_W = 230;
+const COL_W = 190;
+const ROW_H = 165;
+const SUB_LANE_W = 280;
 
 // Monta a posição em pixel de TODOS os nós (classe + cada subclasse, lado a
 // lado, embaixo da coluna de classe) de uma árvore inteira. Retorna
@@ -238,7 +240,7 @@ function descreverGatilhoHeranca(node, personagem, dados) {
 }
 
 // --- Formas SVG por tipo -----------------------------------------------
-const RAIO = 27;
+const RAIO = 34;
 function pontosHexagono(r) {
   const p = [];
   for (let i = 0; i < 6; i++) {
@@ -358,8 +360,33 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     painelPresets.appendChild(btn);
   });
 
-  // --- painel lateral de detalhes -------------------------------------------
+  // --- painel de detalhes do nó ---------------------------------------------
+  //
+  // Item 18: no celular a árvore precisa da largura inteira, então o painel
+  // de 300px não pode dividir a tela com ela. Em vez de duplicar o painel em
+  // duas versões, o MESMO elemento é fisicamente movido para dentro do bottom
+  // sheet quando há um nó selecionado — todo o conteúdo, os botões e o
+  // wiring de APRENDER continuam sendo os mesmos. No desktop ele fica onde
+  // sempre esteve, como coluna à direita.
   const painel = conteudo().querySelector("#caminho-painel");
+  const casaDoPainel = painel.parentElement;
+  function apresentarPainel() {
+    // O limite aqui tem de ser o MESMO do CSS que esconde o painel lateral
+    // (900px), não o limite de "celular" (720px). Com os dois desalinhados,
+    // um tablet em retrato escondia o painel por CSS e não abria o sheet —
+    // o detalhe do nó simplesmente não aparecia em lugar nenhum.
+    if (cabeDuasColunas()) {
+      if (painel.parentElement !== casaDoPainel) casaDoPainel.appendChild(painel);
+      return;
+    }
+    if (!noSelecionado) { fecharSheet(); if (painel.parentElement !== casaDoPainel) casaDoPainel.appendChild(painel); return; }
+    const sheet = abrirSheet({
+      titulo: `${noSelecionado.node.icone || "❔"} ${noSelecionado.node.nome}`,
+      corpoHTML: "",
+      aoFechar: () => { casaDoPainel.appendChild(painel); },
+    });
+    sheet.corpo.appendChild(painel);
+  }
   function renderPainel() {
     if (!noSelecionado) {
       const bonus = bonusCaminhoHerdeiro(personagem, dados);
@@ -406,13 +433,14 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     } else {
       acao.innerHTML = `<span class="tag">Bloqueado por enquanto</span>`;
     }
+    apresentarPainel();
   }
   function escopoCompleto(ehHeranca) { return ehHeranca ? arvoreDeHeranca : arvoreCompleta; }
   renderPainel();
 
   // --- SVG do grafo -----------------------------------------------------
   const viewportWrap = conteudo().querySelector("#caminho-viewport");
-  const svg = svgEl("svg", { width: largura, height: altura, viewBox: `0 0 ${largura} ${altura}`, id: "svg-arvore" });
+  const svg = svgEl("svg", { width: "100%", height: "100%", viewBox: `0 0 ${largura} ${altura}`, preserveAspectRatio: "none", id: "svg-arvore" });
   const gViewport = svgEl("g", { id: "g-arvore-viewport" });
   svg.appendChild(gViewport);
   viewportWrap.appendChild(svg);
@@ -476,6 +504,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     g.appendChild(label);
     g.style.cursor = "pointer";
     g.addEventListener("click", () => {
+      if (arrastou) { arrastou = false; return; }
       noSelecionado = { node, ehHeranca, escopo };
       renderPainel();
       conteudo().querySelectorAll(".no-caminho.selecionado").forEach((el) => el.classList.remove("selecionado"));
@@ -500,7 +529,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   // Nós de Herança — cluster próprio abaixo de tudo (não são level-gated
   // nem entram no grafo de pré-requisito; cada um só depende de um evento
   // real do mundo, então ficam lado a lado, sem linhas de conexão).
-  svg.setAttribute("height", altura + 170);
+  svg.setAttribute("height", "100%");
   svg.setAttribute("viewBox", `0 0 ${largura} ${altura + 170}`);
   const tituloHeranca = svgEl("text", { class: "sub-titulo", "text-anchor": "middle", x: largura / 2, y: altura + 20 });
   tituloHeranca.textContent = "💠 Herança do Mundo (permanente — nunca respecável)";
@@ -513,13 +542,13 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   });
 
   // --- pan / zoom --------------------------------------------------------
-  let escala = 1, tx = 0, ty = 0, arrastando = false, ultimoX = 0, ultimoY = 0;
+  let escala = 1, tx = 0, ty = 0, arrastando = false, arrastou = false, ultimoX = 0, ultimoY = 0;
   function aplicarTransform() { gViewport.setAttribute("transform", `translate(${tx},${ty}) scale(${escala})`); }
   function centralizar() {
     const wrapRect = viewportWrap.getBoundingClientRect();
-    escala = Math.min(1, wrapRect.width / largura);
+    escala = Math.min(1, (wrapRect.width - 36) / largura, (wrapRect.height - 36) / (altura + 170));
     tx = (wrapRect.width - largura * escala) / 2;
-    ty = 20;
+    ty = (wrapRect.height - (altura + 170) * escala) / 2;
     aplicarTransform();
   }
   // Captura o ponteiro só depois que o arrasto realmente começa (threshold
@@ -530,12 +559,13 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   // nunca abriria o painel de detalhes. Só captura de verdade quando
   // detecta arrasto — cliques continuam funcionando normalmente.
   svg.addEventListener("pointerdown", (e) => {
-    arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
+    arrastando = true; arrastou = false; ultimoX = e.clientX; ultimoY = e.clientY;
     svg._pointerIdAtual = e.pointerId; svg._capturado = false;
   });
   svg.addEventListener("pointermove", (e) => {
     if (!arrastando) return;
     const dx = e.clientX - ultimoX, dy = e.clientY - ultimoY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) arrastou = true;
     if (!svg._capturado && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
       svg.setPointerCapture(e.pointerId);
       svg._capturado = true;
@@ -554,11 +584,15 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   svg.addEventListener("wheel", (e) => {
     e.preventDefault();
     const novo = Math.max(0.35, Math.min(2.2, escala * (e.deltaY < 0 ? 1.1 : 0.9)));
+    const r = viewportWrap.getBoundingClientRect();
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    tx = px - (px - tx) * (novo / escala); ty = py - (py - ty) * (novo / escala);
     escala = novo;
     aplicarTransform();
   }, { passive: false });
-  conteudo().querySelector("#btn-zoom-in").onclick = () => { escala = Math.min(2.2, escala * 1.2); aplicarTransform(); };
-  conteudo().querySelector("#btn-zoom-out").onclick = () => { escala = Math.max(0.35, escala * 0.8); aplicarTransform(); };
+  const zoomNoCentro = (fator) => { const r = viewportWrap.getBoundingClientRect(); const novo = Math.max(0.35, Math.min(2.2, escala * fator)); const px = r.width / 2, py = r.height / 2; tx = px - (px - tx) * (novo / escala); ty = py - (py - ty) * (novo / escala); escala = novo; aplicarTransform(); };
+  conteudo().querySelector("#btn-zoom-in").onclick = () => zoomNoCentro(1.2);
+  conteudo().querySelector("#btn-zoom-out").onclick = () => zoomNoCentro(0.8);
   conteudo().querySelector("#btn-zoom-reset").onclick = centralizar;
   centralizar();
 
