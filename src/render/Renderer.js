@@ -24,7 +24,7 @@
 // Todo o desenho passou a usar `this.tilePx` no lugar da constante TILE_SIZE.
 // TILE_SIZE continua sendo o tamanho do tile NA ARTE (o recorte no tileset),
 // que é outra coisa e não muda.
-import { TILE_SIZE, TILES_BASE, TILE_FALLBACK } from "../data/worldMap.js";
+import { TILE, TILE_SIZE, TILES_BASE, TILE_FALLBACK } from "../data/worldMap.js";
 import { PROPS, propsVisiveis, caixaDoProp } from "../data/propRegistry.js";
 import { MisturaDeTerreno } from "./TerrainBlend.js";
 
@@ -57,11 +57,61 @@ const TILE_CSS_MINIMO = 26;
 // Mantido por compatibilidade com o teste de enquadramento e com quem
 // importava a constante; hoje o valor efetivo sai de MIN_LARGURA_TILES.
 export const TILES_NO_LADO_MENOR = MIN_LARGURA_TILES;
+export const ALTURA_VISUAL_MAX = 8;
+export const PROJECAO_ALTURA_POR_NIVEL = 0.24;
+export const alturaVisualEmPersonagens = (nivel) => {
+  const n = Math.max(0, Math.min(ALTURA_VISUAL_MAX, Number(nivel) || 0));
+  // O mapa conserva oito NÍVEIS reais, mas a perspectiva superior comprime
+  // cada nível. A curva quadrática antiga fazia o último degrau quase duas
+  // vezes maior que um personagem e gerava blocos marrons gigantes.
+  return n * PROJECAO_ALTURA_POR_NIVEL;
+};
+export const ALTURA_PROJETADA_MAXIMA = alturaVisualEmPersonagens(ALTURA_VISUAL_MAX);
 // Abaixo desta largura de CSS px o aparelho é tratado como tela pequena.
 const LIMIAR_TELA_PEQUENA = 560;
 // Teto do devicePixelRatio: acima de 3 o custo de preencher a tela cresce
 // mais rápido que o ganho visual, e é onde celular antigo começa a engasgar.
 const DPR_MAXIMO = 3;
+
+// Em retrato, centralizar o herói matematicamente desperdiça metade da tela
+// atrás dele. Este deslocamento puro põe mais mundo na direção do passo sem
+// jogar o personagem sob o HUD/controles. Desktop e paisagem continuam com a
+// câmera central de antes.
+export function deslocamentoCameraDirecional(direcao, largura, altura, tilePx, telaPequena = true) {
+  if (!telaPequena || largura >= altura) return { x: 0, y: 0 };
+  const vertical = Math.min(tilePx * 2.15, altura * .105);
+  const horizontal = Math.min(tilePx * 1.25, largura * .095);
+  if (direcao === "cima") return { x: 0, y: -vertical };
+  if (direcao === "baixo") return { x: 0, y: vertical };
+  if (direcao === "esquerda") return { x: -horizontal, y: 0 };
+  if (direcao === "direita") return { x: horizontal, y: 0 };
+  return { x: 0, y: 0 };
+}
+
+// Altura VISUAL: não altera grid, colisão nem navegação. Serve apenas para
+// desenhar degraus de luz/sombra nas fronteiras entre água, chão, vegetação
+// e paredões, quebrando o aspecto de tabuleiro totalmente plano.
+export function nivelVisualDoTile(tile) {
+  if (tile === TILE.DEEP_WATER) return -3;
+  if (tile === TILE.WATER) return -2;
+  if (tile === TILE.SAND || tile === TILE.MARSH) return -1;
+  if ([TILE.SNOW, TILE.ICE, TILE.ASH, TILE.BONE].includes(tile)) return 1;
+  if (tile === TILE.TREE || tile === TILE.BUSH || tile === TILE.TALL_GRASS) return 1;
+  if ([TILE.WALL, TILE.DUNGEON_WALL, TILE.BUILDING, TILE.CRYSTAL, TILE.LAVA].includes(tile)) return 2;
+  return 0;
+}
+
+export function propOcluiJogador(prop, player) {
+  if (!prop || !player || !/^(arvore_|pinheiro)/.test(prop.id || "")) return false;
+  const caixa = caixaDoProp(prop);
+  if (!caixa) return false;
+  const px = player.x + 0.5;
+  const peJogador = player.y + PE_NA_CELULA;
+  const atrasDaBase = peJogador < prop.y + 0.5;
+  const dentroDaCopa = px >= caixa.tx + 0.12 && px <= caixa.tx + caixa.larguraTiles - 0.12
+    && player.y >= caixa.ty - 0.2 && player.y <= prop.y;
+  return atrasDaBase && dentroDaCopa;
+}
 
 // CAMADA DE PROFUNDIDADE (y-sort)
 // -------------------------------
@@ -192,15 +242,16 @@ export class Renderer {
     return { folha: this.imagens.tileset, coluna: equivalente === undefined ? 0 : equivalente };
   }
 
-  camera(playerPx, mapaWpx, mapaHpx) {
+  camera(playerPx, mapaWpx, mapaHpx, margemTopo = 0, direcao = null) {
     const vw = this.canvas.width;
     const vh = this.canvas.height;
-    let cx = playerPx.x - vw / 2;
-    let cy = playerPx.y - vh / 2;
+    const olhar = deslocamentoCameraDirecional(direcao, vw, vh, this.tilePx, this.telaPequena);
+    let cx = playerPx.x + olhar.x - vw / 2;
+    let cy = playerPx.y + olhar.y - vh / 2;
     // Mapa menor que a tela (masmorra pequena no celular deitado): centraliza
     // em vez de grudar no canto.
     cx = mapaWpx <= vw ? (mapaWpx - vw) / 2 : Math.max(0, Math.min(cx, mapaWpx - vw));
-    cy = mapaHpx <= vh ? (mapaHpx - vh) / 2 : Math.max(0, Math.min(cy, mapaHpx - vh));
+    cy = mapaHpx <= vh ? (mapaHpx - vh) / 2 : Math.max(-margemTopo, Math.min(cy, mapaHpx - vh));
     return { x: cx, y: cy };
   }
 
@@ -208,7 +259,7 @@ export class Renderer {
   // disponível (arquivo ausente → placeholder de 32px), pra quem chama poder
   // simplesmente pular: o tile embaixo já foi desenhado e a colisão não
   // depende disto.
-  desenharProp(prop, cam) {
+  desenharProp(prop, cam, player = null) {
     const meta = PROPS[prop.id];
     if (!meta) return false;
     const img = this.imagens[`prop_${prop.id}`];
@@ -217,33 +268,205 @@ export class Renderer {
     const caixa = caixaDoProp(prop);
     const T = this.tilePx;
     const dx = Math.round(caixa.tx * T - cam.x);
-    const dy = Math.round(caixa.ty * T - cam.y);
+    const dy = Math.round(caixa.ty * T - cam.y + this.deslocamentoAltura(prop.x, prop.y));
     const w = Math.round(caixa.larguraTiles * T);
     const h = Math.round(caixa.alturaTiles * T);
     if (dx > this.canvas.width || dy > this.canvas.height || dx + w < 0 || dy + h < 0) return true;
+    const transparente = propOcluiJogador(prop, player);
+    this.ctx.save();
+    if (transparente) this.ctx.globalAlpha = 0.42;
     this.ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, w, h);
+    if (transparente) {
+      // Contorno luminoso discreto mantém a árvore legível ao mesmo tempo em
+      // que revela claramente o personagem passando por trás dela.
+      this.ctx.globalAlpha = 0.34;
+      this.ctx.strokeStyle = "#d9efb0";
+      this.ctx.lineWidth = Math.max(1, Math.round(this.escala));
+      this.ctx.strokeRect(dx + 1, dy + 1, Math.max(1, w - 2), Math.max(1, h - 2));
+    }
+    this.ctx.restore();
     return true;
   }
 
-  desenhar({ grid, player, npcs, objetos, mostrarPronto, props, tema, pet }) {
+  nivelAltura(tx, ty) {
+    const grid = this.gridAtual;
+    if (!grid?.[ty] || grid[ty][tx] === undefined) return 0;
+    if (this.alturasAtual?.length === grid.length * grid[0].length) {
+      return this.alturasAtual[ty * grid[0].length + tx];
+    }
+    // Masmorras e mapas antigos continuam com o relevo discreto anterior.
+    return nivelVisualDoTile(grid[ty][tx]) * 0.075;
+  }
+
+  nivelAlturaInterpolado(x, y) {
+    const grid = this.gridAtual;
+    if (!grid?.length || !grid[0]?.length) return 0;
+    const maxX = grid[0].length - 1; const maxY = grid.length - 1;
+    const px = Math.max(0, Math.min(maxX, x));
+    const py = Math.max(0, Math.min(maxY, y));
+    const x0 = Math.floor(px); const y0 = Math.floor(py);
+    const x1 = Math.min(maxX, x0 + 1); const y1 = Math.min(maxY, y0 + 1);
+    const fx = px - x0; const fy = py - y0;
+    const cima = this.nivelAltura(x0, y0) * (1 - fx) + this.nivelAltura(x1, y0) * fx;
+    const baixo = this.nivelAltura(x0, y1) * (1 - fx) + this.nivelAltura(x1, y1) * fx;
+    return cima * (1 - fy) + baixo * fy;
+  }
+
+  desenharRelevoTile(grid, tx, ty, dx, dy, T) {
+    const atual = this.nivelAltura(tx, ty);
+    const direita = tx + 1 < grid[ty].length ? this.nivelAltura(tx + 1, ty) : atual;
+    const baixo = ty + 1 < grid.length ? this.nivelAltura(tx, ty + 1) : atual;
+    const esp = Math.max(2, Math.round(T * 0.085));
+    const ctx = this.ctx;
+    if (atual > direita) {
+      ctx.fillStyle = `rgba(18,12,10,${Math.min(0.42, 0.14 + (atual - direita) * 0.09)})`;
+      ctx.fillRect(dx + T - esp, dy + esp, esp, T - esp);
+    }
+    if (atual > baixo) {
+      ctx.fillStyle = `rgba(16,10,8,${Math.min(0.48, 0.16 + (atual - baixo) * 0.1)})`;
+      ctx.fillRect(dx, dy + T - esp, T, esp);
+      ctx.fillStyle = "rgba(255,238,190,0.09)";
+      ctx.fillRect(dx, dy, T, Math.max(1, Math.round(esp * 0.5)));
+    }
+  }
+
+  // Cada nível desloca o chão verticalmente. Como câmera, objetos e atores
+  // usam a mesma função, a grade lógica não muda, mas o olho percebe a subida
+  // da planície para a montanha e a descida grama → areia → água.
+  deslocamentoAltura(x, y) {
+    return -alturaVisualEmPersonagens(this.nivelAlturaInterpolado(x, y)) * this.tilePx;
+  }
+
+  // Pequenos grãos, lascas e tufos quebram o aspecto de quadrado ampliado.
+  // A posição é derivada das coordenadas, portanto não pisca entre frames.
+  desenharMicroTexturaTerreno(tile, tx, ty, dx, dy, T) {
+    const ctx = this.ctx;
+    const agua = tile === TILE.WATER || tile === TILE.DEEP_WATER;
+    const neve = tile === TILE.SNOW || tile === TILE.ICE;
+    const areia = tile === TILE.SAND;
+    const estrada = tile === TILE.PATH || tile === TILE.COBBLE || tile === TILE.VILLAGE_FLOOR;
+    const rocha = [TILE.WALL, TILE.ASH, TILE.BONE, TILE.CRYSTAL].includes(tile);
+    const natural = agua || neve || areia || estrada || rocha
+      || [TILE.GRASS, TILE.GRASS_DETAIL, TILE.TALL_GRASS, TILE.MARSH].includes(tile);
+    if (!natural) return;
+    let s = ((tx * 73856093) ^ (ty * 19349663) ^ (tile * 83492791)) >>> 0;
+    const rnd = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+    const px = Math.max(1, Math.round(T * .025));
+    const quantidade = agua ? 3 : estrada ? 7 : 6;
+    ctx.save();
+    ctx.globalAlpha = agua ? .22 : .18;
+    ctx.fillStyle = agua ? "#bde8ee" : neve ? "#d9eff4" : areia ? "#6f4c2d"
+      : estrada ? "#5a4029" : rocha ? "#c3b596" : "#244d2b";
+    ctx.strokeStyle = ctx.fillStyle;
+    ctx.lineWidth = px;
+    for (let i = 0; i < quantidade; i += 1) {
+      const x = Math.round(dx + T * (.1 + rnd() * .8));
+      const y = Math.round(dy + T * (.12 + rnd() * .76));
+      if (agua) {
+        ctx.beginPath(); ctx.moveTo(x - T * .07, y); ctx.lineTo(x + T * (.05 + rnd() * .08), y); ctx.stroke();
+      } else if (!areia && !estrada && !rocha && rnd() > .55) {
+        ctx.fillRect(x, y - px * 2, px, px * 3);
+        ctx.fillRect(x - px, y - px, px, px);
+      } else {
+        const w = px * (1 + Math.round(rnd() * 2));
+        ctx.fillRect(x, y, w, px);
+      }
+    }
+    ctx.restore();
+  }
+
+  desenharDetalheEstrada(grid, tx, ty, dx, dy, T) {
+    const tile = grid[ty][tx];
+    if (tile !== TILE.PATH && tile !== TILE.COBBLE) return;
+    const estrada = (x, y) => !!grid[y] && [TILE.PATH, TILE.COBBLE, TILE.BRIDGE, TILE.VILLAGE_FLOOR].includes(grid[y][x]);
+    const horizontal = Number(estrada(tx - 1, ty)) + Number(estrada(tx + 1, ty))
+      >= Number(estrada(tx, ty - 1)) + Number(estrada(tx, ty + 1));
+    const ctx = this.ctx;
+    ctx.save();
+    if (tile === TILE.PATH) {
+      ctx.strokeStyle = "rgba(73,49,27,.32)";
+      ctx.lineWidth = Math.max(1, Math.round(T * 0.045));
+      ctx.setLineDash([Math.max(2, T * .18), Math.max(2, T * .12)]);
+      for (const faixa of [.33, .67]) {
+        ctx.beginPath();
+        if (horizontal) { ctx.moveTo(dx, dy + T * faixa); ctx.lineTo(dx + T, dy + T * faixa); }
+        else { ctx.moveTo(dx + T * faixa, dy); ctx.lineTo(dx + T * faixa, dy + T); }
+        ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle = "rgba(234,218,176,.16)";
+      ctx.lineWidth = Math.max(1, Math.round(T * .025));
+      ctx.strokeRect(dx + 1, dy + 1, T - 2, T - 2);
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  desenharFacesDeAltitude(faces, T) {
+    const ctx = this.ctx;
+    for (const f of faces) {
+      const h = Math.max(0, f.diferenca * T);
+      if (h < 1) continue;
+      const estrada = [TILE.PATH, TILE.COBBLE, TILE.BRIDGE].includes(f.tile)
+        && [TILE.PATH, TILE.COBBLE, TILE.BRIDGE].includes(f.tileBaixo);
+      const neve = f.tile === TILE.SNOW || f.tile === TILE.ICE;
+      const areia = f.tile === TILE.SAND;
+      const cinza = f.tile === TILE.ASH || f.tile === TILE.LAVA;
+      const cores = estrada ? ["#9a815f", "#514331"]
+        : neve ? ["#8e9b9b", "#505d61"]
+          : areia ? ["#a1774e", "#62442f"]
+            : cinza ? ["#68665f", "#343532"] : ["#706b52", "#3f4132"];
+      const grad = ctx.createLinearGradient(0, f.y, 0, f.y + h);
+      grad.addColorStop(0, cores[0]);
+      grad.addColorStop(.55, cores[1]);
+      grad.addColorStop(1, "#262820");
+      ctx.fillStyle = grad;
+      ctx.fillRect(f.x, f.y, T, h + 1);
+      ctx.strokeStyle = estrada ? "rgba(230,210,166,.38)" : "rgba(224,218,178,.16)";
+      ctx.lineWidth = Math.max(1, Math.round(T * .025));
+      const passos = Math.max(2, Math.round(h / Math.max(4, T * (estrada ? .09 : .13))));
+      for (let i = 1; i <= passos; i += 1) {
+        const y = f.y + h * i / passos;
+        ctx.beginPath(); ctx.moveTo(f.x, y); ctx.lineTo(f.x + T, y); ctx.stroke();
+      }
+      if (!estrada) {
+        // Lascas pequenas e rachaduras substituem a parede lisa de uma cor.
+        const lascas = Math.max(3, Math.round(T / 10));
+        for (let i = 0; i < lascas; i += 1) {
+          const px = f.x + ((f.tx * 17 + i * 23) % Math.max(2, T - 5));
+          const py = f.y + ((f.tx * 11 + i * 13) % Math.max(2, h));
+          ctx.fillStyle = i % 2 ? "rgba(245,232,188,.12)" : "rgba(12,15,10,.22)";
+          ctx.fillRect(px, py, Math.max(1, Math.round(T * .045)), Math.max(1, Math.round(T * .025)));
+        }
+      }
+    }
+  }
+
+  desenhar({ grid, alturas = null, player, npcs, objetos, mostrarPronto, props, tema, pet, objetivoMissao = null }) {
     const ctx = this.ctx;
     const T = this.tilePx;
     const mapaWpx = grid[0].length * T;
     const mapaHpx = grid.length * T;
-    const playerPx = { x: player.x * T + T / 2, y: player.y * T + T / 2 };
-    const cam = this.camera(playerPx, mapaWpx, mapaHpx);
+    this.gridAtual = grid;
+    this.alturasAtual = alturas;
+    const playerPx = { x: player.x * T + T / 2, y: player.y * T + T / 2 + this.deslocamentoAltura(player.x, player.y) };
+    const margemTopo = alturas ? Math.ceil(ALTURA_PROJETADA_MAXIMA + 1) * T : 0;
+    const cam = this.camera(playerPx, mapaWpx, mapaHpx, margemTopo, player.dir);
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const colStart = Math.max(0, Math.floor(cam.x / T));
-    const rowStart = Math.max(0, Math.floor(cam.y / T));
+    const rowStart = Math.max(0, Math.floor(cam.y / T) - (alturas ? Math.ceil(ALTURA_PROJETADA_MAXIMA) + 1 : 0));
     const colEnd = Math.min(grid[0].length - 1, Math.ceil((cam.x + this.canvas.width) / T));
-    const rowEnd = Math.min(grid.length - 1, Math.ceil((cam.y + this.canvas.height) / T));
+    const rowEnd = Math.min(grid.length - 1, Math.ceil((cam.y + this.canvas.height) / T) + 1);
+
+    const facesAltitude = [];
 
     for (let ty = rowStart; ty <= rowEnd; ty++) {
       for (let tx = colStart; tx <= colEnd; tx++) {
         const dx = Math.round(tx * T - cam.x);
-        const dy = Math.round(ty * T - cam.y);
+        const dyBase = Math.round(ty * T - cam.y);
+        const dy = Math.round(dyBase + this.deslocamentoAltura(tx, ty));
         const { folha, coluna } = this.folhaDoTile(grid[ty][tx]);
         if (!folha) continue;
         ctx.drawImage(folha, coluna * this.tilesetTileW, 0, this.tilesetTileW, this.tilesetTileW, dx, dy, T, T);
@@ -251,8 +474,23 @@ export class Renderer {
         // (ver TerrainBlend.js). Sai de graça no miolo: a função devolve na
         // primeira comparação quando não há fronteira.
         this.mistura.desenharFranjas(ctx, grid, tx, ty, dx, dy, T);
+        this.desenharMicroTexturaTerreno(grid[ty][tx], tx, ty, dx, dy, T);
+        this.desenharDetalheEstrada(grid, tx, ty, dx, dy, T);
+        this.desenharRelevoTile(grid, tx, ty, dx, dy, T);
+        if (alturas && ty + 1 < grid.length) {
+          const nivelAtual = this.nivelAltura(tx, ty);
+          const nivelAbaixo = this.nivelAltura(tx, ty + 1);
+          const diferenca = alturaVisualEmPersonagens(nivelAtual) - alturaVisualEmPersonagens(nivelAbaixo);
+          const tileAbaixo = grid[ty + 1][tx];
+          if (diferenca > 0) facesAltitude.push({ x: dx, y: dy + T, diferenca, tile: grid[ty][tx], tileBaixo: tileAbaixo, tx });
+        }
       }
     }
+
+    // As faces vêm depois dos tampos para que um paredão de oito níveis não
+    // seja apagado pelas fileiras de terreno desenhadas logo abaixo.
+    this.desenharFacesDeAltitude(facesAltitude, T);
+    this.desenharRastroMissao(objetivoMissao, player, cam);
 
     const janela = { col0: colStart, col1: colEnd, lin0: rowStart, lin1: rowEnd };
     const fila = filaDeProfundidade({
@@ -266,7 +504,7 @@ export class Renderer {
     this.rotulosNpc = [];
 
     for (const item of fila) {
-      if (item.tipo === "prop") { this.desenharProp(item.dado, cam); continue; }
+      if (item.tipo === "prop") { this.desenharProp(item.dado, cam, player); continue; }
       if (item.tipo === "objeto") { this.desenharObjeto(item.dado, cam); continue; }
       if (item.tipo === "npc") { this.desenharNpc(item.dado, cam); continue; }
       if (item.tipo === "pet") { this.desenharPet(item.dado, cam); continue; }
@@ -276,12 +514,68 @@ export class Renderer {
     if (mostrarPronto) this.desenharDicaDeInteracao(mostrarPronto);
   }
 
+  desenharRastroMissao(objetivo, player, cam) {
+    if (!objetivo) return;
+    const ctx = this.ctx;
+    const T = this.tilePx;
+    const inicio = {
+      x: player.x * T + T / 2 - cam.x,
+      y: player.y * T + T * .72 + this.deslocamentoAltura(player.x, player.y) - cam.y,
+    };
+    const alvo = {
+      x: objetivo.x * T + T / 2 - cam.x,
+      y: objetivo.y * T + T * .65 + this.deslocamentoAltura(objetivo.x, objetivo.y) - cam.y,
+    };
+    const dx = alvo.x - inicio.x, dy = alvo.y - inicio.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < T * .45) return;
+    const limite = Math.min(dist, Math.max(this.canvas.width, this.canvas.height) * .44);
+    const fim = { x: inicio.x + dx / dist * limite, y: inicio.y + dy / dist * limite };
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.setLineDash([Math.max(5, T * .13), Math.max(7, T * .2)]);
+    ctx.lineDashOffset = -(Date.now() / 55) % (T * .33);
+    ctx.lineWidth = Math.max(2, T * .045);
+    ctx.strokeStyle = "rgba(255,211,93,.68)";
+    ctx.shadowColor = "rgba(255,174,46,.58)";
+    ctx.shadowBlur = Math.max(5, T * .11);
+    ctx.beginPath(); ctx.moveTo(inicio.x, inicio.y); ctx.lineTo(fim.x, fim.y); ctx.stroke();
+    ctx.setLineDash([]);
+    const angulo = Math.atan2(dy, dx);
+    ctx.translate(fim.x, fim.y); ctx.rotate(angulo);
+    ctx.fillStyle = "#ffe27a";
+    ctx.strokeStyle = "rgba(34,20,7,.92)";
+    ctx.lineWidth = Math.max(1.5, T * .025);
+    ctx.beginPath(); ctx.moveTo(T * .18, 0); ctx.lineTo(-T * .11, -T * .12); ctx.lineTo(-T * .06, 0); ctx.lineTo(-T * .11, T * .12); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    // Se o objetivo está dentro da câmera, ele recebe um selo pulsante no
+    // chão. Fora dela, a seta acima continua indicando a direção correta.
+    if (alvo.x >= 0 && alvo.y >= 0 && alvo.x <= this.canvas.width && alvo.y <= this.canvas.height) {
+      const pulso = .82 + Math.sin(Date.now() / 210) * .12;
+      ctx.save();
+      ctx.strokeStyle = "#ffe27a";
+      ctx.lineWidth = Math.max(2, T * .04);
+      ctx.shadowColor = "#ffb12e"; ctx.shadowBlur = T * .16;
+      ctx.beginPath(); ctx.ellipse(alvo.x, alvo.y, T * .31 * pulso, T * .13 * pulso, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = "#fff1ad"; ctx.font = `bold ${Math.round(T * .32)}px sans-serif`; ctx.textAlign = "center";
+      ctx.fillText("!", alvo.x, alvo.y - T * .25);
+      ctx.restore();
+    }
+  }
+
   desenharObjeto(o, cam) {
     const ctx = this.ctx;
     const T = this.tilePx;
     const dx = Math.round(o.x * T - cam.x);
-    const dy = Math.round(o.y * T - cam.y);
-    if (dx < -T || dy < -T || dx > this.canvas.width || dy > this.canvas.height) return;
+    const dy = Math.round(o.y * T - cam.y + this.deslocamentoAltura(o.x, o.y));
+    // O chefe ocupa quatro vezes a altura visual de um civil, mas continua
+    // usando exatamente um tile lógico. Assim ele parece uma ameaça regional
+    // sem alterar colisão, pathfinding nem a distância que inicia o encontro.
+    const ehChefe = o.tipo === "chefe";
+    const margem = ehChefe ? T * 4.35 : T;
+    if (dx < -margem || dy < -margem || dx > this.canvas.width + margem || dy > this.canvas.height + margem) return;
     // Chefe em cooldown (melhoria de jogabilidade #1, ver main.js
     // objetosAtivos()): não tem sprite próprio — desenhado só com formas
     // de canvas (um anel "esvaziando" + relógio de areia), pra deixar
@@ -293,17 +587,86 @@ export class Renderer {
     }
     const img = this.imagens[o.imgKey];
     if (!img) return;
-    ctx.drawImage(img, dx, dy, T, T);
+    if (!ehChefe) {
+      ctx.drawImage(img, dx, dy, T, T);
+      return;
+    }
+
+    const tam = T * 4.32; // civil importante = 1,08 tile; chefe = 4x isso
+    const px = dx + T / 2 - tam / 2;
+    const py = dy + T - tam;
+    ctx.save();
+    // Sombra e selo territorial ficam no tile real. O sprite cresce somente
+    // para cima e para os lados, mantendo os pés no ponto do encontro.
+    ctx.fillStyle = "rgba(12,7,13,.58)";
+    ctx.beginPath();
+    ctx.ellipse(dx + T / 2, dy + T * .9, T * 1.02, T * .27, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(245,165,36,.82)";
+    ctx.lineWidth = Math.max(2, Math.round(this.escala * 2));
+    ctx.beginPath();
+    ctx.ellipse(dx + T / 2, dy + T * .88, T * .82, T * .21, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.imageSmoothingEnabled = false;
+    ctx.filter = "drop-shadow(0 7px 5px rgba(0,0,0,.72)) drop-shadow(0 0 7px rgba(245,165,36,.34))";
+    ctx.drawImage(img, px, py, tam, tam);
+    ctx.filter = "none";
+    ctx.fillStyle = "#ffd46a";
+    ctx.strokeStyle = "rgba(28,14,8,.9)";
+    ctx.lineWidth = Math.max(2, Math.round(this.escala * 2));
+    ctx.font = `bold ${Math.round(T * .58)}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.strokeText("♛", dx + T / 2, py + T * .25);
+    ctx.fillText("♛", dx + T / 2, py + T * .25);
+    ctx.restore();
   }
 
   desenharNpc(n, cam) {
     const ctx = this.ctx;
     const T = this.tilePx;
-    const img = this.imagens[n.id] || this.imagens.npc_marker;
+    const img = this.imagens[n.spriteKey] || this.imagens[n.id] || this.imagens.npc_marker;
     const dx = Math.round(n.x * T - cam.x);
-    const dy = Math.round(n.y * T - cam.y);
+    const dy = Math.round(n.y * T - cam.y + this.deslocamentoAltura(n.x, n.y));
     if (dx < -T || dy < -T || dx > this.canvas.width || dy > this.canvas.height) return;
-    if (img) ctx.drawImage(img, dx, dy, T, T);
+    // Os novos civis têm silhueta e nível de detalhe próximos aos heróis.
+    // Um pouco mais de presença para os importantes, mantendo figurantes
+    // abaixo do protagonista para preservar a hierarquia visual.
+    const tam = Math.round(T * (n.ambiente ? 1.08 : 1.15));
+    const px = Math.round(dx - (tam - T) / 2);
+    const py = Math.round(dy - (tam - T));
+    // Sombra curta e pés na mesma linha do tile: o personagem pertence ao
+    // chão em vez de parecer um adesivo flutuando sobre a cidade.
+    ctx.save();
+    ctx.globalAlpha = n.ambiente ? .24 : .34;
+    ctx.fillStyle = "#0b0a08";
+    ctx.beginPath();
+    ctx.ellipse(dx + T / 2, dy + T * .88, T * .27, T * .08, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    if (img) {
+      const passo = n.ambulante ? Math.sin(Date.now() / 135) * T * .018 : 0;
+      ctx.drawImage(img, px, py + passo, tam, tam);
+    }
+
+    // Missão ou função do NPC, sempre acima da cabeça. Um único marcador é
+    // muito mais legível que nomes, cargos e balões competindo entre si.
+    if (n.marcador?.icone) {
+      const raio = Math.max(8 * this.escala, T * .16);
+      const mx = dx + T / 2;
+      const my = py - raio * .72;
+      ctx.save();
+      ctx.fillStyle = "rgba(17,14,22,.94)";
+      ctx.strokeStyle = n.marcador.cor || "#ffd45a";
+      ctx.lineWidth = Math.max(1, Math.round(this.escala * 1.5));
+      ctx.beginPath(); ctx.arc(mx, my, raio, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = n.marcador.cor || "#ffd45a";
+      ctx.font = `bold ${Math.round(13 * this.escala)}px sans-serif`;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(n.marcador.icone, mx, my + this.escala);
+      ctx.restore();
+    }
+    if (n.mostrarNome === false) return;
     ctx.fillStyle = "#f1e9d8";
     ctx.font = `${Math.round(12 * this.escala)}px sans-serif`;
     ctx.textAlign = "center";
@@ -314,7 +677,8 @@ export class Renderer {
     const baseX = Math.min(Math.max(dx + T / 2, meia), this.canvas.width - meia);
     const largura = meia * 2;
     let nx = baseX;
-    let ny = Math.max(12 * this.escala, dy - 4 * this.escala);
+    const recuoMarcador = n.marcador?.icone ? Math.max(18 * this.escala, T * .34) : 0;
+    let ny = Math.max(12 * this.escala, py - 4 * this.escala - recuoMarcador);
     const colide = (x, y) => this.rotulosNpc.some((r) =>
       Math.abs(x - r.x) < (largura + r.w) / 2 && Math.abs(y - r.y) < 16 * this.escala);
     if (colide(nx, ny)) {
@@ -341,7 +705,7 @@ export class Renderer {
     if (!folha || folha.width < TILE_SIZE * 2) return;
     const tam = Math.round(T * 0.7);
     const dx = Math.round(pet.x * T - cam.x + (T - tam) / 2);
-    const dy = Math.round(pet.y * T - cam.y + (T - tam) * 0.85);
+    const dy = Math.round(pet.y * T - cam.y + (T - tam) * 0.85 + this.deslocamentoAltura(pet.x, pet.y));
     const sx = (pet.frame || 0) * TILE_SIZE;
     ctx.save();
     if (pet.dir === "esquerda") {
@@ -362,15 +726,75 @@ export class Renderer {
     if (!sheet) return;
     const frame = player.frame || 0;
     const sx = frame * TILE_SIZE;
-    const dx = playerPx.x - cam.x - T / 2;
-    const dy = playerPx.y - cam.y - T * 0.75;
+    const tam = Math.round(T * 1.14);
+    const dx = playerPx.x - cam.x - tam / 2;
+    // Aumenta a leitura sem mudar a base: os pés continuam no mesmo ponto
+    // lógico, enquanto roupa, cabelo e equipamento ganham mais pixels.
+    const dy = playerPx.y - cam.y - tam * 0.78;
     ctx.save();
-    if (player.dir === "esquerda") {
-      ctx.translate(dx + T, dy);
-      ctx.scale(-1, 1);
-      ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, 0, 0, T, T);
+    ctx.globalAlpha = .36;
+    ctx.fillStyle = "#070706";
+    ctx.beginPath();
+    ctx.ellipse(playerPx.x - cam.x, playerPx.y - cam.y + T * .29, T * .3, T * .085, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (player.dir === "esquerda" || player.dir === "direita") {
+      // Perfil lateral: estreita a silhueta sem reduzir a altura e espelha
+      // para a esquerda. Como todas as combinações raça/classe passam por
+      // este renderer, as quatro direções funcionam para o elenco inteiro.
+      const larguraPerfil = tam * .84;
+      const px = dx + (tam - larguraPerfil) / 2;
+      ctx.save();
+      if (player.dir === "esquerda") {
+        ctx.translate(px + larguraPerfil, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, 0, 0, larguraPerfil, tam);
+      } else {
+        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, px, dy, larguraPerfil, tam);
+      }
+      ctx.restore();
     } else {
-      ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, dx, dy, T, T);
+      ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, dx, dy, tam, tam);
+      if (player.dir === "cima") {
+        // As folhas originais trazem a pose frontal. Esta leitura traseira
+        // cobre rosto/peito com nuca, ombreiras e capa específicos da classe,
+        // preservando arma, animação e identidade racial do sprite-base.
+        const chave = String(player.spriteKey || "");
+        const cor = chave.includes("mago") ? "#294d87"
+          : chave.includes("clerigo") ? "#d6c7a0"
+            : chave.includes("patrulheiro") ? "#315c43"
+              : chave.includes("ladino") ? "#352b4c"
+                : chave.includes("barbaro") ? "#6f302d" : "#443e55";
+        ctx.fillStyle = "rgba(13,12,18,.82)";
+        ctx.beginPath();
+        ctx.ellipse(dx + tam * .5, dy + tam * .27, tam * .14, tam * .15, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = cor;
+        ctx.beginPath();
+        ctx.moveTo(dx + tam * .31, dy + tam * .37);
+        ctx.quadraticCurveTo(dx + tam * .5, dy + tam * .28, dx + tam * .69, dy + tam * .37);
+        ctx.lineTo(dx + tam * .64, dy + tam * .73);
+        ctx.quadraticCurveTo(dx + tam * .5, dy + tam * .82, dx + tam * .36, dy + tam * .73);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(224,210,172,.48)";
+        ctx.lineWidth = Math.max(1, T * .018);
+        ctx.beginPath();
+        ctx.moveTo(dx + tam * .5, dy + tam * .4);
+        ctx.lineTo(dx + tam * .5, dy + tam * .7);
+        ctx.stroke();
+      }
+    }
+    const tile = this.gridAtual?.[Math.floor(player.y)]?.[Math.floor(player.x)];
+    if (tile === TILE.WATER) {
+      // Água rasa cobre os pés e cria ondas: deixa claro que o herói entrou
+      // na água, em vez de parecer apenas que caminhou sobre outro piso.
+      ctx.globalAlpha = .62;
+      ctx.fillStyle = "#5fc7da";
+      ctx.fillRect(dx + tam * .18, dy + tam * .79, tam * .64, Math.max(2, T * .08));
+      ctx.strokeStyle = "#d7fbff";
+      ctx.lineWidth = Math.max(1, T * .025);
+      ctx.beginPath(); ctx.arc(dx + tam * .5, dy + tam * .84, T * .32, 0, Math.PI); ctx.stroke();
     }
     ctx.restore();
   }

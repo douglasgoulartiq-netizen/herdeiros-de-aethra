@@ -5,6 +5,10 @@ import { avaliarEncontro } from "../systems/ThreatSystem.js";
 import { relacaoElemental } from "../systems/ElementSystem.js";
 import { fecharModal } from "./GameUI.js";
 import { dicasDoChefe } from "../systems/PreparacaoChefeSystem.js";
+import { d20 } from "../systems/CombatSystem.js";
+import { mostrarRolagemD20 } from "./DiceAnimation.js";
+import { limparNotificacoes } from "./Notificacoes.js";
+import { marcarInteracaoAutomatica } from "./HdaUI.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
@@ -17,7 +21,11 @@ const SUFIXO_RELACAO_AMEACA = {
   imune: { texto: "🚫", titulo: "Este inimigo é imune ao elemento da sua arma" },
 };
 
-export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir, terrenoElemento = null, totalOndasExtras = 0) {
+export function permiteEscolherEncontro(valorD20) {
+  return Number(valorD20) > 12;
+}
+
+export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir, terrenoElemento = null, totalOndasExtras = 0, desafio = null) {
   const info = avaliarEncontro(personagens, monstrosDef);
   overlay().classList.remove("hidden");
   // Elemento da arma do personagem principal, usado só para dar uma prévia
@@ -59,6 +67,7 @@ export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir,
 
   const temSolo = monstrosDef.length === 1 && monstrosDef[0].solo;
   conteudo().classList.toggle("preparacao-chefe-modal", !!info.temChefe);
+  marcarInteracaoAutomatica(conteudo());
   // Fala do chefe (task #45): personalidade própria mostrada antes do
   // combate, só quando o encontro é exatamente o chefe único da zona (não
   // aparece em encontros comuns/hordas, que não têm o campo "fala").
@@ -69,6 +78,7 @@ export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir,
     <h2 style="color:${info.ameaca.cor};">${info.ameaca.icone} Ameaça: ${info.ameaca.nome}${info.temChefe ? " · 👑 Chefe" : ""}${temSolo ? " · 💪 Reforçado" : ""}</h2>
     <div id="modal-corpo">
       <p>${nomesInimigos}</p>
+      ${desafio ? `<p class="desafio-d20-resultado ${desafio.sucesso ? "sucesso" : "falha"}">🎲 D20: <b>${desafio.valor}</b> · ${desafio.sucesso ? "você abriu uma rota de fuga" : "o inimigo bloqueou sua passagem"}</p>` : ""}
       ${falaChefe}
       <p>Inimigos detectados${totalOndasExtras > 0 ? " (1ª onda)" : ""}: <b>${info.quantidade}</b></p>
       ${hordaHtml}
@@ -84,4 +94,33 @@ export function mostrarAmeaca(monstrosDef, personagens, dados, onLutar, onFugir,
   `;
   conteudo().querySelector(".btn-lutar").onclick = () => { fecharModal(); onLutar(); };
   conteudo().querySelector(".btn-fugir-ameaca").onclick = () => { fecharModal(); if (onFugir) onFugir(); };
+}
+
+// Todo encontro agora passa por uma única porta: a tela fica bloqueada,
+// notificações antigas saem, o d20 é encenado e só depois aparece uma
+// decisão. 13–20 abre Lutar/Fugir; 1–12 significa que o inimigo alcançou o
+// grupo e a batalha começa, sem criar um segundo modal por cima do dado.
+export async function mostrarDesafioAmeaca(monstrosDef, personagens, dados, onLutar, onFugir, terrenoElemento = null, totalOndasExtras = 0) {
+  if (document.body.classList.contains("desafio-encontro-ativo")) return;
+  document.body.classList.add("desafio-encontro-ativo");
+  limparNotificacoes();
+  fecharModal();
+  const valor = d20();
+  const sucesso = permiteEscolherEncontro(valor);
+  try {
+    await mostrarRolagemD20(
+      { d: valor, total: valor, dificuldade: 13, sucesso },
+      { titulo: "Desafio de encontro · escapar ou enfrentar" },
+    );
+  } finally {
+    document.body.classList.remove("desafio-encontro-ativo");
+  }
+  if (!sucesso) {
+    onLutar();
+    return;
+  }
+  mostrarAmeaca(
+    monstrosDef, personagens, dados, onLutar, onFugir,
+    terrenoElemento, totalOndasExtras, { valor, sucesso },
+  );
 }

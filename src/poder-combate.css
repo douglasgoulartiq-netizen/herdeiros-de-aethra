@@ -1,0 +1,22 @@
+.pc-time-resumo { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:0 0 12px; padding:14px 17px; border:1px solid rgba(87,177,216,.36); border-radius:14px; background:linear-gradient(120deg,rgba(14,30,43,.95),rgba(24,20,34,.94)); }
+.pc-time-resumo>div:first-child { display:flex; flex-direction:column; gap:3px; }
+.pc-time-resumo small,.pc-recomendacao small { color:#83d8f0; font-size:.66rem; font-weight:900; letter-spacing:.09em; }
+.pc-time-resumo strong { color:#fff1bb; font-size:1.5rem; }
+.pc-time-resumo>div:first-child span { color:#9eabb9; font-size:.75rem; }
+.pc-time-bonus { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+.pc-time-bonus span { padding:5px 9px; border:1px solid rgba(134,158,183,.28); border-radius:20px; background:#131923; color:#cfdae6; font-size:.72rem; }
+.pc-recomendacao { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:13px; margin:0 0 13px; padding:13px 15px; border:1px solid rgba(244,193,75,.53); border-radius:14px; background:linear-gradient(110deg,rgba(55,40,17,.65),rgba(27,22,31,.92)); box-shadow:0 0 25px rgba(232,174,51,.1); }
+.pc-recomendacao-icone { font-size:1.7rem; }
+.pc-recomendacao>div { display:flex; min-width:0; flex-direction:column; gap:3px; }
+.pc-recomendacao b { color:#ffe9a0; }
+.pc-recomendacao em { margin-left:7px; color:#7ee59a; font-style:normal; }
+.pc-recomendacao p { margin:0; color:#c8c4b9; font-size:.77rem; }
+.pc-time-otimo { margin:0 0 12px; padding:9px 12px; border-radius:10px; background:rgba(50,119,72,.2); color:#a8edba; }
+.pc-troca { margin-top:5px; padding:4px 7px; border-radius:7px; background:#171a20; color:#aeb8c4; font-size:.7rem; font-weight:800; text-align:center; }
+.pc-troca.melhora { background:rgba(37,111,65,.24); color:#8be7a7; }
+.pc-troca.piora { background:rgba(128,52,47,.22); color:#f0a39e; }
+@media(max-width:719px){.pc-time-resumo{align-items:flex-start;flex-direction:column}.pc-time-bonus{justify-content:flex-start}.pc-recomendacao{grid-template-columns:auto 1fr}.pc-recomendacao button{grid-column:1/-1;width:100%}}
+.convocado-progresso { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; margin-top:7px; color:#f1d88a; }
+.convocado-progresso span { color:#a9d7ff; font-weight:800; }
+.convocado-xp { width:100%; height:6px; overflow:hidden; border-radius:99px; background:#111522; box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+.convocado-xp i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#4b8dcc,#8ed8ff); }

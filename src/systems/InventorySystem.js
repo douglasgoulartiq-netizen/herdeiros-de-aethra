@@ -147,6 +147,64 @@ export function venderItem(personagem, uid) {
   return valor;
 }
 
+// Venda rápida conservadora: limpa equipamento comum e excesso de itens
+// empilháveis, mas nunca encosta em raridade rara+, item equipado ou nas
+// últimas unidades úteis. A prévia e a venda usam a mesma seleção para o
+// jogador sempre receber exatamente o valor mostrado na confirmação.
+export function itensParaVendaEmLote(personagem) {
+  const inventario = personagem.inventario || [];
+  const porId = new Map();
+  inventario.forEach((item) => {
+    const lista = porId.get(item.id) || [];
+    lista.push(item);
+    porId.set(item.id, lista);
+  });
+  const selecionados = [];
+  for (const lista of porId.values()) {
+    const item = lista[0];
+    if (!item || item.raridade !== "comum") continue;
+    if (["arma", "armadura", "acessorio"].includes(item.tipo)) selecionados.push(...lista);
+    else if (item.tipo === "consumivel" && lista.length > 5) selecionados.push(...lista.slice(5));
+    else if (item.tipo === "material" && lista.length > 20) selecionados.push(...lista.slice(20));
+  }
+  return selecionados;
+}
+
+export function previaVendaEmLote(personagem) {
+  const itens = itensParaVendaEmLote(personagem);
+  return {
+    quantidade: itens.length,
+    valor: itens.reduce((soma, item) => soma + Math.max(1, Math.round((item.valor || 1) * 0.5)), 0),
+  };
+}
+
+export function venderItensEmLote(personagem) {
+  const itens = itensParaVendaEmLote(personagem);
+  let valor = 0;
+  itens.forEach((item) => { valor += venderItem(personagem, item.uid); });
+  return { quantidade: itens.length, valor };
+}
+
+export function custoServicoLoja(personagem, servicoId) {
+  const nivel = Math.max(1, personagem.nivel || 1);
+  if (servicoId === "recuperar_time") return 35 + nivel * 8;
+  if (servicoId === "bencao_fortuna") return 160 + nivel * 12;
+  return Infinity;
+}
+
+export function comprarServicoLoja(personagem, servicoId, time = [personagem]) {
+  const custo = custoServicoLoja(personagem, servicoId);
+  if (!Number.isFinite(custo)) return { ok: false, msg: "Serviço indisponível." };
+  if ((personagem.ouro || 0) < custo) return { ok: false, msg: `Faltam ${custo - (personagem.ouro || 0)} de ouro.` };
+  personagem.ouro -= custo;
+  if (servicoId === "recuperar_time") {
+    descansar(time.length ? time : [personagem]);
+    return { ok: true, custo, msg: "O grupo recuperou todo o HP e MP." };
+  }
+  personagem.bausAbençoados = Math.max(0, personagem.bausAbençoados || 0) + 3;
+  return { ok: true, custo, msg: "Os próximos 3 baús terão uma recompensa extra." };
+}
+
 // `multiplicadorPreco` (padrão 1 = preço normal) permite que a loja reflita
 // a reputação do personagem com a vila (ver WorldStateSystem.js) sem esse
 // módulo precisar conhecer nada sobre reputação — só recebe o número já
@@ -157,6 +215,16 @@ export function comprarItem(personagem, itemBase, multiplicadorPreco = 1) {
   personagem.ouro -= preco;
   adicionarItem(personagem, itemBase, 1);
   return { ok: true, preco };
+}
+
+export function comprarLote(personagem, itemBase, quantidade, multiplicadorPreco = 1, valorUnitario = null) {
+  const qtd = Math.max(1, Math.floor(quantidade || 1));
+  const unitario = valorUnitario == null ? (itemBase.valor || 1) : valorUnitario;
+  const preco = Math.max(1, Math.round(unitario * qtd * multiplicadorPreco));
+  if (personagem.ouro < preco) return { ok: false, msg: "Ouro insuficiente." };
+  personagem.ouro -= preco;
+  adicionarItem(personagem, itemBase, qtd);
+  return { ok: true, preco, quantidade: qtd };
 }
 
 export function sortearRaridade(raridades, bonusRaroPercent = 0) {

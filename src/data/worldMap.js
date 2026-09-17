@@ -65,7 +65,10 @@ export const TILE_FALLBACK = {
 };
 
 export const SOLID_TILES = new Set([
-  TILE.TREE, TILE.WALL, TILE.WATER, TILE.DUNGEON_WALL, TILE.BUSH,
+  // Água rasa pode ser explorada a pé; DEEP_WATER continua sendo o limite.
+  // Isso preserva o papel das praias como transição e permite realmente
+  // entrar no mar sem deixar o jogador atravessar o oceano inteiro.
+  TILE.TREE, TILE.WALL, TILE.DUNGEON_WALL, TILE.BUSH,
   TILE.LAVA, TILE.BUILDING, TILE.CRYSTAL, TILE.DEEP_WATER,
 ]);
 

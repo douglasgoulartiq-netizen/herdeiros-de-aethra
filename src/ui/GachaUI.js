@@ -19,15 +19,20 @@ import { paresRelacionamentoPreview } from "../systems/RivalrySystem.js";
 import { infoAfinidade } from "../systems/AffinitySystem.js";
 import { facaoAfiliada, facaoInfo } from "../systems/WorldStateSystem.js";
 import { perfisParaExibir, salvarPerfilDeTime, carregarPerfilDeTime, apagarPerfilDeTime } from "../systems/TeamProfileSystem.js";
+import {
+  avaliarTime, melhorRecomendacaoTime, simularEntradaNoTime,
+  chaveDaRecomendacao, formatarPoder, poderDoMembro,
+} from "../systems/CombatPowerSystem.js";
 // Equipar/curar convocados do gacha (pedido do jogador): reaproveita a
 // mesma tela de Inventário do personagem principal (GameUI.js), só que com
 // `alvo` = o convocado — a mochila e o ouro usados continuam sendo os do
 // principal (estoque compartilhado do time, ver InventorySystem.js).
-import { montarInventario } from "./GameUI.js";
+import { montarInventario, atualizarIndicadorRecomendacaoTime } from "./GameUI.js";
 
 import { abrirTela, LARGURA, criarGrade, abrirSheet, fecharSheet } from "./HdaUI.js";
 import { imgHtml, ligarCadeias } from "../systems/AssetResolver.js";
 import { USOS } from "../data/assetRegistry.js";
+import { NIVEL_MAXIMO_PERSONAGEM } from "../systems/CharacterFactory.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
@@ -285,6 +290,9 @@ function renderColecao(corpo, personagem, onMudar, dados) {
     // (camaradagem regional ativa em batalha).
     const faccaoInfo = p.facaoId ? facaoInfo(p.facaoId, dados.worldStateVariables) : null;
     const camaradagemAtiva = faccaoInfo && facaoAfiliada(personagem) === p.facaoId;
+    const nivelMaximo = p.nivel >= NIVEL_MAXIMO_PERSONAGEM;
+    const xpPct = nivelMaximo ? 100 : Math.max(0, Math.min(100, Math.round((p.xp || 0) / Math.max(1, p.xpProximo || 1) * 100)));
+    const pc = poderDoMembro(p, dados);
     const div = document.createElement("div");
     div.className = "card convocado-card";
     div.dataset.raridade = p.raridade;
@@ -300,7 +308,9 @@ function renderColecao(corpo, personagem, onMudar, dados) {
       ${badge(p.raridade)}
       <div class="desc classe-evidente" style="text-align:center;font-size:1.05em;">${classeInfo ? `${classeInfo.icone} <b>${classeInfo.nome}</b>` : p.classeId}${racaInfo ? ` · ${racaInfo.nome}` : ""}</div>
       ${faccaoInfo ? `<div class="desc" style="text-align:center;">${faccaoInfo.icone || ""} ${faccaoInfo.nome}</div>` : ""}
-      <div class="desc" style="text-align:center;">Nv. ${p.nivel}</div>
+      <div class="convocado-progresso"><b>Nv. ${p.nivel}/${NIVEL_MAXIMO_PERSONAGEM}</b><span>${pc} PC</span></div>
+      <div class="convocado-xp" title="${nivelMaximo ? "Nível máximo" : `${p.xp || 0}/${p.xpProximo || 0} XP`}"><i style="width:${xpPct}%"></i></div>
+      <div class="desc" style="text-align:center;">${nivelMaximo ? "Nível máximo" : `${p.xp || 0}/${p.xpProximo || 0} XP · reservas recebem 35%`}</div>
       <div class="desc" style="text-align:center;">HP ${p.hp}/${p.hpMax} · MP ${p.mp}/${p.mpMax}</div>
       ${afinidade ? `<div class="desc badge-afinidade" style="text-align:center;margin-top:4px;" title="${afinidade.texto}">🔗 Afinidade racial ativa</div>` : ""}
       ${camaradagemAtiva ? `<div class="desc badge-afinidade" style="text-align:center;">🤝 Camaradagem regional ativa</div>` : ""}
@@ -477,11 +487,25 @@ function renderFormacao(corpo, personagem, dados, onMudar, aoVoltar = null) {
 // ter a aba Time — quem quer trocar o time abre a tela do time.
 export function montarSelecaoDeTime(corpo, personagem, dados, onMudar, aoVoltar = null) {
   const g = personagem.gacha;
+  const avaliacaoAtual = avaliarTime(personagem, dados);
+  const recomendacao = melhorRecomendacaoTime(personagem, dados);
+  personagem.recomendacaoTimeVistaChave = chaveDaRecomendacao(recomendacao);
+  atualizarIndicadorRecomendacaoTime(personagem, recomendacao, personagem.recomendacaoTimeVistaChave);
   corpo.innerHTML = `
-    <p>Seu personagem principal (${personagem.nome}) está sempre no time. Escolha até ${MAX_CONVOCADOS_GACHA} personagens invocados para completar o time de ${MAX_CONVOCADOS_GACHA + 1}.</p>
+    <section class="pc-time-resumo">
+      <div><small>PODER DE COMBATE DO TIME</small><strong>⚔ ${formatarPoder(avaliacaoAtual.total)} PC</strong><span>Base ${formatarPoder(avaliacaoAtual.base)} · bônus coletivos +${avaliacaoAtual.bonusPercentual}%</span></div>
+      <div class="pc-time-bonus"><span>🌈 Afinidade +${avaliacaoAtual.bonus.afinidade}%</span><span>🤝 Facção +${avaliacaoAtual.bonus.faccao}%</span><span>♟ Formação +${avaliacaoAtual.bonus.formacao}%</span></div>
+    </section>
+    ${recomendacao ? `<section class="pc-recomendacao"><span class="pc-recomendacao-icone">💡</span><div><small>RECOMENDAÇÃO INTELIGENTE</small><b>${formatarPoder(recomendacao.atual.total)} → ${formatarPoder(recomendacao.sugerido.total)} PC <em>+${recomendacao.ganhoPct}%</em></b><p>${recomendacao.entram.length ? `Entram: ${recomendacao.entram.join(", ")}. ` : ""}${recomendacao.saem.length ? `Saem: ${recomendacao.saem.join(", ")}. ` : ""}${recomendacao.motivos.join("; ")}.</p></div><button id="btn-aplicar-time-recomendado">Aplicar sugestão</button></section>` : `<p class="pc-time-otimo">✓ Seu melhor time conhecido já está montado.</p>`}
+    <p>Seu personagem principal (${personagem.nome}) está sempre no time. Escolha até ${MAX_CONVOCADOS_GACHA} personagens invocados para completar o time de ${MAX_CONVOCADOS_GACHA + 1}. O PC é uma comparação, não substitui estratégia elemental.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;"></div>
   `;
   const grid = corpo.lastElementChild;
+  corpo.querySelector("#btn-aplicar-time-recomendado")?.addEventListener("click", () => {
+    definirTimeAtivo(personagem, recomendacao.uids);
+    onMudar();
+    montarSelecaoDeTime(corpo, personagem, dados, onMudar, aoVoltar);
+  });
   renderFormacao(corpo, personagem, dados, onMudar, aoVoltar);
   if (!g.personagensObtidos.length) {
     grid.innerHTML = "<p>Invoque personagens na aba Invocar para montar seu time.</p>";
@@ -489,6 +513,9 @@ export function montarSelecaoDeTime(corpo, personagem, dados, onMudar, aoVoltar 
   }
   g.personagensObtidos.forEach((p) => {
     const selecionado = g.timeAtivo.includes(p.uid);
+    const simulacao = simularEntradaNoTime(personagem, dados, p.uid);
+    const deltaClasse = simulacao.delta > 0 ? " melhora" : simulacao.delta < 0 ? " piora" : " neutro";
+    const deltaTexto = selecionado ? `⚔ ${formatarPoder(poderDoMembro(p, dados))} PC individual` : `${simulacao.delta >= 0 ? "+" : ""}${formatarPoder(simulacao.delta)} PC no time (${simulacao.deltaPct >= 0 ? "+" : ""}${simulacao.deltaPct}%)`;
     const classeInfo = (dados.classes || []).find((c) => c.id === p.classeId);
     const div = document.createElement("div");
     div.className = `card convocado-card time-card${selecionado ? " selecionado" : ""}`;
@@ -500,6 +527,7 @@ export function montarSelecaoDeTime(corpo, personagem, dados, onMudar, aoVoltar 
       <div class="desc classe-evidente">${classeInfo ? `${classeInfo.icone} ${classeInfo.nome}` : p.classeId}</div>
       <div class="desc">Nv. ${p.nivel}</div>
       <div class="desc" style="font-size:0.8em;">HP ${p.hp}/${p.hpMax} · MP ${p.mp}/${p.mpMax}</div>
+      <div class="pc-troca${deltaClasse}" title="Prévia do melhor encaixe possível deste personagem">${deltaTexto}</div>
       <button class="btn-time" data-uid="${p.uid}" style="margin-top:6px;">${selecionado ? "Remover do time" : "Colocar no time"}</button>
       <button class="btn-equipar-convocado" data-uid="${p.uid}" style="margin-top:4px;" title="Equipar itens ou usar poções de cura/mana nele(a), usando o estoque do time">🎒 Equipar/Curar</button>
     `;

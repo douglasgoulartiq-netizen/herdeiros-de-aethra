@@ -45,9 +45,10 @@ export const DIFICULDADES = { facil: 0.8, normal: 1, dificil: 1.25, brutal: 1.5 
 
 // Volume de efeitos sonoros (item 14/87 de 100_melhorias.md, ver
 // src/ui/SoundFX.js): o jogo nunca teve áudio, então isso já nasce com um
-// eixo próprio, separado de música (que ainda não existe) — "desligado" (0)
-// é literalmente o mesmo silêncio de sempre, então não muda nada pra quem
-// não mexer na opção.
+// eixo próprio, separado de música (que ainda não existe). Novas instalações
+// começam em "baixo": o jogador pediu feedback sonoro nos momentos
+// importantes, mas o primeiro contato não deve ser agressivo. Preferências
+// já salvas continuam sendo respeitadas, inclusive "desligado".
 export const VOLUMES_EFEITOS = { desligado: 0, baixo: 0.25, medio: 0.55, alto: 0.9 };
 
 // Velocidade do automático FORA de combate (item 21 de 100_melhorias.md) —
@@ -55,6 +56,15 @@ export const VOLUMES_EFEITOS = { desligado: 0, baixo: 0.25, medio: 0.55, alto: 0
 // "rapida" reduz o intervalo (anda/interage mais rápido), nunca abaixo de
 // 80ms (piso de segurança pra não travar o navegador em loop apertado).
 export const VELOCIDADES_AUTO_EXPLORACAO = { normal: 1, rapida: 0.5, instantaneo: 0.2 };
+
+// Preferências dos controles de exploração em telas de toque. Elas ficam na
+// configuração do dispositivo, separadas dos quatro slots de aventura: trocar
+// de personagem não deve fazer o direcional pular de lado ou voltar a ficar
+// opaco. Os valores são ids (não números CSS livres) para que um dado antigo
+// ou corrompido sempre caia em uma combinação segura.
+export const TAMANHOS_CONTROLES_TOQUE = ["compacto", "normal", "grande"];
+export const OPACIDADES_CONTROLES_TOQUE = ["discreta", "normal", "alta"];
+export const POSICOES_CONTROLES_TOQUE = ["direcional_esquerda", "direcional_direita"];
 
 const PADRAO = {
   velocidadeMensagem: "normal",
@@ -64,8 +74,11 @@ const PADRAO = {
   velocidadeAnimacaoCombate: "normal",
   limiteHpAutoPlay: "desligado",
   dificuldade: "normal",
-  volumeEfeitos: "desligado",
+  volumeEfeitos: "baixo",
   velocidadeAutoExploracao: "normal",
+  tamanhoControlesToque: "normal",
+  opacidadeControlesToque: "normal",
+  posicaoControlesToque: "direcional_esquerda",
   // Item 23 de 100_melhorias.md: false preserva o comportamento de sempre
   // (automático enfrenta o chefe sem perguntar) — só quem ligar isso aqui
   // ganha a pausa antes do chefe.
@@ -102,6 +115,9 @@ export function mesclarConfig(parcial) {
     dificuldade: p.dificuldade in DIFICULDADES ? p.dificuldade : PADRAO.dificuldade,
     volumeEfeitos: p.volumeEfeitos in VOLUMES_EFEITOS ? p.volumeEfeitos : PADRAO.volumeEfeitos,
     velocidadeAutoExploracao: p.velocidadeAutoExploracao in VELOCIDADES_AUTO_EXPLORACAO ? p.velocidadeAutoExploracao : PADRAO.velocidadeAutoExploracao,
+    tamanhoControlesToque: TAMANHOS_CONTROLES_TOQUE.includes(p.tamanhoControlesToque) ? p.tamanhoControlesToque : PADRAO.tamanhoControlesToque,
+    opacidadeControlesToque: OPACIDADES_CONTROLES_TOQUE.includes(p.opacidadeControlesToque) ? p.opacidadeControlesToque : PADRAO.opacidadeControlesToque,
+    posicaoControlesToque: POSICOES_CONTROLES_TOQUE.includes(p.posicaoControlesToque) ? p.posicaoControlesToque : PADRAO.posicaoControlesToque,
     pararAutoAntesDoChefe: typeof p.pararAutoAntesDoChefe === "boolean" ? p.pararAutoAntesDoChefe : PADRAO.pararAutoAntesDoChefe,
     autoCuidarDoTime: typeof p.autoCuidarDoTime === "boolean" ? p.autoCuidarDoTime : PADRAO.autoCuidarDoTime,
   };
@@ -163,7 +179,7 @@ export function multiplicadorDificuldade() {
 }
 
 // Volume de efeitos sonoros (0 a 1) — ver VOLUMES_EFEITOS acima e
-// src/ui/SoundFX.js. 0 (padrão) = nenhum som, idêntico ao jogo sem áudio.
+// src/ui/SoundFX.js. 0 = nenhum som; o padrão de uma instalação nova é baixo.
 export function volumeEfeitos() {
   return VOLUMES_EFEITOS[carregarConfigAcessibilidade().volumeEfeitos] ?? 0;
 }

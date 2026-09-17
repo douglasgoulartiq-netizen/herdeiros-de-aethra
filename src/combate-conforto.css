@@ -1,0 +1,353 @@
+/* Nenhum efeito altera o tamanho do slot ou cobre os comandos. A legenda da
+   ação vive na barra fixa entre iniciativa e log, nunca sobre a arena. */
+.bt-infobar { grid-template-columns:minmax(110px,.8fr) minmax(240px,1.35fr) auto; }
+.bt-legenda-acao { min-width:0; height:30px; display:flex; align-items:center; justify-content:center; }
+.combate-leitura { position:static; width:100%; min-width:0; z-index:1; display:flex; align-items:center; justify-content:center; gap:8px; pointer-events:none; font-size:clamp(11px,1vw,14px); }
+.combate-leitura span { background:#141c29ed; color:#f3ead6; border:1px solid #7f8ba7; border-radius:7px; padding:4px 9px; max-width:100%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.combate-leitura span:empty { display:none; }
+.combate-leitura { min-height:30px; }
+.combate-leitura span { line-height:1.25; }
+.combate-estado-detalhe { position:absolute; left:15%; right:15%; top:43%; z-index:30; display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #a4b9d3; border-radius:10px; background:#111c2bf5; color:#eef3f9; font-size:14px; box-shadow:0 8px 28px #0008; }
+.combate-estado-detalhe span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.combate-estado-detalhe span { white-space:pre-line; max-height:25vh; overflow:auto; line-height:1.5; }
+.combate-estado-detalhe button { min-height:40px; flex-shrink:0; }
+.bt-slot .combatente .status-icone[role=button] { cursor:pointer; }
+.combate-leitura button { pointer-events:auto; min-height:32px; font-size:11px; white-space:nowrap; }
+.combate-leitura button[hidden] { display:none; }
+.combate-trajeto { position:absolute; pointer-events:none; z-index:18; font:700 36px/1 Georgia,serif; color:var(--fx-cor); text-shadow:0 0 8px var(--fx-cor); margin:-18px; width:36px; text-align:center; }
+.elemento-fogo { border-radius:60% 10% 60% 40%; }
+.elemento-gelo { font-size:40px; }
+.elemento-raio { font-size:44px; text-shadow:none; }
+.elemento-natureza { font-size:40px; }
+.combate-trajeto.elemento-fogo { background:radial-gradient(ellipse at bottom,#edaa6928,transparent 70%); }
+.combate-trajeto.elemento-natureza { border-bottom:2px solid #8ad6a5; border-radius:60%; }
+.combate-trajeto.elemento-agua { border-bottom:2px solid #8dc8ef; border-radius:40%; }
+.combate-trajeto.elemento-vento { border:1px solid #b2e4dc66; border-radius:50% 20%; }
+.elemento-arcano { border:1px solid currentColor; border-radius:50%; }
+.combate-impacto { position:absolute; width:54px; height:54px; margin:-27px; border:2px solid var(--fx-cor); border-radius:50%; pointer-events:none; z-index:17; }
+.combate-impacto.elemento-gelo,.combate-impacto.elemento-terra { border-radius:6px; }
+.combate-impacto.elemento-fisico { border-width:0 3px; border-radius:30%; }
+.combate-impacto.elemento-raio { border-style:dashed; border-radius:15%; }
+.combate-impacto.elemento-fogo { border-width:2px 4px 0; border-radius:70% 15% 60% 30%; }
+.combate-impacto.elemento-natureza { border-radius:0 80% 0 80%; border-width:2px 4px; }
+.combate-impacto.elemento-agua { border-style:double; border-width:5px; border-radius:50%; }
+.combate-impacto.elemento-vento { border-width:2px 0 2px 3px; border-radius:50% 20%; }
+.combate-impacto.elemento-arcano { border-style:double; border-width:4px; border-radius:15%; }
+.combate-impacto.elemento-veneno { border-style:dotted; border-width:3px; }
+.combate-impacto.elemento-cura { border-style:double; border-width:4px; }
+.combate-impacto.elemento-defesa { border-radius:15% 15% 50% 50%; }
+.combate-impacto.elemento-radiante { border-style:dashed; border-width:3px; }
+.combate-impacto.elemento-sombrio { border-width:0 5px 0 2px; }
+.bt-slot .combatente.porte-grande .sprite-wrap { transform:scale(1.08); }
+.bt-row-herois .combatente .sprite-wrap { transform:scale(1.08); }
+.bt-slot .combatente .nome-c { position:relative; z-index:6; }
+.bt-slot .combatente.ativo .nome-c { color:#ffedb1; background:#252013; border-bottom:2px solid #dbc280; }
+.bt-slot .combatente .sprite-canvas { image-rendering:pixelated; object-fit:contain; filter:drop-shadow(0 1px 1px #d5d8de55) drop-shadow(0 3px 2px #101522); }
+.bt-slot .combatente.acao-origem .sprite-canvas { filter:drop-shadow(0 0 3px #d9c080); }
+.bt-slot .combatente.acao-beneficio .sprite-canvas { filter:drop-shadow(0 0 3px #90d8ae); }
+.bt-slot .combatente.hit-flash,.bt-slot .combatente.hit-flash-critico { animation:contato-suave 180ms ease-out; }
+@keyframes contato-suave { from { filter:brightness(1.14); } to { filter:brightness(1); } }
+.status-icone:focus-visible,.btn-alvo:focus-visible { outline:2px solid #fff0be; outline-offset:2px; }
+.bt-slot .combatente.acao-origem { outline:2px solid #f1da92; outline-offset:-2px; }
+.bt-slot .combatente.acao-destino,.bt-slot .combatente.alvo-confirmado { outline:2px solid #e8a48a; outline-offset:-2px; }
+.bt-slot .combatente.acao-beneficio { outline:2px solid #8dd3ab; outline-offset:-2px; }
+.bt-slot .combatente.aviso-alvo { box-shadow:inset 0 -5px #edae79; }
+.bt-slot .combatente.aviso-alvo[data-aviso^="ÁREA"] { outline:2px dashed #edae79; outline-offset:-3px; }
+.bt-slot .combatente.aviso-alvo[data-aviso^="CURA"],.bt-slot .combatente.aviso-alvo[data-aviso^="PROTEÇÃO"] { box-shadow:inset 0 -5px #90d8ae; }
+.bt-slot .combatente.aviso-alvo[data-aviso^="CURA"]::before,.bt-slot .combatente.aviso-alvo[data-aviso^="PROTEÇÃO"]::before { background:#142c25; color:#c8f1dd; }
+.bt-slot .combatente.aviso-alvo::before { content:attr(data-aviso); position:absolute; top:0; left:0; right:0; transform:translateY(-100%); z-index:8; background:#302016ed; color:#ffe1b8; text-align:center; font-size:clamp(9px,.85vw,12px); padding:3px; pointer-events:none; }
+.bt-slot .combatente .sprite-wrap { animation:none; }
+.bt-slot .combatente .sprite-canvas { filter:drop-shadow(0 1px 1px #d5d8de55) drop-shadow(0 3px 2px #101522); transform-origin:center bottom; }
+.bt-slot .combatente .status-icone { animation:none; border-radius:5px; background:#15202ee8; border:1px solid #a9b7c8; min-width:22px; min-height:22px; }
+.bt-slot .combatente .status-icone.expirando { border-color:#f0c385; }
+.bt-slot .combatente .status-turnos { color:#fff; background:#18202e; font-weight:800; }
+.bt-slot .combatente .status-icones { width:26px; max-height:none; gap:2px; }
+.bt-slot .combatente .status-icone,.bt-slot .combatente .status-mais { box-sizing:border-box; width:26px; height:24px; min-height:24px; flex:0 0 24px; }
+.bt-slot .combatente .status-mais { padding:0; margin:0; font-size:11px; color:#eef3f9; border:1px solid #a9b7c8; border-radius:5px; background:#15202e; }
+.bt-cena { filter:saturate(.65) brightness(.80); transition:none; }
+.combate-em-acao .bt-cena { filter:saturate(.65) brightness(.80); }
+.bt-cena.shake,.bt-cena.shake-forte { animation:none; }
+.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto.hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante { animation:none !important; transition:none !important; }
+.combate-conforto .combate-impacto,.combate-conforto .combate-trajeto { display:none; }
+.combate-conforto .bt-cena { filter:saturate(.78) brightness(.84); transition:none; }
+@media(prefers-reduced-motion:reduce) { .bt-cena { transition:none; } .combate-trajeto { display:none; } .bt-slot .combatente,.bt-slot .sprite-wrap { animation:none !important; } }
+@media(max-width:719px) {
+  .bt-infobar { grid-template-columns:minmax(70px,.55fr) minmax(120px,1fr) auto; gap:4px; padding-inline:5px; }
+  .bt-legenda-acao { height:28px; }
+  .combate-leitura { gap:3px; font-size:10px; }
+  .combate-leitura span { padding:3px 5px; }
+  .combate-leitura button { min-height:26px; padding:2px 5px; font-size:9px; }
+  .bt-log-toggle { max-width:86px; padding-inline:6px; }
+  .combate-estado-detalhe { left:2%;right:2%;font-size:12px;padding:8px; }
+}
+
+/* Campo mais aberto e personagens apoiados no piso. As fileiras ganharam
+   uma faixa própria de terreno; aumentar o boneco não volta a amontoar os
+   nomes/barras porque o sprite cresce a partir dos pés. */
+#screen-batalha.bt-screen .bt-row-inimigos{top:1%;left:12%;right:12%;height:38%;padding-inline:0}
+#screen-batalha.bt-screen .bt-row-herois{left:18%;right:18%;height:38%;padding-inline:0}
+.bt-row-herois .combatente .sprite-wrap{width:clamp(88px,9vw,128px);height:clamp(88px,9vw,128px);transform:scale(1.08);transform-origin:50% 100%}
+.bt-row-inimigos .combatente .sprite-wrap{width:clamp(84px,8.5vw,120px);height:clamp(84px,8.5vw,120px);transform-origin:50% 100%}
+.bt-slot .combatente .sprite-canvas{width:100%;height:100%;object-position:center bottom}
+
+/* Aura sem o retângulo luminoso. Agora é um halo oval curto, concentrado
+   junto ao corpo e aos pés, com brilho no próprio recorte do sprite. */
+.combatente.aura-estado .sprite-wrap::before{inset:18% 13% 5%;border:0!important;border-radius:50%;background:radial-gradient(ellipse at 50% 67%,transparent 38%,color-mix(in srgb,var(--aura-cor,#7ab5e0) 38%,transparent) 58%,transparent 76%);box-shadow:0 6px 13px -8px var(--aura-cor,#7ab5e0),0 0 9px -5px var(--aura-cor,#7ab5e0)!important;opacity:.88}
+.combatente.aura-estado .sprite-canvas{filter:drop-shadow(0 0 3px var(--aura-cor,#7ab5e0)) drop-shadow(0 5px 3px #101522)!important}
+.bt-slot .combatente.ativo .sprite-wrap::before{inset:auto 17% 1%;height:18%;border:1px solid rgba(245,195,82,.7);border-radius:50%;background:radial-gradient(ellipse,rgba(242,190,65,.18),transparent 68%)}
+@media(max-width:700px){#screen-batalha.bt-screen .bt-row-inimigos{left:2%;right:2%;height:32%}#screen-batalha.bt-screen .bt-row-herois{left:7%;right:7%;height:36%}.bt-row-herois .combatente .sprite-wrap{width:72px;height:72px}.bt-row-inimigos .combatente .sprite-wrap{width:68px;height:68px}}
+
+/* =====================================================================
+ * MOBILE PAISAGEM — campo amplo, mão curta e nenhuma camada concorrente
+ * =====================================================================
+ * 844x390 não entra no breakpoint por largura de celular. Sem esta regra,
+ * recebia fileiras e sprites de desktop dentro de menos de 220px de campo:
+ * o chefe invadia a pista do d20 e os heróis cobriam o contexto tático.
+ */
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen {
+    --dock-alt: clamp(96px, 27dvh, 108px);
+    --anuncio-alt: clamp(44px, 12dvh, 52px);
+    --ctx-alt: 24px;
+  }
+  #screen-batalha.bt-screen .bt-header {
+    min-height: 34px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  #screen-batalha.bt-screen .bt-header-desc,
+  #screen-batalha.bt-screen .bt-header-mods { display: none; }
+  #screen-batalha.bt-screen .bt-header-nome { font-size: .76em; }
+  #screen-batalha.bt-screen .bt-header-acoes button {
+    min-width: 38px; min-height: 32px; padding: 3px 8px;
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos {
+    top: 1%; left: 5%; right: 5%;
+    height: calc(50% - var(--anuncio-meio) - 1%);
+  }
+  #screen-batalha.bt-screen .bt-row-herois {
+    bottom: var(--ctx-alt); left: 10%; right: 10%;
+    height: calc(50% - var(--anuncio-meio) - var(--ctx-alt));
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap {
+    width: 58px; height: 58px;
+  }
+  #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap {
+    width: 62px; height: 62px;
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
+    transform: scale(1.22);
+  }
+  #screen-batalha.bt-screen .combatente { width: 82px; font-size: .82em; }
+  #screen-batalha.bt-screen .combatente .formacao-linha,
+  #screen-batalha.bt-screen .combatente .selos-linha { display: none; }
+  #screen-batalha.bt-screen .combatente .barra,
+  #screen-batalha.bt-screen .combatente .atb-barra,
+  #screen-batalha.bt-screen .combatente .postura-barra { width: 72px; }
+  #screen-batalha.bt-screen .btn-alvo { min-height: 28px; margin-top: 1px !important; }
+  #screen-batalha.bt-screen .dado-rolagem {
+    min-width: 62px; min-height: 62px; width: 62px; height: 62px;
+    font-size: 1.18rem;
+  }
+  #screen-batalha.bt-screen .bt-infobar {
+    min-height: 28px; padding-block: 2px;
+    grid-template-columns: minmax(96px, .7fr) minmax(160px, 1.4fr) minmax(92px, .7fr);
+  }
+  #screen-batalha.bt-screen .bt-legenda-acao { height: 24px; font-size: .72em; }
+  #screen-batalha.bt-screen #batalha-contexto-tatico { font-size: .7em; gap: 5px; }
+  #screen-batalha.bt-screen .mao-cabecalho { min-height: 20px; font-size: .7em; }
+  #screen-batalha.bt-screen .mao-cards {
+    flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+    justify-content: flex-start; align-content: stretch; gap: 4px;
+    scrollbar-width: thin;
+  }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha {
+    flex: 0 0 clamp(100px, 15vw, 124px);
+    min-height: 68px; max-height: 76px; padding: 4px 6px;
+  }
+  #screen-batalha.bt-screen .carta-nome { font-size: .72em; -webkit-line-clamp: 1; }
+  #screen-batalha.bt-screen .carta-valor-num { font-size: .92em; }
+  #screen-batalha.bt-screen .carta-badges .badge-carta:nth-child(n + 2) { display: none; }
+  #screen-batalha.bt-screen .carta-detalhe { display: none; }
+  #screen-batalha.bt-screen .bt-log-lista { height: min(42dvh, 150px); }
+}
+
+/* Retrato: botões tocáveis e pista central preservada mesmo no aparelho
+   estreito. Os personagens podem ser maiores porque há altura disponível. */
+@media (max-width: 719px) and (orientation: portrait) {
+  #screen-batalha.bt-screen .bt-header-acoes button,
+  #screen-batalha.bt-screen .bt-log-toggle { min-width: 42px; min-height: 40px; }
+  #screen-batalha.bt-screen .btn-alvo { min-height: 34px; }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha { min-height: 84px; }
+  #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap { width: 76px; height: 76px; }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap { width: 72px; height: 72px; }
+}
+
+/* =====================================================================
+ * ACABAMENTO MOBILE — seleção legível, toque seguro e formações cheias
+ * ===================================================================== */
+.combatente-sinais {
+  position: absolute;
+  top: clamp(22px, 3.2vh, 34px);
+  left: 50%;
+  z-index: 8;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  width: max-content;
+  max-width: 100%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.sinal-combate {
+  display: none;
+  padding: 2px 5px;
+  border: 1px solid #ead18b;
+  border-radius: 999px;
+  background: rgba(17, 14, 11, .92);
+  color: #fff0b5;
+  font: 800 9px/1.15 system-ui, sans-serif;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+}
+.combatente.ativo .sinal-turno { display: inline-flex; }
+.combatente.alvo-confirmado .sinal-alvo,
+.combatente.alvo-principal .sinal-alvo { display: inline-flex; border-color: #ff8c74; color: #ffe0d8; }
+.combatente.alvo-na-area .sinal-area { display: inline-flex; border-color: #ffad66; color: #ffe0bd; }
+.combatente.aliado-na-area .sinal-aliado-area { display: inline-flex; border-color: #ff6868; color: #ffd2d2; }
+
+#screen-batalha.bt-screen .mao-deslize { display: none; }
+#screen-batalha.bt-screen .mao-deslize[aria-hidden="false"] {
+  display: inline-flex;
+  align-items: center;
+  color: #ffe2a2;
+  font-size: .72em;
+  font-weight: 800;
+  white-space: nowrap;
+}
+#screen-batalha.bt-screen .detalhe-fechar {
+  position: sticky;
+  top: 0;
+  float: right;
+  z-index: 2;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0 0 4px 8px;
+  padding: 0;
+  border-radius: 9px;
+  font-size: 1.2rem;
+}
+#screen-batalha.bt-screen .detalhe-acoes {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 7px;
+  background: linear-gradient(180deg, transparent, rgba(8, 6, 8, .98) 28%);
+}
+#screen-batalha.bt-screen .detalhe-acoes button { min-height: 44px; margin: 0; }
+#screen-batalha.bt-screen .detalhe-confirmar { border-color: #f5b632; background: #664615; color: #fff0c1; font-weight: 800; }
+
+@media (max-width: 719px), (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen .bt-header-acoes button,
+  #screen-batalha.bt-screen .mao-btn-config { min-width: 44px; min-height: 44px; }
+  #screen-batalha.bt-screen .mao-cards {
+    position: relative;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 8px;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha { scroll-snap-align: start; }
+  #screen-batalha.bt-screen .mao-cards.tem-scroll:not(.no-fim) {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 30px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 30px), transparent 100%);
+  }
+  #screen-batalha.bt-screen .mao-cards.tem-scroll:not(.no-inicio):not(.no-fim) {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 30px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 30px), transparent 100%);
+  }
+  #screen-batalha.bt-screen .mao-cards.tem-scroll.no-fim:not(.no-inicio) {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 100%);
+  }
+  /* No toque, o primeiro toque troca a mão pelo detalhe dentro do próprio
+     dock. Ele não cobre a arena; Confirmar e Voltar continuam disponíveis. */
+  #screen-batalha.bt-screen .bt-dock.mao-com-selecao .carta-detalhe:not(.vazio) {
+    display: block;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    transform: none;
+    padding: 8px 10px;
+    z-index: 24;
+    overflow: auto;
+    border-radius: 0;
+  }
+  #screen-batalha.bt-screen .bt-dock.mao-com-selecao .carta-detalhe .detalhe-selo-linha { align-items: flex-start; }
+  #screen-batalha.bt-screen .bt-dock.mao-com-selecao .carta-detalhe .detalhe-selo-texto { overflow-wrap: anywhere; }
+  #screen-batalha.bt-screen .combatente { width: auto !important; }
+  #screen-batalha.bt-screen .bt-slot { min-height: 0; max-height: 100%; overflow: hidden; }
+  #screen-batalha.bt-screen .bt-slot .combatente > :not(.sprite-wrap):not(.combatente-sinais):not(.status-icones) { max-width: 100%; }
+}
+
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen { --dock-alt: clamp(104px, 28dvh, 116px); --ctx-alt: 24px; }
+  #screen-batalha.bt-screen .bt-header { min-height: 42px; padding-block: 1px; }
+  #screen-batalha.bt-screen .bt-row-inimigos {
+    top: 0; left: 2%; right: 2%;
+    height: calc(50% - var(--anuncio-meio));
+  }
+  #screen-batalha.bt-screen .bt-row-herois {
+    bottom: var(--ctx-alt); left: 5%; right: 5%;
+    height: calc(50% - var(--anuncio-meio) - var(--ctx-alt));
+  }
+  #screen-batalha.bt-screen .bt-row { gap: 2px; padding-inline: 2px; }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap {
+    width: min(54px, 96%); height: min(54px, 100%);
+  }
+  #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap {
+    width: min(68px, 96%); height: min(68px, 100%);
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
+    width: min(66px, 98%); height: min(66px, 100%); transform: none;
+  }
+  #screen-batalha.bt-screen .combatente-sinais { top: 18px; }
+  #screen-batalha.bt-screen .sinal-combate { padding: 1px 4px; font-size: 8px; }
+  #screen-batalha.bt-screen .btn-alvo { min-height: 26px; padding-block: 2px !important; }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha { min-height: 72px; }
+  #screen-batalha.bt-screen .mao-deslize[aria-hidden="false"] { font-size: .65em; }
+}
+
+@media (max-width: 719px) and (orientation: portrait) {
+  #screen-batalha.bt-screen { --ctx-alt: 30px; }
+  #screen-batalha.bt-screen .bt-row-inimigos {
+    top: 1%; left: 1%; right: 1%;
+    height: calc(50% - var(--anuncio-meio) - 1%);
+  }
+  #screen-batalha.bt-screen .bt-row-herois {
+    bottom: var(--ctx-alt); left: 3%; right: 3%;
+    height: calc(50% - var(--anuncio-meio) - var(--ctx-alt));
+  }
+  #screen-batalha.bt-screen .bt-row { gap: 2px; padding-inline: 1px; }
+  #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap {
+    width: min(82px, 96%); height: min(82px, 100%);
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap {
+    width: min(66px, 96%); height: min(66px, 100%);
+  }
+  #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
+    width: min(80px, 98%); height: min(80px, 100%); transform: none;
+  }
+  #screen-batalha.bt-screen .btn-alvo { min-height: 36px; }
+  #screen-batalha.bt-screen .combatente-sinais { top: 24px; }
+  #screen-batalha.bt-screen .mao-cards { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha {
+    flex: 0 0 clamp(104px, 31vw, 132px);
+    min-height: 86px;
+  }
+}

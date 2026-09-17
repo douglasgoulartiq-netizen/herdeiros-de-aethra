@@ -508,8 +508,8 @@ function acharTileParaAssentamento(g, resumoZona, rnd, pegadaGlobal = new Set())
 //              o personagem de verdade, e a colisão continua sendo tile —
 //              nada no jogo precisa saber que props existem para bater nela.
 const CASAS_POR_CATEGORIA = {
-  CAPITAL: { alvo: 40, grandes: 0.42, templo: true },
-  CIDADE: { alvo: 24, grandes: 0.32, templo: true },
+  CAPITAL: { alvo: 58, grandes: 0.46, templo: true },
+  CIDADE: { alvo: 30, grandes: 0.34, templo: true },
   VILA: { alvo: 13, grandes: 0.20, templo: false },
   ASSENTAMENTO: { alvo: 6, grandes: 0.10, templo: false },
   ACAMPAMENTO: { alvo: 3, grandes: 0, templo: false },
@@ -532,6 +532,60 @@ function cabeACasa(g, prop, ocupado) {
     if (g[t.y][t.x] === TILE.LAVA) return false;
   }
   return true;
+}
+
+// Paletas urbanas por cultura/clima. As casas V2 compartilham a linguagem
+// visual da pousada, mas cada território combina materiais e cores próprios.
+// A categoria também participa: acampamentos continuam usando construções
+// simples; cidades e capitais recebem solares de pedra entre as moradias.
+function paletaUrbana(ident, categoria) {
+  if (categoria === "ACAMPAMENTO") {
+    return { comuns: ["casa_p"], grandes: ["casa_g"] };
+  }
+  if (ident.porto || ident.clima === "costeiro") {
+    return {
+      comuns: ["casa_costeira_v2", "casa_urbana_azul_v2", "casa_costeira_v2", "casa_urbana_vermelha_v2"],
+      grandes: ["casa_costeira_v2", "casa_pedra_v2"],
+    };
+  }
+  if (ident.clima === "nevado") {
+    return {
+      comuns: ["casa_pedra_v2", "casa_urbana_azul_v2", "casa_pedra_v2"],
+      grandes: ["casa_pedra_v2"],
+    };
+  }
+  if (ident.clima === "vulcanico" || ident.clima === "arido") {
+    return {
+      comuns: ["casa_pedra_v2", "casa_urbana_vermelha_v2", "casa_urbana_vermelha_v2"],
+      grandes: ["casa_pedra_v2", "casa_urbana_vermelha_v2"],
+    };
+  }
+  if (ident.clima === "umido") {
+    return {
+      comuns: ["casa_urbana_verde_v2", "casa_urbana_verde_v2", "casa_urbana_azul_v2"],
+      grandes: ["casa_urbana_verde_v2", "casa_pedra_v2"],
+    };
+  }
+  if (ident.clima === "sombrio" || ident.instavel) {
+    return {
+      comuns: ["casa_pedra_v2", "casa_urbana_verde_v2", "casa_urbana_azul_v2"],
+      grandes: ["casa_pedra_v2"],
+    };
+  }
+  if (ident.clima === "ventoso" || ident.ilhas) {
+    return {
+      comuns: ["casa_urbana_azul_v2", "casa_urbana_verde_v2", "casa_pedra_v2"],
+      grandes: ["casa_urbana_azul_v2", "casa_pedra_v2"],
+    };
+  }
+  return {
+    comuns: ["casa_urbana_vermelha_v2", "casa_urbana_verde_v2", "casa_urbana_azul_v2"],
+    grandes: ["casa_pedra_v2", "casa_urbana_vermelha_v2"],
+  };
+}
+
+function sortearDaPaleta(ids, rnd) {
+  return ids[Math.floor(rnd() * ids.length)] || ids[0];
 }
 
 function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set()) {
@@ -634,9 +688,83 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   }
 
   const props = [];
-  const estiloCasa = ident.arquitetura.casa || "casa_p";
-  const estiloGrande = ident.arquitetura.casaGrande || "casa_g";
+  // Casas acompanham a cultura do território: regiões verdes/úmidas usam
+  // volumes élficos e madeira; fortalezas, gelo e vulcões privilegiam massa
+  // de pedra. Não é só uma troca de cor: muda a silhueta dos bairros.
+  const organica = ident.clima === "umido" || ident.vegetacao?.includes("bosque") || ident.vegetacao?.includes("mata");
+  const paleta = paletaUrbana(ident, a.categoria);
+  // Moradias antigas (`casa_p`, `casa_g` e variações regionais simples)
+  // ainda existem para acampamentos e compatibilidade de saves, mas não
+  // entram mais na malha urbana. Antes elas eram inseridas no começo destas
+  // listas e acabavam dominando a rolagem visual — por isso a pousada nova
+  // aparecia cercada pelos blocos antigos. Vilas, cidades e capitais agora
+  // usam exclusivamente as famílias V2, todas desenhadas no mesmo padrão
+  // detalhado da pousada.
   const dentroDaMancha = new Set(tiles.map((t) => idx(t.x, t.y)));
+
+  // Eixos urbanos visíveis. A praça liga-se aos quatro portões e ganha um
+  // anel de circulação, como na referência: o jogador entende onde está e
+  // para onde cada bairro continua sem precisar de minimapa.
+  const pisoVia = ident.arquitetura.piso === TILE.COBBLE ? TILE.VILLAGE_FLOOR : TILE.COBBLE;
+  const meiaVia = a.categoria === "CAPITAL" ? 1 : 0;
+  if (a.categoria !== "ACAMPAMENTO") {
+    const cruzCompleta = ["CAPITAL", "CIDADE"].includes(a.categoria);
+    for (let d = -raio + 1; d <= raio - 1; d += 1) {
+      for (let faixa = -meiaVia; faixa <= meiaVia; faixa += 1) {
+        const trechos = [[centro.x + faixa, centro.y + d]];
+        if (cruzCompleta) trechos.push([centro.x + d, centro.y + faixa]);
+        for (const [x, y] of trechos) {
+          if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y))) continue;
+          g[y][x] = pisoVia; ocupado.add(idx(x, y));
+        }
+      }
+    }
+    if (cruzCompleta) {
+      const anel = pracaR + 1;
+      for (let d = -anel; d <= anel; d += 1) {
+        for (const [x, y] of [[centro.x + d, centro.y - anel], [centro.x + d, centro.y + anel], [centro.x - anel, centro.y + d], [centro.x + anel, centro.y + d]]) {
+          if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y))) continue;
+          g[y][x] = pisoVia; ocupado.add(idx(x, y));
+        }
+      }
+    }
+  }
+
+  // Planta especial da capital rica de Altaverde: um eixo cerimonial largo
+  // liga o portão sul à praça; a leste, um jardim d'água atravessado por
+  // pontes cria o mesmo contraste de pedra, verde e canais da referência.
+  // Tudo usa tiles já conhecidos pelo jogo, portanto permanece navegável e
+  // leve mesmo com o continente quatro vezes maior.
+  if (a.modeloRico) {
+    for (let y = centro.y + pracaR + 1; y <= centro.y + raio - 1; y += 1) {
+      for (let ox = -1; ox <= 1; ox += 1) {
+        const x = centro.x + ox;
+        if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y))) continue;
+        g[y][x] = TILE.COBBLE;
+        ocupado.add(idx(x, y));
+      }
+    }
+    const lagoX0 = centro.x + pracaR + 4;
+    const lagoX1 = Math.min(centro.x + raio - 3, lagoX0 + 7);
+    for (let y = centro.y - 3; y <= centro.y + 3; y += 1) {
+      for (let x = lagoX0; x <= lagoX1; x += 1) {
+        if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y))) continue;
+        g[y][x] = y === centro.y ? TILE.BRIDGE : TILE.WATER;
+        ocupado.add(idx(x, y));
+      }
+    }
+    // Limite urbano com quatro portões. A cerca é visual e não prende o
+    // jogador; a forma pontilhada permite entradas menores entre bairros.
+    for (let passo = 0; passo < 96; passo += 1) {
+      const ang = passo / 96 * Math.PI * 2;
+      if (Math.abs(Math.sin(ang)) < .10 || Math.abs(Math.cos(ang)) < .10) continue;
+      const x = Math.round(centro.x + Math.cos(ang) * (raio - 1));
+      const y = Math.round(centro.y + Math.sin(ang) * (raio - 1));
+      if (dentro(x, y) && dentroDaMancha.has(idx(x, y)) && !ocupado.has(idx(x, y))) {
+        props.push({ id: "cerca", x, y });
+      }
+    }
+  }
 
   // Mobiliário da praça: postes nos quatro cantos e uma placa na entrada sul.
   // São props de 1 tile de largura e SEM colisão — a praça continua livre.
@@ -658,6 +786,72 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
       props.push({ id: "placa", x: centro.x, y: py });
       ocupado.add(idx(centro.x, py));
     }
+  }
+
+  // Toda cidade/vila tem uma pousada claramente reconhecível junto à praça.
+  // Além de ser o marco visual de abrigo, sua porta fornece a coordenada de
+  // descanso do assentamento para interface e automação.
+  let descanso = null;
+  if (a.categoria !== "ACAMPAMENTO") {
+    const candidatos = [
+      { id: "pousada", x: centro.x - pracaR - 3, y: centro.y + pracaR + 2 },
+      { id: "pousada", x: centro.x + pracaR + 4, y: centro.y + pracaR + 2 },
+      { id: "pousada", x: centro.x, y: centro.y + pracaR + 4 },
+      { id: "pousada", x: centro.x - pracaR - 3, y: centro.y - pracaR - 2 },
+    ];
+    // Cidades flutuantes e postos estreitos nem sempre comportam uma das
+    // quatro posições ideais. Varremos o anel urbano antes de desistir: a
+    // pousada continua perto da praça, mas a regra de descanso deixa de
+    // depender do formato peculiar da ilha/costa.
+    for (let raioBusca = pracaR + 2; raioBusca <= raio; raioBusca += 1) {
+      for (let ox = -raioBusca; ox <= raioBusca; ox += 1) {
+        candidatos.push({ id: "pousada", x: centro.x + ox, y: centro.y - raioBusca });
+        candidatos.push({ id: "pousada", x: centro.x + ox, y: centro.y + raioBusca });
+      }
+      for (let oy = -raioBusca + 1; oy < raioBusca; oy += 1) {
+        candidatos.push({ id: "pousada", x: centro.x - raioBusca, y: centro.y + oy });
+        candidatos.push({ id: "pousada", x: centro.x + raioBusca, y: centro.y + oy });
+      }
+    }
+    let pousada = candidatos.find((p) => tilesDeColisao(p).every((c) => dentroDaMancha.has(idx(c.x, c.y))) && cabeACasa(g, p, ocupado));
+    // Sobre água, a pousada é erguida numa pequena plataforma urbana. A
+    // colisão vira parede normalmente e a porta continua alcançável pela
+    // calçada; isso cobre Corallia e a Cidade Flutuante sem transformar o
+    // restante do lago em terra.
+    if (!pousada) {
+      pousada = candidatos.find((p) => tilesDeColisao(p).every((c) =>
+        dentro(c.x, c.y) && dentroDaMancha.has(idx(c.x, c.y)) && !ocupado.has(idx(c.x, c.y)) && g[c.y][c.x] !== TILE.LAVA));
+    }
+    if (!pousada) {
+      const borda = [];
+      for (let alcance = raio + 1; alcance <= raio + 4; alcance += 1) {
+        for (let ox = -alcance; ox <= alcance; ox += 1) {
+          borda.push({ id: "pousada", x: centro.x + ox, y: centro.y - alcance });
+          borda.push({ id: "pousada", x: centro.x + ox, y: centro.y + alcance });
+        }
+      }
+      pousada = borda.find((p) => tilesDeColisao(p).every((c) =>
+        dentro(c.x, c.y) && !ocupado.has(idx(c.x, c.y)) && !pegadaGlobal.has(idx(c.x, c.y)) && g[c.y][c.x] !== TILE.LAVA));
+    }
+    if (pousada) {
+      for (const c of tilesDeColisao(pousada)) {
+        g[c.y][c.x] = ident.arquitetura.parede;
+        ocupado.add(idx(c.x, c.y));
+      }
+      props.push(pousada);
+      descanso = { x: pousada.x, y: pousada.y + 1, nome: `Pousada de ${a.nome}` };
+    }
+  }
+
+  // Pequenos sinais regionais dentro da malha urbana: pinheiros e rochas no
+  // gelo, pedra vulcânica nas fortalezas, vegetação nos centros verdes.
+  const decoracao = ident.clima === "nevado" ? "pinheiro"
+    : ident.clima === "vulcanico" ? "rocha_g"
+      : organica ? "arvore_p" : ident.porto ? "poste" : "arbusto";
+  for (const [ox, oy] of [[-pracaR - 2, 0], [pracaR + 2, 0], [0, -pracaR - 2]]) {
+    const p = { id: decoracao, x: centro.x + ox, y: centro.y + oy };
+    if (!dentro(p.x, p.y) || !dentroDaMancha.has(idx(p.x, p.y)) || ocupado.has(idx(p.x, p.y))) continue;
+    props.push(p); ocupado.add(idx(p.x, p.y));
   }
 
   // As fileiras nascem A PARTIR DA PRAÇA, para os dois lados, em vez de a
@@ -689,10 +883,13 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
       // Tenta o estilo sorteado e, se não couber ali, o outro. Sem a segunda
       // tentativa, uma rolagem de "casa grande" num trecho estreito era
       // simplesmente perdida.
-      const preferido = rnd() < plano.grandes ? estiloGrande : estiloCasa;
-      const alternativo = preferido === estiloGrande ? estiloCasa : estiloGrande;
+      const querGrande = rnd() < plano.grandes;
+      const preferido = sortearDaPaleta(querGrande ? paleta.grandes : paleta.comuns, rnd);
+      // O segundo estilo vem do outro porte e também é sorteado. Além de
+      // aproveitar trechos estreitos, isso impede fileiras monocromáticas.
+      const alternativo = sortearDaPaleta(querGrande ? paleta.comuns : paleta.grandes, rnd);
       let posto = null;
-      for (const id of [preferido, alternativo]) {
+      for (const id of [...new Set([preferido, alternativo])]) {
         const meta = PROPS[id];
         // Encaixa a casa com a borda ESQUERDA da colisão na coluna x.
         const prop = { id, x: x - meta.colisao.x0, y };
@@ -758,7 +955,7 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // em `props` mas não é prédio, e contá-lo inflaria o número que o teste e o
   // relatório usam para dizer "esta capital tem 40 prédios".
   const construcoes = props.filter((p) => p.id.startsWith("casa") || p.id === "templo").length;
-  return { distritos, props, casas: construcoes, tiles, praca: pracaR };
+  return { distritos, props, casas: construcoes, tiles, praca: pracaR, descanso };
 }
 
 // ---------------------------------------------------------------------------
@@ -973,6 +1170,194 @@ function carvearEstrada(g, caminho, nivel, ident, pontes, nomeRota, pegadaDeCida
 }
 
 // ---------------------------------------------------------------------------
+// 6. ALTITUDE — oito patamares reais e estradas que viram rampas
+// ---------------------------------------------------------------------------
+// O tile diz de que o chão é feito; a altitude diz ONDE esse chão está. Antes
+// as duas ideias eram confundidas no Renderer (neve = um pouquinho alta,
+// água = um pouquinho baixa), portanto uma cordilheira continuava parecendo
+// um tapete. Este campo independente vai de 0 a 8: mar/praia embaixo,
+// planícies no meio e geleiras/vulcões no alto.
+export const ALTURA_MAXIMA_MUNDO = 8;
+
+function alturaBaseDaRegiao(ident) {
+  if (ident.ilhas) return 7;
+  if (ident.clima === "nevado") return 7;
+  if (ident.clima === "vulcanico") return 6;
+  if (ident.clima === "ventoso") return 4;
+  if (ident.clima === "sombrio" || ident.instavel) return 3;
+  if (ident.clima === "arido") return 1;
+  if (ident.clima === "costeiro") return 0;
+  if (ident.clima === "umido") return 1;
+  // Planícies temperadas são a referência vertical do continente. Isso
+  // impede que cidades comuns ganhem muralhas artificiais só por existirem;
+  // a monumentalidade fica reservada às serras, geleiras e ilhas suspensas.
+  return 0;
+}
+
+function gerarMapaDeAlturas(g, posse, zonas, semente, assentamentos, tracados) {
+  const alturas = new Uint8Array(W * H);
+  const ruido = (x, y) => ruidoCoerente(hashTexto(`${semente}:altitude-real`), x, y, 24, W, H);
+
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      const tile = g[y][x];
+      if (tile === TILE.DEEP_WATER || tile === TILE.WATER) {
+        alturas[idx(x, y)] = 0;
+        continue;
+      }
+      const zona = zonas[posse[idx(x, y)]];
+      const ident = identidadeDaRegiao(zona?.regiaoId);
+      let h = alturaBaseDaRegiao(ident);
+      if (tile === TILE.SAND || tile === TILE.MARSH) h = Math.min(h, 1);
+      if (tile === TILE.ICE) h = Math.max(h, 5);
+      if ([TILE.WALL, TILE.CRYSTAL, TILE.LAVA].includes(tile)) h += 1;
+      if (ruido(x, y) > 0.24) h += 1;
+      if (ruido(x, y) < -0.28) h -= 1;
+      alturas[idx(x, y)] = Math.max(0, Math.min(ALTURA_MAXIMA_MUNDO, h));
+    }
+  }
+
+  // Propaga os vales para dentro das serras: salvo paredão construído mais
+  // tarde, dois tiles naturais vizinhos diferem no máximo um nível. O pico
+  // continua chegando a 8, mas através de oito faixas caminháveis — exatamente
+  // a sensação de subir a montanha em vez de encontrar uma parede projetada
+  // sobre metade da tela.
+  for (let passagem = 0; passagem < ALTURA_MAXIMA_MUNDO; passagem += 1) {
+    let mudou = false;
+    for (const reverso of [false, true]) {
+      const y0 = reverso ? H - 1 : 0; const yFim = reverso ? -1 : H; const sy = reverso ? -1 : 1;
+      const x0 = reverso ? W - 1 : 0; const xFim = reverso ? -1 : W; const sx = reverso ? -1 : 1;
+      for (let y = y0; y !== yFim; y += sy) for (let x = x0; x !== xFim; x += sx) {
+        const i = idx(x, y);
+        if (TILES_AGUA.has(g[y][x])) continue;
+        let teto = ALTURA_MAXIMA_MUNDO;
+        for (const [nx, ny] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+          if (!dentro(nx, ny)) continue;
+          teto = Math.min(teto, alturas[idx(nx, ny)] + 1);
+        }
+        if (alturas[i] > teto) { alturas[i] = teto; mudou = true; }
+      }
+    }
+    if (!mudou) break;
+  }
+
+  // Assentamento precisa ser um lugar construído, não casas em degraus
+  // aleatórios. Cada cidade aplaina seu platô; a estrada fará a transição.
+  for (const a of assentamentos) {
+    const zona = zonas.find((z) => z.id === a.zonaId);
+    const nivel = Math.max(0, Math.min(ALTURA_MAXIMA_MUNDO,
+      alturaBaseDaRegiao(identidadeDaRegiao(zona?.regiaoId))));
+    for (let oy = -a.raio - 2; oy <= a.raio + 2; oy += 1) {
+      for (let ox = -a.raio - 2; ox <= a.raio + 2; ox += 1) {
+        const x = a.x + ox; const y = a.y + oy;
+        if (!dentro(x, y) || Math.hypot(ox, oy) > a.raio + 1.5) continue;
+        if (!TILES_AGUA.has(g[y][x])) alturas[idx(x, y)] = nivel;
+      }
+    }
+  }
+
+  // Saia topográfica: o platô urbano não termina num corte vertical junto à
+  // primeira casa. Em até vinte e oito tiles o terreno pode subir/descer um
+  // patamar a cada quatro passos, formando colinas, terraços e acessos
+  // legíveis sem projetar uma montanha inteira por cima dos telhados.
+  for (const a of assentamentos) {
+    const centroH = alturas[idx(a.x, a.y)];
+    const alcance = a.raio + 28;
+    for (let oy = -alcance; oy <= alcance; oy += 1) {
+      for (let ox = -alcance; ox <= alcance; ox += 1) {
+        const x = a.x + ox; const y = a.y + oy;
+        if (!dentro(x, y) || TILES_AGUA.has(g[y][x])) continue;
+        const dist = Math.hypot(ox, oy);
+        if (dist <= a.raio + 1.5 || dist > alcance) continue;
+        const variacao = Math.max(1, Math.ceil((dist - a.raio - 1.5) / 4));
+        const i = idx(x, y);
+        alturas[i] = Math.max(centroH - variacao, Math.min(centroH + variacao, alturas[i]));
+      }
+    }
+  }
+
+  // Cada rota interpola a altura entre seus destinos. Isso transforma o
+  // caminho para Morranvell numa subida longa e legível em vez de um salto
+  // de sete níveis na fronteira da neve. A faixa inteira acompanha a rampa.
+  const ancoras = new Set(assentamentos.map((a) => idx(a.x, a.y)));
+  for (const rota of tracados) {
+    const caminho = rota.pontos;
+    if (!caminho?.length) continue;
+    const h0 = alturas[idx(caminho[0].x, caminho[0].y)];
+    const fim = caminho[caminho.length - 1];
+    const h1 = alturas[idx(fim.x, fim.y)];
+    const raio = rota.nivel === "PRINCIPAL" ? 2 : rota.nivel === "SECUNDARIA" ? 1 : 0;
+    for (let i = 0; i < caminho.length; i += 1) {
+      const t = caminho.length <= 1 ? 0 : i / (caminho.length - 1);
+      const suave = t * t * (3 - 2 * t);
+      const h = Math.round(h0 + (h1 - h0) * suave);
+      const p = caminho[i];
+      for (let oy = -raio; oy <= raio; oy += 1) for (let ox = -raio; ox <= raio; ox += 1) {
+        const x = p.x + ox; const y = p.y + oy;
+        if (!dentro(x, y) || TILES_AGUA.has(g[y][x])) continue;
+        if (ancoras.has(idx(x, y))) continue;
+        alturas[idx(x, y)] = h;
+      }
+    }
+  }
+
+  // Rotas compartilham trechos. Uma estrada processada depois pode alterar
+  // um entroncamento já usado por outra; relaxamos a rede inteira mantendo os
+  // centros urbanos como âncoras, até nenhum passo do eixo saltar mais de um
+  // patamar por tile.
+  for (let passagem = 0; passagem < Math.max(W, H); passagem += 1) {
+    let mudou = false;
+    for (const rota of tracados) {
+      for (let i = 1; i < (rota.pontos?.length || 0); i += 1) {
+        const a = rota.pontos[i - 1]; const b = rota.pontos[i];
+        const ia = idx(a.x, a.y); const ib = idx(b.x, b.y);
+        const ha = alturas[ia]; const hb = alturas[ib];
+        if (ha > hb + 1) {
+          if (ancoras.has(ia)) alturas[ib] = ha - 1;
+          else alturas[ia] = hb + 1;
+          mudou = true;
+        } else if (hb > ha + 1) {
+          if (ancoras.has(ib)) alturas[ia] = hb - 1;
+          else alturas[ib] = ha + 1;
+          mudou = true;
+        }
+      }
+    }
+    if (!mudou) break;
+  }
+
+  return alturas;
+}
+
+function ornamentarEstradas(g, props, tracados, pegadaDeCidade, assentamentos) {
+  const ocupados = new Set(props.map((p) => idx(p.x, p.y)));
+  for (const rota of tracados) {
+    const pontos = rota.pontos || [];
+    // Calçada de aproximação deixa evidente onde termina a estrada regional
+    // e começa a rua da cidade.
+    for (const cidade of [rota.deRef, rota.paraRef].filter(Boolean)) {
+      for (const p of pontos) {
+        if (Math.hypot(p.x - cidade.x, p.y - cidade.y) > cidade.raio + 5) continue;
+        if (!pegadaDeCidade.has(idx(p.x, p.y)) && g[p.y][p.x] === TILE.PATH) g[p.y][p.x] = TILE.COBBLE;
+      }
+    }
+    if (rota.nivel !== "PRINCIPAL") continue;
+    // Postes regulares funcionam como escala e perspectiva: ao subir uma
+    // rampa, o jogador vê a sequência desaparecer no patamar superior.
+    for (let i = 10; i < pontos.length - 10; i += 16) {
+      const p = pontos[i]; const anterior = pontos[Math.max(0, i - 1)];
+      const dx = p.x - anterior.x; const dy = p.y - anterior.y;
+      const lado = i % 32 ? 2 : -2;
+      const x = p.x - dy * lado; const y = p.y + dx * lado;
+      const chave = idx(x, y);
+      if (!dentro(x, y) || pegadaDeCidade.has(chave) || ocupados.has(chave) || SOLID_TILES.has(g[y][x]) || TILES_AGUA.has(g[y][x])) continue;
+      props.push({ id: i % 32 ? "poste" : "placa", x, y, rota: rota.nome });
+      ocupados.add(chave);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 7. OBJETOS — um tile andável dentro da própria zona
 // ---------------------------------------------------------------------------
 function tileAndavelNaZona(g, posse, zonaIndice, alvo, rnd, ocupados) {
@@ -1087,11 +1472,17 @@ export function construirMundo(semente) {
     const ident = identidadeDaRegiao(zr.regiaoId);
     const centro = acharTileParaAssentamento(g, zr, rnd, pegadaDeCidade);
     const construido = construirAssentamento(g, a, centro, ident, rnd, pegadaDeCidade);
-    props.push(...construido.props);
+    const temaArquitetura = ident.clima === "nevado" ? "gelo"
+      : ident.clima === "vulcanico" ? "forja"
+        : ident.porto ? "porto" : ident.ilhas ? "elevada" : ident.instavel ? "ruina"
+          : ident.clima === "arido" ? "deserto" : ident.clima === "sombrio" ? "sombria"
+            : ident.clima === "umido" ? "organica" : ident.clima === "ventoso" ? "ventos" : "verde";
+    props.push(...construido.props.map((p) => ({ ...p, assentamentoId: a.id, temaArquitetura })));
     construido.tiles.forEach((t) => pegadaDeCidade.add(idx(t.x, t.y)));
     assentamentos.push({
       ...a, x: centro.x, y: centro.y, raio: CATEGORIAS[a.categoria].raio,
       distritos: construido.distritos, casas: construido.casas, praca: construido.praca,
+      descanso: construido.descanso, temaArquitetura,
     });
   }
   const assentamentoPorIdMapa = new Map(assentamentos.map((a) => [a.id, a]));
@@ -1103,13 +1494,17 @@ export function construirMundo(semente) {
   const relevo = relevoDeCusto(semente);
   const estradas = [];
   const pontes = [];
+  const tracados = [];
   const ligar = (de, para, nivel, nome) => {
     if (!de || !para) return null;
     const caminho = buscarCaminho(g, { x: de.x, y: de.y }, { x: para.x, y: para.y }, NIVEIS_ESTRADA[nivel].custoBarreira, larguraAgua, relevo);
     if (!caminho) return null;
     const identDe = identidadeDaRegiao((porId.get(de.zonaId) || {}).regiaoId);
     const tilesPonte = carvearEstrada(g, caminho, nivel, identDe, pontes, nome, pegadaDeCidade);
-    estradas.push({ nome, nivel, de: de.id, para: para.id, tiles: caminho.length, tilesPonte, secreta: NIVEIS_ESTRADA[nivel].secreta });
+    const registro = { nome, nivel, de: de.id, para: para.id, tiles: caminho.length, tilesPonte,
+      secreta: NIVEIS_ESTRADA[nivel].secreta, pontos: caminho };
+    estradas.push(registro);
+    tracados.push({ ...registro, deRef: de, paraRef: para });
     return caminho;
   };
 
@@ -1138,8 +1533,13 @@ export function construirMundo(semente) {
     const caminho = buscarCaminho(g, a.centroReal, b.centroReal, NIVEIS_ESTRADA.SECRETO.custoBarreira, larguraAgua, relevo);
     if (!caminho) continue;
     carvearEstrada(g, caminho, "SECRETO", identidadeDaRegiao(a.regiaoId), pontes, c.nome, pegadaDeCidade);
-    estradas.push({ nome: c.nome, nivel: "SECRETO", de: c.de, para: c.para, tiles: caminho.length, secreta: true, tipo: c.tipo });
+    const registro = { nome: c.nome, nivel: "SECRETO", de: c.de, para: c.para,
+      tiles: caminho.length, secreta: true, tipo: c.tipo, pontos: caminho };
+    estradas.push(registro);
+    tracados.push(registro);
   }
+
+  ornamentarEstradas(g, props, tracados, pegadaDeCidade, assentamentos);
 
   // --- objetos ---
   const ocupados = new Set();
@@ -1172,15 +1572,18 @@ export function construirMundo(semente) {
     if (pos) masmorras.push({ ...m, entrada: { x: pos.x, y: pos.y } });
   }
 
-  // Baús e nós: quantidade e raridade saem do PERIGO da zona — território
-  // profundo dá mais e melhor (item 23).
+  // Baús do mundo aberto agora são descobertas raras, não decoração repetida.
+  // A zona inicial garante um; territórios perigosos garantem outro; nas
+  // demais regiões apenas parte delas recebe baú (determinístico pela semente).
+  // A recompensa maior vive em abrirBau(), portanto menos ícones no mapa não
+  // significa menos progresso — significa exploração com momentos marcantes.
   const baus = [];
   const nos = [];
   const chefes = [];
   for (const z of resumo) {
     const zi = indicePorId.get(z.id);
     const perigo = (z.perigo && z.perigo[1]) || 1;
-    const quantosBaus = z.funcao === "inicial" ? 1 : perigo >= 13 ? 3 : perigo >= 8 ? 2 : 1;
+    const quantosBaus = z.funcao === "inicial" || perigo >= 11 || rnd() < 0.42 ? 1 : 0;
     const tier = perigo >= 15 ? "bau_lendario" : perigo >= 11 ? "bau_epico" : perigo >= 6 ? "bau_raro" : "bau_comum";
     for (let i = 0; i < quantosBaus; i += 1) {
       const pos = tileAndavelNaZona(g, posse, zi, z.centroReal, rnd, ocupados);
@@ -1224,8 +1627,10 @@ export function construirMundo(semente) {
     ...vagasNpc,
   ], spawn);
 
+  const alturas = gerarMapaDeAlturas(g, posse, ZONAS_MUNDO, semente, assentamentos, tracados);
+
   return {
-    grid: g, spawn, props,
+    grid: g, alturas, spawn, props,
     zonas: resumo, assentamentos, estradas, pontes, rios, pois, landmarks, masmorras,
     baus, nos, chefes, vagasNpc,
     ms: Date.now() - t0,

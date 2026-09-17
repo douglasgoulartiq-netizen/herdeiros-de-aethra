@@ -8,6 +8,7 @@ import { alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "../systems/Vie
 import {
   VELOCIDADES_MENSAGEM, TAMANHOS_FONTE, VELOCIDADES_ANIMACAO_COMBATE, LIMIARES_HP_AUTOPLAY, DIFICULDADES, VOLUMES_EFEITOS,
   VELOCIDADES_AUTO_EXPLORACAO,
+  TAMANHOS_CONTROLES_TOQUE, OPACIDADES_CONTROLES_TOQUE, POSICOES_CONTROLES_TOQUE,
   carregarConfigAcessibilidade, atualizarConfigAcessibilidade,
 } from "../systems/AccessibilitySystem.js";
 
@@ -29,6 +30,9 @@ const LABEL_VOLUME_EFEITOS = { desligado: "Desligado (padrão)", baixo: "Baixo",
 // Velocidade do automático fora de combate (item 21) e pausa antes de chefe
 // (item 23) — ambos preservam o comportamento de sempre por padrão.
 const LABEL_VELOCIDADE_AUTO = { normal: "Normal", rapida: "Rápida (2x)", instantaneo: "Quase instantânea" };
+const LABEL_TAMANHO_CONTROLE = { compacto: "Compactos", normal: "Normais", grande: "Grandes" };
+const LABEL_OPACIDADE_CONTROLE = { discreta: "Discretos (55%)", normal: "Normais (78%)", alta: "Bem visíveis (100%)" };
+const LABEL_POSICAO_CONTROLE = { direcional_esquerda: "Direcional à esquerda", direcional_direita: "Direcional à direita" };
 
 // Aplica as classes visuais no <body> de acordo com a config atual —
 // chamada no boot() (main.js) e de novo toda vez que a config muda aqui,
@@ -37,10 +41,19 @@ const LABEL_VELOCIDADE_AUTO = { normal: "Normal", rapida: "Rápida (2x)", instan
 // modal existir (aplicação inicial no carregamento do jogo).
 export function aplicarClassesAcessibilidade() {
   const config = carregarConfigAcessibilidade();
-  document.body.classList.remove("fonte-grande", "fonte-gigante", "alto-contraste");
+  document.body.classList.remove(
+    "fonte-grande", "fonte-gigante", "alto-contraste",
+    "controles-compactos", "controles-grandes", "controles-discretos",
+    "controles-opacos", "controles-invertidos",
+  );
   if (config.tamanhoFonte === "grande") document.body.classList.add("fonte-grande");
   else if (config.tamanhoFonte === "gigante") document.body.classList.add("fonte-gigante");
   if (config.altoContraste) document.body.classList.add("alto-contraste");
+  if (config.tamanhoControlesToque === "compacto") document.body.classList.add("controles-compactos");
+  else if (config.tamanhoControlesToque === "grande") document.body.classList.add("controles-grandes");
+  if (config.opacidadeControlesToque === "discreta") document.body.classList.add("controles-discretos");
+  else if (config.opacidadeControlesToque === "alta") document.body.classList.add("controles-opacos");
+  if (config.posicaoControlesToque === "direcional_direita") document.body.classList.add("controles-invertidos");
 }
 
 export function montarAcessibilidade() {
@@ -85,6 +98,24 @@ export function montarAcessibilidade() {
           ${Object.keys(VELOCIDADES_AUTO_EXPLORACAO).map((v) => `<option value="${v}" ${config.velocidadeAutoExploracao === v ? "selected" : ""}>${LABEL_VELOCIDADE_AUTO[v] || v}</option>`).join("")}
         </select>
       </label>
+      <fieldset class="acc-grupo-controles">
+        <legend>Controles de exploração no celular</legend>
+        <label>Tamanho
+          <select id="acc-controles-tamanho">
+            ${TAMANHOS_CONTROLES_TOQUE.map((v) => `<option value="${v}" ${config.tamanhoControlesToque === v ? "selected" : ""}>${LABEL_TAMANHO_CONTROLE[v]}</option>`).join("")}
+          </select>
+        </label>
+        <label>Transparência
+          <select id="acc-controles-opacidade">
+            ${OPACIDADES_CONTROLES_TOQUE.map((v) => `<option value="${v}" ${config.opacidadeControlesToque === v ? "selected" : ""}>${LABEL_OPACIDADE_CONTROLE[v]}</option>`).join("")}
+          </select>
+        </label>
+        <label>Posição para a mão dominante
+          <select id="acc-controles-posicao">
+            ${POSICOES_CONTROLES_TOQUE.map((v) => `<option value="${v}" ${config.posicaoControlesToque === v ? "selected" : ""}>${LABEL_POSICAO_CONTROLE[v]}</option>`).join("")}
+          </select>
+        </label>
+      </fieldset>
       <label><input type="checkbox" id="acc-parar-chefe" ${config.pararAutoAntesDoChefe ? "checked" : ""}/> Automático para (em vez de lutar sozinho) ao encontrar um chefe</label>
       <label><input type="checkbox" id="acc-auto-cuidar" ${config.autoCuidarDoTime ? "checked" : ""}/> Automático se cuida sozinho: usa poção com HP baixo, descansa só quando elas acabam, e recusa encontro Mortal</label>
       ${suportaTelaCheia() ? `<button id="acc-tela-cheia" style="width:100%;margin-top:6px;" title="No celular a tela cheia também trava o aparelho em pé, que é a orientação para a qual o jogo é enquadrado.">${emTelaCheia() ? "⛶ Sair da tela cheia" : "⛶ Jogar em tela cheia"}</button>` : ""}
@@ -100,6 +131,9 @@ export function montarAcessibilidade() {
   corpo.querySelector("#acc-dificuldade").onchange = (e) => { atualizarConfigAcessibilidade({ dificuldade: e.target.value }); };
   corpo.querySelector("#acc-volume-efeitos").onchange = (e) => { atualizarConfigAcessibilidade({ volumeEfeitos: e.target.value }); };
   corpo.querySelector("#acc-velocidade-auto").onchange = (e) => { atualizarConfigAcessibilidade({ velocidadeAutoExploracao: e.target.value }); };
+  corpo.querySelector("#acc-controles-tamanho").onchange = (e) => { atualizarConfigAcessibilidade({ tamanhoControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
+  corpo.querySelector("#acc-controles-opacidade").onchange = (e) => { atualizarConfigAcessibilidade({ opacidadeControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
+  corpo.querySelector("#acc-controles-posicao").onchange = (e) => { atualizarConfigAcessibilidade({ posicaoControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-parar-chefe").onchange = (e) => { atualizarConfigAcessibilidade({ pararAutoAntesDoChefe: e.target.checked }); };
   corpo.querySelector("#acc-auto-cuidar").onchange = (e) => { atualizarConfigAcessibilidade({ autoCuidarDoTime: e.target.checked }); };
   // Tela cheia NÃO é preferência salva: quem manda é o navegador, e ele pode

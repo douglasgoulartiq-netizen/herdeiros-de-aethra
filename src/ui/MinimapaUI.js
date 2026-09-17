@@ -85,7 +85,8 @@ export function atualizarMinimapa() {
   const { grid, player, zonaNome, nivelTexto, nivelCor } = ctx0;
   const px = Math.round(player.x), py = Math.round(player.y);
   // A chave resume tudo que o desenho depende. Igual à anterior = nada a fazer.
-  const chave = `${ctx0.mapaAtual}|${px},${py}|${player.dir}|${(ctx0.npcs || []).length}|${(ctx0.objetos || []).length}|${zonaNome}`;
+  const objetivo = ctx0.objetivoMissao;
+  const chave = `${ctx0.mapaAtual}|${px},${py}|${player.dir}|${(ctx0.npcs || []).length}|${(ctx0.objetos || []).length}|${zonaNome}|${objetivo ? `${objetivo.id}:${objetivo.x},${objetivo.y}` : "-"}`;
   if (chave === estado.ultimaChave) return;
   estado.ultimaChave = chave;
 
@@ -139,6 +140,29 @@ function desenhar(ctx, canvas, dados, px, py) {
     if (!dentro(p)) return;
     ponto(ctx, p.x, p.y, Math.max(2.2, passo * 0.46), "#6fb7ff", "#10243a");
   });
+
+  // Rota da missão rastreada. Quando o destino está fora do recorte, o
+  // marcador fica preso à borda correta, funcionando como bússola.
+  const objetivo = dados.objetivoMissao;
+  if (objetivo && (!objetivo.mapa || objetivo.mapa === dados.mapaAtual)) {
+    const bruto = naTela(objetivo.x, objetivo.y);
+    const margem = 7;
+    const alvo = {
+      x: Math.max(margem, Math.min(canvas.width - margem, bruto.x)),
+      y: Math.max(margem, Math.min(canvas.height - margem, bruto.y)),
+    };
+    const centro = naTela(px, py);
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255,220,103,.82)";
+    ctx.beginPath(); ctx.moveTo(centro.x, centro.y); ctx.lineTo(alvo.x, alvo.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ponto(ctx, alvo.x, alvo.y, Math.max(3.5, passo * .7), "#ffe06a", "#4a2607");
+    ctx.fillStyle = "#2b1705"; ctx.font = `bold ${Math.max(7, Math.round(passo * 1.05))}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("!", alvo.x, alvo.y + .5);
+    ctx.restore();
+  }
 
   // O herói é uma SETA, não um ponto: além de onde ele está, mostra para onde
   // ele olha — que é metade da orientação que um minimapa serve para dar.

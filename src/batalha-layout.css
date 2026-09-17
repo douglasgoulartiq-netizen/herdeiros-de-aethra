@@ -58,25 +58,16 @@
   z-index: 9;
 }
 
-/* O DADO fica ANCORADO À ESQUERDA da pista, não centrado.
- *
- * É a única regra desta folha que não é sobre espaço vertical, e o motivo é
- * temporal: o dado e um letreiro podem acontecer no mesmo instante (rolar 20
- * natural e disparar uma reação elemental é uma jogada só). Centrados, os
- * dois ocupariam o mesmo ponto. Com o dado à esquerda e o letreiro ao centro,
- * a colisão deixa de ser possível — em vez de improvável. */
+/* O d20 é o momento central da ação. Ele ocupa o meio apenas durante a
+ * rolagem; a sequência de combate aguarda o pouso antes dos outros letreiros. */
 #screen-batalha.bt-screen .bt-field .dado-layer {
   top: calc(50% - var(--anuncio-meio));
   bottom: auto;
   height: var(--anuncio-alt);
-  justify-content: flex-start;
-  padding-left: clamp(10px, 4vw, 48px);
+  left:0;right:0;justify-content:center;padding-left:0;z-index:24;
 }
-/* E encolhe o suficiente para caber na pista sem encostar nas bordas. */
 #screen-batalha.bt-screen .dado-rolagem {
-  min-width: 52px;
-  min-height: 52px;
-  font-size: 1.5rem;
+  min-width:104px;min-height:104px;
 }
 
 /* A camada de letreiros passa a viver DENTRO da pista, centrada nos dois
@@ -167,13 +158,13 @@
   #screen-batalha.bt-screen { --anuncio-alt: clamp(48px, 11vh, 64px); }
   #screen-batalha.bt-screen .revelacao { padding: 5px 12px 5px 8px; }
   #screen-batalha.bt-screen .rev-desc { -webkit-line-clamp: 1; }
-  #screen-batalha.bt-screen .dado-rolagem { min-width: 42px; min-height: 42px; font-size: 1.2rem; }
+  #screen-batalha.bt-screen .dado-rolagem { min-width:82px;min-height:82px;width:82px;height:82px;font-size:1.45rem; }
 }
 
 @media (max-width: 719px) {
   #screen-batalha.bt-screen { --anuncio-alt: clamp(52px, 11vh, 74px); }
   #screen-batalha.bt-screen .revelacao { max-width: 92%; }
-  #screen-batalha.bt-screen .bt-field .dado-layer { padding-left: 8px; }
+  #screen-batalha.bt-screen .bt-field .dado-layer { padding-left:0; }
 }
 
 /* =====================================================================
@@ -346,24 +337,14 @@ body.em-batalha #hda-notificacoes {
 }
 
 /* =====================================================================
- * O DOCK ENCOLHE QUANDO NÃO HÁ MÃO
+ * DOCK ESTÁVEL — a mão nunca muda a geometria da batalha
  * =====================================================================
- * O dock reserva `--dock-alt` (150–208px, ~27% da tela) para a mão de cards.
- * A reserva é certa enquanto há cards: sem ela a tela pularia de altura a
- * cada turno. Mas em metade do combate — todo turno do inimigo, toda espera
- * de barra de iniciativa — ele fica preto e vazio, com uma frase no meio.
- *
- * Com `.dock-sem-mao` ele desce para a altura do aviso. O campo é `1fr` na
- * grade da tela, então recebe o espaço de volta imediatamente: os
- * personagens ficam maiores exatamente no momento em que não há card para
- * ler e a luta é a única coisa acontecendo.
- *
- * A transição é no `grid-template-rows` da tela, não no dock: animar a linha
- * da grade move campo e dock juntos, sem os dois brigarem por um pixel.
+ * O estado sem mão troca os cards por um aviso, mas conserva a linha da
+ * grade. Campo, personagens e rodapé não saltam durante a iniciativa.
  */
-#screen-batalha.bt-screen { transition: grid-template-rows 240ms ease-out; }
+#screen-batalha.bt-screen,
 #screen-batalha.bt-screen:has(.bt-dock.dock-sem-mao) {
-  grid-template-rows: auto minmax(0, 1fr) auto var(--dock-espera-alt, 52px);
+  grid-template-rows: auto minmax(0, 1fr) auto var(--dock-alt, clamp(150px, 23vh, 208px));
 }
 
 .bt-dock.dock-sem-mao {
@@ -371,6 +352,7 @@ body.em-batalha #hda-notificacoes {
   align-items: center;
   justify-content: center;
   padding: 6px clamp(8px, 2vw, 20px);
+  height: 100%;
   min-height: 0;
 }
 .bt-dock.dock-sem-mao .telegrafo-inimigo,
@@ -555,11 +537,10 @@ body.em-batalha #mensagem-topo {
   text-align: left;
   bottom: calc(var(--dock-alt, 180px) + 96px);
 }
-/* Com o dock encolhido a conta acompanha, senão o aviso flutuaria no meio da
-   tela em vez de ficar ancorado ao rodapé. */
+/* Sem mão, as notificações preservam a mesma âncora do rodapé. */
 body.em-batalha:has(.bt-dock.dock-sem-mao) #hda-notificacoes,
 body.em-batalha:has(.bt-dock.dock-sem-mao) #mensagem-topo {
-  bottom: calc(var(--dock-espera-alt, 52px) + 96px);
+  bottom: calc(var(--dock-alt, 180px) + 96px);
 }
 /* No celular o campo é estreito e não há canto sobrando: ali a pilha fica
    centrada mesmo, só bem acima do dock. */

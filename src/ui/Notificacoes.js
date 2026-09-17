@@ -12,7 +12,7 @@
 //
 // O QUE ESTE MÓDULO FAZ
 // ---------------------
-//   • EMPILHA em vez de sobrescrever (até MAX_PILHA de cada vez);
+//   • ENFILEIRA em vez de sobrescrever (uma caixa legível de cada vez);
 //   • dá TIPO a cada aviso — ganho, sucesso, aviso, erro, info — e cada tipo
 //     tem cor, ícone e borda próprios, então dá para saber o que é antes de
 //     ler;
@@ -26,8 +26,22 @@
 // seguem funcionando — elas caem no tipo "info" e ganham o visual novo de
 // graça, sem precisar tocar em nenhuma delas.
 import { multiplicadorVelocidadeMensagem } from "../systems/AccessibilitySystem.js";
+import { autoPlayState, INTERVALO_CAIXA_TEXTO_MS } from "../systems/AutoPlayState.js";
+import { somSucesso, somBloqueioOuErro } from "./SoundFX.js";
 
-export const MAX_PILHA = 4;
+let ultimoSomAviso = 0;
+function sinalizar(tipo) {
+  const agora = Date.now();
+  if (agora - ultimoSomAviso < 320) return;
+  if (tipo === "ganho" || tipo === "sucesso") somSucesso();
+  else if (tipo === "erro") somBloqueioOuErro();
+  else return;
+  ultimoSomAviso = agora;
+}
+
+// Uma caixa por vez: avisos aguardam sua vez em vez de cobrir mapa, modal
+// ou outro aviso. Mantemos o nome exportado por compatibilidade.
+export const MAX_PILHA = 1;
 
 // Cada tipo é uma leitura diferente do mesmo canal. O ícone padrão só entra
 // quando quem chamou não mandou um — mensagens antigas já começam com emoji
@@ -42,6 +56,8 @@ const TIPOS = {
 
 let pilhaEl = null;
 const vivos = [];
+const fila = [];
+let esperaInteracao = null;
 
 function garantirPilha() {
   if (pilhaEl && document.body.contains(pilhaEl)) return pilhaEl;
@@ -60,15 +76,60 @@ function garantirPilha() {
 }
 
 function remover(n) {
+  if (!n || n.removendo) return;
+  n.removendo = true;
   const i = vivos.indexOf(n);
   if (i >= 0) vivos.splice(i, 1);
-  if (!n.el || !n.el.parentNode) return;
+  if (!n.el || !n.el.parentNode) { exibirProxima(); return; }
   n.el.classList.add("saindo");
   // Espera a transição de saída antes de tirar do DOM; se o jogador tiver
   // pedido menos movimento, sai na hora.
   const semMovimento = window.matchMedia
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  setTimeout(() => { if (n.el.parentNode) n.el.remove(); }, semMovimento ? 0 : 200);
+  setTimeout(() => {
+    if (n.el.parentNode) n.el.remove();
+    exibirProxima();
+  }, semMovimento ? 0 : 200);
+}
+
+function haInteracaoCentral() {
+  const modal = document.getElementById("modal-overlay");
+  return document.body.classList.contains("desafio-encontro-ativo")
+    || !!document.querySelector(".rolagem-camada")
+    || !!(modal && !modal.classList.contains("hidden"));
+}
+
+function exibirProxima() {
+  clearTimeout(esperaInteracao);
+  if (vivos.length || !fila.length) return;
+  // A mensagem espera o modal/dado terminar. Assim texto de recompensa ou
+  // de evento nunca surge por cima da decisão que o jogador está lendo.
+  if (haInteracaoCentral()) {
+    esperaInteracao = setTimeout(exibirProxima, 200);
+    return;
+  }
+  const n = fila.shift();
+  const def = TIPOS[n.tipo] || TIPOS.info;
+  const pilha = garantirPilha();
+  const el = document.createElement("div");
+  el.className = `hda-notif ${def.classe}`;
+  const emojiJaNoTexto = /^\s*[\p{Extended_Pictographic}]/u.test(n.texto);
+  const icone = n.opcoes.icone || (emojiJaNoTexto ? "" : def.icone);
+  el.innerHTML = `
+    ${icone ? `<span class="n-icone" aria-hidden="true">${icone}</span>` : ""}
+    <span class="n-corpo">
+      ${n.titulo ? `<b class="n-titulo">${n.titulo}</b>` : ""}
+      <span class="n-texto">${n.texto}</span>
+    </span>
+    <span class="n-vezes" ${n.vezes > 1 ? "" : "hidden"}>${n.vezes > 1 ? `×${n.vezes}` : ""}</span>
+    <span class="n-tempo"><i></i></span>`;
+  n.el = el;
+  n.removendo = false;
+  el.onclick = () => remover(n);
+  pilha.appendChild(el);
+  vivos.push(n);
+  requestAnimationFrame(() => el.classList.add("entrou"));
+  reiniciarRelogio(n, n.duracaoMs);
 }
 
 // O aviso propriamente dito.
@@ -78,17 +139,16 @@ function remover(n) {
 export function notificar(texto, opcoes = {}) {
   if (!texto) return null;
   const { tipo = "info", duracaoMs = 2600, titulo = "" } = opcoes;
-  const def = TIPOS[tipo] || TIPOS.info;
-  const pilha = garantirPilha();
 
   // --- junta repetição --------------------------------------------------
   // Mesmo texto ainda na tela? Soma no contador em vez de empilhar de novo.
   // É o caso do automático catando três moedas seguidas.
-  const igual = vivos.find((n) => n.texto === texto && n.tipo === tipo);
+  const igual = [...vivos, ...fila].find((n) => n.texto === texto && n.tipo === tipo);
   if (igual) {
     igual.vezes += 1;
-    const marca = igual.el.querySelector(".n-vezes");
+    const marca = igual.el && igual.el.querySelector(".n-vezes");
     if (marca) { marca.textContent = `×${igual.vezes}`; marca.hidden = false; }
+    if (!igual.el) return igual;
     igual.el.classList.remove("pulsa");
     // Reinicia a animação de pulso: sem isto, a repetição não dá sinal
     // nenhum de que algo novo aconteceu.
@@ -98,29 +158,10 @@ export function notificar(texto, opcoes = {}) {
     return igual;
   }
 
-  // --- estoura o topo da pilha ------------------------------------------
-  while (vivos.length >= MAX_PILHA) remover(vivos[0]);
-
-  const el = document.createElement("div");
-  el.className = `hda-notif ${def.classe}`;
-  const emojiJaNoTexto = /^\s*[\p{Extended_Pictographic}]/u.test(texto);
-  const icone = opcoes.icone || (emojiJaNoTexto ? "" : def.icone);
-  el.innerHTML = `
-    ${icone ? `<span class="n-icone" aria-hidden="true">${icone}</span>` : ""}
-    <span class="n-corpo">
-      ${titulo ? `<b class="n-titulo">${titulo}</b>` : ""}
-      <span class="n-texto">${texto}</span>
-    </span>
-    <span class="n-vezes" hidden></span>
-    <span class="n-tempo"><i></i></span>`;
-  el.onclick = () => remover(n);
-
-  const n = { el, texto, tipo, vezes: 1, timer: null };
-  pilha.appendChild(el);
-  vivos.push(n);
-  // Deixa o navegador pintar antes de ligar a transição de entrada.
-  requestAnimationFrame(() => el.classList.add("entrou"));
-  reiniciarRelogio(n, duracaoMs);
+  const n = { el: null, texto, tipo, titulo, opcoes, duracaoMs, vezes: 1, timer: null, removendo: false };
+  fila.push(n);
+  sinalizar(tipo);
+  exibirProxima();
   return n;
 }
 
@@ -130,7 +171,10 @@ function reiniciarRelogio(n, duracaoMs) {
   clearTimeout(n.timer);
   // Velocidade de mensagem é preferência do jogador (Acessibilidade), não
   // do jogo — o mesmo multiplicador que o sistema antigo já respeitava.
-  const total = Math.round(duracaoMs * multiplicadorVelocidadeMensagem());
+  // Em automático cada caixa recebe sempre quatro segundos completos.
+  const total = autoPlayState.ativo
+    ? INTERVALO_CAIXA_TEXTO_MS
+    : Math.round(duracaoMs * multiplicadorVelocidadeMensagem());
   const barra = n.el.querySelector(".n-tempo i");
   if (barra) {
     barra.style.transition = "none";
@@ -174,5 +218,7 @@ export function mostrarMensagem(texto, duracaoMs = 2200, opcoes = {}) {
 // Usado ao trocar de tela (batalha começando, jogo recarregando): avisos do
 // contexto anterior não devem sobrar por cima do novo.
 export function limparNotificacoes() {
+  fila.length = 0;
+  clearTimeout(esperaInteracao);
   [...vivos].forEach(remover);
 }

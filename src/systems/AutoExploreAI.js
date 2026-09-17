@@ -104,7 +104,8 @@ export const PESO_DISTANCIA = 1;
 export function pontuarAlvo(alvo, mapa, pesoDistancia = PESO_DISTANCIA) {
   const { distancia, tile } = custoAte(alvo, mapa);
   if (distancia === -1) return null; // inalcançável (ilha, atrás de parede)
-  return { alvo, distancia, tile, pontos: (alvo.prioridade || 0) - distancia * pesoDistancia };
+  const pesoDoAlvo = Number.isFinite(alvo.pesoDistancia) ? alvo.pesoDistancia : pesoDistancia;
+  return { alvo, distancia, tile, pontos: (alvo.prioridade || 0) - distancia * pesoDoAlvo };
 }
 
 export function escolherAlvo(alvos, mapa, pesoDistancia = PESO_DISTANCIA) {
@@ -194,6 +195,7 @@ export const PRIORIDADE = {
   bau: 100,
   no: 72,
   entrada: 90,
+  explorar: 84,
   chefe: 22,
   npc: 18,
   saida: 6,

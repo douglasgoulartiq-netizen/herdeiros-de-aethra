@@ -8,6 +8,7 @@ import { realizarTeste } from "../systems/SkillCheckSystem.js";
 import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { opcaoDisponivel, aplicarEscolhaEvento, aplicarAchadoEvento, aplicarResultadoTesteExploracao } from "../systems/ExplorationEventSystem.js";
 import { registrarDecisao } from "../systems/WorldStateSystem.js";
+import { marcarInteracaoAutomatica } from "./HdaUI.js";
 
 // `onFim` é chamado sempre que o evento se resolve (escolha feita, teste
 // tentado, ou achado coletado) — o chamador (main.js) usa isso pra
@@ -15,6 +16,7 @@ import { registrarDecisao } from "../systems/WorldStateSystem.js";
 // callback de mostrarAmeaca.
 export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFim) {
   const corpo = abrirModalBase(`${evento.icone || "❔"} ${evento.titulo}`);
+  marcarInteracaoAutomatica(corpo);
   const p = document.createElement("p");
   p.textContent = evento.texto;
   corpo.appendChild(p);

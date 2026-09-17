@@ -16,5 +16,5 @@ export const FLAGS = {
   // numa batalha só, NÃO mexa nisto — passe { arteV2: true } na chamada do
   // resolver (ver AssetResolver.js): o override vale só naquele encontro.
   // É a diferença entre "trocar o jogo" e "espiar o resultado".
-  arteV2: false,
+  arteV2: true,
 };

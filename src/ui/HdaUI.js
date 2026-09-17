@@ -22,6 +22,8 @@
 // Antes desta refatoração as quatro faixas eram um bloco rolável só, o que
 // fazia a ação principal sair de vista assim que a lista crescia — o problema
 // nº 1 da auditoria.
+import { INTERVALO_CAIXA_TEXTO_MS } from "../systems/AutoPlayState.js";
+import { somInterfaceAbrir, somInterfaceFechar } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
@@ -66,6 +68,8 @@ export function cabeDuasColunas() {
 export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, classe = "", corpoSemPadding = false, aoFechar = null } = {}) {
   const raiz = conteudo();
   overlay().classList.remove("hidden");
+  delete raiz.dataset.autoAvancarEm;
+  delete raiz.dataset.interacao;
   raiz.className = `hda-modal ${classe}`.trim();
   raiz.style.setProperty("--hda-modal-larg", largura);
   raiz.innerHTML = `
@@ -130,9 +134,28 @@ export function fecharTela() {
   fecharSheet();
   overlay().classList.add("hidden");
   const raiz = conteudo();
+  delete raiz.dataset.autoAvancarEm;
+  delete raiz.dataset.interacao;
   raiz.className = "";
   raiz.removeAttribute("style");
   raiz.innerHTML = "";
+}
+
+// Interações narrativas abertas durante a exploração recebem um relógio
+// único. O automático só aciona o botão preferencial depois de quatro
+// segundos; menus de configuração não recebem a marca e continuam podendo
+// ficar abertos enquanto o herói explora.
+export function marcarInteracaoAutomatica(corpoOuRaiz, atrasoMs = INTERVALO_CAIXA_TEXTO_MS) {
+  const raiz = corpoOuRaiz && (corpoOuRaiz.closest?.("#modal-conteudo") || corpoOuRaiz);
+  if (!raiz) return;
+  raiz.dataset.interacao = "true";
+  raiz.dataset.autoAvancarEm = String(Date.now() + Math.max(0, atrasoMs));
+}
+
+export function interacaoAutomaticaPronta() {
+  const raiz = conteudo();
+  if (!raiz || raiz.dataset.interacao !== "true") return true;
+  return Date.now() >= Number(raiz.dataset.autoAvancarEm || 0);
 }
 
 function escapar(s) {
@@ -200,7 +223,7 @@ let sheetAberto = null;
  * precisa saber em qual formato está.
  */
 export function abrirSheet({ titulo, corpoHTML, acoes = [], aoFechar = null } = {}) {
-  fecharSheet();
+  fecharSheet(true);
   const fundo = document.createElement("div");
   fundo.className = "hda-sheet-fundo";
   const el = document.createElement("aside");
@@ -233,14 +256,16 @@ export function abrirSheet({ titulo, corpoHTML, acoes = [], aoFechar = null } = 
   el.querySelector(".hda-fechar").onclick = fechar;
   fundo.onclick = fechar;
   sheetAberto = { el, fundo };
+  somInterfaceAbrir();
   return { el, corpo: el.querySelector(".hda-sheet-corpo"), fechar };
 }
 
-export function fecharSheet() {
+export function fecharSheet(silencioso = false) {
   if (!sheetAberto) return;
   sheetAberto.el.remove();
   sheetAberto.fundo.remove();
   sheetAberto = null;
+  if (!silencioso) somInterfaceFechar();
 }
 
 export function sheetEstaAberto() { return !!sheetAberto; }

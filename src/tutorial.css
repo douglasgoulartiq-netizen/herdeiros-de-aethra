@@ -1,0 +1,78 @@
+body.com-tutorial { overflow:hidden; }
+body.com-tutorial #hda-notificacoes,
+body.com-tutorial .cartoes-pilha { display:none!important; }
+.tutorial { position:fixed; inset:0; z-index:110; display:grid; grid-template-rows:auto 5px minmax(0,1fr) auto; color:#f5ead3; background:radial-gradient(circle at 70% 15%,#22334d 0,#111522 42%,#090b12 100%); }
+.tutorial button { min-height:42px; }
+.tutorial-topo,.tutorial-rodape { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px clamp(14px,3vw,38px); background:rgba(8,10,17,.92); border-color:rgba(221,178,78,.3); }
+.tutorial-topo { border-bottom:1px solid rgba(221,178,78,.3); }
+.tutorial-topo>div { display:flex; flex-direction:column; gap:3px; }
+.tutorial-topo small { color:#d9b95f; letter-spacing:.12em; }
+.tutorial-topo b { font-size:clamp(1rem,2.2vw,1.45rem); }
+.tutorial-progresso { background:#07090d; }
+.tutorial-progresso i { display:block; height:100%; background:linear-gradient(90deg,#bd792d,#ffe275); box-shadow:0 0 14px #e4b747; transition:width .3s ease; }
+.tutorial-corpo { display:grid; grid-template-columns:minmax(250px,.72fr) minmax(430px,1.28fr); min-height:0; gap:clamp(14px,3vw,38px); padding:clamp(16px,3vw,40px); overflow:auto; }
+.tutorial-explica { display:flex; align-items:flex-start; gap:15px; align-self:center; max-width:620px; }
+.tutorial-explica p { margin:0 0 14px; font-size:clamp(.95rem,1.5vw,1.12rem); line-height:1.55; color:#d9dce4; }
+.tutorial-numero { display:grid; place-items:center; flex:0 0 46px; height:46px; border-radius:50%; background:#d7a43d; color:#16100a; font-size:1.35rem; font-weight:900; box-shadow:0 0 28px rgba(232,180,66,.3); }
+.tutorial kbd { display:inline-block; padding:7px 11px; border:1px solid #74633b; border-bottom-width:3px; border-radius:7px; background:#18191f; color:#ffe7a2; font-family:inherit; font-weight:800; }
+.tutorial-demo { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; min-height:330px; padding:clamp(15px,3vw,32px); border:1px solid rgba(126,151,185,.28); border-radius:20px; background:linear-gradient(145deg,rgba(19,27,40,.9),rgba(18,16,27,.92)); box-shadow:0 20px 55px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.05); }
+.tutorial-rodape { border-top:1px solid rgba(221,178,78,.3); }
+.tutorial-rodape span { color:#aeb7c6; font-size:.8rem; }
+.tutorial-convite { display:grid; place-items:center; padding:20px; }
+.tutorial-convite-card { width:min(670px,94vw); padding:clamp(25px,5vw,55px); text-align:center; border:1px solid #80652f; border-radius:24px; background:linear-gradient(145deg,rgba(27,31,45,.98),rgba(18,14,24,.98)); box-shadow:0 28px 90px #000; }
+.tutorial-emblema { display:block; color:#ffd86d; font-size:3.4rem; text-shadow:0 0 25px #dca63a; }
+.tutorial-convite-card h1 { margin:8px 0 14px; }
+.tutorial-convite-card p { color:#cbd1db; line-height:1.6; }
+.tutorial-convite-acoes { display:flex; justify-content:center; gap:12px; margin:22px 0 14px; }
+.tut-mundo { position:relative; width:min(460px,90%); height:210px; overflow:hidden; border-radius:15px; background:linear-gradient(135deg,#36583f,#496b44 48%,#85734c 49%,#8d7c56 60%,#31543d 61%); image-rendering:pixelated; }
+.tut-trilha { position:absolute; left:12%; right:12%; top:47%; height:20px; border-radius:45%; background:#a8966d; transform:rotate(-8deg); }
+.tut-heroi { position:absolute; left:28%; top:52%; z-index:2; font-size:2.5rem; transition:transform .18s ease; filter:drop-shadow(0 5px 3px #172419); }
+.tut-npc { position:absolute; right:20%; top:25%; display:flex; flex-direction:column; align-items:center; color:#ffd34f; font-size:1.2rem; }
+.tut-npc span { font-size:2.4rem; }
+.tut-estado { min-height:22px; margin:4px 0 0; color:#ffe399; text-align:center; }
+.tut-cena { display:grid; place-items:center; grid-template-columns:auto auto; gap:8px 30px; }
+.tut-objeto { font-size:5rem; }
+.tut-tecla { display:grid; place-items:center; width:48px; height:48px; border:2px solid #ffe080; border-radius:9px; background:#16191f; font-weight:900; }
+.tut-balao { grid-column:1/-1; padding:11px 18px; border-radius:12px; background:#f4ebd9; color:#252019; }
+.tut-missao { width:min(480px,95%); padding:18px; border-left:4px solid #ebbd4f; border-radius:11px; background:#211d1c; }
+.tut-missao small { color:#edc65f; font-weight:900; }
+.tut-missao h3 { margin:7px 0; }
+.tut-progresso { height:8px; border-radius:8px; background:#08090b; }
+.tut-progresso i { display:block; width:35%; height:100%; border-radius:inherit; background:#e8ba4d; }
+.tut-mapa { position:relative; width:min(480px,95%); height:240px; overflow:hidden; border-radius:15px; background:radial-gradient(circle at 28% 65%,#4b7049 0 18%,transparent 19%),linear-gradient(145deg,#233e31,#546849); }
+.tut-voce { position:absolute; left:15%; bottom:22%; color:#bceeff; }
+.tut-rota { position:absolute; left:29%; bottom:32%; width:48%; border-top:4px dashed #ffd25b; transform:rotate(-20deg); transform-origin:left; }
+.tut-alvo { position:absolute; right:13%; top:22%; min-width:95px; border-color:#ffd45d; color:#ffecad; box-shadow:0 0 22px rgba(255,207,73,.35); }
+.tut-time { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; }
+.tut-poder { display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 16px; border:1px solid #3f8060; border-radius:11px; background:rgba(25,71,49,.23); }
+.tut-poder small { color:#8ddcae; }
+.tut-poder b { color:#fff0b9; font-size:1.15rem; }
+.tut-poder em { color:#80e6a0; font-style:normal; }
+.tut-poder span { color:#bccbc2; font-size:.72rem; text-align:center; }
+.tut-time article { display:flex; flex-direction:column; align-items:center; gap:7px; padding:18px 8px; border:1px solid #51637a; border-radius:12px; background:#171e2a; font-size:2.3rem; }
+.tut-time b,.tut-time small { font-size:.78rem; }
+.tut-time small { color:#aab6c7; }
+.tut-time .vazio { opacity:.68; border-style:dashed; }
+.tut-banner,.tut-convocado { display:flex; align-items:center; gap:17px; width:min(510px,96%); padding:18px; border:1px solid #94733a; border-radius:15px; background:linear-gradient(110deg,#2f251b,#211b2d); }
+.tut-banner>span,.tut-convocado>span { font-size:3rem; }
+.tut-banner h3,.tut-banner p,.tut-convocado p { margin:4px 0; }
+.tut-banner small,.tut-convocado small { color:#f1c966; }
+#tut-invocacao-resultado { width:100%; display:grid; place-items:center; }
+.tut-batalha { width:100%; display:flex; flex-direction:column; gap:12px; align-items:center; }
+.tut-pausa { padding:6px 12px; border-radius:20px; background:#3b2d19; color:#ffd980; font-size:.74rem; font-weight:900; letter-spacing:.06em; }
+.tut-arena { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:18px; width:min(610px,100%); }
+.tut-combatente { display:flex; flex-direction:column; align-items:center; gap:5px; min-height:150px; padding:16px 8px; border:1px solid #53677d; border-radius:14px; background:#151b25; font-size:3.6rem; }
+.tut-combatente.monstro { border-color:#965a55; background:#26191e; }
+.tut-combatente b,.tut-combatente small { font-size:.78rem; text-align:center; }
+.tut-combatente small { color:#ffb39c; }
+.tut-combatente meter { width:80%; height:9px; }
+.tut-versus { color:#d9b751; font-weight:900; }
+.tut-cards { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; }
+#tut-d20 { display:grid; place-items:center; width:74px; height:74px; clip-path:polygon(50% 0,95% 27%,82% 85%,50% 100%,18% 85%,5% 27%); background:linear-gradient(145deg,#2f78bd,#542883); color:#ffe080; font-size:1.9rem; }
+#tut-d20.rolando { animation:tut-dado .18s linear infinite; }
+.tut-recompensas { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; width:min(470px,100%); }
+.tut-recompensas span { padding:18px; border:1px solid #655836; border-radius:12px; background:#201d1b; text-align:center; }
+.tut-caminhos { display:flex; gap:9px; }
+@keyframes tut-dado { to { transform:rotate(180deg) scale(.88); } }
+@media(max-width:719px){.tutorial-corpo{grid-template-columns:1fr;padding:12px;gap:10px}.tutorial-explica{align-self:auto}.tutorial-demo{min-height:280px;padding:12px}.tutorial-topo,.tutorial-rodape{padding:9px}.tutorial-rodape span{display:none}.tutorial-convite-acoes{flex-direction:column}.tut-combatente{min-height:120px;font-size:2.7rem}.tut-arena{gap:8px}.tutorial-numero{flex-basis:36px;height:36px}.tutorial-explica p{font-size:.88rem;margin-bottom:8px}}
+@media(prefers-reduced-motion:reduce){.tutorial *{animation:none!important;transition:none!important}}

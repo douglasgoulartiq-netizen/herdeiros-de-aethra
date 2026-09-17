@@ -2,10 +2,9 @@
 //
 // Só Guerreiro e Mago têm uma árvore de Caminhos do Herdeiro de verdade
 // hoje (task #93/#94 — "profundo em 2 classes primeiro"); qualquer outra
-// classe continua usando só a tela antiga (ui/SkillTreeUI.js, botão
-// "Habilidades"). Este módulo abre um botão NOVO e separado ("Caminhos"),
-// que só aparece pra quem tem árvore real — ver personagemTemCaminhoHerdeiro,
-// chamada em main.js antes de mostrar o botão.
+// classe continua usando a árvore-base (ui/SkillTreeUI.js). As duas telas
+// compartilham a mesma navegação de Progressão do Herói, sem transformar
+// seus motores internos em um componente monolítico.
 //
 // Layout do grafo é calculado a partir dos próprios dados (nivelMinimo,
 // requer, grupoExclusivo, subclasseId) — não há nenhuma coordenada
@@ -20,20 +19,19 @@ import {
 import { totalAbates } from "../systems/CompendiumSystem.js";
 import { getReputacao, facaoInfo } from "../systems/WorldStateSystem.js";
 
-const CLASSES_SUPORTADAS = new Set(["guerreiro", "mago"]);
-
 export function personagemTemCaminhoHerdeiro(personagem) {
-  return CLASSES_SUPORTADAS.has(personagem && personagem.classeId);
+  return new Set(["guerreiro", "mago"]).has(personagem && personagem.classeId);
 }
 
 import { abrirSheet, fecharSheet, cabeDuasColunas } from "./HdaUI.js";
+import { somTalento } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
 
 function fecharModalLocal() {
   overlay().classList.add("hidden");
-  conteudo().classList.remove("arvore-caminhos");
+  conteudo().classList.remove("arvore-caminhos", "arvore-so-heranca");
   conteudo().innerHTML = "";
 }
 
@@ -284,7 +282,7 @@ function formaDoTipo(tipo) {
 }
 
 // --- Render principal -----------------------------------------------------
-export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
+export function montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes = {}) {
   overlay().classList.remove("hidden");
   conteudo().classList.add("arvore-caminhos");
   const ch = garantirEstadoCaminho(personagem);
@@ -299,12 +297,26 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   const ativos = new Set(talentosAtivos(personagem));
   const avaliacaoClasse = avaliarArvore(personagem, arvoreCompleta, {});
   const avaliacaoHeranca = avaliarArvore(personagem, arvoreDeHeranca, { heranca: true, contexto: contextoHeranca(dados) });
-  const { posicoes, largura, altura, linhaBaseSubclasses } = calcularLayoutArvore(arvoreClasse, subclasses);
+  const layout = calcularLayoutArvore(arvoreClasse, subclasses);
+  const { posicoes, linhaBaseSubclasses } = layout;
+  const somenteHeranca = arvoreClasse.length === 0 && subclasses.every((s) => s.nodes.length === 0);
+  let altura = somenteHeranca ? 40 : layout.altura;
+  conteudo().classList.toggle("arvore-so-heranca", somenteHeranca);
+  // Cada nó de Herança precisa de uma célula de texto própria. Antes cinco
+  // nomes longos eram espremidos na largura mínima da árvore de classe e se
+  // transformavam numa frase única sobreposta.
+  let largura = Math.max(layout.largura, arvoreDeHeranca.length * 190 + 120);
+  const deslocamentoX = (largura - layout.largura) / 2;
+  if (deslocamentoX) posicoes.forEach((p, id) => posicoes.set(id, { ...p, x: p.x + deslocamentoX }));
 
   let noSelecionado = null;
 
   conteudo().innerHTML = `
     <button class="fechar">Fechar (Esc)</button>
+    <nav class="progressao-heroi-nav" aria-label="Progressão do herói">
+      ${opcoes.abrirHabilidades ? '<button type="button" data-progressao-habilidades>🌳 Habilidades e cards</button>' : ""}
+      <button class="ativo" type="button">💠 Caminhos e Herança</button>
+    </nav>
     <h2>Caminhos do Herdeiro — ${personagem.classeNome || personagem.classeId}</h2>
     <div id="caminho-topo">
       <div id="caminho-pontos"></div>
@@ -312,17 +324,14 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     </div>
     <div id="caminho-corpo">
       <div id="caminho-viewport-wrap">
-        <div id="caminho-zoom-controles">
-          <button id="btn-zoom-in" title="Aproximar">➕</button>
-          <button id="btn-zoom-out" title="Afastar">➖</button>
-          <button id="btn-zoom-reset" title="Centralizar">🎯</button>
-        </div>
         <div id="caminho-viewport"></div>
       </div>
       <div id="caminho-painel"></div>
     </div>
   `;
   conteudo().querySelector(".fechar").onclick = fecharModalLocal;
+  const btnHabilidades = conteudo().querySelector("[data-progressao-habilidades]");
+  if (btnHabilidades) btnHabilidades.onclick = opcoes.abrirHabilidades;
 
   // --- cabeçalho de pontos -------------------------------------------------
   const painelPontos = conteudo().querySelector("#caminho-pontos");
@@ -335,7 +344,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   painelPontos.querySelector("#btn-respec").onclick = () => {
     resetarTalentos(personagem, arvoreCompleta);
     onMudar();
-    montarCaminhoHerdeiro(personagem, dados, onMudar);
+    montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes);
   };
 
   // --- presets --------------------------------------------------------------
@@ -348,13 +357,13 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     btn.onclick = () => {
       alternarPreset(personagem, idx);
       onMudar();
-      montarCaminhoHerdeiro(personagem, dados, onMudar);
+      montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes);
     };
     btn.ondblclick = () => {
       const novoNome = prompt("Novo nome do build:", preset.nome);
       if (novoNome) {
         renomearPreset(personagem, idx, novoNome);
-        montarCaminhoHerdeiro(personagem, dados, onMudar);
+        montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes);
       }
     };
     painelPresets.appendChild(btn);
@@ -427,7 +436,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
       btn.textContent = ehHeranca ? "Gastar ponto de Herança (permanente)" : "Desbloquear";
       btn.onclick = () => {
         const r = escolherTalento(personagem, node.id, escopoCompleto(ehHeranca), dados, { heranca: ehHeranca, contexto: contextoHeranca(dados) });
-        if (r.ok) { onMudar(); montarCaminhoHerdeiro(personagem, dados, onMudar); }
+        if (r.ok) { somTalento(); onMudar(); montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes); }
       };
       acao.appendChild(btn);
     } else {
@@ -438,9 +447,43 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   function escopoCompleto(ehHeranca) { return ehHeranca ? arvoreDeHeranca : arvoreCompleta; }
   renderPainel();
 
+  // Em telas estreitas, a progressão ganha uma representação própria em
+  // trilhas verticais. Ela conserva os mesmos nós e regras do SVG desktop,
+  // mas não exige zoom, gesto de pinça ou leitura de rótulos reduzidos.
+  const trilhasMobile = document.createElement("div");
+  trilhasMobile.className = "caminho-mobile-trilhas";
+  trilhasMobile.innerHTML = `<div class="caminho-mobile-legenda" aria-label="Legenda dos talentos"><span class="disponivel">✦ Disponível</span><span class="escolhido">✓ Escolhido</span><span class="bloqueado">🔒 Bloqueado</span></div>`;
+  function criarTrilhaMobile(titulo, nodes, ehHeranca = false) {
+    if (!nodes.length) return;
+    const secao = document.createElement("section"); secao.className = "caminho-mobile-trilha";
+    const h = document.createElement("h3"); h.textContent = titulo; secao.appendChild(h);
+    const lista = document.createElement("div"); lista.className = "caminho-mobile-nos";
+    [...nodes].sort((a, b) => (a.nivelMinimo || 1) - (b.nivelMinimo || 1)).forEach((node) => {
+      const escopo = ehHeranca ? arvoreDeHeranca : (node.subclasseId ? nodes : arvoreClasse);
+      const avaliacao = ehHeranca ? avaliacaoHeranca : avaliacaoClasse;
+      const estadoNo = estadoNode(node, ativos, avaliacao);
+      const item = document.createElement("button"); item.type = "button";
+      item.className = `caminho-mobile-no estado-${estadoNo} tipo-${classificarTipoNode(node, escopo)}`;
+      const rotuloEstado = estadoNo === "escolhido" ? "Escolhido" : estadoNo === "desbloqueavel" ? "Disponível" : "Bloqueado";
+      item.setAttribute("aria-label", `${node.nome}, nível ${node.nivelMinimo || 1}, ${rotuloEstado}`);
+      item.innerHTML = `<span class="caminho-mobile-nivel">NÍVEL ${node.nivelMinimo || 1}</span><span class="caminho-mobile-icone" aria-hidden="true">${node.icone || "❔"}</span><span class="caminho-mobile-nome">${node.nome}</span><span class="caminho-mobile-estado">${estadoNo === "escolhido" ? "✓" : estadoNo === "desbloqueavel" ? "✦" : "🔒"}<small>${rotuloEstado}</small></span>`;
+      item.onclick = () => {
+        noSelecionado = { node, ehHeranca, escopo };
+        trilhasMobile.querySelectorAll(".selecionado").forEach((el) => el.classList.remove("selecionado"));
+        item.classList.add("selecionado"); renderPainel();
+      };
+      lista.appendChild(item);
+    });
+    secao.appendChild(lista); trilhasMobile.appendChild(secao);
+  }
+  criarTrilhaMobile("◆ Trilha da classe", arvoreClasse);
+  subclasses.forEach((s) => criarTrilhaMobile(`${s.def.icone || "◇"} ${s.def.nome}`, s.nodes));
+  criarTrilhaMobile("💠 Herança do Mundo", arvoreDeHeranca, true);
+  conteudo().querySelector("#caminho-viewport").appendChild(trilhasMobile);
+
   // --- SVG do grafo -----------------------------------------------------
   const viewportWrap = conteudo().querySelector("#caminho-viewport");
-  const svg = svgEl("svg", { width: "100%", height: "100%", viewBox: `0 0 ${largura} ${altura}`, preserveAspectRatio: "none", id: "svg-arvore" });
+  const svg = svgEl("svg", { width: "100%", height: "100%", id: "svg-arvore" });
   const gViewport = svgEl("g", { id: "g-arvore-viewport" });
   svg.appendChild(gViewport);
   viewportWrap.appendChild(svg);
@@ -494,17 +537,30 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
     const icone = svgEl("text", { class: "no-icone", "text-anchor": "middle", dy: "0.35em" });
     icone.textContent = node.icone || "❔";
     g.appendChild(icone);
+    const nivel = svgEl("text", { class: "no-nivel", "text-anchor": "middle", y: -RAIO - 13 });
+    nivel.textContent = `NÍVEL ${node.nivelMinimo || 1}`;
+    g.appendChild(nivel);
     if (estado === "escolhido") {
       const check = svgEl("text", { class: "no-check", x: RAIO * 0.6, y: -RAIO * 0.6, "text-anchor": "middle" });
       check.textContent = "✅";
       g.appendChild(check);
     }
     const label = svgEl("text", { class: "no-label", "text-anchor": "middle", y: RAIO + 18 });
-    label.textContent = node.nome;
+    const palavras = String(node.nome || "").split(/\s+/);
+    const linhas = [""];
+    palavras.forEach((palavra) => {
+      const atual = linhas[linhas.length - 1];
+      if (atual && `${atual} ${palavra}`.length > 18 && linhas.length < 3) linhas.push(palavra);
+      else linhas[linhas.length - 1] = atual ? `${atual} ${palavra}` : palavra;
+    });
+    linhas.forEach((linha, i) => {
+      const tspan = svgEl("tspan", { x: 0, dy: i ? 15 : 0 });
+      tspan.textContent = linha;
+      label.appendChild(tspan);
+    });
     g.appendChild(label);
     g.style.cursor = "pointer";
     g.addEventListener("click", () => {
-      if (arrastou) { arrastou = false; return; }
       noSelecionado = { node, ehHeranca, escopo };
       renderPainel();
       conteudo().querySelectorAll(".no-caminho.selecionado").forEach((el) => el.classList.remove("selecionado"));
@@ -530,71 +586,35 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
   // nem entram no grafo de pré-requisito; cada um só depende de um evento
   // real do mundo, então ficam lado a lado, sem linhas de conexão).
   svg.setAttribute("height", "100%");
-  svg.setAttribute("viewBox", `0 0 ${largura} ${altura + 170}`);
   const tituloHeranca = svgEl("text", { class: "sub-titulo", "text-anchor": "middle", x: largura / 2, y: altura + 20 });
   tituloHeranca.textContent = "💠 Herança do Mundo (permanente — nunca respecável)";
   gViewport.appendChild(tituloHeranca);
   arvoreDeHeranca.forEach((n, idx) => {
-    const x = largura / (arvoreDeHeranca.length + 1) * (idx + 1);
+    const x = largura / 2 + (idx - (arvoreDeHeranca.length - 1) / 2) * 190;
     const y = altura + 90;
     posicoes.set(n.id, { x, y });
     desenharNode(n, true, arvoreDeHeranca);
   });
 
-  // --- pan / zoom --------------------------------------------------------
-  let escala = 1, tx = 0, ty = 0, arrastando = false, arrastou = false, ultimoX = 0, ultimoY = 0;
-  function aplicarTransform() { gViewport.setAttribute("transform", `translate(${tx},${ty}) scale(${escala})`); }
-  function centralizar() {
-    const wrapRect = viewportWrap.getBoundingClientRect();
-    escala = Math.min(1, (wrapRect.width - 36) / largura, (wrapRect.height - 36) / (altura + 170));
-    tx = (wrapRect.width - largura * escala) / 2;
-    ty = (wrapRect.height - (altura + 170) * escala) / 2;
-    aplicarTransform();
+  // --- painel fixo -------------------------------------------------------
+  // Sem zoom e sem arrasto: o diagrama mantém uma escala legível e o
+  // jogador percorre a trilha com a rolagem normal da página.
+  const alturaTotal = altura + 170;
+  svg.setAttribute("viewBox", `0 0 ${largura} ${alturaTotal}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
+  function ajustarPainelFixo() {
+    const larguraVisivel = viewportWrap.clientWidth || largura;
+    const alturaVisivel = viewportWrap.clientHeight || 430;
+    // O desenho sempre cabe na altura útil: classe, subclasses e Herança
+    // permanecem simultaneamente visíveis, sem uma longa rolagem vertical.
+    // Em telas estreitas conservamos largura mínima e só aceitamos rolagem
+    // horizontal, pois reduzir mais faria os nomes deixarem de ser legíveis.
+    const larguraDesenho = larguraVisivel < 720 ? Math.min(largura, 720) : larguraVisivel;
+    svg.style.width = `${larguraDesenho}px`;
+    svg.style.height = `${Math.max(300, alturaVisivel)}px`;
   }
-  // Captura o ponteiro só depois que o arrasto realmente começa (threshold
-  // de alguns pixels) — se soltar a captura assim que ela é pedida no
-  // pointerdown, um clique simples (sem mover o mouse) faz o navegador
-  // redirecionar o "click" sintético pro próprio <svg> em vez do nó
-  // clicado (comportamento de pointer capture do Chromium), e nenhum nó
-  // nunca abriria o painel de detalhes. Só captura de verdade quando
-  // detecta arrasto — cliques continuam funcionando normalmente.
-  svg.addEventListener("pointerdown", (e) => {
-    arrastando = true; arrastou = false; ultimoX = e.clientX; ultimoY = e.clientY;
-    svg._pointerIdAtual = e.pointerId; svg._capturado = false;
-  });
-  svg.addEventListener("pointermove", (e) => {
-    if (!arrastando) return;
-    const dx = e.clientX - ultimoX, dy = e.clientY - ultimoY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) arrastou = true;
-    if (!svg._capturado && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
-      svg.setPointerCapture(e.pointerId);
-      svg._capturado = true;
-    }
-    tx += dx; ty += dy;
-    ultimoX = e.clientX; ultimoY = e.clientY;
-    aplicarTransform();
-  });
-  function soltarArrasto(e) {
-    arrastando = false;
-    if (svg._capturado && e && e.pointerId != null) svg.releasePointerCapture(e.pointerId);
-    svg._capturado = false;
-  }
-  svg.addEventListener("pointerup", soltarArrasto);
-  svg.addEventListener("pointerleave", soltarArrasto);
-  svg.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const novo = Math.max(0.35, Math.min(2.2, escala * (e.deltaY < 0 ? 1.1 : 0.9)));
-    const r = viewportWrap.getBoundingClientRect();
-    const px = e.clientX - r.left, py = e.clientY - r.top;
-    tx = px - (px - tx) * (novo / escala); ty = py - (py - ty) * (novo / escala);
-    escala = novo;
-    aplicarTransform();
-  }, { passive: false });
-  const zoomNoCentro = (fator) => { const r = viewportWrap.getBoundingClientRect(); const novo = Math.max(0.35, Math.min(2.2, escala * fator)); const px = r.width / 2, py = r.height / 2; tx = px - (px - tx) * (novo / escala); ty = py - (py - ty) * (novo / escala); escala = novo; aplicarTransform(); };
-  conteudo().querySelector("#btn-zoom-in").onclick = () => zoomNoCentro(1.2);
-  conteudo().querySelector("#btn-zoom-out").onclick = () => zoomNoCentro(0.8);
-  conteudo().querySelector("#btn-zoom-reset").onclick = centralizar;
-  centralizar();
+  ajustarPainelFixo();
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(ajustarPainelFixo).observe(viewportWrap);
 
   // Botões "escolher esta subclasse" — anexados via DOM comum (fora do
   // SVG) logo abaixo do painel de pontos, pra não depender de clique
@@ -609,7 +629,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar) {
       btn.textContent = `${s.icone || ""} ${s.nome}`;
       btn.onclick = () => {
         const r = escolherSubclasse(personagem, s.id, dados);
-        if (r.ok) { onMudar(); montarCaminhoHerdeiro(personagem, dados, onMudar); }
+        if (r.ok) { somTalento(); onMudar(); montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes); }
       };
       bloco.appendChild(btn);
     });

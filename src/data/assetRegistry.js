@@ -28,6 +28,7 @@ import { FLAGS } from "./featureFlags.js";
 // NUNCA é sobrescrita, então dá pra ligar e desligar a nova sem perder a
 // antiga, e pra comparar as duas lado a lado numa batalha só.
 export const PASTA_V2 = "assets/arte_v2";
+export const PASTA_INTERMEDIARIA = "assets/arte_intermediaria";
 export const PASTA_ATUAL = "assets/sprites";
 export const PASTA_HD = "assets/sprites_hd";
 
@@ -143,6 +144,12 @@ export function candidatos(alvo, uso = USOS.COMBATE, opcoes = {}) {
     // Se o uso específico ainda não foi desenhado (o pôster costuma ficar
     // pra depois), a arte nova de combate já é melhor que a antiga.
     if (sufixo) lista.push(`${PASTA_V2}/${chave}.png`);
+    // Heróis e convocados usam a camada intermediária produzida para este
+    // projeto quando a variante V2 específica ainda não existe. Ela vem
+    // antes do sprite legado e corrige os cards simples do roster.
+    if (chave.startsWith("pc_") || chave.startsWith("gacha_")) {
+      lista.push(`${PASTA_INTERMEDIARIA}/${chave}.png`);
+    }
   }
 
   // Camada atual. Retrato de personagem tem arquivo próprio em sprites_hd —

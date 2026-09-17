@@ -10,6 +10,10 @@ export const autoPlayState = {
   resumo: { vitorias: 0, derrotas: 0, fugas: 0, xpGanho: 0, ouroGanho: 0 },
 };
 
+// Tempo de leitura compartilhado por diálogos, eventos e avisos quando a
+// exploração automática está ligada.
+export const INTERVALO_CAIXA_TEXTO_MS = 4000;
+
 export function zerarResumoAuto() {
   autoPlayState.resumo = { vitorias: 0, derrotas: 0, fugas: 0, xpGanho: 0, ouroGanho: 0 };
 }

@@ -360,6 +360,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "arcano",
     monstros: ["cristal_ecoante", "wisp_radiante", "espectro_arcano", "sentinela_arcana"],
     recursos: ["minerio", "erva"], clima: "temperado",
+    chefe: { monstroId: "serpente_da_tempestade_eterna" },
     descricao: "Seis correntes elementais se encontram aqui, e a água muda de cor conforme quem ganha.",
   },
   {

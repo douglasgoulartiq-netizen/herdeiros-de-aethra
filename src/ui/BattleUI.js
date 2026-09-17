@@ -14,7 +14,7 @@ import { ganharXP, aplicarCrescimento, cryptoId } from "../systems/CharacterFact
 import { temCompraDisponivel } from "../systems/SkillTreeSystem.js";
 import { concederPontosPorNivel, concederPontoHeranca } from "../systems/TalentSystem.js";
 import { registrarAbate } from "../systems/QuestSystem.js";
-import { adicionarFragmentos, checarConquistas } from "../systems/GachaSystem.js";
+import { adicionarFragmentos, checarConquistas, concederXPReservas } from "../systems/GachaSystem.js";
 import { FRAGMENTOS } from "../data/economyConfig.js";
 import { mostrarMensagem } from "./GameUI.js";
 // Animação de subir de nível + gatilho dos cartões (ver CartaoUI.js). Vive lá,
@@ -34,8 +34,9 @@ import { aplicarSinergiaFaccao } from "../systems/FactionSynergySystem.js";
 import { aplicarParesRelacionamento } from "../systems/RivalrySystem.js";
 import { registrarProgressoDiario } from "../systems/DailyQuestSystem.js";
 import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
+import { criarApresentacaoCombate, avisoDePlano, mostrarEstadoCombate, tempoAviso, resumoEstados } from './CombatPresentation.js';
 import { animarDado, sleep, duracaoAnimacao } from "./DiceAnimation.js";
-import { somDadoParou, somDano, somCura, somBloqueioOuErro, destravarAudio, somRuptura } from "./SoundFX.js";
+import { somDadoParou, somDano, somCura, somBloqueioOuErro, destravarAudio, somRuptura, somEntradaChefe } from "./SoundFX.js";
 // Mão de cards de batalha (ver src/ui/BattleCards.js e o trio
 // BattleForecast/TacticalAdvisor/BattleSettings): substitui a antiga fileira
 // de botões de texto do turno do jogador. Toda a decisão continua sendo do
@@ -212,6 +213,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // desligado (false).
   const modoHistoria = !!personagem.modoHistoria;
   const inimigos = monstrosDef.map((m, i) => criarCombatenteInimigo(m, i, ngPlus, modoHistoria));
+  if (inimigos.some((i) => i.chefe)) somEntradaChefe();
   // `terrenoElemento` (task #42): elemento dominante da zona/masmorra atual
   // (ver worldMap.js/main.js) — bônus de ataque desse elemento + resistência
   // para os inimigos (nativos do terreno), aplicado dentro de Batalha.
@@ -669,7 +671,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       const batalha = imagens[`pcb_${c.racaId}_${c.classeId}`];
       if (batalha && batalha.width >= 96) return batalha;
     }
-    return imagens[c.spriteKey];
+    return imagens[`mb_${c.spriteKey}`] || imagens[c.spriteKey];
   }
 
   // Prévia elemental: mostra o ícone do elemento do combatente e, para
@@ -841,7 +843,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // "reduzir efeitos" tira o flash de acerto e o tremor de tela (ver
     // sacudirArena logo abaixo) pra quem é sensível a isso — o resto do
     // combate (números flutuantes, barras, log) continua igual.
-    const flashDesligado = efeitosReduzidos();
+    const flashDesligado = animacoesReduzidas();
     // Fx pendente (ver orquestrarAcao()): crítico e cor elemental do último
     // golpe, consumidos uma única vez pelo alvo certo (comparado por
     // REFERÊNCIA de objeto — ver comentário na declaração de `fxPendente`).
@@ -882,6 +884,12 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const porteGrande = porte >= 1.25;
     div.className = "combatente" + (porteGrande ? " porte-grande" : "") + auraDoCard(c) + (c.defendendo ? " em-guarda" : "") + (!c.vivo ? " morto" : "") + (c.atb >= c.atbMax && c.vivo ? " pronto" : "") + (ehAtivo ? " ativo" : "") + (ehTelegrafado ? " telegrafando" + (telegrafo.inimigo.chefe ? " telegrafo-chefe" : "") : "") + (deltaHp < 0 && !flashDesligado ? " hit-flash" : "") + (deltaHp < 0 && critico && !flashDesligado ? " hit-flash-critico" : "") + (c.atordoado ? " atordoado" : "") + entrando;
     div.dataset.cid = c.id;
+    div.classList.toggle('alvo-confirmado', c === alvoSelecionado && !c.isPlayer);
+    const planoVisual = telegrafo?.plano;
+    const avisoVisual = avisoDePlano(planoVisual, c);
+    div.classList.toggle('aviso-alvo', !!avisoVisual);
+    if (avisoVisual) div.dataset.aviso = avisoVisual;
+    div.classList.toggle('combate-conforto', animacoesReduzidas());
     if (entrando) div.style.setProperty("--entrada-atraso", `${Math.min(indice, 6) * 60}ms`);
     if (fx && fx.corElemento) div.style.setProperty("--flash-color", fx.corElemento);
     const img = imgFor(c);
@@ -946,8 +954,9 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // Efeitos ativos, um por EFEITO (não por tipo) — ver fichaDeEfeitos.
     const efeitos = fichaDeEfeitos(c);
     const tiposAtivos = efeitos.map((e) => e.chave);
+    const resumoStatus = resumoEstados(efeitos);
     const statusIconesHTML = efeitos.length
-      ? `<div class="status-icones">${efeitos.map((e) => {
+      ? `<div class="status-icones">${resumoStatus.visiveis.map((e) => {
           // O contador de turnos é a informação que faltava. `ultimo` marca o
           // turno final — o ícone pisca em vermelho, porque "acaba agora" e
           // "acaba daqui a três" mudam completamente a jogada certa.
@@ -956,12 +965,18 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
             ? `<b class="status-turnos${ultimo ? " ultimo" : ""}">${Math.max(0, e.turnos)}</b>` : "";
           const dataEstado = e.estadoId ? ` data-estado="${e.estadoId}"` : "";
           return `<span class="status-icone status-${e.classe}${ultimo ? " expirando" : ""}"${dataEstado} title="${String(e.titulo).replace(/"/g, "&quot;")}${e.turnos ? ` (${e.turnos} turno${e.turnos > 1 ? "s" : ""})` : ""}">${e.icone}${cont}</span>`;
-        }).join("")}</div>`
+        }).join("")}${resumoStatus.restantes ? `<button type="button" class="status-mais" aria-label="Ver todos os estados">+${resumoStatus.restantes}</button>` : ''}</div>`
       : "";
     div.innerHTML = `
       <div class="nome-c">${c.nome}${c.chefe ? " 👑" : ""}${c.solo && !c.chefe ? ` <span title="Reforçado por estar sozinho contra o time (task #46)">💪</span>` : ""}${c.emboscada ? ` <span title="Emboscada: moradores hostis por sua reputação ruim com esta região">🗡️ Emboscada</span>` : ""}${ehAtivo ? " ⬅" : ""}${iconeTelegrafo}${badgeElemento(c)}${c.atordoado ? ` <span class="badge-atordoado" title="Atordoado: perde o turno e recebe dano extra">💫 Atordoado</span>` : ""}</div>
       ${badgeFormacao || badgePapel || badgeComportamento ? `<div class="formacao-linha">${badgeFormacao}${badgePapel}${badgeComportamento}</div>` : ""}
       ${badgeEscala || badgeFase || badgeMarca ? `<div class="selos-linha">${badgeEscala}${badgeFase}${badgeFuria}${badgeMarca}</div>` : ""}
+      <div class="combatente-sinais" aria-hidden="true">
+        <span class="sinal-combate sinal-turno">▶ TURNO</span>
+        <span class="sinal-combate sinal-alvo">◎ ALVO</span>
+        <span class="sinal-combate sinal-area">◌ ÁREA</span>
+        <span class="sinal-combate sinal-aliado-area">⚠ ALIADO</span>
+      </div>
       <div class="sprite-wrap"><canvas width="192" height="192" class="sprite-canvas"></canvas></div>
       <div class="barra"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div><div class="barra-fantasma"><div class="fantasma-max"></div><div class="fantasma-esperado"></div><div class="fantasma-min"></div></div></div>
       <div style="font-size:0.7em">${c.hp}/${c.hpMax} HP <span class="previa-hp-rotulo"></span></div>
@@ -969,8 +984,17 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       ${c.isPlayer ? `<div class="barra"><div class="barra-fill mp" style="width:${Math.max(0, (c.mp / c.mpMax) * 100)}%"></div></div>` : ""}
       <div class="atb-barra"><div class="atb-fill" style="width:${Math.min(100, c.atb)}%"></div></div>
       ${statusIconesHTML}
-      ${!c.isPlayer ? `<button data-id="${c.id}" class="btn-alvo" style="margin-top:4px;font-size:0.7em;padding:3px 6px;">${alvoSelecionado && alvoSelecionado.id === c.id ? "Alvo ✓" : "Selecionar"}</button>` : ""}
+      ${!c.isPlayer ? `<button data-id="${c.id}" class="btn-alvo" aria-pressed="${alvoSelecionado && alvoSelecionado.id === c.id}" style="margin-top:4px;font-size:0.7em;padding:3px 6px;">${alvoSelecionado && alvoSelecionado.id === c.id ? "◎ Alvo atual" : "Selecionar alvo"}</button>` : ""}
     `;
+    div.querySelectorAll('.status-icone').forEach(icone => {
+      icone.tabIndex = 0;
+      icone.setAttribute('role', 'button');
+      icone.setAttribute('aria-label', icone.title);
+      icone.onclick = e => { e.stopPropagation(); mostrarEstadoCombate(arena, icone.title); };
+      icone.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); mostrarEstadoCombate(arena, icone.title); } };
+    });
+    const maisStatus = div.querySelector('.status-mais');
+    if (maisStatus) maisStatus.onclick = e => { e.stopPropagation(); mostrarEstadoCombate(arena, `${c.nome}\n${resumoStatus.descricao}`); };
     const canvas = div.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
@@ -1153,7 +1177,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // tremor/flash — vibração é o mesmo tipo de estímulo). Padrões curtos
     // (não incomodam) e tudo dentro de try/catch: vibração nunca pode
     // quebrar o jogo em navegadores que implementam a API de forma diferente.
-    if (deltaHp < 0 && !efeitosReduzidos()) {
+    if (deltaHp < 0 && !animacoesReduzidas()) {
       try { if (navigator.vibrate) navigator.vibrate(critico ? [30, 40, 30] : 25); } catch (e) { /* silencioso de propósito */ }
     }
     if (!posicionarFlutuante(el, spriteWrap)) return;
@@ -1237,7 +1261,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // e é o que faz o jogador associar "usei fogo contra planta" ao número
   // grande, sem precisar ler palavra nenhuma.
   function estilhacarElemento(cardDiv, cor, forte) {
-    if (!fxLayer || !cor || efeitosReduzidos()) return;
+    if (!fxLayer || !cor || animacoesReduzidas()) return;
     const arenaRect = arena.getBoundingClientRect();
     const r = (cardDiv.querySelector(".sprite-wrap") || cardDiv).getBoundingClientRect();
     const cx = r.left - arenaRect.left + r.width / 2;
@@ -1503,11 +1527,11 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     if (card.tipo === "habilidade") {
       const h = card.habilidade;
       const destino = ["cura", "buff_defesa", "buff_ataque", "fuga"].includes(h.tipo) ? jogador : alvo;
-      resolverTurno(() => batalha.usarHabilidade(jogador, h, destino));
+      resolverTurno(() => batalha.usarHabilidade(jogador, h, destino), { habilidade: h, ator: jogador, alvo: destino });
       return;
     }
     if (card.tipo === "sopro") {
-      resolverTurno(() => batalha.usarSoproElemental(jogador));
+      resolverTurno(() => batalha.usarSoproElemental(jogador), { tipo: 'sopro', nome: 'Sopro elemental', ator: jogador });
       return;
     }
     if (card.tipo === "defender") {
@@ -1558,9 +1582,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     if (!atacanteAtivo) {
       // DOCK SEM MÃO. Ele reserva ~27% da altura da tela e ficava preto e
       // vazio em metade do combate — todo turno inimigo, toda espera de ATB.
-      // A classe faz o dock ENCOLHER para a altura do aviso, e o campo (que
-      // é `1fr` na grade) recebe o espaço de volta na hora: os personagens
-      // ficam maiores exatamente quando não há card para ler.
+      // A classe troca o conteúdo, mas conserva a altura da mão: o campo e
+      // os personagens não pulam entre turnos.
       acoesEl.innerHTML = "<p class='dock-espera'>Aguardando barra de iniciativa…</p>";
       acoesEl.classList.add("dock-sem-mao");
       if (painelCards) painelCards.invalidar();
@@ -1617,9 +1640,9 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // motor resolve sobre `timeVivo()`/`inimigosVivos()` (ver CombatSystem).
     // O alvo passado existe só porque `usarHabilidade` exige um.
     if (decisao.tipo === "curar" || decisao.tipo === "curar_time" || decisao.tipo === "buff_time") {
-      resolverTurno(() => batalha.usarHabilidade(jogador, decisao.habilidade, jogador));
+      resolverTurno(() => batalha.usarHabilidade(jogador, decisao.habilidade, jogador), { habilidade: decisao.habilidade, ator: jogador, alvo: jogador });
     } else if (decisao.tipo === "habilidade" || decisao.tipo === "area" || decisao.tipo === "debuff_area") {
-      resolverTurno(() => batalha.usarHabilidade(jogador, decisao.habilidade, decisao.alvo));
+      resolverTurno(() => batalha.usarHabilidade(jogador, decisao.habilidade, decisao.alvo), { habilidade: decisao.habilidade, ator: jogador, alvo: decisao.alvo });
     } else if (decisao.tipo === "defender") {
       // Mesma execução do card "Defender" do jogador humano — inclusive
       // consumir o turno (`primeiroTurno`/`atb`), senão a IA defenderia e
@@ -1749,7 +1772,11 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // com o HP/status antes desta ação, ainda preservado em hpAnterior/
   // statusAnteriorPorCombatente). O jogador nunca vê o resultado "pular"
   // pronto na tela — cada etapa é visível por si só.
-  async function orquestrarAcao(fn) {
+  let apresentacaoCombate = null;
+  let apresentandoAcao = false;
+  async function orquestrarAcao(fn, acaoVisual = {}) {
+    apresentandoAcao = true;
+    try {
     const seqRolagemAntes = batalha.rolagemSeq;
     const seqQuebraAntes = batalha.quebraSeq;
     // Fotografia do estado ANTES da ação, para o resumo pós-ação (item 97)
@@ -1774,7 +1801,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     if (rolagem && (!dadoSomenteImportante() || dadoImportante)) {
       garantirDadoLayer();
       somDadoParou(rolagem.critico);
-      await animarDado(dadoLayer, rolagem.d, { critico: rolagem.critico, fumble: rolagem.erroTotal });
+      await animarDado(dadoLayer, rolagem.d, { critico: rolagem.critico, fumble: rolagem.erroTotal, duracaoTotalMs: animacoesReduzidas() ? 160 : 900 });
     } else if (rolagem) {
       // Sem a animação completa, o som curto de rolagem continua marcando
       // que houve um dado — nunca "pula" o resultado em silêncio.
@@ -1787,13 +1814,12 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     }
 
     if (rolagem && rolagem.atacante && rolagem.alvo) {
-      await animarGolpe(rolagem.atacante, rolagem.alvo, { erro: rolagem.erroTotal, bloqueado: rolagem.bloqueado });
       // Fx pendente (crítico + cor do elemento do golpe) pro próximo
       // cardCombatente() do alvo — ver declaração de `fxPendente` mais
       // acima. Só golpes que realmente acertaram (não erro/bloqueio)
       // ganham a cor elemental, senão um "erro" sem dano nenhum herdaria a
       // borda colorida por engano.
-      const elementoAtacante = rolagem.atacante.elemento;
+      const elementoAtacante = acaoVisual.habilidade?.elemento || rolagem.atacante.elemento;
       const acertou = !rolagem.erroTotal && !rolagem.bloqueado;
       const elInfo = acertou && dados.elements ? infoElemento(elementoAtacante, dados.elements) : null;
       const relacao = acertou && dados.elements
@@ -1816,14 +1842,23 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       };
       // Hit-stop de crítico (item 42): pausa MUITO curta (90ms) — o
       // suficiente para o golpe "pesar", longe de travar o jogo.
-      if (rolagem.critico && acertou && !animacoesReduzidas()) {
-        arena.classList.remove("hit-stop");
-        void arena.offsetWidth;
-        arena.classList.add("hit-stop");
-        await sleep(duracaoAnimacao(90));
-        arena.classList.remove("hit-stop");
-      }
     }
+    if (!apresentacaoCombate) apresentacaoCombate = criarApresentacaoCombate(arena, c => elementoPorCombatente.get(c));
+    const alterados = batalha.todos().filter(c => c.hp !== hpAntesPorAlvo.get(c) || c.statusEffects.some(s => !estadosAntes.get(c)?.has(s.estadoId || s.tipo)));
+    const atorVisual = acaoVisual.ator || rolagem?.atacante || atacanteAtivo;
+    const alvosVisuais = alterados.length ? alterados : [acaoVisual.alvo || rolagem?.alvo || atorVisual].filter(Boolean);
+    const visual = { ...acaoVisual, erro: !!rolagem?.erroTotal, bloqueado: !!rolagem?.bloqueado, alvoRolagem: rolagem?.alvo,
+      resultados: new Map(batalha.todos().map(c => [c, { dano: Math.max(0, (hpAntesPorAlvo.get(c) ?? c.hp) - c.hp), cura: Math.max(0, c.hp - (hpAntesPorAlvo.get(c) ?? c.hp)) }])),
+      critico: !!rolagem?.critico && !rolagem?.erroTotal && !rolagem?.bloqueado };
+    if (!visual.habilidade && !rolagem && alterados.some(c => c.hp > hpAntesPorAlvo.get(c))) visual.tipo = 'cura';
+    else if (!visual.habilidade && !rolagem && atorVisual?.defendendo) visual.tipo = 'defesa';
+    await apresentacaoCombate.executar({ ator: atorVisual, alvos: alvosVisuais, acao: visual, impacto: () => {
+      renderArena(); renderLog();
+      if (rolagem?.erroTotal || rolagem?.bloqueado) {
+        const el = elementoPorCombatente.get(rolagem.alvo);
+        if (el) spawnMissText(el, rolagem.erroTotal ? 'ESQUIVOU!' : 'BLOQUEADO!');
+      }
+    } });
     // Quebra de postura (chefe atordoado nesta mesma ação): um momento
     // visual à parte, mais demorado e vistoso que o flash de acerto comum —
     // ver spawnMissText/renderArena logo depois pra ver o HP/postura já
@@ -1846,6 +1881,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     renderLog();
     montarResumoPosAcao({ hpAntesPorAlvo, posturaAntesPorAlvo, estadosAntes, rolagem, quebra });
     return resultado;
+    } finally { apresentandoAcao = false; }
   }
 
   // Faixa curta no centro da arena (POSTURA ROMPIDA, NATURAL 20, NATURAL 1).
@@ -1905,7 +1941,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     painelCards.mostrarResumo(partes.slice(0, 4));
   }
 
-  async function resolverTurno(fn) {
+  async function resolverTurno(fn, acaoVisual = {}) {
     // Trava contra clique duplo/agendamento automático simultâneo enquanto
     // a animação da ação anterior ainda está rodando (ver declaração de
     // `turnoEmAndamento`).
@@ -1913,7 +1949,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     turnoEmAndamento = true;
     if (acoesEl) acoesEl.classList.add("acoes-bloqueadas");
     const atorDoTurno = atacanteAtivo;
-    await orquestrarAcao(fn);
+    await orquestrarAcao(fn, acaoVisual);
     batalha.tickCooldowns(atorDoTurno);
     batalha.aplicarStatusTick(atorDoTurno);
     filaAcao.shift();
@@ -2062,7 +2098,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // Duração do telegraph também obedece a velocidade de animação de
     // combate escolhida em Acessibilidade (ver DiceAnimation.js) — em modo
     // automático já era mais curto de propósito, isso continua igual.
-    const atraso = duracaoAnimacao(autoPlayState.ativo ? 450 : 900);
+    const atraso = tempoAviso(autoPlayState.ativo, !!inimigo.chefe, duracaoAnimacao(1000) / 1000);
     setTimeout(async () => {
       telegrafo = null;
       // O inimigo já deve ter sido removido da fila, mas usa filter por
@@ -2091,7 +2127,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
           batalha.executarAcao(inimigo, plano);
           batalha.tickCooldowns(inimigo);
           batalha.aplicarStatusTick(inimigo);
-        });
+        }, { ...plano, ator: inimigo });
       } else {
         renderArena();
         renderLog();
@@ -2106,7 +2142,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
 
   function loopATB() {
     intervalId = setInterval(() => {
-      if (pausado || batalha.terminada) return;
+      if (pausado || batalha.terminada || apresentandoAcao) return;
       const prontos = batalha.avancarATB(1.6);
       for (const c of prontos) {
         if (!c.vivo) continue;
@@ -2241,6 +2277,11 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         // somar XP do time de gacha em cima do XP do protagonista (números
         // que o jogador não consegue comparar diretamente com nada na UI).
         if (autoPlayState.ativo && membro === combatentesTime[0]) registrarGanhosAuto({ xp: ganho });
+      });
+      // A coleção inteira cresce junto da jornada. Reservas recebem uma
+      // fração menor, mantendo vantagem clara para quem realmente combateu.
+      concederXPReservas(personagem, totalXP, dados).forEach(({ membro, subiuNivel }) => {
+        subiuNivel.forEach((novoNivel) => concederPontosPorNivel(membro, novoNivel));
       });
 
       if (derrotouChefeMasmorra) totalFragmentos += FRAGMENTOS.RECOMPENSA_CHEFE_MASMORRA;

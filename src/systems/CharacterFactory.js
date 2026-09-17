@@ -5,6 +5,10 @@ import { bonusConjunto } from "./SetBonusSystem.js";
 import { bonusCaminhoHerdeiro } from "./TalentSystem.js";
 import { bonusDosSubStats } from "./SubStatusSystem.js";
 
+// Uma escala curta deixa cada nível legível e mantém protagonista e
+// convocados na mesma régua. O New Game+ aumenta o mundo, não este teto.
+export const NIVEL_MAXIMO_PERSONAGEM = 25;
+
 // CURVA DE XP.
 //
 // Era `30 × nível^1.5`. Medido com scripts/medir-dificuldade.mjs: o nível 2
@@ -32,7 +36,10 @@ export function xpParaNivel(nivel) {
   return Math.round(30 * Math.pow(nivel, 1.8));
 }
 
-export function criarPersonagem({ nome, raca, classe, antecedente, traco }, dados) {
+export function criarPersonagem({
+  nome, raca, classe, antecedente, traco,
+  elemento = null, faccao = null, preferencias = [], motivacao = null,
+}, dados) {
   const r = dados.races.find((x) => x.id === raca);
   const c = dados.classes.find((x) => x.id === classe);
   const b = dados.backgrounds.find((x) => x.id === antecedente);
@@ -59,6 +66,15 @@ export function criarPersonagem({ nome, raca, classe, antecedente, traco }, dado
     classeId: classe,
     antecedenteId: antecedente,
     tracoId: traco,
+    // Identidade escolhida na criação. São campos aditivos: saves antigos
+    // continuam válidos porque todos os sistemas tratam a ausência deles
+    // como "ainda não definido".
+    elementoId: elemento,
+    // `facaoId` é reservado aos convocados e ativaria camaradagem consigo
+    // mesmo no protagonista; a origem do herói tem um campo próprio.
+    faccaoOrigemId: faccao,
+    preferencias: Array.isArray(preferencias) ? [...preferencias] : [],
+    motivacaoId: motivacao,
     racaNome: r.nome,
     classeNome: c.nome,
     classeIcone: c.icone || "", // task #41: classe evidente na HUD
@@ -88,6 +104,13 @@ export function criarPersonagem({ nome, raca, classe, antecedente, traco }, dado
     // mais). Default false = comportamento idêntico a antes desta opção
     // existir.
     modoHistoria: false,
+    // A facção inicial já nasce conectada ao sistema de reputação e
+    // camaradagem existente (WorldStateSystem), sem conceder reputação grátis.
+    estadoDoMundo: {
+      reputacao: {},
+      flags: {},
+      ...(faccao ? { facaoAfiliada: faccao } : {}),
+    },
   };
   return personagem;
 }
@@ -269,17 +292,28 @@ export function ataqueBase(personagem, dados) {
 }
 
 export function ganharXP(personagem, xp) {
+  if ((personagem.nivel || 1) >= NIVEL_MAXIMO_PERSONAGEM) {
+    personagem.nivel = NIVEL_MAXIMO_PERSONAGEM;
+    personagem.xp = 0;
+    personagem.xpProximo = xpParaNivel(NIVEL_MAXIMO_PERSONAGEM);
+    return { ganho: 0, subiuNivel: [], nivelMaximo: true };
+  }
   let ganho = xp;
   if (personagem.racaId === "humano") ganho = Math.round(ganho * 1.05);
   personagem.xp += ganho;
   const subiuNivel = [];
-  while (personagem.xp >= personagem.xpProximo) {
+  while (personagem.nivel < NIVEL_MAXIMO_PERSONAGEM && personagem.xp >= personagem.xpProximo) {
     personagem.xp -= personagem.xpProximo;
     personagem.nivel += 1;
     personagem.xpProximo = xpParaNivel(personagem.nivel);
     subiuNivel.push(personagem.nivel);
   }
-  return { ganho, subiuNivel };
+  if (personagem.nivel >= NIVEL_MAXIMO_PERSONAGEM) {
+    personagem.nivel = NIVEL_MAXIMO_PERSONAGEM;
+    personagem.xp = 0;
+    personagem.xpProximo = xpParaNivel(NIVEL_MAXIMO_PERSONAGEM);
+  }
+  return { ganho, subiuNivel, nivelMaximo: personagem.nivel >= NIVEL_MAXIMO_PERSONAGEM };
 }
 
 export function aplicarCrescimento(personagem, dados) {

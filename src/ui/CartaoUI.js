@@ -18,6 +18,7 @@
 // estorvo.
 import { duracaoAnimacao, sleep } from "./DiceAnimation.js";
 import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
+import { somNivel } from "./SoundFX.js";
 import {
   proximoCartao, removerCartao, registrarRecusa, silenciarParaSempre,
   tamanhoDaFila, aoMudarFila, cartoesNaFila,
@@ -310,6 +311,7 @@ let aoSubirNivel = null;
 export function registrarAoSubirNivel(fn) { aoSubirNivel = fn; }
 
 export async function celebrarNivel(novoNivel, nivelAnterior) {
+  somNivel();
   await animarSubirDeNivel(novoNivel);
   if (aoSubirNivel) aoSubirNivel(novoNivel, nivelAnterior);
 }

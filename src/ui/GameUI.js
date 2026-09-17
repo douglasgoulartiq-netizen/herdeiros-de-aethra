@@ -1,13 +1,13 @@
 // Telas de inventário, missões, loja, forja, diálogo e HUD (tudo em DOM/HTML).
 import { caminhoDoIcone } from "../data/itemIcons.js";
-import { RARITY_COLORS, RARITY_LABEL, equiparItem, desequiparItem, usarConsumivel, venderItem, comprarItem } from "../systems/InventorySystem.js";
+import { RARITY_COLORS, RARITY_LABEL, equiparItem, desequiparItem, usarConsumivel, venderItem, comprarItem, comprarLote, previaVendaEmLote, venderItensEmLote, custoServicoLoja, comprarServicoLoja } from "../systems/InventorySystem.js";
 import { receitaDisponivel, craftar } from "../systems/CraftingSystem.js";
 import { itemPodeSerAprimorado, nivelAprimoramento, custoProximoNivel, podeAprimorar, aprimorarItem, MAX_NIVEL_APRIMORAMENTO,
   escolherSubStatusDoMarco,
   temMarcoPendente} from "../systems/EnchantSystem.js";
-import { iniciarMissao, missaoPronta, concluirMissao } from "../systems/QuestSystem.js";
+import { iniciarMissao, missaoPronta, concluirMissao, ehMissaoPrincipal, missaoRastreada, rastrearMissao, progressoDaMissao, textoObjetivoMissao } from "../systems/QuestSystem.js";
 import { missoesDiariasParaExibir, coletarRecompensaDiaria } from "../systems/DailyQuestSystem.js";
-import { ganharXP, aplicarCrescimento, cryptoId } from "../systems/CharacterFactory.js";
+import { ganharXP, aplicarCrescimento, cryptoId, NIVEL_MAXIMO_PERSONAGEM } from "../systems/CharacterFactory.js";
 import { temCompraDisponivel } from "../systems/SkillTreeSystem.js";
 
 // BUG ANTIGO, achado pelo teste da masmorra: `REPUTACAO_POR_MISSAO` era
@@ -27,7 +27,7 @@ import { registrarEvento } from "../systems/TelemetrySystem.js";
 import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { personagemTemCaminhoHerdeiro } from "./TalentTreeUI.js";
 import { planejarEquipamento, aplicarPlanoEquipamento, autoEquiparSlotsVazios, garantirPrefAutoEquipar } from "../systems/AutoEquipSystem.js";
-import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, marcarNavbarAtiva } from "./HdaUI.js";
+import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, marcarNavbarAtiva, marcarInteracaoAutomatica } from "./HdaUI.js";
 import { falaAtual, reacaoPorReputacao, registrarConversa } from "../systems/NpcSystem.js";
 import { questsOferecidasPor, aceitarQuestRegional, concluirQuestRegional, progressoObjetivoRegional } from "../systems/RegionalQuestSystem.js";
 import { questRegionalPorId, PASSOS_INICIAIS } from "../data/world/regionalQuests.js";
@@ -35,7 +35,7 @@ import { linhasDaConsequencia, resumoDaConsequencia } from "../systems/Consequen
 import { reproduzirCutscene } from "./CutsceneUI.js";
 import { textoSubStatus, GRAU_ROTULO, GRAU_COR, MARCOS, NIVEL_MAXIMO as SUB_NIVEL_MAX } from "../systems/SubStatusSystem.js";
 import { celebrarNivel } from "./CartaoUI.js";
-import { cenaDeAbertura, jaViu } from "../systems/CutsceneSystem.js";
+import { cenaDeAbertura, cenaDaMissao, jaViu } from "../systems/CutsceneSystem.js";
 import { proximoPassoAltaverde, podeRecrutarAshryn, recrutarAshryn } from "../systems/JornadaSystem.js";
 
 const overlay = () => document.getElementById("modal-overlay");
@@ -126,7 +126,7 @@ export const HUBS = [
   { id: "personagem", icone: "👤", rotulo: "Personagem", curto: "Herói", acoes: [
     { acao: "estado", rotulo: "Como você está", icone: "📋", atalho: "K" },
     { acao: "arvore", rotulo: "Habilidades", icone: "✨", atalho: "T" },
-    { acao: "caminhos", rotulo: "Caminhos do Herdeiro", icone: "🌌", atalho: "H", id: "btn-caminhos", ocultavel: true },
+    { acao: "caminhos", rotulo: "Caminhos do Herdeiro", icone: "🌌", atalho: "H", id: "btn-caminhos" },
     // "Time" saiu de dentro do painel de invocação e virou tela própria
     // (PartyUI.js). Antes, para vestir um convocado era preciso passar pelo
     // gacha — uma tela de sorteio — o que misturava duas coisas que não têm
@@ -153,6 +153,7 @@ export const HUBS = [
     { acao: "forja", rotulo: "Forja & Alquimia", icone: "🔨", atalho: "F" },
   ] },
   { id: "mais", icone: "⋯", rotulo: "Mais", acoes: [
+    { acao: "tutorial", rotulo: "Tutorial e ajuda", icone: "🎓", atalho: "F1" },
     { acao: "descansar", rotulo: "Descansar", icone: "💤", atalho: "R" },
     { acao: "sair_masmorra", rotulo: "Sair da Masmorra", icone: "🚪" },
     { acao: "salvar", rotulo: "Salvar", icone: "💾", atalho: "S" },
@@ -247,7 +248,10 @@ export function montarNavegacao(onAcao) {
     auto.dataset.action = ACAO_AUTO.acao;
     auto.title = `${ACAO_AUTO.rotulo} (${ACAO_AUTO.atalho})`;
     auto.innerHTML = `<span class="hud-aba-icone" aria-hidden="true">${ACAO_AUTO.icone}</span><span class="hud-aba-rotulo">Auto</span>`;
-    auto.onclick = (ev) => { ev.stopPropagation(); fecharPainel(); onAcao(ACAO_AUTO.acao); };
+    // Ligar/desligar a viagem não recolhe o painel em uso: o jogador pode
+    // configurar herói, jornada ou mochila enquanto o mundo continua ao
+    // fundo. O painel só será fechado pelo fluxo de entrada em combate.
+    auto.onclick = (ev) => { ev.stopPropagation(); onAcao(ACAO_AUTO.acao); };
     abas.appendChild(auto);
 
     hud.appendChild(paineis);
@@ -292,10 +296,14 @@ export function atualizarHUD(personagem) {
   // de verdade hoje (Guerreiro/Mago — "profundo em 2 classes primeiro");
   // outras classes continuam só com o botão "Habilidades" antigo.
   const btnCaminhos = document.getElementById("btn-caminhos");
-  if (btnCaminhos) btnCaminhos.classList.toggle("hidden", !personagemTemCaminhoHerdeiro(personagem));
+  // A Herança do Mundo existe para qualquer classe. Guerreiro e Mago têm
+  // ramos próprios mais profundos, mas esconder todo o destino tirava do
+  // Patrulheiro (e das demais classes) o acesso aos nós universais.
+  if (btnCaminhos) btnCaminhos.classList.remove("hidden");
   document.getElementById("hud-hp").style.width = `${Math.max(0, (personagem.hp / personagem.hpMax) * 100)}%`;
   document.getElementById("hud-mp").style.width = `${Math.max(0, (personagem.mp / personagem.mpMax) * 100)}%`;
-  document.getElementById("hud-xp").style.width = `${Math.max(0, (personagem.xp / personagem.xpProximo) * 100)}%`;
+  const nivelMaximo = personagem.nivel >= NIVEL_MAXIMO_PERSONAGEM;
+  document.getElementById("hud-xp").style.width = `${nivelMaximo ? 100 : Math.max(0, (personagem.xp / personagem.xpProximo) * 100)}%`;
   const fragmentos = personagem.gacha ? personagem.gacha.fragmentos : 0;
   // New Game+ (melhoria pós-backlog original): selo visível só quando o
   // personagem está numa run de NG+ (ngPlus > 0) — jogo normal fica igual a
@@ -308,7 +316,7 @@ export function atualizarHUD(personagem) {
   // Item 31 de 100_melhorias.md: próximo marco de progressão sempre visível
   // (aqui, o mais simples e universal — faltam quantos XP pro próximo
   // nível), sem precisar abrir nenhuma tela.
-  const faltamXP = Math.max(0, personagem.xpProximo - personagem.xp);
+  const faltamXP = nivelMaximo ? 0 : Math.max(0, personagem.xpProximo - personagem.xp);
 
   // Os números saíram de dentro de um parágrafo de texto e viraram rótulos
   // em cima das próprias barras: "HP 58/58" ao lado da barra de HP diz a
@@ -325,7 +333,7 @@ export function atualizarHUD(personagem) {
   // A frase inteira virou dica da barra. Ela ficava numa segunda linha embaixo
   // do nome dizendo a mesma coisa que o número ao lado da barra de XP — duas
   // vezes o mesmo dado em 3cm de faixa.
-  num("hud-xp-num", `faltam ${faltamXP}`, `Faltam ${faltamXP} XP para o nível ${personagem.nivel + 1}`);
+  num("hud-xp-num", nivelMaximo ? "NÍVEL MÁX." : `faltam ${faltamXP}`, nivelMaximo ? `Nível máximo ${NIVEL_MAXIMO_PERSONAGEM}` : `Faltam ${faltamXP} XP para o nível ${personagem.nivel + 1}`);
 
   // As três linhas viraram três elementos com classe própria. O motivo é o
   // celular em pé: o bloco inteiro ocupava três linhas de texto no topo da
@@ -346,6 +354,18 @@ export function atualizarHUD(personagem) {
       `<span class="hud-ficha" title="Ouro"><span aria-hidden="true">🪙</span>${personagem.ouro}</span>`
       + `<span class="hud-ficha" title="Fragmentos de invocação"><span aria-hidden="true">💠</span>${fragmentos}</span>`;
   }
+}
+
+// Pequeno sinal no menu, não um pop-up: só acende quando existe uma sugestão
+// nova que aumenta o PC em pelo menos 2%. O cálculo fica no sistema puro;
+// esta função apenas traduz a recomendação para os ícones que já existem.
+export function atualizarIndicadorRecomendacaoTime(personagem, recomendacao, chave) {
+  const nova = !!recomendacao && personagem?.recomendacaoTimeVistaChave !== chave;
+  const seletores = ['[data-action="party"]', '[data-hub="personagem"]', '[data-hub="mochila"]'];
+  document.querySelectorAll(seletores.join(",")).forEach((el) => {
+    el.classList.toggle("tem-recomendacao-time", nova);
+    if (nova) el.title = `Sugestão de time: +${recomendacao.ganhoPct}% de Poder de Combate`;
+  });
 }
 
 export function itemCardHTML(item, extraBotoesHTML = "") {
@@ -712,7 +732,23 @@ export function montarInventario(personagem, onMudar, alvo = personagem, aoVolta
     el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); selecionar(pilha.item, pilha.uids); } };
   });
 
-  tela.definirAcoes([], `🪙 ${personagem.ouro} de ouro · ${pilhas.length} ${pilhas.length === 1 ? "tipo de item" : "tipos de item"}`);
+  const previaLote = previaVendaEmLote(personagem);
+  const acoesLote = previaLote.quantidade ? [{
+    rotulo: `Vender sucata (${previaLote.quantidade})`,
+    onClick: () => abrirSheet({
+      titulo: "Venda rápida protegida",
+      corpoHTML: `<p>Vender <b>${previaLote.quantidade}</b> itens por <b>🪙 ${previaLote.valor}</b>?</p><p class="desc">Inclui equipamentos comuns, consumíveis acima de 5 e materiais acima de 20. Itens incomuns, raros, épicos e lendários ficam protegidos.</p>`,
+      acoes: [
+        { rotulo: "Cancelar", onClick: fecharSheet },
+        { rotulo: `Confirmar +${previaLote.valor}o`, classe: "primario", onClick: () => {
+          const r = venderItensEmLote(personagem);
+          fecharSheet(); mostrarMensagem(`Venda em lote concluída: ${r.quantidade} itens por ${r.valor} de ouro.`);
+          onMudar(); redesenhar();
+        } },
+      ],
+    }),
+  }] : [];
+  tela.definirAcoes(acoesLote, `🪙 ${personagem.ouro} de ouro · ${pilhas.length} ${pilhas.length === 1 ? "tipo de item" : "tipos de item"}`);
 }
 
 // Ladrilho compacto de item: ícone grande, nome em no máximo duas linhas,
@@ -815,7 +851,19 @@ function montarMissoesDiarias(corpo, personagem, onMudar) {
 }
 
 export function montarMissoes(personagem, dados) {
-  const corpo = abrirModalBase("Missões");
+  const corpo = abrirModalBase("🧭 Missões", { largura: LARGURA.media });
+  const rastreada = missaoRastreada(personagem, dados.quests);
+  const resumo = document.createElement("section");
+  resumo.className = `missao-rastreada-resumo${rastreada ? " ativa" : ""}`;
+  resumo.innerHTML = rastreada ? `
+    <span class="missao-rastreada-selo">${ehMissaoPrincipal(rastreada.def) ? "✦ HISTÓRIA PRINCIPAL" : "◆ MISSÃO RASTREADA"}</span>
+    <h3>${rastreada.def.nome}</h3>
+    <p>${textoObjetivoMissao(rastreada.def)}</p>
+    <small>O rastro dourado aparece no mundo, no minimapa e no mapa de Aethra. Tecla <b>U</b>: mapa · <b>M</b>: missões.</small>` : `
+    <span class="missao-rastreada-selo">◇ SEM RASTRO ATIVO</span>
+    <h3>Escolha uma direção</h3>
+    <p>Selecione “Rastrear” em uma missão ativa para receber direção no mapa.</p>`;
+  corpo.appendChild(resumo);
   const jornada = proximoPassoAltaverde(personagem);
   const painelJornada = document.createElement("section");
   painelJornada.className = "card";
@@ -850,16 +898,26 @@ export function montarMissoes(personagem, dados) {
     corpo.appendChild(p);
     return;
   }
-  personagem.missoesAtivas.forEach((m) => {
+  [...personagem.missoesAtivas].sort((a, b) => Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === b.id))) - Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === a.id)))).forEach((m) => {
     const def = dados.quests.find((q) => q.id === m.id);
-    const meta = def.quantidade || 1;
-    const pronto = missaoPronta(personagem, def);
+    if (!def) return;
+    const progresso = progressoDaMissao(personagem, def);
+    const sendoRastreada = personagem.missaoRastreadaId === def.id;
     const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<div class="info"><div class="nome">${def.nome} ${pronto ? "✅" : ""}</div>
-      <div class="desc">${def.descricao}</div>
-      <div class="desc">Progresso: ${m.progresso}/${meta}</div></div>`;
+    div.className = `card missao-card${ehMissaoPrincipal(def) ? " principal" : ""}${sendoRastreada ? " rastreada" : ""}`;
+    div.innerHTML = `<div class="info">
+      <div class="missao-card-topo"><span class="missao-vertente">${ehMissaoPrincipal(def) ? "✦ História principal" : "Missão de NPC"}</span>${sendoRastreada ? `<span class="missao-em-foco">◎ Em foco</span>` : ""}</div>
+      <div class="nome">${def.nome} ${progresso.pronto ? "✅" : ""}</div>
+      <div class="desc missao-objetivo">${textoObjetivoMissao(def)}</div>
+      <div class="missao-progresso" role="progressbar" aria-valuemin="0" aria-valuemax="${progresso.meta}" aria-valuenow="${progresso.atual}"><i style="width:${Math.round(progresso.atual / progresso.meta * 100)}%"></i></div>
+      <div class="desc">Progresso: ${progresso.atual}/${progresso.meta}${progresso.pronto ? " · Volte ao responsável para entregar." : ""}</div>
+    </div><div class="missao-acoes"><button type="button" class="btn-rastrear-missao${sendoRastreada ? " ativo" : ""}" data-id="${def.id}">${sendoRastreada ? "Parar de rastrear" : "Rastrear no mapa"}</button></div>`;
     corpo.appendChild(div);
+  });
+  corpo.querySelectorAll(".btn-rastrear-missao").forEach((b) => b.onclick = () => {
+    if (!rastrearMissao(personagem, b.dataset.id)) return;
+    mostrarMensagem(personagem.missaoRastreadaId ? "🧭 Missão marcada no mapa." : "Rastreamento removido.");
+    montarMissoes(personagem, dados);
   });
   if (personagem.missoesConcluidas.length) {
     const h = document.createElement("h3");
@@ -1156,11 +1214,20 @@ export function montarViagemRapida(personagem, destinos, zonaAtualId, onViajar, 
   tela.definirAcoes([], `${visitadas} de ${visitadas + naoVisitadas.length} lugares descobertos`);
 }
 
-export function montarLoja(personagem, dados, onMudar) {
+const PACOTES_FORJA = [
+  { itemId: "minerio", quantidade: 5, valorUnitario: 7, icone: "⛏️" },
+  { itemId: "madeira", quantidade: 5, valorUnitario: 5, icone: "🪵" },
+  { itemId: "gema", quantidade: 3, valorUnitario: 15, icone: "💎" },
+  { itemId: "minerio_raro", quantidade: 3, valorUnitario: 35, icone: "🔷" },
+  { itemId: "erva_rara", quantidade: 2, valorUnitario: 35, icone: "🌿" },
+  { itemId: "gema_rara", quantidade: 1, valorUnitario: 90, icone: "✨" },
+];
+
+export function montarLoja(personagem, dados, onMudar, contexto = {}) {
   const multPreco = multiplicadorPrecoLoja(personagem, dados.worldStateVariables);
   const tierAtual = tierDaReputacao(getReputacao(personagem, "vila"), dados.worldStateVariables);
   const tituloDesconto = multPreco !== 1 ? ` (${multPreco < 1 ? "-" : "+"}${Math.abs(Math.round((1 - multPreco) * 100))}% por reputação: ${tierAtual ? tierAtual.nome : ""})` : "";
-  const tela = abrirTela({ titulo: "Mercador", subtitulo: `🪙 ${personagem.ouro}`, largura: LARGURA.larga, classe: "tela-loja" });
+  const tela = abrirTela({ titulo: "Mercador & Suprimentos", subtitulo: `🪙 ${personagem.ouro}`, largura: LARGURA.larga, classe: "tela-loja" });
   const corpo = tela.corpo;
 
   if (tituloDesconto) {
@@ -1169,6 +1236,50 @@ export function montarLoja(personagem, dados, onMudar) {
     p.textContent = `Preços ajustados pela sua reputação${tituloDesconto}.`;
     corpo.appendChild(p);
   }
+
+  const servicos = document.createElement("section");
+  servicos.className = "loja-servicos";
+  const custoCura = custoServicoLoja(personagem, "recuperar_time");
+  const custoFortuna = custoServicoLoja(personagem, "bencao_fortuna");
+  const restantes = Math.max(0, personagem.bausAbençoados || 0);
+  servicos.innerHTML = `<h3>Serviços da expedição</h3><p class="desc">Use seu ouro para voltar ao mapa mais preparado.</p>
+    <div class="hda-grid densa">
+      <button class="card servico-loja" data-servico="recuperar_time"><span class="nome">🏨 Recuperar grupo</span><span class="desc">HP e MP completos para todo o time</span><b>🪙 ${custoCura}</b></button>
+      <button class="card servico-loja" data-servico="bencao_fortuna"><span class="nome">✨ Bênção da Fortuna</span><span class="desc">+1 item e +35% ouro nos próximos 3 baús${restantes ? ` · ${restantes} carga(s) ativa(s)` : ""}</span><b>🪙 ${custoFortuna}</b></button>
+    </div>`;
+  servicos.querySelectorAll("[data-servico]").forEach((btn) => {
+    const id = btn.dataset.servico;
+    btn.disabled = personagem.ouro < custoServicoLoja(personagem, id);
+    btn.onclick = () => {
+      const r = comprarServicoLoja(personagem, id, contexto.time || [personagem]);
+      mostrarMensagem(r.ok ? `🪙 ${r.msg} (-${r.custo} ouro)` : r.msg, 3600);
+      onMudar(); montarLoja(personagem, dados, onMudar, contexto);
+    };
+  });
+  corpo.appendChild(servicos);
+
+  const suprimentos = document.createElement("section");
+  suprimentos.className = "loja-servicos loja-forja";
+  suprimentos.innerHTML = `<h3>⚒️ Suprimentos de forja</h3><p class="desc">Toda cidade abastecida vende materiais. Use ouro para manter suas armas e armaduras evoluindo.</p><div class="hda-grid densa"></div>`;
+  const gradeForja = suprimentos.querySelector(".hda-grid");
+  PACOTES_FORJA.forEach((pacote) => {
+    const item = dados.items.itens.find((i) => i.id === pacote.itemId);
+    if (!item) return;
+    const preco = Math.max(1, Math.round(pacote.valorUnitario * pacote.quantidade * multPreco));
+    const possui = personagem.inventario.filter((i) => i.id === item.id).length;
+    const btn = document.createElement("button");
+    btn.className = "card servico-loja pacote-forja";
+    btn.disabled = personagem.ouro < preco;
+    btn.innerHTML = `<span class="nome">${pacote.icone} ${item.nome} ×${pacote.quantidade}</span><span class="desc">Na mochila: ${possui}</span><b>🪙 ${preco}</b>`;
+    btn.onclick = () => {
+      const r = comprarLote(personagem, item, pacote.quantidade, multPreco, pacote.valorUnitario);
+      mostrarMensagem(r.ok ? `⚒️ Comprou ${item.nome} ×${r.quantidade} por ${r.preco} ouro.` : r.msg, 3200);
+      onMudar();
+      montarLoja(personagem, dados, onMudar, contexto);
+    };
+    gradeForja.appendChild(btn);
+  });
+  corpo.appendChild(suprimentos);
 
   const catalogo = dados.items.itens.filter((i) => i.raridade === "comum" || i.raridade === "incomum").slice(0, 24);
   const grade = criarGrade({ densidade: "densa" });
@@ -1195,7 +1306,7 @@ export function montarLoja(personagem, dados, onMudar) {
           onClick: () => {
             const r = comprarItem(personagem, item, multPreco);
             mostrarMensagem(r.ok ? `Comprou: ${item.nome} (${r.preco}o)!` : r.msg);
-            fecharSheet(); onMudar(); montarLoja(personagem, dados, onMudar);
+            fecharSheet(); onMudar(); montarLoja(personagem, dados, onMudar, contexto);
           } }],
       });
     };
@@ -1208,6 +1319,7 @@ export function montarLoja(personagem, dados, onMudar) {
 
 export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   const corpo = abrirModalBase(npc.nome);
+  marcarInteracaoAutomatica(corpo);
 
   // Quem é essa pessoa, em uma linha. Só para NPC com ficha da ETAPA 3 — os
   // cinco antigos continuam entrando por `npc.dialogo` como sempre.
@@ -1332,12 +1444,21 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
     });
   }
 
-  if (npc.id === "npc_mercador") {
-    const btn = document.createElement("button");
-    btn.className = "primario";
-    btn.textContent = "Ver itens à venda";
-    btn.onclick = () => montarLoja(personagem, dados, onMudar);
-    corpo.appendChild(btn);
+  const servicosNpc = new Set(npc.servicos || []);
+  const atendeLoja = npc.id === "npc_mercador" || servicosNpc.has("loja") || servicosNpc.has("compra");
+  const atendeForja = servicosNpc.has("forja") || servicosNpc.has("aprimoramento");
+  if (atendeLoja || atendeForja) {
+    const btnLoja = document.createElement("button");
+    btnLoja.className = "primario";
+    btnLoja.textContent = "⚒️ Comprar materiais de forja";
+    btnLoja.onclick = () => montarLoja(personagem, dados, onMudar, contexto);
+    corpo.appendChild(btnLoja);
+    if (atendeForja) {
+      const btnForja = document.createElement("button");
+      btnForja.textContent = "🔨 Usar a forja";
+      btnForja.onclick = () => montarForja(personagem, dados, onMudar, "aprimorar");
+      corpo.appendChild(btnForja);
+    }
     return;
   }
 
@@ -1399,13 +1520,19 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
     corpo.appendChild(div);
   });
 
-  corpo.querySelectorAll(".btn-aceitar").forEach((b) => b.onclick = () => {
+  corpo.querySelectorAll(".btn-aceitar").forEach((b) => b.onclick = async () => {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
-    iniciarMissao(personagem, q);
-    mostrarMensagem(`Missão aceita: ${q.nome}`);
+    if (!iniciarMissao(personagem, q)) return;
+    onMudar();
+    const cena = cenaDaMissao(q, "aceita");
+    if (cena) {
+      fecharModal();
+      await reproduzirCutscene(cena, personagem, dados);
+    }
+    mostrarMensagem(`🧭 Missão aceita e rastreada: ${q.nome}`);
     montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
-  corpo.querySelectorAll(".btn-entregar").forEach((b) => b.onclick = () => {
+  corpo.querySelectorAll(".btn-entregar").forEach((b) => b.onclick = async () => {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
     const r = concluirMissao(personagem, q, dados.items.itens);
     if (r.ok) {
@@ -1424,15 +1551,20 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
       // com "+25 ouro, +20 XP" não tem desfecho — tem extrato. O `desfecho`
       // é o que transforma "matei três slimes" em "o Tobias tem semente para
       // o ano que vem", e é ele que fica registrado no diário.
-      if (q.desfecho) {
+      const cenaFinal = cenaDaMissao(q, "concluida");
+      if (q.desfecho && !cenaFinal) {
         mostrarMensagem(`📜 ${q.desfecho}`, 6500);
-        registrarDecisao(personagem, { icone: "📜", titulo: q.nome, texto: q.desfecho });
       }
       let msg = `Missão concluída! +${r.ouro} ouro, +${r.xp} XP${r.fragmentos ? `, +${r.fragmentos} Fragmentos de Aethra` : ""}${r.item ? `, item: ${r.item.nome}` : ""} (+${REPUTACAO_POR_MISSAO} reputação com a vila)`;
       if (temCompraDisponivel(personagem, dados)) msg += " · 🌟 Pontos de habilidade para gastar (T)!";
       // Com desfecho, o saldo entra um pouco depois, para não competir com a
       // frase — dois avisos ao mesmo tempo viram um só, ilegível.
-      if (q.desfecho) setTimeout(() => mostrarMensagem(msg), 1400);
+      if (q.desfecho) registrarDecisao(personagem, { icone: "📜", titulo: q.nome, texto: q.desfecho });
+      if (cenaFinal) {
+        fecharModal();
+        await reproduzirCutscene(cenaFinal, personagem, dados);
+        mostrarMensagem(msg);
+      } else if (q.desfecho) setTimeout(() => mostrarMensagem(msg), 1400);
       else mostrarMensagem(msg);
     }
     onMudar();

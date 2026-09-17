@@ -63,6 +63,27 @@ export function cenaDeAbertura(regiaoId) {
   };
 }
 
+// Missões marcadas como importantes ganham abertura e encerramento sem
+// exigir duas cenas escritas à mão para cada novo capítulo. O texto vem da
+// própria missão, portanto permanece fiel ao conteúdo e evolui junto dele.
+export function cenaDaMissao(questDef, etapa = "aceita") {
+  if (!questDef?.importante) return null;
+  const conclusao = etapa === "concluida";
+  const texto = conclusao
+    ? (questDef.desfecho || "O que começou como um pedido agora faz parte da memória de Aethra.")
+    : (questDef.descricao || questDef.objetivoTexto || "Uma nova jornada começa.");
+  return {
+    id: `missao_${questDef.id}_${etapa}`,
+    titulo: conclusao ? `${questDef.nome} · Desfecho` : questDef.nome,
+    quando: `missao:${questDef.id}:${etapa}`,
+    paineis: [{
+      arte: questDef.cutsceneArte || "regiao",
+      titulo: conclusao ? "O mundo se lembra" : "Capítulo principal",
+      texto: [texto.replace(/^"|"$/g, ""), conclusao ? "Sua decisão deixa uma marca. A próxima parte da história já está em movimento." : (questDef.objetivoTexto || "Siga o rastro marcado no mapa.")],
+    }],
+  };
+}
+
 // Aplica o que uma escolha de cena faz com o mundo. Diferente do resto das
 // cenas (que são texto e só), a escolha do prólogo mexe em reputação, flag e
 // diário — e é de propósito: é a primeira lição de gramática do jogo, a de

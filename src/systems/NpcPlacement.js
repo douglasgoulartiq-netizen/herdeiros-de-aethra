@@ -37,6 +37,102 @@ function hashLeve(s) {
   return Math.abs(h);
 }
 
+// Os seis arquétipos civis usam a mesma linguagem visual dos heróis do mapa,
+// mas comunicam a profissão antes mesmo de o jogador abrir o diálogo. A
+// função fica exportada para o Atlas, testes e futuros retratos de conversa
+// poderem aplicar exatamente a mesma escolha.
+export const SPRITES_CIVIS = Object.freeze([
+  "npc_campones_v2",
+  "npc_mercador_v2",
+  "npc_guarda_v2",
+  "npc_artesao_v2",
+  "npc_anciao_v2",
+  "npc_viajante_v2",
+]);
+
+const SERVICOS_POR_VISUAL = [
+  [["forja", "aprimoramento", "runa"], "npc_artesao_v2", "artesão"],
+  [["loja", "compra", "correio"], "npc_mercador_v2", "mercador"],
+  [["treino", "escolta", "recompensa"], "npc_guarda_v2", "guarda"],
+  [["pesquisa", "traducao", "arcano"], "npc_anciao_v2", "sábio"],
+  [["guia", "viagem", "mapa", "bestiario"], "npc_viajante_v2", "viajante"],
+  [["cura", "erva", "alquimia", "veneno", "descanso"], "npc_campones_v2", "morador"],
+];
+
+function textoNormalizado(valor) {
+  return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+export function visualDoNpc(npc = {}) {
+  const servicos = npc.servicos || [];
+  for (const [tipos, spriteKey, papelVisual] of SERVICOS_POR_VISUAL) {
+    if (tipos.some((tipo) => servicos.includes(tipo))) return { spriteKey, papelVisual };
+  }
+
+  const papel = textoNormalizado(npc.papel);
+  if (/autoridade|conflito|faccao|soldado|guarda/.test(papel)) {
+    return { spriteKey: "npc_guarda_v2", papelVisual: "guarda" };
+  }
+  if (/artesao|ferreiro|alquim/.test(papel)) {
+    return { spriteKey: "npc_artesao_v2", papelVisual: "artesão" };
+  }
+  if (/historiador|sabio|anciao|erudito/.test(papel)) {
+    return { spriteKey: "npc_anciao_v2", papelVisual: "sábio" };
+  }
+  if (/explorador|misterioso|andarilho|cacador/.test(papel)) {
+    return { spriteKey: "npc_viajante_v2", papelVisual: "viajante" };
+  }
+  if (/mercador|comerciante/.test(papel)) {
+    return { spriteKey: "npc_mercador_v2", papelVisual: "mercador" };
+  }
+  return { spriteKey: "npc_campones_v2", papelVisual: "morador" };
+}
+
+// A região não troca arbitrariamente a profissão de um NPC importante. Nos
+// figurantes, porém, ela muda a mistura de roupas que se vê na rua: portos e
+// fronteiras têm mais viajantes, centros ricos têm mercadores e zonas de
+// ofício têm artesãos. Continua determinístico para não piscar entre saves.
+export function visualAmbienteDaRegiao(regiaoId = "", indice = 0) {
+  const regiao = textoNormalizado(regiaoId);
+  let opcoes = ["npc_campones_v2", "npc_artesao_v2", "npc_viajante_v2"];
+  if (/costa|recife|arquipelago|vento|lago/.test(regiao)) {
+    opcoes = ["npc_viajante_v2", "npc_campones_v2", "npc_mercador_v2"];
+  } else if (/vulkor|canon|ruina|morranvell/.test(regiao)) {
+    opcoes = ["npc_artesao_v2", "npc_guarda_v2", "npc_viajante_v2"];
+  } else if (/altaverde|elyndor|bosque/.test(regiao)) {
+    opcoes = ["npc_campones_v2", "npc_artesao_v2", "npc_mercador_v2"];
+  } else if (/deserto|pantano|selva|abismo/.test(regiao)) {
+    opcoes = ["npc_viajante_v2", "npc_anciao_v2", "npc_campones_v2"];
+  }
+  return opcoes[Math.abs(indice) % opcoes.length];
+}
+
+const ICONE_SERVICO = [
+  [["forja", "aprimoramento"], "🔨", "Forja"],
+  [["loja", "compra"], "🛒", "Comércio"],
+  [["cura", "erva"], "✚", "Cura"],
+  [["viagem", "guia", "mapa"], "🧭", "Viagem e mapas"],
+  [["descanso"], "☾", "Descanso"],
+  [["treino", "tecnica"], "⚔", "Treinamento"],
+  [["pesquisa", "arcano"], "✦", "Conhecimento"],
+];
+
+// Um símbolo por NPC, priorizando o que ele oferece AGORA. A exclamação é
+// reservada a missões ainda abertas; os demais mostram o serviço principal.
+function marcadorDoNpc(npc, personagem) {
+  const concluidas = personagem?.missoesConcluidas || [];
+  const ativas = personagem?.missoesAtivas || [];
+  const questAberta = npc.questId && !concluidas.includes(npc.questId)
+    && (ativas.some((q) => q.id === npc.questId) || (npc.servicos || []).includes("missoes"));
+  if (questAberta) return { icone: "!", rotulo: "Missão disponível", cor: "#ffd45a" };
+  const servicos = npc.servicos || [];
+  for (const [tipos, icone, rotulo] of ICONE_SERVICO) {
+    if (tipos.some((tipo) => servicos.includes(tipo))) return { icone, rotulo, cor: "#b8e7ff" };
+  }
+  if (npc.ensina) return { icone: "★", rotulo: "Pode ensinar", cor: "#d8b6ff" };
+  return null;
+}
+
 // Índice localId -> ponto, a partir do mundo gerado. Assentamento e POI têm
 // coordenada própria; zona cai no centro dela. Uma masmorra usa a entrada.
 export function indiceDeLugares(gerado) {
@@ -118,6 +214,7 @@ export function posicionarNpcs(gerado, contexto) {
   const agora = contexto.agora ?? Date.now();
   const fora = [];
   const postos = [];
+  const ambientes = [];
 
   NPCS_REGIONAIS.forEach((npc) => {
     if (!requisitoAtendido(npc, { ...contexto, agora })) return;
@@ -126,15 +223,60 @@ export function posicionarNpcs(gerado, contexto) {
     if (!lugar) { fora.push({ id: npc.id, local: localId }); return; }
     const p = pontoDoNpc(npc.id, lugar, grid, ocupados);
     if (!p) { fora.push({ id: npc.id, local: localId }); return; }
+    const visual = visualDoNpc(npc);
     postos.push({
       ...npc,
       x: p.x, y: p.y,
       localAtual: localId,
       atividade: atividadeAgora(npc, agora),
+      // Autoridades, mercadores, ferreiros e personagens de missão ficam em
+      // seus postos. Só uma pequena parcela de cidadãos/exploradores passeia.
+      ambulante: ["cidadão memorável", "explorador"].includes(npc.papel)
+        && !(npc.servicos || []).some((s) => ["missoes", "loja", "forja", "cura", "descanso"].includes(s))
+        && hashLeve(npc.id) % 7 === 0,
+      marcador: marcadorDoNpc(npc, contexto.personagem),
+      mostrarNome: true,
+      spriteKey: visual.spriteKey,
+      papelVisual: visual.papelVisual,
+      varianteRegional: npc.regiao,
     });
   });
 
-  return { npcs: postos, semLugar: fora };
+  // População ambiente: as cidades tinham autoridades e quest givers, mas
+  // quase nenhum morador comum. Estes cidadãos são determinísticos, podem ser
+  // abordados e caminham visualmente perto da praça sem entrar em paredes.
+  const nomes = ["Moradora", "Artesão", "Viajante", "Pescadora", "Aprendiz", "Patrulheiro"];
+  const falas = [
+    "As estradas mudam, mas a praça sempre sabe quem voltou.",
+    "Hoje o Éter está inquieto. Dá para sentir nas ferramentas.",
+    "Se for sair da cidade, leve provisões e preste atenção ao relevo.",
+    "Toda caravana traz uma história e leva outra embora.",
+  ];
+  (gerado.assentamentos || []).forEach((a) => {
+    const quantidade = a.categoria === "CAPITAL" ? 3 : a.categoria === "CIDADE" ? 2 : 1;
+    const lugar = lugares.get(a.id);
+    for (let i = 0; i < quantidade; i += 1) {
+      const id = `amb_${a.id}_${i}`;
+      const p = pontoDoNpc(id, lugar, grid, ocupados);
+      if (!p) continue;
+      const h = hashLeve(id);
+      ambientes.push({
+        id, nome: nomes[h % nomes.length], dialogo: falas[h % falas.length],
+        x: p.x, y: p.y, ancoraX: p.x, ancoraY: p.y,
+        localAtual: a.id, regiaoId: a.regiaoId, atividade: "circulando pela cidade",
+        // No máximo um transeunte móvel nas cidades grandes; vilas menores
+        // ganham presença humana sem parecer que todos deslizam pela praça.
+        ambulante: i === 0 && ["CAPITAL", "CIDADE"].includes(a.categoria),
+        mostrarNome: false,
+        ambiente: true,
+        spriteKey: visualAmbienteDaRegiao(a.regiaoId, h + i),
+        papelVisual: "morador",
+        varianteRegional: a.regiaoId,
+      });
+    }
+  });
+
+  return { npcs: postos, ambientes, semLugar: fora };
 }
 
 // Onde ESTE NPC está agora, sem posicionar os outros. Usado pelo Atlas e por

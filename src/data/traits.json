@@ -13,5 +13,20 @@
     "id": "ganancioso",
     "nome": "Ganancioso",
     "descricao": "+10% de chance de item raro ou melhor em drops, mas começa com 20% menos ouro."
+  },
+  {
+    "id": "sortudo",
+    "nome": "Sortudo",
+    "descricao": "Uma vez por batalha, pode refazer automaticamente uma rolagem de ataque muito ruim."
+  },
+  {
+    "id": "resistente",
+    "nome": "Resistente",
+    "descricao": "Condições negativas perdem duração mais rápido durante o combate."
+  },
+  {
+    "id": "visao_aguçada",
+    "nome": "Visão Aguçada",
+    "descricao": "Começa cada batalha com vantagem na barra de iniciativa."
   }
 ]

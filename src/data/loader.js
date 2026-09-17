@@ -88,6 +88,20 @@ export async function carregarImagem(caminho) {
   });
 }
 
+export async function carregarImagemCadeia(caminhos) {
+  const lista = Array.isArray(caminhos) ? caminhos : [caminhos];
+  for (const caminho of lista.filter(Boolean)) {
+    const img = await new Promise((resolve) => {
+      const candidato = new Image();
+      candidato.onload = () => resolve(candidato);
+      candidato.onerror = () => resolve(null);
+      candidato.src = caminho;
+    });
+    if (img) return img;
+  }
+  return criarImagemPlaceholder();
+}
+
 export async function carregarTodasImagens(dados) {
   const cache = {};
   const jobs = [];
@@ -113,6 +127,23 @@ export async function carregarTodasImagens(dados) {
   jobs.push(["bau_fechado", "assets/sprites/bau_fechado.png"]);
   jobs.push(["bau_aberto", "assets/sprites/bau_aberto.png"]);
   jobs.push(["npc_marker", "assets/sprites/npc_marker.png"]);
+  jobs.push(["npc_cidadao_v2", "assets/sprites/npc_cidadao_v2.png"]);
+  // Elenco civil detalhado. Cada cadeia termina num sprite antigo compatível:
+  // uma publicação parcial continua jogável enquanto recebe o novo lote.
+  const civis = {
+    npc_campones_v2: "npc_fazendeiro.png",
+    npc_mercador_v2: "npc_mercador.png",
+    npc_guarda_v2: "npc_guarda.png",
+    npc_artesao_v2: "npc_cidadao_v2.png",
+    npc_anciao_v2: "npc_anciao.png",
+    npc_viajante_v2: "npc_cacador.png",
+  };
+  Object.entries(civis).forEach(([key, legado]) => jobs.push([key, [
+    `assets/sprites/${key}.png`,
+    `assets/sprites/${legado}`,
+    "assets/sprites/npc_cidadao_v2.png",
+    "assets/sprites/npc_marker.png",
+  ]]));
   jobs.push(["entrada_masmorra", "assets/sprites/entrada_masmorra.png"]);
   // Ponto de descanso (ver RestSystem.js). Se o arquivo faltar numa
   // publicação antiga, carregarImagem já devolve o placeholder e o jogo
@@ -133,13 +164,21 @@ export async function carregarTodasImagens(dados) {
       // lógicos numa arena de peças detalhadas. Se este arquivo faltar,
       // carregarImagem devolve o placeholder e a BattleUI cai sozinha na folha
       // antiga — nada quebra.
-      jobs.push([`pcb_${r.id}_${c.id}`, `assets/sprites/pcb_${r.id}_${c.id}.png`]);
+      jobs.push([`pcb_${r.id}_${c.id}`, [
+        `assets/arte_intermediaria/pc_${r.id}_${c.id}.png`,
+        `assets/arte_v2/pc_${r.id}_${c.id}.png`,
+        `assets/sprites/pcb_${r.id}_${c.id}.png`,
+        `assets/sprites/pc_${r.id}_${c.id}.png`,
+      ]]);
     });
   });
-  dados.monsters.forEach((m) => jobs.push([m.sprite, `assets/sprites/${m.sprite}.png`]));
+  dados.monsters.forEach((m) => {
+    jobs.push([m.sprite, `assets/sprites/${m.sprite}.png`]);
+    jobs.push([`mb_${m.sprite}`, [`assets/arte_v2/${m.sprite}.png`, `assets/sprites/${m.sprite}.png`]]);
+  });
   (dados.gachaRoster || []).forEach((p) => {
     const key = `gacha_${p.id}`;
-    jobs.push([key, `assets/sprites/${key}.png`]);
+    jobs.push([key, [`assets/arte_intermediaria/${key}.png`, `assets/sprites/${key}.png`]]);
   });
   (dados.npcs || []).forEach((n) => {
     if (n.sprite) jobs.push([n.id, `assets/sprites/${n.sprite}`]);
@@ -153,7 +192,7 @@ export async function carregarTodasImagens(dados) {
 
   await Promise.all(
     jobs.map(async ([key, path]) => {
-      cache[key] = await carregarImagem(path);
+      cache[key] = await carregarImagemCadeia(path);
     })
   );
   return cache;

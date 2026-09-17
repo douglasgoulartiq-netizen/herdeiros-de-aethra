@@ -1,0 +1,153 @@
+/* =====================================================================
+ * HERDEIROS DE AETHRA — acabamento premium compartilhado
+ * Uma camada leve para unificar telas, combate e exploração sem trocar a
+ * identidade pixel-art nem criar imagens pesadas.
+ * ===================================================================== */
+:root {
+  --premium-ouro: #f0c86e;
+  --premium-ouro-vivo: #ffe6a1;
+  --premium-azul: #6bd7e8;
+  --premium-fundo: rgba(9, 14, 24, .94);
+  --premium-linha: rgba(224, 190, 111, .32);
+  --premium-sombra: 0 18px 52px rgba(0, 0, 0, .46);
+}
+
+/* Superfícies e controles passam a falar a mesma linguagem visual. */
+#modal-conteudo,
+.hda-modal,
+.hda-sheet,
+.painel-criacao,
+.recompensa-painel {
+  border-color: var(--premium-linha);
+  box-shadow: inset 0 1px rgba(255,255,255,.055), var(--premium-sombra);
+}
+#modal-overlay,
+.hda-sheet-fundo { backdrop-filter: blur(5px) saturate(.82); }
+
+button,
+.hda-ladrilho,
+.opcao-card,
+.save-slot,
+.carta-batalha {
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px rgba(255,255,255,.06), 0 5px 14px rgba(0,0,0,.16);
+}
+button:not(:disabled) { transition: transform .13s ease, filter .13s ease, border-color .13s ease, box-shadow .13s ease; }
+button:not(:disabled):hover { filter: brightness(1.1) saturate(1.08); }
+button:not(:disabled):active { transform: translateY(1px) scale(.985); box-shadow: inset 0 2px 5px rgba(0,0,0,.35); }
+button.primario {
+  border-color: rgba(255,221,134,.7);
+  background-image: linear-gradient(180deg, rgba(255,255,255,.1), transparent 42%);
+  text-shadow: 0 1px 2px rgba(0,0,0,.65);
+}
+
+/* HUD de exploração: vidro escuro, brilho fino e barras com volume. */
+#hud-topo,
+#hud-buttons {
+  border-color: rgba(240,200,110,.3);
+  background-image: linear-gradient(180deg, rgba(22,31,43,.94), rgba(9,15,24,.93));
+  box-shadow: inset 0 1px rgba(255,255,255,.06), 0 10px 28px rgba(0,0,0,.3);
+  backdrop-filter: blur(8px) saturate(1.12);
+}
+#hud .barra { box-shadow: inset 0 2px 4px rgba(0,0,0,.55), 0 1px rgba(255,255,255,.05); }
+#hud .barra-fill { box-shadow: inset 0 1px rgba(255,255,255,.22), 0 0 8px currentColor; }
+#hud-salvo:not(.hidden) { color: #baf4d0; text-shadow: 0 0 8px rgba(111,238,159,.34); }
+
+/* Notificações importantes parecem parte do mesmo HUD, não pop-ups soltos. */
+.hda-notif {
+  border-left-width: 3px;
+  background: linear-gradient(105deg, rgba(12,19,30,.97), rgba(23,25,33,.94));
+  box-shadow: inset 0 1px rgba(255,255,255,.045), 0 10px 24px rgba(0,0,0,.34);
+}
+.hda-notif.n-ganho,
+.hda-notif.n-sucesso { box-shadow: inset 0 1px rgba(255,255,255,.06), 0 0 20px color-mix(in srgb, var(--n-cor) 13%, transparent), 0 10px 24px rgba(0,0,0,.34); }
+
+/* Campo de combate: vinheta cinematográfica, chão de contato e leitura de
+   ameaça. Os halos são elipses sutis presas aos pés, nunca quadrados. */
+#screen-batalha.bt-screen .bt-cena::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4,8,14,.24), transparent 24%, transparent 72%, rgba(4,7,12,.28)),
+    radial-gradient(ellipse at center, transparent 54%, rgba(0,0,0,.24) 100%);
+  mix-blend-mode: multiply;
+}
+#screen-batalha.bt-screen .bt-row,
+#screen-batalha.bt-screen .bt-anuncio-pista,
+#screen-batalha.bt-screen .bt-infobar { z-index: 2; }
+.bt-slot .combatente .sprite-wrap::after {
+  height: 19%;
+  inset: auto 12% -1%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(4,7,12,.58) 0 28%, rgba(8,13,20,.28) 48%, transparent 73%);
+  filter: blur(.35px);
+  box-shadow: none;
+}
+.bt-slot .combatente.ativo .sprite-canvas {
+  filter: drop-shadow(0 0 3px rgba(255,224,139,.82)) drop-shadow(0 6px 4px rgba(0,0,0,.52));
+}
+.bt-slot .combatente.porte-grande .sprite-canvas {
+  filter: drop-shadow(0 0 5px rgba(222,77,77,.28)) drop-shadow(0 8px 5px rgba(0,0,0,.62));
+}
+.bt-slot .combatente.porte-grande .nome-c {
+  border-color: rgba(236,104,86,.55);
+  background: linear-gradient(90deg, rgba(52,12,18,.92), rgba(23,15,22,.92));
+  color: #ffd4c3;
+  letter-spacing: .025em;
+  box-shadow: 0 0 16px rgba(191,42,42,.18);
+}
+.bt-slot .combatente .barra-fill { position: relative; overflow: hidden; }
+.bt-slot .combatente .barra-fill::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.24), transparent 48%);
+}
+
+/* Terreno e cidades: coloração mais rica e luz ambiente sem suavizar os
+   pixels. O canvas permanece pixel-perfect. */
+#game-canvas {
+  filter: saturate(1.08) contrast(1.035) brightness(1.015);
+  image-rendering: pixelated;
+}
+body:not(.em-batalha) #app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(128deg, rgba(255,218,147,.035), transparent 36%),
+    radial-gradient(ellipse at 50% 88%, rgba(60,116,146,.045), transparent 56%);
+  mix-blend-mode: screen;
+}
+
+/* Recompensa, progressão e escolhas recebem um brilho direcionado, mantendo
+   o texto imóvel e legível. */
+.recompensa-painel::after,
+.painel-criacao::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,.055) 43%, transparent 63%);
+  transform: translateX(-110%);
+  animation: premium-reflexo 5.5s ease-in-out infinite;
+}
+.caminho-mobile-no.estado-desbloqueavel,
+.hda-ladrilho.selecionado,
+.opcao-card.selecionada {
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(240,200,110,.2), 0 8px 22px rgba(0,0,0,.26);
+}
+@keyframes premium-reflexo { 0%,70% { transform:translateX(-110%); } 88%,100% { transform:translateX(110%); } }
+
+/* O acabamento nunca cobra legibilidade ou desempenho no aparelho menor. */
+@media (max-width: 719px) {
+  #modal-overlay, .hda-sheet-fundo, #hud-topo, #hud-buttons { backdrop-filter: none; }
+  #screen-batalha.bt-screen .bt-cena::after { opacity: .72; }
+  button:not(:disabled):hover { filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, .recompensa-painel::after, .painel-criacao::after { transition: none !important; animation: none !important; }
+}
+body.alto-contraste #screen-batalha.bt-screen .bt-cena::after,
+body.alto-contraste:not(.em-batalha) #app::before { display: none; }

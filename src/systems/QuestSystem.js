@@ -1,8 +1,56 @@
-// Controla o progresso e conclusão de missões.
+// Controla o progresso, conclusão e rastreamento de missões.
+export const VERTENTE_PRINCIPAL = "principal";
+
+export function ehMissaoPrincipal(questDef) {
+  return questDef?.vertente === VERTENTE_PRINCIPAL;
+}
+
+export function missaoRastreada(personagem, quests = []) {
+  if (!personagem) return null;
+  const ativas = personagem.missoesAtivas || [];
+  let id = personagem.missaoRastreadaId;
+  if (!ativas.some((m) => m.id === id)) {
+    id = ativas.find((m) => ehMissaoPrincipal(quests.find((q) => q.id === m.id)))?.id || ativas[0]?.id || null;
+    personagem.missaoRastreadaId = id;
+  }
+  if (!id) return null;
+  const estado = ativas.find((m) => m.id === id);
+  const def = quests.find((q) => q.id === id);
+  return estado && def ? { estado, def } : null;
+}
+
+export function rastrearMissao(personagem, questId) {
+  if (!personagem || !(personagem.missoesAtivas || []).some((m) => m.id === questId)) return false;
+  personagem.missaoRastreadaId = personagem.missaoRastreadaId === questId ? null : questId;
+  return true;
+}
+
+export function progressoDaMissao(personagem, questDef) {
+  const estado = (personagem?.missoesAtivas || []).find((m) => m.id === questDef?.id);
+  if (!estado || !questDef) return { atual: 0, meta: questDef?.quantidade || 1, pronto: false };
+  const meta = questDef.quantidade || 1;
+  const atual = questDef.tipo === "coletar"
+    ? (personagem.inventario || []).filter((i) => i.id === questDef.itemAlvo).length
+    : estado.progresso || 0;
+  return { atual: Math.min(meta, atual), meta, pronto: missaoPronta(personagem, questDef) };
+}
+
+export function textoObjetivoMissao(questDef) {
+  if (!questDef) return "Objetivo desconhecido";
+  if (questDef.objetivoTexto) return questDef.objetivoTexto;
+  if (questDef.tipo === "matar") return `Derrote ${questDef.quantidade || 1} × ${String(questDef.alvo || "alvo").replace(/_/g, " ")}.`;
+  if (questDef.tipo === "coletar") return `Colete ${questDef.quantidade || 1} × ${String(questDef.itemAlvo || "item").replace(/_/g, " ")}.`;
+  if (questDef.tipo === "explorar") return `Vá até ${String(questDef.localAlvo || questDef.regiao || "o destino").replace(/_/g, " ")}.`;
+  return questDef.descricao || "Continue a investigação.";
+}
+
 export function iniciarMissao(personagem, questDef) {
   if (personagem.missoesAtivas.some((m) => m.id === questDef.id)) return false;
   if (personagem.missoesConcluidas.includes(questDef.id)) return false;
   personagem.missoesAtivas.push({ id: questDef.id, progresso: 0 });
+  // História principal toma o foco ao ser aceita; missões secundárias só
+  // entram no rastreador quando não existe nenhuma direção ativa.
+  if (ehMissaoPrincipal(questDef) || !personagem.missaoRastreadaId) personagem.missaoRastreadaId = questDef.id;
   return true;
 }
 
@@ -44,6 +92,7 @@ export function concluirMissao(personagem, questDef, itemsCatalog) {
   }
   personagem.missoesAtivas.splice(idx, 1);
   personagem.missoesConcluidas.push(questDef.id);
+  if (personagem.missaoRastreadaId === questDef.id) personagem.missaoRastreadaId = null;
   personagem.ouro += questDef.recompensaOuro;
   const itemRecompensa = itemsCatalog.find((i) => i.id === questDef.recompensaItemId);
   return {

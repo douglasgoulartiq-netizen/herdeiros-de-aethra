@@ -22,9 +22,18 @@
     "test:auto-jogando": "node scripts/test-auto-jogando.mjs",
     "test:save-geo": "node scripts/test-migracao-save.mjs",
     "test:mobile": "node scripts/test-mobile-retrato.mjs",
+    "test:mobile:combate": "node scripts/test-batalha-layout.mjs --mobile",
+    "test:mobile:contrato": "node scripts/test-batalha-mobile-contrato.mjs",
+    "test:mobile:exploracao": "node scripts/test-mobile-exploracao.mjs",
+    "test:mobile:completo": "npm run test:mobile && npm run test:mobile:combate && npm run test:mobile:contrato && npm run test:mobile:exploracao",
+    "test:criacao": "node scripts/test-criacao-personagem.mjs",
+    "test:acessibilidade": "node scripts/test_accessibility.mjs",
+    "test:caminhos": "node scripts/test_caminhos_herdeiro_arquitetura.mjs",
     "test:etapa2": "node scripts/test-mundo-etapa2.mjs",
     "mapa": "node scripts/mapa-preview.mjs",
     "test:etapa3": "node scripts/test-npcs-etapa3.mjs",
+    "test:npc-visual": "node scripts/test-npc-visuais.mjs",
+    "test:estradas-relevo": "node scripts/test-estradas-relevo.mjs",
     "test:vivo": "node scripts/test-mundo-vivo.mjs",
     "medir:batalha": "node scripts/medir-layout-batalha.mjs",
     "test:arte": "node scripts/test-arte-pipeline.mjs",
@@ -35,6 +44,10 @@
     "test:fogueira": "node scripts/test-auto-fogueira.mjs",
     "test:party": "node scripts/test-party-ui.mjs",
     "test:notif": "node scripts/test-notificacoes.mjs",
+    "test:interacoes": "node scripts/test-interacoes.mjs",
+    "test:missoes-direcao": "node scripts/test-missoes-direcao.mjs",
+    "test:tutorial-poder": "node scripts/test-tutorial-poder.mjs",
+    "test:progressao-forja": "node scripts/test-progressao-forja.mjs",
     "medir:dificuldade": "node scripts/medir-dificuldade.mjs",
     "test:balanco": "node scripts/test-balanceamento.mjs",
     "test:itens": "node scripts/test-itens-efeitos.mjs",
@@ -47,6 +60,7 @@
     "test:ia": "node scripts/test-ia-batalha.mjs",
     "screenshot": "node scripts/screenshot-mundo.mjs",
     "test:props": "node scripts/test-props.mjs",
+    "test:visual-cidades": "node scripts/test-cidades-npcs-visuais.mjs",
     "test:mundo": "node scripts/test-mundo.mjs",
     "test:transicoes": "node scripts/test-transicoes.mjs",
     "gerar:mascaras": "python3 scripts/gerar-mascaras.py",
@@ -66,5 +80,8 @@
   },
   "dependencies": {
     "esbuild": "^0.28.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
   }
 }

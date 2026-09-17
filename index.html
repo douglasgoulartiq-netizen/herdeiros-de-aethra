@@ -26,6 +26,8 @@
      cenas funcionando sem estilo nenhum; remover a chamada em main.js é o
      que desliga as cenas de fato. -->
 <link rel="stylesheet" href="src/cutscene.css" />
+<link rel="stylesheet" href="src/tutorial.css" />
+<link rel="stylesheet" href="src/poder-combate.css" />
 <!-- Minimapa do HUD e mapa-múndi interativo. Depois de hud-topo.css porque o
      minimapa se ancora na altura da faixa de status (--hud-faixa-alt) definida
      lá. Remover esta linha tira a aparência dos dois mapas de uma vez. -->
@@ -60,6 +62,13 @@
 <link rel="stylesheet" href="src/batalha-layout.css" />
 <link rel="stylesheet" href="src/animacoes-polimento.css" />
 <link rel="stylesheet" href="src/design-polimento.css" />
+<link rel="stylesheet" href="src/combate-conforto.css" />
+<link rel="stylesheet" href="src/recompensa.css" />
+<link rel="stylesheet" href="src/entrada.css" />
+<!-- Camada final de direção de arte: só acabamento compartilhado. Carrega
+     por último para unificar superfícies sem duplicar layouts ou regras. -->
+<link rel="stylesheet" href="src/premium-polimento.css" />
+<link rel="stylesheet" href="src/missoes-direcao.css" />
 </head>
 <body>
   <div id="app">
@@ -98,12 +107,18 @@
         <button id="touch-right" class="touch-btn dpad-right" aria-label="Direita">▶</button>
         <button id="touch-down" class="touch-btn dpad-down" aria-label="Baixo">▼</button>
       </div>
-      <button id="touch-acao" class="touch-btn touch-acao" aria-label="Interagir">E</button>
+      <button id="touch-acao" class="touch-btn touch-acao" aria-label="Ação" data-acao="nenhuma">
+        <span class="touch-acao-icone" aria-hidden="true">✦</span>
+        <span class="touch-acao-rotulo">Ação</span>
+      </button>
     </div>
 
     <div id="screen-boot" class="tela">
-      <h1>Herdeiros de Aethra</h1>
-      <p class="subtitulo">Um RPG de mundo aberto inspirado em D&D</p>
+      <div class="boot-eter" aria-hidden="true"></div>
+      <img id="logo-oficial" src="assets/ui/logo-herdeiros-de-aethra-v2.png" alt="Herdeiros de Aethra" />
+      <h1 class="somente-leitor">Herdeiros de Aethra</h1>
+      <p class="subtitulo">O mundo lembra. Você pode reescrevê-lo.</p>
+      <section id="save-slots" aria-label="Aventuras salvas"></section>
       <button id="btn-novo-jogo">Nova Aventura</button>
       <button id="btn-continuar" class="hidden">Continuar Aventura</button>
       <button id="btn-ng-plus" class="hidden" title="Reinicia com um personagem novo, mas mantém seu roster de invocação — monstros ficam mais fortes (e rendem mais)."></button>
@@ -111,7 +126,8 @@
       <div id="painel-login" style="margin-top:14px;"></div>
       <p style="margin-top:24px;font-size:0.8em;color:#8a7a5c;max-width:420px;text-align:center;">
         No computador: setas do teclado para mover · E para interagir (NPCs, baús, nós de coleta, masmorra)
-        · U mapa · K estado · I inventário · M missões · F forja · G time · T habilidades · S salvar · P automático · Esc fechar janelas<br/>
+        · U mapa · K estado · I inventário · M/Q missões · F forja · G invocação · T habilidades · S salvar · P automático · F1 tutorial · Esc fechar janelas<br/>
+        Menus: setas movem o cursor · Enter ou Espaço confirma · Esc volta<br/>
         No celular: use o direcional e o botão "E" que aparecem na tela.
       </p>
     </div>

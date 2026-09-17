@@ -1,0 +1,18 @@
+# O que NÃO sobe para a Vercel.
+#
+# Mesma ideia do .gitignore, escrito à parte porque o CLI da Vercel lê ESTE
+# arquivo, não aquele. Sobe só o que o navegador precisa para rodar o jogo:
+# index.html, src/ e assets/.
+
+*.zip
+*.bat
+*.ps1
+_backup_antes_da_atualizacao/
+briefings-arte/
+bundle/
+scripts/
+node_modules/
+.git/
+
+# Documentos de trabalho — não são servidos, só ocupariam espaço no upload
+*.md

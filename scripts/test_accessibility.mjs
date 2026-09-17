@@ -5,6 +5,7 @@
 import {
   VELOCIDADES_MENSAGEM, TAMANHOS_FONTE, mesclarConfig, carregarConfigAcessibilidade, salvarConfigAcessibilidade,
   atualizarConfigAcessibilidade, multiplicadorVelocidadeMensagem, efeitosReduzidos, _resetParaTeste,
+  TAMANHOS_CONTROLES_TOQUE, OPACIDADES_CONTROLES_TOQUE, POSICOES_CONTROLES_TOQUE,
 } from "../src/systems/AccessibilitySystem.js";
 
 function check(label, cond) {
@@ -20,6 +21,10 @@ function check(label, cond) {
   check("padrão: reduzirEfeitos desligado", config.reduzirEfeitos === false);
   check("padrão: tamanhoFonte normal", config.tamanhoFonte === "normal");
   check("padrão: altoContraste desligado", config.altoContraste === false);
+  check("padrão mobile: direcional à esquerda, tamanho e opacidade normais",
+    config.posicaoControlesToque === "direcional_esquerda"
+    && config.tamanhoControlesToque === "normal"
+    && config.opacidadeControlesToque === "normal");
 }
 
 // --- mesclarConfig: valores válidos passam, inválidos/desconhecidos caem no padrão ---
@@ -32,6 +37,11 @@ function check(label, cond) {
   check("tamanhoFonte inválido cai no padrão (normal)", invalido.tamanhoFonte === "normal");
   check("reduzirEfeitos não-booleano cai no padrão (false)", invalido.reduzirEfeitos === false);
   check("altoContraste não-booleano cai no padrão (false)", invalido.altoContraste === false);
+  const mobileInvalido = mesclarConfig({ tamanhoControlesToque: "enorme", opacidadeControlesToque: 0.2, posicaoControlesToque: "centro" });
+  check("preferências mobile inválidas caem nos padrões seguros",
+    mobileInvalido.tamanhoControlesToque === "normal"
+    && mobileInvalido.opacidadeControlesToque === "normal"
+    && mobileInvalido.posicaoControlesToque === "direcional_esquerda");
 
   const semNada = mesclarConfig(null);
   check("mesclarConfig(null) nunca quebra, retorna o padrão inteiro", semNada.velocidadeMensagem === "normal" && semNada.tamanhoFonte === "normal");
@@ -77,6 +87,8 @@ function check(label, cond) {
 // --- TAMANHOS_FONTE: lista fixa esperada pela UI (AccessibilityUI.js) ---
 {
   check("TAMANHOS_FONTE tem as 3 opções esperadas, na ordem certa", JSON.stringify(TAMANHOS_FONTE) === JSON.stringify(["normal", "grande", "gigante"]));
+  check("controles touch expõem três tamanhos e três opacidades", TAMANHOS_CONTROLES_TOQUE.length === 3 && OPACIDADES_CONTROLES_TOQUE.length === 3);
+  check("controles touch podem trocar de mão", JSON.stringify(POSICOES_CONTROLES_TOQUE) === JSON.stringify(["direcional_esquerda", "direcional_direita"]));
 }
 
 console.log(process.exitCode ? "=== FALHAS ENCONTRADAS ===" : "=== todos os testes passaram ===");

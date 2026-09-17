@@ -90,6 +90,32 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
   // colado na base não deixa chão.
   const linhaHorizonte = Math.round(A * Math.min(0.55, Math.max(0.12, fracHorizonte)));
 
+  // Direção de arte: foco luminoso e relevo em dois planos. As formas são
+  // determinísticas por bioma e ficam atrás dos tiles, acrescentando escala
+  // sem competir com os personagens ou exigir imagens extras pesadas.
+  const luzX = Math.round(L * (0.22 + rnd() * 0.56));
+  const luzY = Math.round(A * 0.15);
+  const luzR = Math.max(18, Math.round(Math.min(L, A) * 0.075));
+  const halo = ctx.createRadialGradient(luzX, luzY, 0, luzX, luzY, luzR * 3.2);
+  halo.addColorStop(0, "rgba(255,226,166,.28)");
+  halo.addColorStop(0.3, "rgba(245,165,36,.11)");
+  halo.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = halo; ctx.fillRect(0, 0, L, linhaHorizonte);
+  ctx.fillStyle = "rgba(255,226,166,.22)";
+  ctx.beginPath(); ctx.arc(luzX, luzY, luzR, 0, Math.PI * 2); ctx.fill();
+
+  const desenharRelevo = (baseY, amplitude, passo, cor) => {
+    ctx.beginPath(); ctx.moveTo(0, baseY);
+    for (let x = 0; x <= L + passo; x += passo) {
+      ctx.lineTo(x + passo * 0.5, baseY - amplitude * (0.35 + rnd() * 0.65));
+      ctx.lineTo(x + passo, baseY);
+    }
+    ctx.lineTo(L, linhaHorizonte + 8); ctx.lineTo(0, linhaHorizonte + 8); ctx.closePath();
+    ctx.fillStyle = cor; ctx.fill();
+  };
+  desenharRelevo(linhaHorizonte - 16, Math.max(16, A * 0.12), Math.max(70, L / 8), "rgba(8,9,13,.28)");
+  desenharRelevo(linhaHorizonte - 5, Math.max(12, A * 0.08), Math.max(52, L / 11), "rgba(5,7,9,.48)");
+
   // O tileset é uma tira horizontal de 12 tiles de 64px. Se o arquivo não
   // carregou, `carregarImagem` devolve um placeholder de 32x32 (ver
   // loader.js) — desenhar recortes de 64px dele encheria o campo de
@@ -131,6 +157,35 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
         ctx.fillRect(x, y, t, t);
       }
     }
+  }
+
+  // Grade de perspectiva sutil: conecta as sombras dos combatentes ao plano
+  // do chão e deixa claro quem está à frente e quem está ao fundo.
+  ctx.save();
+  ctx.strokeStyle = "rgba(244,205,133,.07)"; ctx.lineWidth = 1;
+  for (let i = -6; i <= 6; i += 1) {
+    ctx.beginPath(); ctx.moveTo(L / 2, linhaHorizonte); ctx.lineTo(L / 2 + i * L * 0.12, A); ctx.stroke();
+  }
+  for (let i = 1; i <= 5; i += 1) {
+    const p = i / 5; const y = linhaHorizonte + (A - linhaHorizonte) * p * p;
+    ctx.globalAlpha = p * 0.7; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(L, y); ctx.stroke();
+  }
+  ctx.restore();
+
+  if (cenario.particula) {
+    const cores = {
+      folhas: ["#6d9d51", "#a38d46"], bolhas: ["#6f9b88", "#bad7c2"],
+      areia: ["#c79c57", "#e1c27b"], poeira: ["#a28d75", "#d0bd9e"],
+      respingo: ["#68b7cf", "#b9e7ef"],
+    };
+    const paleta = cores[cenario.particula] || cores.poeira;
+    for (let i = 0; i < 18; i += 1) {
+      const x = Math.round(rnd() * L); const y = Math.round(linhaHorizonte * 0.25 + rnd() * A * 0.65);
+      const s = rnd() > 0.76 ? 3 : 2;
+      ctx.globalAlpha = 0.18 + rnd() * 0.28; ctx.fillStyle = paleta[i % paleta.length];
+      ctx.fillRect(x, y, s, cenario.particula === "respingo" ? s + 2 : s);
+    }
+    ctx.globalAlpha = 1;
   }
 
   // Junção céu/chão suavizada e escurecimento progressivo pro fundo do
@@ -201,6 +256,7 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
 
     <div class="bt-infobar" id="bt-infobar">
       <div class="bt-timeline" id="bt-timeline" aria-label="Ordem de turno"></div>
+      <div class="bt-legenda-acao" id="bt-legenda-acao" aria-label="Ação em andamento"></div>
       <button class="bt-log-toggle" id="bt-log-toggle" aria-expanded="false" title="Abrir/fechar o registro de combate">
         <span class="bt-log-ultima" id="bt-log-ultima"></span>
         <span class="bt-log-seta" aria-hidden="true">⌃</span>

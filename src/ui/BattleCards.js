@@ -284,6 +284,8 @@ export function criarPainelDeCards(opcoes) {
     el.dataset.cardId = card.id;
     el.tabIndex = 0;
     el.setAttribute("role", "button");
+    el.setAttribute("aria-pressed", String(!!ehSelecionado));
+    el.setAttribute("aria-label", `${card.nome}. ${p.disponivel ? (ehSelecionado ? "Selecionado; toque novamente para confirmar." : "Toque para selecionar e ver os detalhes.") : (p.bloqueio?.texto || "Indisponível agora.")}`);
     if (!animacoesReduzidas()) el.style.setProperty("--entrada-atraso", `${Math.min(indice, 9) * 55}ms`);
 
     const ident = identidadeElemento(card.elemento || "fisico");
@@ -520,7 +522,24 @@ export function criarPainelDeCards(opcoes) {
     }
 
     painel.className = `carta-detalhe ${classeElemento(card.elemento || "fisico")}`;
-    painel.innerHTML = `<div class="detalhe-titulo">${card.icone} ${card.nome}</div>${linhas.join("")}`;
+    painel.setAttribute("role", "region");
+    painel.setAttribute("aria-label", `Detalhes de ${card.nome}`);
+    const selecionado = cardSelecionado && cardSelecionado.id === card.id;
+    painel.innerHTML = `<button type="button" class="detalhe-fechar" aria-label="Fechar detalhes do card">×</button><div class="detalhe-titulo">${card.icone} ${card.nome}</div>${linhas.join("")}${selecionado ? `<div class="detalhe-acoes"><button type="button" class="detalhe-voltar">Voltar às cartas</button><button type="button" class="detalhe-confirmar">Confirmar ação</button></div>` : ""}`;
+    painel.querySelector(".detalhe-fechar")?.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      cardEmFoco = null;
+      if (cardSelecionado) cancelarSelecao();
+      else mostrarDetalhe(null);
+    });
+    painel.querySelector(".detalhe-voltar")?.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      cancelarSelecao();
+    });
+    painel.querySelector(".detalhe-confirmar")?.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      acionarCard(card, p, estado);
+    });
   }
 
   // -------------------------------------------------------------------
@@ -765,6 +784,7 @@ export function criarPainelDeCards(opcoes) {
         <span class="mao-titulo">Ação de <b>${estado.jogador.nome}</b></span>
         <span class="mao-recursos" title="Éter disponível para habilidades.">💠 ${estado.jogador.mp}/${estado.jogador.mpMax}</span>
         <span class="mao-linha" title="Sua linha na formação. Trocar de linha custa o turno.">${estado.jogador.posicao === "retaguarda" ? "🛡️ Retaguarda" : "⚔️ Frente"}</span>
+        <span class="mao-deslize" id="mao-deslize" aria-hidden="true">↔ deslize</span>
         <button type="button" class="mao-btn-config" id="btn-cards-config" title="Configurações de leitura da batalha">⚙️</button>
       </div>
       ${montarConfiguracoes()}
@@ -782,6 +802,23 @@ export function criarPainelDeCards(opcoes) {
     visiveis.forEach((card, i) => {
       maoEl.appendChild(montarCard(card, previsoes.get(card.id), avaliacoes.get(card.id), estado, i));
     });
+
+    // Celular em paisagem usa uma faixa horizontal. O degradê e o rótulo
+    // só aparecem quando existe conteúdo fora da área visível, e somem nas
+    // extremidades corretas conforme o jogador desliza. Assim a rolagem não
+    // depende de o usuário adivinhar que há cartas escondidas.
+    const atualizarRolagem = () => {
+      const sobra = maoEl.scrollWidth - maoEl.clientWidth;
+      const rolavel = sobra > 2;
+      maoEl.classList.toggle("tem-scroll", rolavel);
+      maoEl.classList.toggle("no-inicio", !rolavel || maoEl.scrollLeft <= 2);
+      maoEl.classList.toggle("no-fim", !rolavel || maoEl.scrollLeft >= sobra - 2);
+      const dica = acoesEl.querySelector("#mao-deslize");
+      if (dica) dica.setAttribute("aria-hidden", String(!rolavel));
+      maoEl.setAttribute("aria-label", rolavel ? "Cartas de ação. Deslize horizontalmente para ver todas." : "Cartas de ação.");
+    };
+    maoEl.addEventListener("scroll", atualizarRolagem, { passive: true });
+    requestAnimationFrame(atualizarRolagem);
 
     const btnCfg = acoesEl.querySelector("#btn-cards-config");
     const painelCfg = acoesEl.querySelector("#cards-config-painel");

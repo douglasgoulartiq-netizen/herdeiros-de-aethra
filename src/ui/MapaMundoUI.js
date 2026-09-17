@@ -53,6 +53,7 @@ export function montarMapaMundo(personagem, contexto = {}) {
       <div class="mapa-explorado" title="Porcentagem do território já descoberto">
         Explorado: <b>${expl.pct}%</b> <span class="mapa-explorado-det">(${expl.zonasAbertas}/${expl.totalZonas} zonas)</span>
       </div>
+      ${contexto.objetivoMissao ? `<button type="button" class="mapa-missao-atalho">◎ Ir ao objetivo: ${contexto.objetivoMissao.nome}</button>` : ""}
     </div>
     <div class="mapa-corpo">
       <div class="mapa-tela">
@@ -110,10 +111,30 @@ export function montarMapaMundo(personagem, contexto = {}) {
     // que é parcial.
     ctx.drawImage(bitmapDaNevoa(personagem), 0, 0, canvas.width, canvas.height);
 
+    desenharRotaMissao();
     desenharPontos();
     if (selecionado) contornar(selecionado);
     desenharVoce();
     montarRotulos();
+  }
+
+  function desenharRotaMissao() {
+    const alvo = contexto.objetivoMissao;
+    const jogador = contexto.jogador;
+    if (!alvo || !jogador || alvo.mapa && alvo.mapa !== "overworld") return;
+    const x0 = jogador.x * escala, y0 = jogador.y * escala;
+    const x1 = alvo.x * escala, y1 = alvo.y * escala;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,214,92,.92)";
+    ctx.lineWidth = 2.2;
+    ctx.setLineDash([7, 5]);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.shadowColor = "#ffad2e"; ctx.shadowBlur = 9;
+    ctx.fillStyle = "#ffe06a"; ctx.strokeStyle = "#3a1d06"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x1, y1, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#321b08"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("!", x1, y1 + .5);
+    ctx.restore();
   }
 
   // Um ponto no centro de massa de cada lugar nomeado. Existe por causa do
@@ -420,6 +441,16 @@ export function montarMapaMundo(personagem, contexto = {}) {
     if (selecionado) selecionar(selecionado);
     else { desenhar(); painelInicial(); }
   });
+
+  const atalhoMissao = corpo.querySelector(".mapa-missao-atalho");
+  if (atalhoMissao) atalhoMissao.onclick = () => {
+    const alvo = contexto.objetivoMissao;
+    const zona = alvo ? zonaNoTile(Math.round(alvo.x), Math.round(alvo.y)) : null;
+    if (!zona) return;
+    modo = MODO.ZONAS;
+    corpo.querySelectorAll(".mapa-modo").forEach((b) => b.classList.toggle("ativo", b.dataset.modo === MODO.ZONAS));
+    selecionar({ tipo: "zona", ref: zona, vis: visibilidadeDaZona(personagem, zona.id) });
+  };
 
   function painelInicial() {
     const zonaAtual = zonas.find((z) => z.id === contexto.zonaAtualId);

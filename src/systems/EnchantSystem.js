@@ -32,16 +32,16 @@ export const GANHO_POR_NIVEL = 0.08; // +8% do stat base por nível, cumulativo 
 // sub-status — são a parte cara do item de propósito, e o material raro é o
 // que dá peso à escolha de QUAL item levar até o fim.
 export const CUSTO_POR_NIVEL = [
-  { ouro: 15, materiais: [{ itemId: "minerio", quantidade: 2 }, { itemId: "madeira", quantidade: 1 }] },
-  { ouro: 35, materiais: [{ itemId: "minerio", quantidade: 3 }, { itemId: "gema", quantidade: 1 }] },
-  { ouro: 70, materiais: [{ itemId: "minerio_raro", quantidade: 2 }, { itemId: "gema", quantidade: 2 }] },
-  { ouro: 130, materiais: [{ itemId: "minerio_raro", quantidade: 3 }, { itemId: "erva_rara", quantidade: 2 }] },
-  { ouro: 220, materiais: [{ itemId: "gema_rara", quantidade: 1 }, { itemId: "minerio_raro", quantidade: 4 }] },
-  { ouro: 380, materiais: [{ itemId: "gema_rara", quantidade: 2 }, { itemId: "minerio_raro", quantidade: 5 }] },
-  { ouro: 620, materiais: [{ itemId: "gema_rara", quantidade: 3 }, { itemId: "minerio_raro", quantidade: 6 }, { itemId: "erva_rara", quantidade: 3 }] },
-  { ouro: 980, materiais: [{ itemId: "gema_rara", quantidade: 4 }, { itemId: "minerio_raro", quantidade: 8 }] },
-  { ouro: 1500, materiais: [{ itemId: "gema_rara", quantidade: 6 }, { itemId: "minerio_raro", quantidade: 10 }, { itemId: "erva_rara", quantidade: 5 }] },
-  { ouro: 2300, materiais: [{ itemId: "gema_rara", quantidade: 8 }, { itemId: "minerio_raro", quantidade: 14 }] },
+  { ouro: 5, materiais: [{ itemId: "minerio", quantidade: 1 }] },
+  { ouro: 10, materiais: [{ itemId: "minerio", quantidade: 1 }, { itemId: "madeira", quantidade: 1 }] },
+  { ouro: 18, materiais: [{ itemId: "minerio", quantidade: 2 }] },
+  { ouro: 30, materiais: [{ itemId: "minerio_raro", quantidade: 1 }, { itemId: "gema", quantidade: 1 }] },
+  { ouro: 45, materiais: [{ itemId: "minerio_raro", quantidade: 1 }, { itemId: "gema", quantidade: 1 }] },
+  { ouro: 70, materiais: [{ itemId: "minerio_raro", quantidade: 2 }, { itemId: "gema", quantidade: 1 }] },
+  { ouro: 105, materiais: [{ itemId: "minerio_raro", quantidade: 2 }, { itemId: "erva_rara", quantidade: 1 }] },
+  { ouro: 150, materiais: [{ itemId: "minerio_raro", quantidade: 3 }, { itemId: "gema_rara", quantidade: 1 }] },
+  { ouro: 220, materiais: [{ itemId: "minerio_raro", quantidade: 3 }, { itemId: "gema_rara", quantidade: 2 }] },
+  { ouro: 320, materiais: [{ itemId: "minerio_raro", quantidade: 4 }, { itemId: "gema_rara", quantidade: 2 }] },
 ];
 
 // Só arma/armadura/acessório têm um stat pra escalar — consumíveis e

@@ -36,7 +36,8 @@ export async function animarDado(container, resultado, { critico = false, fumble
   if (!container) return;
   const el = document.createElement("div");
   el.className = "dado-rolagem";
-  el.textContent = "?";
+  el.innerHTML = `<img class="dado-arte" src="assets/ui/d20-aethra.png" alt=""/><span class="dado-valor">?</span>`;
+  const valor = el.querySelector(".dado-valor");
   container.appendChild(el);
 
   const duracaoRolagem = duracaoAnimacao(duracaoTotalMs * 0.7);
@@ -44,7 +45,7 @@ export async function animarDado(container, resultado, { critico = false, fumble
   const inicio = Date.now();
   await new Promise((resolve) => {
     const tick = () => {
-      el.textContent = String(1 + Math.floor(Math.random() * 20));
+      valor.textContent = String(1 + Math.floor(Math.random() * 20));
       if (Date.now() - inicio < duracaoRolagem) {
         setTimeout(tick, intervaloTick);
       } else {
@@ -54,7 +55,7 @@ export async function animarDado(container, resultado, { critico = false, fumble
     tick();
   });
 
-  el.textContent = String(resultado);
+  valor.textContent = String(resultado);
   el.classList.add("parado");
   if (critico) el.classList.add("critico");
   else if (fumble) el.classList.add("fumble");

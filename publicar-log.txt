@@ -1,0 +1,6 @@
+================================================= 
+Publicacao iniciada em 16/09/2026  4:12:19,98 
+Pasta: C:\Users\User\OneDrive\Documentos\herdeiros-de-aethra\herdeiros-de-aethra 
+Node: v24.20.0 
+---- saida do vercel ---- 
+Codigo de saida: 1 

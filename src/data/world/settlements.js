@@ -42,9 +42,9 @@
 // planta de ruas e quarteirões precisa para render as dezenas de prédios que
 // o briefing cobra.
 export const CATEGORIAS = {
-  CAPITAL: { raio: 18, minDistritos: 4, rotulo: "Capital" },
-  CIDADE: { raio: 14, minDistritos: 2, rotulo: "Cidade" },
-  VILA: { raio: 10, minDistritos: 0, rotulo: "Vila" },
+  CAPITAL: { raio: 22, minDistritos: 4, rotulo: "Capital" },
+  CIDADE: { raio: 16, minDistritos: 2, rotulo: "Cidade" },
+  VILA: { raio: 11, minDistritos: 0, rotulo: "Vila" },
   ASSENTAMENTO: { raio: 7, minDistritos: 0, rotulo: "Assentamento" },
   ACAMPAMENTO: { raio: 5, minDistritos: 0, rotulo: "Acampamento" },
 };
@@ -54,6 +54,14 @@ export const CATEGORIAS = {
 // mão que pode cair dentro de um lago).
 export const ASSENTAMENTOS = [
   // --- CAPITAIS ---------------------------------------------------------
+  {
+    id: "sylvaran_altaverde", nome: "Sylvaran, Altaverde", categoria: "CAPITAL",
+    zonaId: "campos_de_elyndor", faccao: "Círculo de Altaverde",
+    economia: "ervas raras, madeira juramentada, cura e artesanato élfico",
+    distritos: ["Praça da Árvore", "Templo Verde", "Mercado das Folhas", "Bairro dos Artesãos", "Jardins d'Água", "Portão das Montanhas"],
+    problema: "a cidade prospera, mas as raízes antigas começaram a empurrar suas muralhas",
+    viagemRapida: true, modeloRico: true,
+  },
   {
     id: "cidade_de_aerwind", nome: "Cidade de Aerwind", categoria: "CAPITAL",
     zonaId: "planicie_ventosa", faccao: "Liga dos Ventos",

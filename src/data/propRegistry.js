@@ -57,7 +57,18 @@ export const PROPS = {
   casa_p:      { larguraTiles: 4, alturaTiles: 4, ancoraX: 2, ancoraY: 3, colisao: { x0: -2, y0: -1, x1: 1, y1: 0 } },
   casa_g:      { larguraTiles: 6, alturaTiles: 6, ancoraX: 3, ancoraY: 5, colisao: { x0: -3, y0: -1, x1: 2, y1: 0 } },
   casa_elfica: { larguraTiles: 5, alturaTiles: 5, ancoraX: 2, ancoraY: 4, colisao: { x0: -2, y0: -1, x1: 2, y1: 0 } },
+  // Segunda geração de moradias urbanas. Todas preservam uma fachada de
+  // cinco tiles e uma colisão rasa de dois tiles: a arte pode ter telhado,
+  // chaminé e varanda bem maiores sem transformar os becos em paredes.
+  // `casa_pedra_v2` é deliberadamente um pouco mais alta e larga para servir
+  // de solar/fortificação no perfil das cidades grandes.
+  casa_urbana_azul_v2:    { larguraTiles: 5, alturaTiles: 5, ancoraX: 2, ancoraY: 4, colisao: { x0: -2, y0: -1, x1: 2, y1: 0 } },
+  casa_urbana_vermelha_v2:{ larguraTiles: 5, alturaTiles: 5, ancoraX: 2, ancoraY: 4, colisao: { x0: -2, y0: -1, x1: 2, y1: 0 } },
+  casa_urbana_verde_v2:   { larguraTiles: 5, alturaTiles: 5, ancoraX: 2, ancoraY: 4, colisao: { x0: -2, y0: -1, x1: 2, y1: 0 } },
+  casa_pedra_v2:          { larguraTiles: 6, alturaTiles: 6, ancoraX: 3, ancoraY: 5, colisao: { x0: -3, y0: -1, x1: 2, y1: 0 } },
+  casa_costeira_v2:       { larguraTiles: 5, alturaTiles: 5, ancoraX: 2, ancoraY: 4, colisao: { x0: -2, y0: -1, x1: 2, y1: 0 } },
   templo:      { larguraTiles: 8, alturaTiles: 7, ancoraX: 4, ancoraY: 6, colisao: { x0: -4, y0: -2, x1: 3, y1: 0 } },
+  pousada:     { larguraTiles: 6, alturaTiles: 6, ancoraX: 3, ancoraY: 5, colisao: { x0: -3, y0: -1, x1: 2, y1: 0 } },
   poste:       { larguraTiles: 1, alturaTiles: 2, ancoraX: 0, ancoraY: 1, colisao: { x0: 0, y0: 0, x1: 0, y1: 0 } },
   placa:       { larguraTiles: 1, alturaTiles: 2, ancoraX: 0, ancoraY: 1, colisao: { x0: 0, y0: 0, x1: 0, y1: 0 } },
   cerca:       { larguraTiles: 1, alturaTiles: 1, ancoraX: 0, ancoraY: 0, colisao: { x0: 0, y0: 0, x1: 0, y1: 0 } },

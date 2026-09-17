@@ -90,11 +90,23 @@ export function pontoDescansoProximo(pontos, x, y, raio = RAIO_DESCANSO) {
   return (pontos || []).find((p) => Math.max(Math.abs(p.x - x), Math.abs(p.y - y)) <= raio) || null;
 }
 
+export function assentamentoDescansoProximo(assentamentos, x, y) {
+  return (assentamentos || []).find((a) => {
+    if (a.categoria === "ACAMPAMENTO") return false;
+    const raio = Math.max(2, a.raio || 4);
+    return Math.max(Math.abs(a.x - x), Math.abs(a.y - y)) <= raio;
+  }) || null;
+}
+
 // A pergunta que o jogo faz antes de deixar descansar.
 // Devolve { ok, motivo, onde } — `motivo` já é o texto que vai pra tela,
 // porque as três respostas possíveis são curtas e específicas demais pra
 // valer a pena montar em outro lugar.
-export function podeDescansar({ zona, pontos, x, y }) {
+export function podeDescansar({ zona, pontos, assentamentos = [], x, y }) {
+  const cidade = assentamentoDescansoProximo(assentamentos, x, y);
+  if (cidade) {
+    return { ok: true, onde: "cidade", motivo: `Você descansa em segurança em ${cidade.nome}.`, assentamento: cidade };
+  }
   if (ehZonaDeDescanso(zona)) {
     return { ok: true, onde: "cidade", motivo: `Você descansa em segurança em ${zona.nome}.` };
   }

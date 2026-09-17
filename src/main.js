@@ -1,6 +1,6 @@
 import { carregarDados, carregarTodasImagens } from "./data/loader.js";
 import {
-  SOLID_TILES, zonaNoPonto, ZONAS, OVERWORLD_W, OVERWORLD_H,
+  TILE, SOLID_TILES, zonaNoPonto, ZONAS, OVERWORLD_W, OVERWORLD_H,
   buildDungeon, buildDungeon2, DUNGEON_W, DUNGEON_H, DUNGEON2_W, DUNGEON2_H,
   DUNGEON_SPAWN, DUNGEON_EXIT_ZONE, CHESTS_DUNGEON, BOSS_TILE,
   DUNGEON2_SPAWN, DUNGEON2_EXIT_ZONE, CHESTS_DUNGEON2, BOSS_TILE2,
@@ -14,14 +14,17 @@ import { mundoDaSemente } from "./systems/WorldBuilder.js";
 import { Renderer } from "./render/Renderer.js";
 import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
 import { montarCriacaoPersonagem } from "./ui/CharacterCreationUI.js";
-import { atualizarHUD, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao } from "./ui/GameUI.js";
+import { atualizarHUD, atualizarIndicadorRecomendacaoTime, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao } from "./ui/GameUI.js";
 import { iniciarBatalha } from "./ui/BattleUI.js";
 import { montarGacha } from "./ui/GachaUI.js";
 import { montarArvoreHabilidades } from "./ui/SkillTreeUI.js";
 import { montarCaminhoHerdeiro } from "./ui/TalentTreeUI.js";
 import { montarCompendio } from "./ui/CompendiumUI.js";
 import { montarAtlas } from "./ui/AtlasUI.js";
-import { mostrarAmeaca } from "./ui/ThreatUI.js";
+import { mostrarDesafioAmeaca } from "./ui/ThreatUI.js";
+import { interacaoAutomaticaPronta } from "./ui/HdaUI.js";
+import { celebrarRecompensa } from "./ui/RewardCelebrationUI.js";
+import { destravarAudio } from "./ui/SoundFX.js";
 import { escolhaAutomatica, escolherNo } from "./systems/SkillTreeSystem.js";
 import {
   garantirEstadoMasmorras, progressoDaMasmorra, masmorraEmEspera,
@@ -31,7 +34,7 @@ import { FLAGS } from "./data/featureFlags.js";
 import { sortearEncontroDeLista, deveDispararEncontro, deveSerHorda, sortearLevasHorda, reforcarEmboscada, chanceAjustadaPeloGrupo, iniciarTregua } from "./systems/EncounterSystem.js";
 import { sortearLoot, descansar, usarConsumivel } from "./systems/InventorySystem.js";
 import { marcarExploracao } from "./systems/QuestSystem.js";
-import { salvarJogo, carregarJogo, existeSave, migrarSave, LAYOUT_MUNDO } from "./systems/SaveSystem.js";
+import { salvarJogo, carregarJogo, existeSave, migrarSave, LAYOUT_MUNDO, listarSlots, selecionarSlot, slotAtivo, apagarSave } from "./systems/SaveSystem.js";
 import { iniciarLoginGoogle, processarRetornoLogin, usuarioAtual, sair, salvarNaNuvem, carregarDaNuvem } from "./systems/CloudSave.js";
 import { estadoGachaInicial, membrosDoTime, adicionarFragmentos, checarConquistas } from "./systems/GachaSystem.js";
 import {
@@ -47,7 +50,7 @@ import { facaoDaZona, deveEmboscar } from "./systems/WorldStateSystem.js";
 import { marcarZonaVisitada, marcarMacroVisitada, pontoDeChegada, pontosDeViagemDisponiveis } from "./systems/FastTravelSystem.js";
 import {
   NEVOA, garantirNevoa, estadoDaZona, aoEntrarNaZona, verificarLandmarks,
-  reavaliarDominio, resumoNevoa, promoverLocal,
+  reavaliarDominio, resumoNevoa, promoverLocal, estadoDoLocal,
 } from "./systems/FogOfWarSystem.js";
 import { novaSemente, normalizarSemente, formatarSemente, lerSemente } from "./systems/WorldSeed.js";
 import { macroDaZona, zonaPorId, trilha, INTERIORES, resumoHierarquia, vizinhasDaZona } from "./data/worldHierarchy.js";
@@ -71,6 +74,8 @@ import {
 // Cenas: o prólogo (uma vez, em jogo novo) e as aberturas de questline
 // regional (disparadas de dentro do diálogo do NPC, em GameUI.js).
 import { reproduzirCutscene } from "./ui/CutsceneUI.js";
+import { abrirTutorialInicial } from "./ui/TutorialUI.js";
+import { melhorRecomendacaoTime, chaveDaRecomendacao } from "./systems/CombatPowerSystem.js";
 import { cutscenePorId } from "./systems/CutsceneSystem.js";
 // Mapas: o minimapa do HUD (arredores, canto superior esquerdo) e o
 // mapa-múndi inteiro (regiões, zonas e níveis). Ver MapaSystem.js para a
@@ -102,6 +107,11 @@ import { deveAparecerMercador, sortearEstoqueMercador } from "./systems/Travelin
 import { mostrarMercadorItinerante } from "./ui/TravelingMerchantUI.js";
 import { ligarCursorTeclado } from "./ui/CursorTeclado.js";
 import { montarParty } from "./ui/PartyUI.js";
+import { missaoRastreada, progressoDaMissao, textoObjetivoMissao } from "./systems/QuestSystem.js";
+
+// Libera o sintetizador no primeiro gesto em qualquer tela. O evento é
+// único e passivo: não interfere em botões, movimento ou rolagem.
+document.addEventListener("pointerdown", destravarAudio, { once: true, passive: true });
 
 let usuarioLogado = null;
 let intervaloAutoSave = null;
@@ -117,6 +127,24 @@ let renderer, imagens, dados;
 // não existia — foi assim que ela nasceu em cima do direcional.
 let ajustarViewport = null;
 let personagem = null;
+let cacheRecomendacaoTime = { assinatura: null, valor: null };
+
+function assinaturaDoTime() {
+  if (!personagem?.gacha) return "sem-time";
+  const resumir = (m) => [m.uid || "player", m.nivel, m.hpMax, m.mpMax, m.classeId, m.facaoId,
+    m.atributos, Object.values(m.equipamento || {}).map((i) => i ? [i.uid || i.id, i.nivelForja || 0] : null)];
+  return JSON.stringify({ ativo: personagem.gacha.timeAtivo, formacao: personagem.formacao, membros: [personagem, ...personagem.gacha.personagensObtidos].map(resumir) });
+}
+
+function atualizarInterfacePrincipal() {
+  if (!personagem) return;
+  atualizarHUD(personagem);
+  const assinatura = assinaturaDoTime();
+  if (cacheRecomendacaoTime.assinatura !== assinatura) {
+    cacheRecomendacaoTime = { assinatura, valor: melhorRecomendacaoTime(personagem, dados || {}) };
+  }
+  atualizarIndicadorRecomendacaoTime(personagem, cacheRecomendacaoTime.valor, chaveDaRecomendacao(cacheRecomendacaoTime.valor));
+}
 
 const mundo = {
   mapaAtual: "overworld",
@@ -225,9 +253,8 @@ async function boot() {
   ]);
 
   document.getElementById("btn-novo-jogo").onclick = () => iniciarCriacao();
+  montarSlotsDeSave();
   if (existeSave()) {
-    document.getElementById("btn-continuar").classList.remove("hidden");
-    document.getElementById("btn-continuar").onclick = () => continuarJogo();
     // New Game+ (melhoria pós-backlog original): só oferece o botão se o
     // save existente já derrotou o chefe final ao menos uma vez (ver
     // NewGamePlusSystem.js) — evita reiniciar "por engano" cedo demais.
@@ -247,9 +274,79 @@ async function boot() {
   // Navegação por hubs: uma definição só (ver HUBS em GameUI.js) alimenta a
   // coluna agrupada do desktop e a barra inferior do celular.
   montarNavegacao(onHudAction);
-  window.addEventListener("resize", () => montarNavegacao(onHudAction));
+  window.addEventListener("resize", () => { montarNavegacao(onHudAction); atualizarInterfacePrincipal(); });
   // (o clique de cada botão já é ligado por montarNavegacao, que é quem os cria)
   configurarControlesToque();
+}
+
+function montarSlotsDeSave() {
+  const raiz = document.getElementById("save-slots");
+  if (!raiz) return;
+  const ativo = slotAtivo();
+  const slots = listarSlots();
+  raiz.innerHTML = `<div class="slots-titulo">Suas jornadas</div><div class="slots-grade">${slots.map((s) => `
+    <button id="save-slot-${s.numero}" class="save-slot${s.numero === ativo ? " ativo" : ""}${s.vazio ? " vazio" : ""}" data-slot="${s.numero}">
+      <span class="slot-numero">${s.numero}</span>
+      <span class="slot-info"><b>${s.vazio ? "Nova história" : s.nome}</b><small>${s.vazio ? "Slot vazio" : `Nível ${s.nivel} · ${s.racaId} ${s.classeId}`}</small></span>
+      ${s.vazio ? "" : `<span class="slot-apagar" data-apagar="${s.numero}" title="Excluir esta jornada">×</span>`}
+    </button>`).join("")}</div>`;
+  raiz.querySelectorAll(".save-slot").forEach((btn) => btn.onclick = (ev) => {
+    if (ev.target.closest("[data-apagar]")) return;
+    selecionarSlot(Number(btn.dataset.slot));
+    montarSlotsDeSave();
+  });
+  raiz.querySelectorAll("[data-apagar]").forEach((btn) => btn.onclick = (ev) => {
+    ev.stopPropagation();
+    const n = Number(btn.dataset.apagar);
+    const info = slots.find((s) => s.numero === n);
+    if (window.confirm(`Excluir a jornada de ${info?.nome || "este personagem"}? Esta ação não pode ser desfeita.`)) {
+      apagarSave(n); montarSlotsDeSave();
+    }
+  });
+  const tem = existeSave(slotAtivo());
+  const continuar = document.getElementById("btn-continuar");
+  const novo = document.getElementById("btn-novo-jogo");
+  continuar.classList.toggle("hidden", !tem);
+  continuar.textContent = `Continuar Slot ${slotAtivo()}`;
+  continuar.onclick = () => continuarJogo();
+  novo.textContent = tem ? `Nova aventura no Slot ${slotAtivo()}` : `Criar personagem no Slot ${slotAtivo()}`;
+  novo.onclick = () => {
+    if (tem && !window.confirm(`O Slot ${slotAtivo()} já tem uma jornada. Deseja substituí-la por um novo personagem?`)) return;
+    iniciarCriacao();
+  };
+  configurarNavegacaoBoot();
+}
+
+function configurarNavegacaoBoot() {
+  const slots = [...document.querySelectorAll("#save-slots .save-slot")];
+  const novo = document.getElementById("btn-novo-jogo");
+  const continuar = document.getElementById("btn-continuar");
+  const ng = document.getElementById("btn-ng-plus");
+  const acessibilidade = document.getElementById("btn-acessibilidade");
+  const login = document.querySelector("#painel-login button");
+  const principal = continuar && !continuar.classList.contains("hidden") ? continuar : novo;
+  const acoes = [novo, continuar, ng].filter((el) => el && !el.classList.contains("hidden"));
+
+  slots.forEach((slot, indice) => {
+    slot.dataset.navLeft = `#save-slot-${slots[(indice - 1 + slots.length) % slots.length].dataset.slot}`;
+    slot.dataset.navRight = `#save-slot-${slots[(indice + 1) % slots.length].dataset.slot}`;
+    if (principal) slot.dataset.navDown = `#${principal.id}`;
+  });
+  acoes.forEach((acao, indice) => {
+    const anterior = acoes[indice - 1] || slots.find((s) => s.classList.contains("ativo")) || slots[0];
+    const proxima = acoes[indice + 1] || acessibilidade;
+    if (anterior) acao.dataset.navUp = `#${anterior.id}`;
+    if (proxima) acao.dataset.navDown = `#${proxima.id}`;
+  });
+  if (acessibilidade) {
+    const anterior = acoes.at(-1) || slots[0];
+    if (anterior) acessibilidade.dataset.navUp = `#${anterior.id}`;
+    if (login) acessibilidade.dataset.navDown = `#${login.id}`;
+  }
+  if (login) {
+    login.dataset.navUp = "#btn-acessibilidade";
+    login.dataset.navDown = `#${slots.find((s) => s.classList.contains("ativo"))?.id || slots[0]?.id}`;
+  }
 }
 
 async function atualizarPainelLogin() {
@@ -273,6 +370,7 @@ async function atualizarPainelLogin() {
     painel.innerHTML = `<button id="btn-google" class="primario">Entrar com Google (salvar na nuvem)</button>`;
     document.getElementById("btn-google").onclick = () => iniciarLoginGoogle();
   }
+  configurarNavegacaoBoot();
 }
 
 function iniciarCriacao() {
@@ -294,6 +392,10 @@ function iniciarCriacao() {
     // aqui, então quem carrega um save nunca reassiste ao prólogo.
     await reproduzirCutscene(cutscenePorId("prologo"), personagem, dados);
     iniciarMundo();
+    await abrirTutorialInicial(personagem, dados, {
+      oferecer: true,
+      aoEncerrar: () => salvarProgresso({ silencioso: true }),
+    });
   });
 }
 
@@ -455,6 +557,76 @@ const MASMORRAS = {
     facaoId: "legiao_das_cinzas",
   },
 };
+
+function destinoDaMissaoRastreada({ paraMapaMundo = false } = {}) {
+  if (!personagem || !dados?.quests) return null;
+  const rastreada = missaoRastreada(personagem, dados.quests);
+  if (!rastreada) return null;
+  const { def } = rastreada;
+  const progresso = progressoDaMissao(personagem, def);
+
+  // Objetivo cumprido: a direção correta deixa de ser a área da tarefa e
+  // passa a ser quem recebe a entrega.
+  if (progresso.pronto) {
+    if (!paraMapaMundo && mundo.mapaAtual !== "overworld") {
+      const saida = MASMORRAS[mundo.mapaAtual]?.exitZone;
+      if (saida) return { id: def.id, x: saida.x0, y: saida.y0, mapa: mundo.mapaAtual, nome: "Voltar para entregar", texto: "Saia da masmorra e volte ao responsável.", pronto: true };
+    }
+    const npc = npcsPosicionados().find((n) => n.id === def.npcId);
+    if (npc) return { id: def.id, x: npc.x, y: npc.y, mapa: "overworld", nome: `Entregar: ${def.nome}`, texto: "Volte ao responsável pela missão.", pronto: true };
+  }
+
+  const mapaAlvo = def.mapaAlvo || "overworld";
+  if (paraMapaMundo && mapaAlvo !== "overworld") {
+    const entrada = MASMORRAS[mapaAlvo]?.entrance;
+    return entrada ? { id: def.id, ...entrada, mapa: "overworld", nome: def.nome, texto: textoObjetivoMissao(def) } : null;
+  }
+  if (mundo.mapaAtual !== mapaAlvo) {
+    if (mundo.mapaAtual !== "overworld") {
+      const saida = MASMORRAS[mundo.mapaAtual]?.exitZone;
+      return saida ? { id: def.id, x: saida.x0, y: saida.y0, mapa: mundo.mapaAtual, nome: "Voltar à superfície", texto: textoObjetivoMissao(def) } : null;
+    }
+    const entrada = MASMORRAS[mapaAlvo]?.entrance;
+    if (entrada) return { id: def.id, ...entrada, mapa: "overworld", nome: def.nome, texto: textoObjetivoMissao(def) };
+  }
+  if (mapaAlvo !== "overworld") {
+    const m = MASMORRAS[mapaAlvo];
+    const alvo = def.tipo === "matar" ? m?.boss : m?.exitZone;
+    return alvo ? { id: def.id, x: alvo.x ?? alvo.x0, y: alvo.y ?? alvo.y0, mapa: mapaAlvo, nome: def.nome, texto: textoObjetivoMissao(def) } : null;
+  }
+
+  const zonaId = def.zonaAlvo || def.regiao;
+  const no = def.tipo === "coletar" ? mundo.nodes.find((n) => n.disponivel && n.zonaId === zonaId) : null;
+  const chefe = def.tipo === "matar" ? mundo.gerado?.chefes?.find((c) => c.zonaId === zonaId && c.monstroId === def.alvo) : null;
+  const alvo = no || chefe || (zonaPorId(zonaId) ? pontoDeChegada(zonaPorId(zonaId)) : null);
+  return alvo ? { id: def.id, x: alvo.x, y: alvo.y, mapa: "overworld", nome: def.nome, texto: textoObjetivoMissao(def) } : null;
+}
+
+function atualizarGuiaMissao() {
+  let guia = document.getElementById("guia-missao");
+  const destino = destinoDaMissaoRastreada();
+  if (!destino || destino.mapa !== mundo.mapaAtual || !personagem) {
+    if (guia) guia.classList.add("hidden");
+    return;
+  }
+  if (!guia) {
+    guia = document.createElement("button");
+    guia.id = "guia-missao";
+    guia.type = "button";
+    guia.title = "Abrir missões (M)";
+    guia.onclick = () => onHudAction("missoes");
+    document.getElementById("app").appendChild(guia);
+  }
+  const dx = destino.x - mundo.player.x, dy = destino.y - mundo.player.y;
+  const seta = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "→" : "←") : (dy > 0 ? "↓" : "↑");
+  const distancia = Math.round(Math.hypot(dx, dy));
+  const chave = `${destino.id}:${seta}:${distancia}:${destino.pronto ? 1 : 0}`;
+  if (guia.dataset.chave !== chave) {
+    guia.innerHTML = `<span class="guia-seta">${seta}</span><span><b>${destino.nome}</b><small>${destino.pronto ? "Entregar" : `${distancia} passos`}</small></span>`;
+    guia.dataset.chave = chave;
+  }
+  guia.classList.remove("hidden");
+}
 
 // Elemento dominante do terreno onde o jogador está agora (zona do overworld
 // ou masmorra atual) — usado para o bônus/resistência de terreno no combate
@@ -631,14 +803,14 @@ function iniciarMundo(jaCarregado = false) {
   // cartão fez (equipar muda HP/defesa).
   iniciarCartoes({
     personagem, dados,
-    onAcao: ({ retorno }) => { atualizarHUD(personagem); if (retorno) mostrarMensagem(retorno, 3200); },
+    onAcao: ({ retorno }) => { atualizarInterfacePrincipal(); if (retorno) mostrarMensagem(retorno, 3200); },
   });
   // Depois da animação de nível, os gatilhos de "o que abriu com isso".
   registrarAoSubirNivel((novoNivel, nivelAnterior) => verificarCartoes("nivel", 250, { nivelAnterior }));
   // Agora que HUD, barra de navegação e controles existem na tela, o
   // enquadramento é recalculado com os tamanhos reais deles.
   if (ajustarViewport) ajustarViewport();
-  atualizarHUD(personagem);
+  atualizarInterfacePrincipal();
   requestAnimationFrame(loopRender);
 
   if (!jaCarregado) {
@@ -672,6 +844,7 @@ function iniciarMundo(jaCarregado = false) {
 // É a razão de aquelas duas terem saído de dentro de interagir().
 function tickDoPet() {
   if (!personagem || !mundo || !dados || !dados.pets) return;
+  if (document.body.classList.contains("com-tutorial")) return;
   if (mundo.emBatalha || document.getElementById("screen-batalha")?.classList.contains("hidden") === false) return;
   const def = petAtivo(personagem, dados.pets);
   if (!def) return;
@@ -742,6 +915,10 @@ function gridAtiva() {
   if (mundo.mapaAtual === "overworld") return mundo.grid;
   const masmorra = MASMORRAS[mundo.mapaAtual];
   return masmorra ? mundo[masmorra.gridKey] : mundo.grid;
+}
+
+function alturasAtivas() {
+  return mundo.mapaAtual === "overworld" ? (mundo.gerado?.alturas || null) : null;
 }
 
 // Props POSICIONADOS À MÃO no mapa atual (casas de uma cidade, ponte, poste).
@@ -908,6 +1085,7 @@ function contextoDeNpc() {
     regiaoAtual: mundo.macroAtualId,
     dadosWorldState: dados.worldStateVariables,
     visitados: (personagem && personagem.biomaVisitados) || [],
+    time: personagem ? [personagem, ...membrosDoTime(personagem)] : [],
   };
 }
 
@@ -916,16 +1094,17 @@ function npcsPosicionados() {
   const periodo = horaDoDiaAtual(Date.now()).id;
   const chave = `${periodo}:${mundo.semente}:${(personagem && Object.keys(personagem.questsRegionais || {}).length) || 0}`;
   if (cacheNpcs.periodo === chave) return cacheNpcs.lista;
-  const { npcs, semLugar } = posicionarNpcs(mundo.gerado, contextoDeNpc());
+  const { npcs, ambientes = [], semLugar } = posicionarNpcs(mundo.gerado, contextoDeNpc());
   if (semLugar.length) console.warn("NPCs sem lugar no mapa:", semLugar);
-  cacheNpcs = { periodo: chave, semente: mundo.semente, lista: npcs };
-  return npcs;
+  cacheNpcs = { periodo: chave, semente: mundo.semente, lista: [...npcs, ...ambientes] };
+  return cacheNpcs.lista;
 }
 
 // Chamado pelo mesmo intervalo que atualiza o indicador de clima: se o período
 // virou, os NPCs mudaram de lugar e o índice precisa saber.
 function reavaliarMundoVivo() {
   if (!personagem || !mundo.gerado) return;
+  if (document.body.classList.contains("com-tutorial")) return;
   const periodoAntes = cacheNpcs.periodo;
   const resultado = reavaliarEventos(personagem, contextoDeNpc());
   if (resultado.abriram.length || resultado.fecharam.length) {
@@ -1006,7 +1185,17 @@ function npcsAtivos() {
   if (!indice || mundo.mapaAtual !== "overworld") return [];
   return objetosPerto(indice, mundo.player.x, mundo.player.y)
     .filter((f) => f.tipo === "npc")
-    .map((f) => ({ ...f.ref, x: f.x, y: f.y }));
+    .map((f) => {
+      const npc = { ...f.ref, x: f.x, y: f.y };
+      if (!npc.ambulante) return npc;
+      const fase = Date.now() / 920 + [...npc.id].reduce((s, c) => s + c.charCodeAt(0), 0);
+      // Passeio curto ao redor do posto lógico. Interação continua centrada
+      // no posto e a oscilação fica abaixo de meio tile, então ninguém entra
+      // em casa nem desaparece do índice espacial.
+      npc.x += Math.sin(fase) * .34;
+      npc.y += Math.sin(fase * .63) * .22;
+      return npc;
+    });
 }
 
 // Suaviza o deslocamento visual do jogador entre tiles (o movimento lógico
@@ -1028,11 +1217,18 @@ function atualizarPosicaoRenderizada() {
   if (dist > 1.01) {
     p.renderX = p.x;
     p.renderY = p.y;
+    p.frame = 0;
   } else if (dist > 0.001) {
+    // Quatro poses durante toda a interpolação. O código antigo mudava o
+    // frame uma vez por tile; como a posição era suavizada, o corpo inteiro
+    // deslizava parado e parecia flutuar.
+    p.frame = Math.floor(performance.now() / 92) % 4;
     p.renderX += distX * 0.35;
     p.renderY += distY * 0.35;
     if (Math.abs(p.x - p.renderX) < 0.02) p.renderX = p.x;
     if (Math.abs(p.y - p.renderY) < 0.02) p.renderY = p.y;
+  } else {
+    p.frame = 0;
   }
 }
 
@@ -1078,23 +1274,28 @@ function loopRender() {
   mundo.player.spriteKey = personagem.spriteKey;
   atualizarPosicaoRenderizada();
   atualizarRastro();
+  const contextoAcao = contextoInteracaoProxima();
+  atualizarBotaoAcaoTouch(contextoAcao);
   renderer.desenhar({
     grid,
+    alturas: alturasAtivas(),
     player: { ...mundo.player, x: mundo.player.renderX, y: mundo.player.renderY },
     npcs: npcsAtivos(),
     objetos: objetosAtivos(),
     props: propsAtivos(),
     tema: temaAtivo(),
     pet: petParaDesenho(),
-    mostrarPronto: objetoInteragivelProximo() ? "Pressione E para interagir" :
-      podeInvestigarElric(personagem, localDaInvestigacao()) ? "Pressione E para examinar as armadilhas de Elric" :
-      podeExaminarPortaAltaverde(personagem, localDaInvestigacao()) ? "Pressione E para examinar a marca da porta" : null,
+    objetivoMissao: destinoDaMissaoRastreada(),
+    // No celular o próprio botão contextual conta a ação; repetir uma tarja
+    // no canvas cobria o herói. Teclado mantém a dica completa.
+    mostrarPronto: document.body.classList.contains("touch") ? null : contextoAcao.textoTeclado,
   });
   // O minimapa sai cedo sozinho quando nada mudou (ver MinimapaUI:
   // `ultimaChave`), então chamá-lo a cada quadro custa uma comparação de
   // string — e é o que garante que ele nunca fica atrasado em relação ao
   // mundo desenhado logo acima.
   atualizarMinimapa();
+  atualizarGuiaMissao();
   requestAnimationFrame(loopRender);
 }
 
@@ -1113,6 +1314,7 @@ function contextoDoMinimapa() {
     player: mundo.player,
     npcs: npcsAtivos(),
     objetos: objetosAtivos(),
+    objetivoMissao: destinoDaMissaoRastreada(),
     zonaNome: zona ? zona.nome : (masmorra ? masmorra.nome || "Masmorra" : ""),
     nivelTexto: nivel ? nivel.texto : "",
     nivelCor: ameaca ? ameaca.cor : null,
@@ -1126,6 +1328,9 @@ function estaBloqueado(x, y, grid) {
 
 function podeJogarNoMundo() {
   if (!personagem) return false;
+  if (document.body.classList.contains("com-tutorial")) return false;
+  if (document.body.classList.contains("com-cutscene")) return false;
+  if (document.body.classList.contains("desafio-encontro-ativo")) return false;
   const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
   if (modalAberto) return false;
   const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
@@ -1144,17 +1349,26 @@ function tentarInteragir() {
 }
 
 function onKeyDown(e) {
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName || "") || e.target?.isContentEditable) return;
   if (!personagem) return;
+  if (e.key === "F1") {
+    e.preventDefault();
+    if (!document.body.classList.contains("com-tutorial")) onHudAction("tutorial");
+    return;
+  }
   if (e.key === "Escape") { fecharModal(); return; }
 
   const teclasMovimento = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
   if (teclasMovimento[e.key]) {
+    e.preventDefault();
     tentarMover(...teclasMovimento[e.key]);
   } else if (e.key.toLowerCase() === "e") {
     tentarInteragir();
   } else if (e.key.toLowerCase() === "i") {
     if (podeJogarNoMundo()) onHudAction("party");
   } else if (e.key.toLowerCase() === "m") {
+    if (podeJogarNoMundo()) onHudAction("missoes");
+  } else if (e.key.toLowerCase() === "q") {
     if (podeJogarNoMundo()) onHudAction("missoes");
   } else if (e.key.toLowerCase() === "f") {
     if (podeJogarNoMundo()) onHudAction("forja");
@@ -1234,7 +1448,9 @@ function configurarControlesToque() {
 const COOLDOWN_MOVIMENTO = 130;
 function mover(dx, dy) {
   const agora = Date.now();
-  if (agora - mundo.player.ultimoMovimento < COOLDOWN_MOVIMENTO) return;
+  const tileAtual = gridAtiva()?.[mundo.player.y]?.[mundo.player.x];
+  const atrasoTerreno = tileAtual === TILE.WATER ? 1.55 : tileAtual === TILE.SAND || tileAtual === TILE.MARSH ? 1.18 : 1;
+  if (agora - mundo.player.ultimoMovimento < COOLDOWN_MOVIMENTO * atrasoTerreno) return;
   const grid = gridAtiva();
   const nx = mundo.player.x + dx;
   const ny = mundo.player.y + dy;
@@ -1302,6 +1518,17 @@ function verificarMudancaDeZona(x, y) {
     verificarLandmarks(personagem, x, y, mundo.gerado.landmarks).forEach((l) => {
       mostrarMensagem(`👁️ Você avista ao longe: ${l.nome}`, 3000);
     });
+    // Lugares só viram DESCOBERTOS quando o herói realmente chega perto.
+    // O automático usa exatamente este registro para escolher o próximo
+    // destino, então não repete cidades e marcos que já foram explorados.
+    const visitaveis = [
+      ...(mundo.gerado.assentamentos || []).map((a) => ({ ...a, alcanceDescoberta: Math.max(3, a.praca || 2) })),
+      ...(mundo.gerado.pois || []).map((p) => ({ ...p, alcanceDescoberta: 2 })),
+      ...(mundo.gerado.landmarks || []).map((l) => ({ ...l, alcanceDescoberta: 3 })),
+    ];
+    const novidades = visitaveis.filter((l) => Math.max(Math.abs(l.x - x), Math.abs(l.y - y)) <= l.alcanceDescoberta)
+      .filter((l) => promoverLocal(personagem, l.id, NEVOA.DESCOBERTO));
+    if (novidades.length) mostrarMensagem(`🧭 Lugar descoberto: ${novidades[0].nome}`, 3000);
   }
 }
 
@@ -1425,7 +1652,7 @@ function verificarEncontroAleatorio(grid, x, y) {
   // independente), pra nunca empilhar duas interrupções no mesmo passo.
   if (deveDispararEventoExploracao()) {
     const evento = sortearEventoExploracao(dados.explorationEvents, dados.skillChecks);
-    if (evento) mostrarEventoExploracao(evento, personagem, dados, facaoAtual() || "vila", () => atualizarHUD(personagem));
+    if (evento) mostrarEventoExploracao(evento, personagem, dados, facaoAtual() || "vila", atualizarInterfacePrincipal);
     return;
   }
   // Mercador Itinerante (melhoria pós-backlog, ver
@@ -1435,7 +1662,7 @@ function verificarEncontroAleatorio(grid, x, y) {
   // passo, com uma chance ainda menor (é pra ser raro topar com ele).
   if (deveAparecerMercador()) {
     const estoque = sortearEstoqueMercador(dados.travelingMerchant);
-    if (estoque.length) mostrarMercadorItinerante(estoque, personagem, dados, facaoAtual() || "vila", () => atualizarHUD(personagem));
+    if (estoque.length) mostrarMercadorItinerante(estoque, personagem, dados, facaoAtual() || "vila", atualizarInterfacePrincipal);
   }
 }
 
@@ -1474,9 +1701,16 @@ function iniciarEncontroComAmeaca(monstrosDef, levasExtras = [], onVitoria) {
     mostrarMensagem("💀 Automático evitou um encontro Mortal — inimigos muito acima do time.", 3200);
     return;
   }
+  // Painéis de configuração podem permanecer abertos enquanto o automático
+  // explora. Uma luta aceita é a única interrupção forte: fecha o painel
+  // antes da tela de ameaça/batalha para não deixar interfaces competindo.
+  // Encontro Mortal evitado acima não fecha nada.
+  if (autoPlayState.ativo && !document.getElementById("modal-overlay").classList.contains("hidden")) {
+    fecharModal();
+  }
   if (!FLAGS.ameacaPreCombate) { dispararBatalha(monstrosDef, levasExtras, onVitoria); return; }
   const time = timeAtual;
-  mostrarAmeaca(monstrosDef, time, dados, () => dispararBatalha(monstrosDef, levasExtras, onVitoria), () => mostrarMensagem("Você evitou o combate."), terrenoElementoAtual(), levasExtras.length);
+  mostrarDesafioAmeaca(monstrosDef, time, dados, () => dispararBatalha(monstrosDef, levasExtras, onVitoria), () => mostrarMensagem("Você fugiu antes que o combate começasse."), terrenoElementoAtual(), levasExtras.length);
 }
 
 function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
@@ -1518,7 +1752,7 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
     tela.classList.add("hda-batalha-saida");
     setTimeout(() => tela.classList.remove("hda-batalha-saida"), 300);
     document.getElementById("hud").classList.remove("hidden");
-    atualizarHUD(personagem);
+    atualizarInterfacePrincipal();
     // Trégua: alguns passos sem sorteio de encontro logo depois da luta
     // (ver EncounterSystem.js). Sem ela, com os grupos maiores, sair de uma
     // batalha e cair na próxima dois passos adiante fazia a masmorra virar
@@ -1578,6 +1812,49 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
 // resto, igual era antes do índice existir.
 const PRIORIDADE_INTERACAO = ["bau", "no", "npc", "chefe", "saida", "descanso"];
 
+const ACAO_TOUCH_POR_TIPO = {
+  bau: { icone: "🎁", rotulo: "Abrir" },
+  no: { icone: "⛏️", rotulo: "Coletar" },
+  npc: { icone: "💬", rotulo: "Conversar" },
+  chefe: { icone: "⚔️", rotulo: "Enfrentar" },
+  saida: { icone: "🚪", rotulo: "Sair" },
+  descanso: { icone: "🔥", rotulo: "Descansar" },
+  examinar: { icone: "🔎", rotulo: "Examinar" },
+  nenhuma: { icone: "✦", rotulo: "Ação" },
+};
+
+// Traduz o objeto de mundo em linguagem de ação. É intencionalmente separado
+// de interagir(): consultar o rótulo a cada frame nunca executa nem altera a
+// interação, portanto o automático continua com o mesmo fluxo.
+function contextoInteracaoProxima() {
+  const alvo = objetoInteragivelProximo();
+  let tipo = alvo?.tipo || "nenhuma";
+  let textoTeclado = alvo ? `Pressione E para ${ACAO_TOUCH_POR_TIPO[tipo]?.rotulo.toLowerCase() || "interagir"}` : null;
+  if (!alvo) {
+    const local = localDaInvestigacao();
+    if (podeInvestigarElric(personagem, local) || podeExaminarPortaAltaverde(personagem, local)) {
+      tipo = "examinar";
+      textoTeclado = "Pressione E para examinar";
+    }
+  }
+  return { tipo, textoTeclado, ...(ACAO_TOUCH_POR_TIPO[tipo] || ACAO_TOUCH_POR_TIPO.nenhuma) };
+}
+
+let ultimaAcaoTouch = "";
+function atualizarBotaoAcaoTouch(contexto) {
+  const btn = document.getElementById("touch-acao");
+  if (!btn) return;
+  const chave = `${contexto.tipo}:${contexto.icone}:${contexto.rotulo}`;
+  if (chave === ultimaAcaoTouch) return;
+  ultimaAcaoTouch = chave;
+  btn.dataset.acao = contexto.tipo;
+  btn.setAttribute("aria-label", contexto.tipo === "nenhuma" ? "Ação contextual; aproxime-se de algo" : contexto.rotulo);
+  const icone = btn.querySelector(".touch-acao-icone");
+  const rotulo = btn.querySelector(".touch-acao-rotulo");
+  if (icone) icone.textContent = contexto.icone;
+  if (rotulo) rotulo.textContent = contexto.rotulo;
+}
+
 // Agora consulta só os chunks que o quadrado de raio 1 encosta (ver
 // ChunkSystem.js), em vez de varrer as listas inteiras do mundo. A ordem de
 // prioridade acima é aplicada explicitamente — antes ela era implícita na
@@ -1621,7 +1898,7 @@ function equiparAutomatico(atrasoAviso = 1200) {
   // que nunca acontece sozinha — vira cartão e o jogador decide.
   verificarCartoes("item", atrasoAviso);
   if (!acoes.length) return acoes;
-  atualizarHUD(personagem);
+  atualizarInterfacePrincipal();
   const texto = `🎽 Equipado: ${textoAcoesEquipamento(acoes, personagem)}`;
   if (atrasoAviso > 0) setTimeout(() => mostrarMensagem(texto, 3000), atrasoAviso);
   else mostrarMensagem(texto, 3000);
@@ -1644,7 +1921,7 @@ function verificarCartoes(momento, atraso = 900, extras = {}) {
       abrir: {
         arvore: () => onHudAction("arvore"),
         caminhos: () => onHudAction("caminhos"),
-        forja: (aba) => montarForja(personagem, dados, () => atualizarHUD(personagem), aba),
+        forja: (aba) => montarForja(personagem, dados, atualizarInterfacePrincipal, aba),
       },
     });
     cartoes.forEach((c) => enfileirar(personagem, c));
@@ -1677,9 +1954,17 @@ function abrirBau(alvo, porQuem = null) {
   }
   let msgTeste = "";
   if (tabela) {
-    const item = sortearLoot(tabela.pool, dados.items.itens);
+    const abencoado = (personagem.bausAbençoados || 0) > 0;
+    if (abencoado) personagem.bausAbençoados -= 1;
+    const quantidadeBase = alvo.ref.tier === "bau_lendario" ? 3 : alvo.ref.tier === "bau_epico" ? 3 : 2;
+    const itensGanhos = [];
+    for (let i = 0; i < quantidadeBase + (abencoado ? 1 : 0); i += 1) {
+      const sorteado = sortearLoot(tabela.pool, dados.items.itens);
+      if (sorteado) itensGanhos.push(sorteado);
+    }
+    const item = itensGanhos[0];
     if (item) {
-      personagem.inventario.push({ ...item, uid: "id_" + Math.random().toString(36).slice(2, 10) });
+      itensGanhos.forEach((ganho) => personagem.inventario.push({ ...ganho, uid: "id_" + Math.random().toString(36).slice(2, 10) }));
       // Teste de perícia opcional (Furtividade): sucesso encontra um item
       // extra no mesmo baú — ver skillChecks.json, contexto "bau".
       const [testeBau] = testesDoContexto(dados.skillChecks, "bau");
@@ -1689,12 +1974,23 @@ function abrirBau(alvo, porQuem = null) {
           const extra = sortearLoot(tabela.pool, dados.items.itens);
           if (extra) {
             personagem.inventario.push({ ...extra, uid: "id_" + Math.random().toString(36).slice(2, 10) });
+            itensGanhos.push(extra);
             msgTeste = ` 🎲 ${testeBau.textoSucesso} (+${extra.nome})`;
           }
         }
       }
+      const ouroBase = { bau_comum: 45, bau_raro: 90, bau_epico: 170, bau_lendario: 300 }[alvo.ref.tier] || 45;
+      const ouroGanho = Math.round(ouroBase * (1 + Math.max(0, (personagem.nivel || 1) - 1) * 0.08) * (abencoado ? 1.35 : 1));
+      personagem.ouro = (personagem.ouro || 0) + ouroGanho;
       const abertura = porQuem ? `🐾 ${porQuem} abriu um baú e trouxe:` : "Baú aberto! Você encontrou:";
-      mostrarMensagem(`${abertura} ${item.nome}${msgFragmentos}${msgTeste}`, msgTeste ? 4200 : 2200);
+      mostrarMensagem(`${abertura} ${itensGanhos.length} itens e ${ouroGanho} de ouro${msgFragmentos}${msgTeste}`, 3600);
+      celebrarRecompensa({
+        titulo: alvo.ref.tier === "bau_lendario" ? "Tesouro lendário!" : "Tesouro conquistado!",
+        itens: itensGanhos,
+        ouro: ouroGanho,
+        fragmentos: msgFragmentos ? FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA : 0,
+        abencoado,
+      });
     }
   }
   equiparAutomatico(msgTeste ? 4400 : 2400);
@@ -1765,7 +2061,7 @@ function interagir() {
         registrarEncontroRecorrente(personagem, alvo.ref.id, mundo.macroAtualId);
       }
     }
-    montarDialogo(alvo.ref, dados, personagem, () => atualizarHUD(personagem), contextoDeNpc());
+    montarDialogo(alvo.ref, dados, personagem, atualizarInterfacePrincipal, contextoDeNpc());
   } else if (alvo.tipo === "chefe") {
     const def = dados.monsters.find((m) => m.id === alvo.ref.monstroId);
     // Ao vencer, o chefe some do mapa por RESPAWN_CHEFE_MS antes de renascer —
@@ -1809,14 +2105,14 @@ function sairDaMasmorra() {
 function onHudAction(action) {
   // O `contexto` ({ dados, time }) é o que liga o painel de equipamento
   // automático dentro da tela — sem ele o inventário abre igual a antes.
-  if (action === "inventario") montarInventario(personagem, () => atualizarHUD(personagem), personagem, null, null, { dados, time: [personagem, ...membrosDoTime(personagem)] });
-  else if (action === "party") montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, () => atualizarHUD(personagem));
+  if (action === "inventario") montarInventario(personagem, atualizarInterfacePrincipal, personagem, null, null, { dados, time: [personagem, ...membrosDoTime(personagem)] });
+  else if (action === "party") montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, atualizarInterfacePrincipal);
   else if (action === "missoes") montarMissoes(personagem, dados);
-  else if (action === "forja") montarForja(personagem, dados, () => atualizarHUD(personagem));
+  else if (action === "forja") montarForja(personagem, dados, atualizarInterfacePrincipal);
   else if (action === "salvar") salvarProgresso();
-  else if (action === "gacha") montarGacha(personagem, dados, () => atualizarHUD(personagem));
-  else if (action === "arvore") montarArvoreHabilidades(personagem, dados, () => atualizarHUD(personagem));
-  else if (action === "caminhos") montarCaminhoHerdeiro(personagem, dados, () => atualizarHUD(personagem));
+  else if (action === "gacha") montarGacha(personagem, dados, atualizarInterfacePrincipal);
+  else if (action === "arvore") abrirProgressaoDoHeroi("habilidades");
+  else if (action === "caminhos") abrirProgressaoDoHeroi("heranca");
   else if (action === "compendio") montarCompendio(personagem, dados);
   else if (action === "viagem") abrirViagemRapida();
   else if (action === "atlas") abrirAtlas();
@@ -1827,6 +2123,18 @@ function onHudAction(action) {
   else if (action === "diario") montarDiarioDeDecisoes(personagem, dados);
   else if (action === "descansar") descansarTime();
   else if (action === "sair_masmorra") sairDaMasmorra();
+  else if (action === "tutorial") abrirTutorialInicial(personagem, dados, { aoEncerrar: () => salvarProgresso({ silencioso: true }) });
+}
+
+// Habilidades de classe, cards equipados e Herança pertencem à mesma etapa
+// de progressão. As duas UIs continuam independentes por dentro, mas agora
+// compartilham uma navegação única e preservam o mesmo callback de mudança.
+function abrirProgressaoDoHeroi(secao = "habilidades") {
+  const aoMudar = atualizarInterfacePrincipal;
+  const abrirHabilidades = () => montarArvoreHabilidades(personagem, dados, aoMudar, null, { abrirHeranca });
+  const abrirHeranca = () => montarCaminhoHerdeiro(personagem, dados, aoMudar, { abrirHabilidades });
+  if (secao === "heranca") abrirHeranca();
+  else abrirHabilidades();
 }
 
 // Descansar (pedido do jogador): restaura HP e MP máximos do time inteiro
@@ -1842,6 +2150,7 @@ function descansarTime({ silencioso = false } = {}) {
   const permissao = podeDescansar({
     zona: mundo.mapaAtual === "overworld" ? zonaNoPonto(mundo.player.x, mundo.player.y) : null,
     pontos: pontosDescansoAtuais(),
+    assentamentos: mundo.mapaAtual === "overworld" ? (mundo.gerado?.assentamentos || []) : [],
     x: mundo.player.x,
     y: mundo.player.y,
   });
@@ -1851,7 +2160,7 @@ function descansarTime({ silencioso = false } = {}) {
   }
   const time = [personagem, ...membrosDoTime(personagem)];
   descansar(time);
-  atualizarHUD(personagem);
+  atualizarInterfacePrincipal();
   if (!silencioso) mostrarMensagem(`💤 ${permissao.motivo} HP e MP restaurados.`, 3200);
   return true;
 }
@@ -1918,6 +2227,7 @@ function abrirMapaMundo() {
     mapaAtual: mundo.mapaAtual,
     zonaAtualId: mundo.zonaAtualId,
     jogador: mundo.player,
+    objetivoMissao: destinoDaMissaoRastreada({ paraMapaMundo: true }),
     onViajar: (zonaId) => viajarParaZona(zonaId),
   });
 }
@@ -2053,7 +2363,7 @@ function cuidarDoTimeAutomatico() {
     return false; // sem_recurso: quem decide é a regra de parada abaixo
   }
 
-  atualizarHUD(personagem);
+  atualizarInterfacePrincipal();
   mostrarMensagem(textoCuidado(plano, personagem), 2200);
   autoSalvarSeAutomatico();
   return true;
@@ -2091,8 +2401,22 @@ function autoPlayDevePararPorHpBaixo() {
 
 function tickAutoPlay() {
   if (!autoPlayState.ativo || !personagem) return;
+  if (document.body.classList.contains("desafio-encontro-ativo") || document.querySelector(".rolagem-camada")) return;
   const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
   if (emBatalha) return; // a própria batalha se resolve sozinha (ver BattleUI.js)
+
+  // Os menus laterais são uma camada de configuração, não uma pausa. Enquanto
+  // um deles está expandido o herói continua viajando, porém não conversa,
+  // coleta nem abre outra interface por cima do que o jogador está ajustando.
+  // `mover()` ainda detecta encontros normalmente; a própria entrada na luta
+  // é o único fluxo autorizado a recolher o painel.
+  const painelLateralAberto = !!document.querySelector(
+    ".hud-aba.ativa:not(.hud-aba-auto), .hud-aba[aria-expanded='true']:not(.hud-aba-auto)",
+  );
+  if (painelLateralAberto) {
+    autoAndar({ somenteExploracao: true });
+    return;
+  }
 
   // Cuidar vem ANTES de qualquer outra coisa: não adianta abrir baú com o
   // time em pé de guerra. Com a opção ligada (padrão) isso na prática torna
@@ -2109,6 +2433,9 @@ function tickAutoPlay() {
 
   const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
   if (modalAberto) {
+    // Caixas narrativas ficam legíveis por quatro segundos. Durante esse
+    // período nenhum outro clique automático, evento ou desafio as substitui.
+    if (!interacaoAutomaticaPronta()) return;
     const aceitar = document.querySelector(".btn-aceitar");
     if (aceitar) { aceitar.click(); autoSalvarSeAutomatico(); return; }
     const entregar = document.querySelector(".btn-entregar:not([disabled])");
@@ -2127,7 +2454,21 @@ function tickAutoPlay() {
     // evita combate sozinho), senão nunca ganharia XP nem avançaria.
     const lutar = document.querySelector(".btn-lutar");
     if (lutar) { lutar.click(); return; }
-    fecharModal();
+    // Diálogo puramente informativo (ou interação sem ação disponível):
+    // depois dos mesmos quatro segundos, fecha de fato. Antes ele ficava
+    // preso na tela enquanto o herói continuava andando por baixo.
+    const interacaoNarrativa = document.querySelector("#modal-conteudo[data-interacao='true']");
+    if (interacaoNarrativa) {
+      fecharModal();
+      autoAndar();
+      return;
+    }
+    // Inventário, árvore, Herança e demais painéis de configuração ficam
+    // abertos enquanto o mundo anda ao fundo. Nesse estado o automático
+    // busca lugares ainda não visitados, sem substituir o painel por diálogos,
+    // baús ou lojas. Um encontro aleatório chama iniciarEncontroComAmeaca(),
+    // que fecha o painel e entrega a tela ao combate.
+    autoAndar({ somenteExploracao: true });
     return;
   }
 
@@ -2140,7 +2481,7 @@ function tickAutoPlay() {
   if (proximoNo) {
     const r = escolherNo(personagem, dados, proximoNo.id);
     if (r.ok) {
-      atualizarHUD(personagem);
+      atualizarInterfacePrincipal();
       mostrarMensagem(`🌟 Ponto de habilidade gasto: ${proximoNo.nome} (restam ${r.pontosRestantes})`);
       autoSalvarSeAutomatico();
     }
@@ -2218,13 +2559,19 @@ function masmorraTemAlgoAFazer(id, m) {
   return chefeDaMasmorraDisponivel(m) && !pararAutoAntesDoChefe() && !chefeMortalDemais(m.boss);
 }
 
-function alvosAutoExploracao() {
+function alvosAutoExploracao({ somenteExploracao = false } = {}) {
   const alvos = [];
   // Ferido e sem poção: a fogueira entra na lista com a maior prioridade de
   // todas. Fora desse caso ela nem aparece — não faz sentido o automático
   // ir descansar de HP cheio.
   if (precisaIrDescansar()) {
     pontosDescansoAtuais().forEach((f) => alvos.push({ x: f.x, y: f.y, tipo: "descanso", prioridade: PRIORIDADE.descanso }));
+    if (mundo.mapaAtual === "overworld") {
+      (mundo.gerado?.assentamentos || []).filter((a) => a.categoria !== "ACAMPAMENTO").forEach((a) => {
+        const d = a.descanso || a;
+        alvos.push({ x: d.x, y: d.y, tipo: "descanso", prioridade: PRIORIDADE.descanso, pesoDistancia: .35 });
+      });
+    }
   }
   if (mundo.mapaAtual === "overworld") {
     mundo.chests.forEach((c) => { if (!c.aberto) alvos.push({ x: c.x, y: c.y, tipo: "bau", prioridade: PRIORIDADE.bau }); });
@@ -2238,6 +2585,24 @@ function alvosAutoExploracao() {
         if (chefeDisponivel(c) && !chefeMortalDemais(c)) alvos.push({ x: c.x, y: c.y, tipo: "chefe", prioridade: PRIORIDADE.chefe });
       });
     }
+    // Intenção de exploração: lugares ainda não visitados entram como alvo
+    // persistente. A distância pesa menos aqui, para o herói aceitar uma
+    // viagem longa, mas baús e masmorras no caminho continuam prioritários.
+    const locais = [
+      ...(mundo.gerado?.assentamentos || []),
+      ...(mundo.gerado?.pois || []),
+      ...(mundo.gerado?.landmarks || []),
+    ];
+    locais.filter((l) => ![NEVOA.DESCOBERTO, NEVOA.DOMINADO].includes(estadoDoLocal(personagem, l.id)))
+      .forEach((l) => alvos.push({
+        x: l.x, y: l.y, tipo: "explorar", prioridade: PRIORIDADE.explorar,
+        pesoDistancia: .18, exigeMesmoTile: false, localId: l.id,
+      }));
+    ZONAS.filter((z) => ![NEVOA.DESCOBERTO, NEVOA.DOMINADO].includes(estadoDaZona(personagem, z.id)))
+      .forEach((z) => {
+        const p = pontoDeChegada(z);
+        alvos.push({ x: p.x, y: p.y, tipo: "explorar", prioridade: PRIORIDADE.explorar - 4, pesoDistancia: .16, exigeMesmoTile: true, zonaId: z.id });
+      });
     // NPC já conversado nesta parada vira alvo inválido — mesma trava que
     // tickAutoPlay() usa pra não ficar preso num diálogo em looping. As
     // posições vêm das vagas que o gerador abriu na praça da vila.
@@ -2258,7 +2623,7 @@ function alvosAutoExploracao() {
       alvos.push({ x: m.exitZone.x0, y: m.exitZone.y0, tipo: "saida", prioridade: PRIORIDADE.saida, exigeMesmoTile: true });
     }
   }
-  return alvos;
+  return somenteExploracao ? alvos.filter((alvo) => alvo.tipo === "explorar") : alvos;
 }
 
 // Passeio aleatório de antes — continua existindo como PLANO B, pra quando
@@ -2272,21 +2637,21 @@ function autoAndarAleatorio() {
     const [dx, dy] = direcaoAuto;
     const nx = mundo.player.x + dx, ny = mundo.player.y + dy;
     if (!estaBloqueado(nx, ny, grid) && Math.random() < 0.75) {
-      tentarMover(dx, dy);
+      mover(dx, dy);
       return;
     }
   }
   const opcoes = direcoes.filter(([dx, dy]) => !estaBloqueado(mundo.player.x + dx, mundo.player.y + dy, grid));
   if (!opcoes.length) return;
   direcaoAuto = opcoes[Math.floor(Math.random() * opcoes.length)];
-  tentarMover(...direcaoAuto);
+  mover(...direcaoAuto);
 }
 
-function autoAndar() {
+function autoAndar({ somenteExploracao = false } = {}) {
   const grid = gridAtiva();
   const decisao = decidirPassoExploracao({
     origem: { x: mundo.player.x, y: mundo.player.y },
-    alvos: alvosAutoExploracao(),
+    alvos: alvosAutoExploracao({ somenteExploracao }),
     // Dimensões tiradas da própria grade, não das constantes por mapa —
     // assim overworld/dungeon1/dungeon2 usam o mesmo caminho de código e
     // uma masmorra nova funciona sem tocar aqui.
@@ -2300,7 +2665,10 @@ function autoAndar() {
     // ou o chefe entrado em cooldown), o plano B continua de onde parou em
     // vez de dar um passo pra trás.
     direcaoAuto = decisao.passo;
-    tentarMover(decisao.passo[0], decisao.passo[1]);
+    // Movimento automático não passa pelo bloqueio de input manual dos
+    // modais. A batalha continua sendo bloqueada acima e mover() ainda
+    // aplica colisão, terreno, transições e encontros normalmente.
+    mover(decisao.passo[0], decisao.passo[1]);
     return;
   }
   autoAndarAleatorio();

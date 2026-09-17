@@ -1136,14 +1136,16 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
   align-items: center;
   gap: clamp(6px, 1.5vw, 18px);
   padding: calc(4px + var(--hda-safe-top, 0px)) clamp(8px, 2vw, 20px) 4px;
-  background: linear-gradient(180deg, rgba(10, 8, 10, 0.94), rgba(10, 8, 10, 0.72));
+  background: linear-gradient(180deg, rgba(17, 13, 18, 0.98), rgba(10, 8, 10, 0.82));
   border-bottom: 1px solid var(--hda-line, #4a3a26);
+  box-shadow: 0 5px 18px rgba(0,0,0,.38), inset 0 -1px rgba(245,165,36,.1);
   min-height: 46px;
 }
 .bt-header-local { display: flex; flex-direction: column; min-width: 0; }
 .bt-header-nome {
   font-size: 0.92em; color: var(--hda-gold, #f5a524); font-weight: bold;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 0 #000, 0 0 12px rgba(245,165,36,.2);
 }
 .bt-header-desc {
   font-size: 0.68em; color: var(--hda-muted, #c8b89a); font-style: italic;
@@ -1164,6 +1166,12 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
 
 /* ---- 2. Campo --------------------------------------------------------- */
 .bt-field { position: relative; overflow: hidden; min-height: 0; }
+.bt-field::after {
+  content: ""; position: absolute; left: 4%; right: 4%; bottom: 8%; height: 18%;
+  pointer-events: none; z-index: 2; opacity: .42;
+  background: radial-gradient(ellipse at center, rgba(245,165,36,.12), transparent 62%);
+  border-bottom: 1px solid rgba(245,165,36,.15);
+}
 .bt-cena {
   position: absolute; inset: 0; width: 100%; height: 100%;
   display: block; image-rendering: pixelated;
@@ -1200,13 +1208,14 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
   display: flex; flex-direction: column; align-items: center;
   justify-content: flex-end; gap: 1px;
   padding: 2px; overflow: hidden;
+  transition: filter .16s ease, opacity .16s ease;
 }
 .bt-row-inimigos .bt-slot .combatente { justify-content: flex-start; }
 /* O sprite é a parte elástica: se o topo do card precisar de mais linhas, o
    sprite cede espaço em vez de o card crescer. */
 .bt-slot .combatente .sprite-wrap {
   flex: 1 1 auto; min-height: 0; width: auto;
-  display: flex; align-items: flex-end; justify-content: center;
+  display: flex; align-items: flex-end; justify-content: center; isolation: isolate;
 }
 /* `width:auto` + `max-width:100%` NÃO preserva proporção: quando a coluna do
    slot é estreita e alta — o caso do celular em pé — a altura ia a 100% e a
@@ -1218,6 +1227,9 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
   width: 100%; height: 100%;
   max-height: 100%; max-width: 100%;
   object-fit: contain; object-position: center bottom;
+  transform: translateY(3px);
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,.35));
+  transition: transform .16s ease, filter .16s ease;
 }
 .bt-slot .combatente > .nome-c {
   flex: 0 0 auto; max-width: 100%;
@@ -1231,6 +1243,14 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
 .bt-slot .combatente .barra,
 .bt-slot .combatente .atb-barra,
 .bt-slot .combatente .postura-barra { width: min(100%, 132px); }
+.bt-slot .combatente .barra,
+.bt-slot .combatente .atb-barra {
+  overflow: hidden; border-radius: 999px; border-color: rgba(226,197,140,.42);
+  background: rgba(8,7,9,.82); box-shadow: inset 0 1px 3px rgba(0,0,0,.85), 0 1px rgba(255,255,255,.05);
+}
+.bt-slot .combatente .barra-fill.hp { background: linear-gradient(90deg,#8e232c,#dc4551 72%,#ff7c72); box-shadow: inset 0 1px rgba(255,255,255,.18),0 0 5px rgba(224,85,85,.24); }
+.bt-slot .combatente .barra-fill.mp { background: linear-gradient(90deg,#273d9c,#557eea 72%,#8eb8ff); }
+.bt-slot .combatente .atb-fill { background: linear-gradient(90deg,#287747,#55d57c 72%,#b8f39a); box-shadow:0 0 5px rgba(78,203,113,.32); }
 .bt-slot .combatente .formacao-linha {
   max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -1238,11 +1258,21 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
 /* Sombra de chão: ancora o sprite no cenário em vez de deixá-lo flutuando. */
 .bt-slot .combatente .sprite-wrap::after {
   content: ""; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
-  width: 56%; height: 8px; border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
-  pointer-events: none;
+  width: 62%; height: 11px; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,.74), rgba(0,0,0,0) 75%);
+  box-shadow: 0 0 8px rgba(245,165,36,.12);
+  pointer-events: none; z-index: -1;
 }
 .bt-slot .combatente .sprite-wrap { position: relative; }
+.bt-slot .combatente:not(.morto) .sprite-wrap:hover .sprite-canvas { transform: translateY(0) scale(1.035); filter: drop-shadow(0 5px 5px rgba(0,0,0,.45)) saturate(1.1); }
+.bt-slot .combatente.alvo-confirmado .sprite-wrap::after { background: radial-gradient(ellipse at center,rgba(170,35,35,.8),rgba(100,0,0,.18) 55%,transparent 78%); box-shadow:0 0 13px rgba(224,85,85,.5); }
+.bt-slot .combatente.alvo-confirmado .sprite-canvas { filter:drop-shadow(0 0 5px rgba(255,105,90,.72)) drop-shadow(0 5px 3px rgba(0,0,0,.45)); }
+.bt-slot .combatente.ativo .sprite-wrap::before { content:"";position:absolute;inset:8%;border:1px solid rgba(245,165,36,.55);border-radius:50%;animation:arena-anel-ativo 1.4s ease-in-out infinite;pointer-events:none; }
+@keyframes arena-anel-ativo { 0%,100%{opacity:.25;transform:scale(.9)} 50%{opacity:.8;transform:scale(1.04)} }
+@media (prefers-reduced-motion: reduce) {
+  .bt-slot .combatente.ativo .sprite-wrap::before { animation:none; opacity:.55; }
+  .bt-slot .combatente .sprite-canvas { transition:none; }
+}
 /* Derrotado: o slot continua ali, o combatente é que apaga. */
 .bt-slot .combatente.morto { opacity: 0.32; filter: grayscale(1); }
 .bt-slot .combatente.morto .sprite-wrap { transform: translateY(6px) scaleY(0.86); }
@@ -1267,8 +1297,9 @@ body.alto-contraste .carta-detalhe { background: #000 !important; border-color: 
   align-items: center; gap: 8px;
   padding: 3px clamp(8px, 2vw, 20px);
   min-height: 34px;
-  background: rgba(10, 8, 10, 0.9);
+  background: linear-gradient(180deg, rgba(16,12,17,.94), rgba(7,6,8,.98));
   border-top: 1px solid var(--hda-line, #4a3a26);
+  box-shadow: 0 -5px 18px rgba(0,0,0,.28);
 }
 .bt-timeline { display: flex; align-items: center; gap: 4px; overflow: hidden; }
 .bt-timeline .tl-item {

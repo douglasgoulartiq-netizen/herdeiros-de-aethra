@@ -19,15 +19,55 @@ import { estadoGachaInicial } from "./GachaSystem.js";
 import { SEMENTE_LEGADO } from "./WorldSeed.js";
 import { zonaNoPonto, OVERWORLD_SPAWN, OVERWORLD_W, OVERWORLD_H } from "../data/worldMap.js";
 import { macroDaZona } from "../data/worldHierarchy.js";
+import { NIVEL_MAXIMO_PERSONAGEM, xpParaNivel } from "./CharacterFactory.js";
 
 const SAVE_KEY = "rpg_pt_save_v1";
+const SLOT_PREFIXO = "rpg_pt_save_slot_";
+const SLOT_ATIVO_KEY = "rpg_pt_save_slot_ativo";
+export const TOTAL_SLOTS_SAVE = 4;
+
+export function slotAtivo() {
+  const n = Number(localStorage.getItem(SLOT_ATIVO_KEY) || 1);
+  return n >= 1 && n <= TOTAL_SLOTS_SAVE ? n : 1;
+}
+
+export function selecionarSlot(numero) {
+  const n = Math.max(1, Math.min(TOTAL_SLOTS_SAVE, Number(numero) || 1));
+  localStorage.setItem(SLOT_ATIVO_KEY, String(n));
+  return n;
+}
+
+function chaveDoSlot(numero) { return `${SLOT_PREFIXO}${numero}`; }
+
+function migrarSaveLegadoParaSlots() {
+  const antigo = localStorage.getItem(SAVE_KEY);
+  if (antigo && !localStorage.getItem(chaveDoSlot(1))) localStorage.setItem(chaveDoSlot(1), antigo);
+  // Depois de migrado, o save antigo não pode ressuscitar quando o jogador
+  // apagar o Slot 1. A chave única deixa de ser fonte de verdade.
+  if (antigo) localStorage.removeItem(SAVE_KEY);
+}
+
+export function listarSlots() {
+  migrarSaveLegadoParaSlots();
+  return Array.from({ length: TOTAL_SLOTS_SAVE }, (_, i) => {
+    const numero = i + 1;
+    try {
+      const raw = localStorage.getItem(chaveDoSlot(numero));
+      if (!raw) return { numero, vazio: true };
+      const salvo = migrarSave(JSON.parse(raw));
+      const p = salvo.personagem || {};
+      return { numero, vazio: false, nome: p.nome || "Herdeiro", nivel: p.nivel || 1,
+        classeId: p.classeId || "", racaId: p.racaId || "", atualizadoEm: salvo.salvoEm || null };
+    } catch (_) { return { numero, vazio: true, corrompido: true }; }
+  });
+}
 
 // Versão do FORMATO de save (não é versão do jogo) — sobe 1 sempre que um
 // campo novo precisa de valor padrão pra um save antigo carregar sem
 // quebrar. Cada migração vira uma função NOVA no array MIGRACOES abaixo,
 // nunca uma edição numa já existente — o histórico de migrações fica
 // preservado e legível, igual um changelog.
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 9;
 
 // Versão do LAYOUT do mundo. Diferente de saveVersion: esta sobe quando o
 // mapa muda de forma a ponto de uma coordenada antiga não querer dizer mais
@@ -246,6 +286,27 @@ const MIGRACOES = [
       if (m.worldStateRegional[chave] === undefined) m.worldStateRegional[chave] = valor;
     });
   },
+  // v7 -> v8: tutorial inicial opcional e repetível. Saves antigos não são
+  // interrompidos ao carregar: o estado nasce disponível no menu Mais; só
+  // um personagem recém-criado recebe a oferta automática em main.js.
+  (salvo) => {
+    const p = salvo.personagem;
+    if (!p.tutorialInicial || typeof p.tutorialInicial !== "object") {
+      p.tutorialInicial = { status: "nao_iniciado", etapa: 0, versao: 1 };
+    }
+  },
+  // v8 -> v9: progressão curta até o nível 25. Saves experimentais que já
+  // passaram desse teto são normalizados sem perder inventário ou roster.
+  (salvo) => {
+    const p = salvo.personagem;
+    [p, ...((p.gacha && p.gacha.personagensObtidos) || [])].forEach((membro) => {
+      if ((membro.nivel || 1) >= NIVEL_MAXIMO_PERSONAGEM) {
+        membro.nivel = NIVEL_MAXIMO_PERSONAGEM;
+        membro.xp = 0;
+        membro.xpProximo = xpParaNivel(NIVEL_MAXIMO_PERSONAGEM);
+      }
+    });
+  },
 ];
 
 // Migra um save carregado pro formato atual — idempotente (rodar duas vezes
@@ -263,7 +324,7 @@ export function migrarSave(salvo) {
   return salvo;
 }
 
-export function salvarJogo(estado) {
+export function salvarJogo(estado, numeroSlot = slotAtivo()) {
   try {
     // Migra (não só carimba o número): na prática `estado` já vem do
     // `personagem`/`mundo` vivos, que só existem em memória depois de
@@ -273,7 +334,8 @@ export function salvarJogo(estado) {
     // objeto que ainda não passou por um load (ex.: um save importado, ou
     // um teste). Idempotente e barato — nunca reescreve o que já existe.
     migrarSave(estado);
-    localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
+    estado.salvoEm = Date.now();
+    localStorage.setItem(chaveDoSlot(selecionarSlot(numeroSlot)), JSON.stringify(estado));
     return true;
   } catch (e) {
     console.error("Falha ao salvar:", e);
@@ -281,9 +343,10 @@ export function salvarJogo(estado) {
   }
 }
 
-export function carregarJogo() {
+export function carregarJogo(numeroSlot = slotAtivo()) {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    migrarSaveLegadoParaSlots();
+    const raw = localStorage.getItem(chaveDoSlot(numeroSlot));
     if (!raw) return null;
     return migrarSave(JSON.parse(raw));
   } catch (e) {
@@ -292,10 +355,11 @@ export function carregarJogo() {
   }
 }
 
-export function existeSave() {
-  return localStorage.getItem(SAVE_KEY) !== null;
+export function existeSave(numeroSlot = slotAtivo()) {
+  migrarSaveLegadoParaSlots();
+  return localStorage.getItem(chaveDoSlot(numeroSlot)) !== null;
 }
 
-export function apagarSave() {
-  localStorage.removeItem(SAVE_KEY);
+export function apagarSave(numeroSlot = slotAtivo()) {
+  localStorage.removeItem(chaveDoSlot(numeroSlot));
 }

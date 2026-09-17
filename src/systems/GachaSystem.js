@@ -301,6 +301,24 @@ export function membrosDoTime(personagem) {
     .slice(0, MAX_CONVOCADOS_GACHA);
 }
 
+// Convocados em campo recebem XP integral pelo fluxo de BattleUI. Os que
+// ficaram na coleção acompanham a campanha com 35% como treino de reserva:
+// continuam evoluindo, mas montar e usar o personagem ainda é mais rápido.
+export const FRACAO_XP_RESERVA = 0.35;
+export function concederXPReservas(personagem, xpDaBatalha, dados, fracao = FRACAO_XP_RESERVA) {
+  const g = garantirEstadoGacha(personagem);
+  const ativos = new Set(g.timeAtivo || []);
+  const xpReserva = Math.max(0, Math.round((Number(xpDaBatalha) || 0) * fracao));
+  if (!xpReserva) return [];
+  return g.personagensObtidos
+    .filter((membro) => !ativos.has(membro.uid))
+    .map((membro) => {
+      const resultado = ganharXP(membro, xpReserva);
+      resultado.subiuNivel.forEach(() => aplicarCrescimento(membro, dados));
+      return { membro, ...resultado };
+    });
+}
+
 export function adicionarFragmentos(personagem, valor) {
   const g = garantirEstadoGacha(personagem);
   g.fragmentos += Math.max(0, Math.round(valor));

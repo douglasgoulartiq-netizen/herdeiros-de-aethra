@@ -205,12 +205,13 @@ function painelCards(personagem) {
 // e trocar de aba não pode zerar quando o jogador compra um nó.
 let abaAtual = "arvore";
 
-export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) {
+export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, opcoes = {}) {
   garantirCSS();
   garantirEstadoArvore(personagem);
   garantirLoadout(personagem);
   if (aba) abaAtual = aba;
   overlay().classList.remove("hidden");
+  conteudo().classList.remove("arvore-caminhos", "arvore-so-heranca");
 
   const nos = arvoreDaClasse(personagem, dados);
   const ramos = ramosDaClasse(personagem, dados);
@@ -261,6 +262,10 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) 
   const naMao = habilidadesEquipadas(personagem).length;
   conteudo().innerHTML = `
     <button class="fechar">Fechar (Esc)</button>
+    <nav class="progressao-heroi-nav" aria-label="Progressão do herói">
+      <button class="ativo" type="button">🌳 Habilidades e cards</button>
+      ${opcoes.abrirHeranca ? '<button type="button" data-progressao-heranca>💠 Caminhos e Herança</button>' : ""}
+    </nav>
     <h2>Habilidades — ${escapar(personagem.classeNome)}</h2>
     <div class="arv-abas">
       <button class="arv-aba ${abaAtual === "arvore" ? "ativa" : ""}" data-aba="arvore">🌳 Árvore${disponiveis > 0 ? ` · ${disponiveis} pt` : ""}</button>
@@ -270,8 +275,10 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) 
   `;
 
   conteudo().querySelector(".fechar").onclick = fecharModalLocal;
+  const btnHeranca = conteudo().querySelector("[data-progressao-heranca]");
+  if (btnHeranca) btnHeranca.onclick = opcoes.abrirHeranca;
   conteudo().querySelectorAll(".arv-aba").forEach((b) => {
-    b.onclick = () => montarArvoreHabilidades(personagem, dados, onMudar, b.dataset.aba);
+    b.onclick = () => montarArvoreHabilidades(personagem, dados, onMudar, b.dataset.aba, opcoes);
   });
 
   // Aba de cards: ligar/desligar e reordenar. Um clique recusado escreve o
@@ -283,13 +290,13 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) 
       const r = alternarCard(personagem, b.dataset.alternar);
       if (!r.ok) { if (aviso) aviso.textContent = `⚠️ ${r.motivo}`; return; }
       onMudar();
-      montarArvoreHabilidades(personagem, dados, onMudar);
+      montarArvoreHabilidades(personagem, dados, onMudar, null, opcoes);
     };
   });
   conteudo().querySelectorAll("[data-mover]").forEach((b) => {
     b.onclick = () => {
       if (moverCard(personagem, b.dataset.mover, Number(b.dataset.dir)).ok) {
-        montarArvoreHabilidades(personagem, dados, onMudar);
+        montarArvoreHabilidades(personagem, dados, onMudar, null, opcoes);
       }
     };
   });
@@ -298,7 +305,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) 
     el.onclick = () => {
       const r = escolherNo(personagem, dados, el.dataset.no);
       if (r.ok) onMudar();
-      montarArvoreHabilidades(personagem, dados, onMudar);
+      montarArvoreHabilidades(personagem, dados, onMudar, null, opcoes);
     };
   });
 
@@ -314,7 +321,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null) 
       }
       const r = resetarArvore(personagem, dados);
       if (r.ok) onMudar();
-      montarArvoreHabilidades(personagem, dados, onMudar);
+      montarArvoreHabilidades(personagem, dados, onMudar, null, opcoes);
     };
   }
 }

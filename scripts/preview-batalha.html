@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<base href="../" />
 <title>HDA — batalha real (bancada de integração)</title>
 <link rel="stylesheet" href="../src/style.css" />
 <link rel="stylesheet" href="../src/battle-cards.css" />
+<link rel="stylesheet" href="../src/revelacoes.css" />
+<link rel="stylesheet" href="../src/efeitos-combate.css" />
+<link rel="stylesheet" href="../src/batalha-layout.css" />
+<link rel="stylesheet" href="../src/animacoes-polimento.css" />
+<link rel="stylesheet" href="../src/design-polimento.css" />
+<link rel="stylesheet" href="../src/combate-conforto.css" />
+<link rel="stylesheet" href="../src/premium-polimento.css" />
 </head>
 <body>
 <div id="app">
@@ -20,7 +28,7 @@
 // intenções, prévia na arena e a mão de cards.
 //
 // Não faz parte do jogo: nada em src/ importa este arquivo.
-import { carregarDados } from "../src/data/loader.js";
+import { carregarDados, carregarTodasImagens } from "../src/data/loader.js";
 import { criarPersonagem } from "../src/systems/CharacterFactory.js";
 import { iniciarBatalha } from "../src/ui/BattleUI.js";
 
@@ -35,6 +43,7 @@ const baseFetch = window.fetch.bind(window);
 window.fetch = (url, ...resto) => baseFetch(String(url).startsWith("./src/") ? `.${url}` : url, ...resto);
 
 const dados = await carregarDados();
+const imagens = await carregarTodasImagens(dados);
 const personagem = criarPersonagem({ nome: "Aric", raca: "humano", classe: "guerreiro", antecedente: dados.backgrounds[0].id, traco: dados.traits[0].id }, dados);
 // ?nivel=20&chefe=1 permite forçar cenários específicos a partir do teste
 // automatizado (ex.: um time forte o bastante para quebrar a postura do
@@ -63,7 +72,7 @@ const monstros = params.get("semChefe") ? [comumDef, comumDef, comumDef] : [chef
 
 iniciarBatalha(
   document.getElementById("screen-batalha"),
-  {},                    // imagens: vazio de propósito (o desenho do sprite é opcional)
+  imagens,
   dados, personagem, [mago], monstros,
   "fogo",                // terreno
   "gelo",                // clima
