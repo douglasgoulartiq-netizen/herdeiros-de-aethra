@@ -274,7 +274,20 @@ async function boot() {
   // Navegação por hubs: uma definição só (ver HUBS em GameUI.js) alimenta a
   // coluna agrupada do desktop e a barra inferior do celular.
   montarNavegacao(onHudAction);
-  window.addEventListener("resize", () => { montarNavegacao(onHudAction); atualizarInterfacePrincipal(); });
+  const atualizarOrientacaoMobile = () => {
+    const paisagem = window.innerWidth > window.innerHeight;
+    document.body.classList.toggle("mobile-paisagem", paisagem);
+    document.body.classList.toggle("mobile-retrato", !paisagem);
+  };
+  atualizarOrientacaoMobile();
+  window.addEventListener("resize", () => { atualizarOrientacaoMobile(); montarNavegacao(onHudAction); atualizarInterfacePrincipal(); });
+  document.addEventListener("hda:abrir-mapa-missao", () => abrirMapaMundo());
+  // Em celular, trocar de aplicativo ou apagar a tela não pode custar
+  // progresso. As animações também param enquanto a página está oculta.
+  document.addEventListener("visibilitychange", () => {
+    document.body.classList.toggle("app-em-segundo-plano", document.hidden);
+    if (document.hidden && personagem) salvarProgresso({ silencioso: true });
+  });
   // (o clique de cada botão já é ligado por montarNavegacao, que é quem os cria)
   configurarControlesToque();
 }

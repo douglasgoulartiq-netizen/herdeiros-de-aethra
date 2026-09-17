@@ -38,7 +38,7 @@ const CSS = `
 .arv-reset { background:#5a2230; border:1px solid #a04456; color:#ffd9e0; border-radius:8px;
   padding:7px 12px; cursor:pointer; font-size:0.85em; }
 .arv-reset:disabled { opacity:0.45; cursor:not-allowed; }
-.arv-grade { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:start; }
+.arv-grade { display:grid; grid-template-columns:minmax(0,860px); justify-content:center; gap:10px; align-items:start; }
 .arv-ramo { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1);
   border-radius:10px; padding:8px; min-width:0; }
 .arv-ramo-cab { display:flex; align-items:baseline; gap:6px; margin-bottom:2px; }
@@ -60,7 +60,16 @@ const CSS = `
 .arv-no-trava { font-size:0.75em; color:#ff9a9a; margin-top:4px; line-height:1.3; }
 .arv-no-ok { font-size:0.75em; color:#4ecb71; margin-top:4px; }
 .arv-legenda { margin-top:10px; font-size:0.78em; opacity:0.72; line-height:1.45; }
+.arv-filtros { display:flex; gap:6px; margin:0 0 10px; overflow-x:auto; scrollbar-width:none; }
+.arv-filtro-ramo { flex:0 0 auto; min-height:42px; padding:7px 12px; border-radius:999px; }
+.arv-filtro-ramo.ativo { border-color:#f5a524; background:rgba(245,165,36,.2); color:#fff2cf; }
 @media (max-width:900px) { .arv-grade { grid-template-columns:1fr; } }
+.arv-grade .arv-ramo { display:none; }
+.arv-grade .arv-ramo.ativo { display:block; }
+@media (max-width:719px) {
+  .arv-topo { top:0; }
+  .arv-ramo-desc,.arv-no-desc { font-size:.82rem; }
+}
 
 /* --- Abas: Árvore | Cards de batalha --- */
 .arv-abas { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
@@ -204,6 +213,7 @@ function painelCards(personagem) {
 // cada clique (é o jeito mais simples de manter estado e tela em sincronia)
 // e trocar de aba não pode zerar quando o jogador compra um nó.
 let abaAtual = "arvore";
+let ramoAtual = null;
 
 export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, opcoes = {}) {
   garantirCSS();
@@ -215,6 +225,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
 
   const nos = arvoreDaClasse(personagem, dados);
   const ramos = ramosDaClasse(personagem, dados);
+  if (!ramos.some((r) => r.id === ramoAtual)) ramoAtual = ramos[0]?.id || null;
   const avaliacao = avaliarArvore(personagem, dados);
   const porId = new Map(avaliacao.map((e) => [e.no.id, e]));
 
@@ -228,7 +239,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
     const doRamo = nos.filter((n) => n.ramo === ramo.id).sort((a, b) => a.tier - b.tier);
     const investido = pontosNoRamo(personagem, dados, ramo.id);
     return `
-      <div class="arv-ramo">
+      <div class="arv-ramo ${ramo.id === ramoAtual ? "ativo" : ""}" data-ramo="${escapar(ramo.id)}">
         <div class="arv-ramo-cab">
           <span>${ramo.icone || "◆"}</span>
           <span class="arv-ramo-nome">${escapar(ramo.nome)}</span>
@@ -250,6 +261,9 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
       <button class="arv-reset" ${podeResetar ? "" : "disabled"} title="${gastos ? `Custa ${custoReset} de ouro (você tem ${personagem.ouro || 0})` : "Você ainda não gastou nenhum ponto"}">
         ↺ Redistribuir · ${custoReset} ouro
       </button>
+    </div>
+    <div class="arv-filtros" role="tablist" aria-label="Ramos de habilidade">
+      ${ramos.map((r) => `<button type="button" class="arv-filtro-ramo ${r.id === ramoAtual ? "ativo" : ""}" data-ramo-filtro="${escapar(r.id)}">${r.icone || "◆"} ${escapar(r.nome)}</button>`).join("")}
     </div>
     <div class="arv-grade">${colunas}</div>
     ${marcas ? `<div class="arv-legenda"><b>Suas marcas de classe:</b><br>${marcas}</div>` : ""}
@@ -279,6 +293,13 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
   if (btnHeranca) btnHeranca.onclick = opcoes.abrirHeranca;
   conteudo().querySelectorAll(".arv-aba").forEach((b) => {
     b.onclick = () => montarArvoreHabilidades(personagem, dados, onMudar, b.dataset.aba, opcoes);
+  });
+  conteudo().querySelectorAll("[data-ramo-filtro]").forEach((b) => {
+    b.onclick = () => {
+      ramoAtual = b.dataset.ramoFiltro;
+      conteudo().querySelectorAll(".arv-filtro-ramo").forEach((x) => x.classList.toggle("ativo", x === b));
+      conteudo().querySelectorAll(".arv-ramo").forEach((x) => x.classList.toggle("ativo", x.dataset.ramo === ramoAtual));
+    };
   });
 
   // Aba de cards: ligar/desligar e reordenar. Um clique recusado escreve o

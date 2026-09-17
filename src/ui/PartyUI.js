@@ -127,6 +127,7 @@ function barra(atual, max, classe) {
 
 export function montarParty(personagem, time, dados, onMudar, estadoAnterior = null) {
   const membros = (time && time.length ? time : [personagem]).filter(Boolean);
+  const interfaceToque = ehMobile() || (typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
   const estado = estadoAnterior || {
     membroIdx: 0,
     filtro: "todos",
@@ -135,6 +136,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     aba: "mochila",
   };
   if (!estado.aba) estado.aba = "mochila";
+  if (!estado.limiteItens) estado.limiteItens = interfaceToque ? 6 : 18;
   if (estado.membroIdx >= membros.length) estado.membroIdx = 0;
   const ativo = membros[estado.membroIdx];
 
@@ -292,7 +294,8 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     }
     const grade = criarGrade({ densidade: "densa" });
     grade.setAttribute("role", "list");
-    pilhas.forEach(({ item, uids }) => grade.appendChild(criarLadrilhoItem(item, uids, ativo, estado.uidSelecionado)));
+    const visiveis = pilhas.slice(0, estado.limiteItens);
+    visiveis.forEach(({ item, uids }) => grade.appendChild(criarLadrilhoItem(item, uids, ativo, estado.uidSelecionado)));
     areaGrade.appendChild(grade);
     grade.querySelectorAll(".hda-ladrilho").forEach((el) => {
       const pilha = pilhas.find((x) => x.uids[0] === el.dataset.uid);
@@ -305,6 +308,13 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       el.onclick = abrir;
       el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
     });
+    if (pilhas.length > visiveis.length) {
+      const mais = document.createElement("button");
+      mais.className = "party-carregar-mais";
+      mais.textContent = `Mostrar mais (${pilhas.length - visiveis.length} restantes)`;
+      mais.onclick = () => { estado.limiteItens += interfaceToque ? 6 : 18; desenharGrade(); };
+      areaGrade.appendChild(mais);
+    }
   }
 
   // ---- 4. DETALHE COM COMPARAÇÃO POR MEMBRO -------------------------------

@@ -90,6 +90,11 @@ const PADRAO = {
   // escolheria de propósito. Quem quiser o antigo desliga aqui, e a opção
   // "parar com HP baixo" volta a ser a única rede de segurança.
   autoCuidarDoTime: true,
+  // Preferências específicas de dispositivos móveis. Vibração permanece
+  // ligada por padrão (feedback curto de golpe/critico); o modo econômico
+  // reduz partículas, filtros e blur para aparelhos com GPU mais simples.
+  vibracao: true,
+  modoEconomico: false,
 };
 
 let cache = null;
@@ -120,6 +125,8 @@ export function mesclarConfig(parcial) {
     posicaoControlesToque: POSICOES_CONTROLES_TOQUE.includes(p.posicaoControlesToque) ? p.posicaoControlesToque : PADRAO.posicaoControlesToque,
     pararAutoAntesDoChefe: typeof p.pararAutoAntesDoChefe === "boolean" ? p.pararAutoAntesDoChefe : PADRAO.pararAutoAntesDoChefe,
     autoCuidarDoTime: typeof p.autoCuidarDoTime === "boolean" ? p.autoCuidarDoTime : PADRAO.autoCuidarDoTime,
+    vibracao: typeof p.vibracao === "boolean" ? p.vibracao : PADRAO.vibracao,
+    modoEconomico: typeof p.modoEconomico === "boolean" ? p.modoEconomico : PADRAO.modoEconomico,
   };
 }
 
@@ -201,6 +208,14 @@ export function pararAutoAntesDoChefe() {
 // encontro classificado como Mortal. Ver AutoCareSystem.js e tickAutoPlay.
 export function autoCuidarDoTime() {
   return carregarConfigAcessibilidade().autoCuidarDoTime;
+}
+
+export function vibracaoAtiva() {
+  return carregarConfigAcessibilidade().vibracao;
+}
+
+export function modoEconomicoAtivo() {
+  return carregarConfigAcessibilidade().modoEconomico;
 }
 
 // Só pra testes: reseta o cache em memória (localStorage real não existe em

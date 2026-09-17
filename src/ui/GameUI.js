@@ -850,6 +850,8 @@ function montarMissoesDiarias(corpo, personagem, onMudar) {
   });
 }
 
+let abaMissoesAtual = "ativas";
+
 export function montarMissoes(personagem, dados) {
   const corpo = abrirModalBase("🧭 Missões", { largura: LARGURA.media });
   const rastreada = missaoRastreada(personagem, dados.quests);
@@ -859,11 +861,35 @@ export function montarMissoes(personagem, dados) {
     <span class="missao-rastreada-selo">${ehMissaoPrincipal(rastreada.def) ? "✦ HISTÓRIA PRINCIPAL" : "◆ MISSÃO RASTREADA"}</span>
     <h3>${rastreada.def.nome}</h3>
     <p>${textoObjetivoMissao(rastreada.def)}</p>
-    <small>O rastro dourado aparece no mundo, no minimapa e no mapa de Aethra. Tecla <b>U</b>: mapa · <b>M</b>: missões.</small>` : `
+    <small>O rastro dourado aparece no mundo, no minimapa e no mapa de Aethra.</small>
+    <button type="button" class="missao-ver-mapa">🗺️ Ver objetivo no mapa</button>` : `
     <span class="missao-rastreada-selo">◇ SEM RASTRO ATIVO</span>
     <h3>Escolha uma direção</h3>
     <p>Selecione “Rastrear” em uma missão ativa para receber direção no mapa.</p>`;
   corpo.appendChild(resumo);
+  resumo.querySelector(".missao-ver-mapa")?.addEventListener("click", () => {
+    fecharModal();
+    document.dispatchEvent(new CustomEvent("hda:abrir-mapa-missao"));
+  });
+  const abas = document.createElement("nav");
+  abas.className = "missoes-abas";
+  abas.setAttribute("aria-label", "Categorias de missões");
+  abas.innerHTML = `
+    <button type="button" data-missao-aba="ativas">Ativas <b>${personagem.missoesAtivas.length}</b></button>
+    <button type="button" data-missao-aba="diarias">Diárias</button>
+    <button type="button" data-missao-aba="concluidas">Concluídas <b>${personagem.missoesConcluidas.length}</b></button>`;
+  corpo.appendChild(abas);
+
+  const grupoAtivas = document.createElement("div");
+  grupoAtivas.className = "missoes-grupo";
+  grupoAtivas.dataset.missaoGrupo = "ativas";
+  const grupoDiarias = document.createElement("div");
+  grupoDiarias.className = "missoes-grupo";
+  grupoDiarias.dataset.missaoGrupo = "diarias";
+  const grupoConcluidas = document.createElement("div");
+  grupoConcluidas.className = "missoes-grupo";
+  grupoConcluidas.dataset.missaoGrupo = "concluidas";
+  corpo.append(grupoAtivas, grupoDiarias, grupoConcluidas);
   const jornada = proximoPassoAltaverde(personagem);
   const painelJornada = document.createElement("section");
   painelJornada.className = "card";
@@ -887,16 +913,15 @@ export function montarMissoes(personagem, dados) {
     };
     painelJornada.append(historia, recrutar);
   }
-  corpo.appendChild(painelJornada);
-  montarMissoesDiarias(corpo, personagem, () => montarMissoes(personagem, dados));
+  grupoAtivas.appendChild(painelJornada);
+  montarMissoesDiarias(grupoDiarias, personagem, () => montarMissoes(personagem, dados));
   const hSeparador = document.createElement("h3");
   hSeparador.textContent = "Missões de NPCs";
-  corpo.appendChild(hSeparador);
+  grupoAtivas.appendChild(hSeparador);
   if (personagem.missoesAtivas.length === 0 && personagem.missoesConcluidas.length === 0) {
     const p = document.createElement("p");
     p.textContent = "Nenhuma missão aceita ainda. Converse com os NPCs da vila!";
-    corpo.appendChild(p);
-    return;
+    grupoAtivas.appendChild(p);
   }
   [...personagem.missoesAtivas].sort((a, b) => Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === b.id))) - Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === a.id)))).forEach((m) => {
     const def = dados.quests.find((q) => q.id === m.id);
@@ -912,7 +937,7 @@ export function montarMissoes(personagem, dados) {
       <div class="missao-progresso" role="progressbar" aria-valuemin="0" aria-valuemax="${progresso.meta}" aria-valuenow="${progresso.atual}"><i style="width:${Math.round(progresso.atual / progresso.meta * 100)}%"></i></div>
       <div class="desc">Progresso: ${progresso.atual}/${progresso.meta}${progresso.pronto ? " · Volte ao responsável para entregar." : ""}</div>
     </div><div class="missao-acoes"><button type="button" class="btn-rastrear-missao${sendoRastreada ? " ativo" : ""}" data-id="${def.id}">${sendoRastreada ? "Parar de rastrear" : "Rastrear no mapa"}</button></div>`;
-    corpo.appendChild(div);
+    grupoAtivas.appendChild(div);
   });
   corpo.querySelectorAll(".btn-rastrear-missao").forEach((b) => b.onclick = () => {
     if (!rastrearMissao(personagem, b.dataset.id)) return;
@@ -922,15 +947,28 @@ export function montarMissoes(personagem, dados) {
   if (personagem.missoesConcluidas.length) {
     const h = document.createElement("h3");
     h.textContent = "Concluídas";
-    corpo.appendChild(h);
+    grupoConcluidas.appendChild(h);
     personagem.missoesConcluidas.forEach((id) => {
       const def = dados.quests.find((q) => q.id === id);
       const div = document.createElement("div");
       div.className = "card";
       div.innerHTML = `<div class="info"><div class="nome">${def.nome}</div></div>`;
-      corpo.appendChild(div);
+      grupoConcluidas.appendChild(div);
     });
   }
+  if (!personagem.missoesConcluidas.length) grupoConcluidas.innerHTML = '<p class="missoes-vazio">Nenhuma missão concluída nesta jornada.</p>';
+
+  const ativarAba = (id) => {
+    abaMissoesAtual = id;
+    corpo.querySelectorAll("[data-missao-aba]").forEach((b) => {
+      const ativo = b.dataset.missaoAba === id;
+      b.classList.toggle("ativo", ativo);
+      b.setAttribute("aria-selected", String(ativo));
+    });
+    corpo.querySelectorAll("[data-missao-grupo]").forEach((g) => { g.hidden = g.dataset.missaoGrupo !== id; });
+  };
+  corpo.querySelectorAll("[data-missao-aba]").forEach((b) => { b.onclick = () => ativarAba(b.dataset.missaoAba); });
+  ativarAba(abaMissoesAtual);
 }
 
 // Aprimoramento de equipamento (melhoria de jogabilidade pós-backlog

@@ -22,6 +22,18 @@ function escapar(texto) {
   return String(texto ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+function atalhoDaEtapa(etapa) {
+  const toque = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+  if (!toque) return etapa.atalho;
+  const rotulos = {
+    orientacao: "Direcional na tela", interacao: "Botão Ação", missao: "Missões",
+    mapa: "Mapa", mochila: "Time e Mochila", invocacao: "Invocar",
+    combate: "Toque no card e no alvo", d20: "Toque em Rolar d20",
+    taticas: "Cards e botão Automático", recompensa: "Habilidades e Herança",
+  };
+  return rotulos[etapa.id] || "Toque na opção destacada";
+}
+
 function demoMovimento() {
   return `<div class="tut-mundo" aria-label="Área de treino"><div class="tut-trilha"></div><div class="tut-heroi" id="tut-heroi">🧙</div><div class="tut-npc">❗<span>🧑‍🌾</span></div></div><p class="tut-estado" id="tut-estado">Use qualquer direção três vezes.</p>`;
 }
@@ -146,7 +158,7 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
       camada.className = "tutorial";
       camada.innerHTML = `<header class="tutorial-topo"><div><small>TUTORIAL · ${etapa.minuto} / 10:00</small><b>${etapa.icone} ${escapar(etapa.titulo)}</b></div><button id="tut-pular">Pular tutorial</button></header>
         <div class="tutorial-progresso" aria-label="Etapa ${indice + 1} de ${TUTORIAL_ETAPAS.length}"><i style="width:${((indice + 1) / TUTORIAL_ETAPAS.length) * 100}%"></i></div>
-        <main class="tutorial-corpo"><section class="tutorial-explica"><span class="tutorial-numero">${indice + 1}</span><div>${CONTEUDO[etapa.id].map((p) => `<p>${escapar(p)}</p>`).join("")}<kbd>${escapar(etapa.atalho)}</kbd></div></section><section class="tutorial-demo">${htmlDemo(etapa)}</section></main>
+        <main class="tutorial-corpo"><section class="tutorial-explica"><span class="tutorial-numero">${indice + 1}</span><div>${CONTEUDO[etapa.id].map((p) => `<p>${escapar(p)}</p>`).join("")}<kbd>${escapar(atalhoDaEtapa(etapa))}</kbd></div></section><section class="tutorial-demo">${htmlDemo(etapa)}</section></main>
         <footer class="tutorial-rodape"><button id="tut-voltar" ${indice === 0 ? "disabled" : ""}>← Voltar</button><span>Etapa ${indice + 1}/${TUTORIAL_ETAPAS.length} · cerca de ${Math.ceil(etapa.duracao / 60)} min</span><button id="tut-avancar" class="primario" disabled>Pratique para continuar</button></footer>`;
       camada.querySelector("#tut-pular").onclick = () => terminar("pulado");
       camada.querySelector("#tut-voltar").onclick = () => { indice -= 1; render(); };

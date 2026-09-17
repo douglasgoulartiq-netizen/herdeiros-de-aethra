@@ -33,7 +33,7 @@ import { aplicarSinergiasFormacao } from "../systems/FormationSynergySystem.js";
 import { aplicarSinergiaFaccao } from "../systems/FactionSynergySystem.js";
 import { aplicarParesRelacionamento } from "../systems/RivalrySystem.js";
 import { registrarProgressoDiario } from "../systems/DailyQuestSystem.js";
-import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
+import { efeitosReduzidos, vibracaoAtiva } from "../systems/AccessibilitySystem.js";
 import { criarApresentacaoCombate, avisoDePlano, mostrarEstadoCombate, tempoAviso, resumoEstados } from './CombatPresentation.js';
 import { animarDado, sleep, duracaoAnimacao } from "./DiceAnimation.js";
 import { somDadoParou, somDano, somCura, somBloqueioOuErro, destravarAudio, somRuptura, somEntradaChefe } from "./SoundFX.js";
@@ -1178,7 +1178,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // (não incomodam) e tudo dentro de try/catch: vibração nunca pode
     // quebrar o jogo em navegadores que implementam a API de forma diferente.
     if (deltaHp < 0 && !animacoesReduzidas()) {
-      try { if (navigator.vibrate) navigator.vibrate(critico ? [30, 40, 30] : 25); } catch (e) { /* silencioso de propósito */ }
+      try { if (vibracaoAtiva() && navigator.vibrate) navigator.vibrate(critico ? [30, 40, 30] : 25); } catch (e) { /* silencioso de propósito */ }
     }
     if (!posicionarFlutuante(el, spriteWrap)) return;
     setTimeout(() => el.remove(), duracaoAnimacao(900));

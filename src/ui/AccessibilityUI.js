@@ -9,7 +9,7 @@ import {
   VELOCIDADES_MENSAGEM, TAMANHOS_FONTE, VELOCIDADES_ANIMACAO_COMBATE, LIMIARES_HP_AUTOPLAY, DIFICULDADES, VOLUMES_EFEITOS,
   VELOCIDADES_AUTO_EXPLORACAO,
   TAMANHOS_CONTROLES_TOQUE, OPACIDADES_CONTROLES_TOQUE, POSICOES_CONTROLES_TOQUE,
-  carregarConfigAcessibilidade, atualizarConfigAcessibilidade,
+  carregarConfigAcessibilidade, atualizarConfigAcessibilidade, salvarConfigAcessibilidade,
 } from "../systems/AccessibilitySystem.js";
 
 const LABEL_VELOCIDADE = { lenta: "Lenta (mais tempo pra ler)", normal: "Normal", rapida: "Rápida" };
@@ -45,6 +45,7 @@ export function aplicarClassesAcessibilidade() {
     "fonte-grande", "fonte-gigante", "alto-contraste",
     "controles-compactos", "controles-grandes", "controles-discretos",
     "controles-opacos", "controles-invertidos",
+    "modo-economico",
   );
   if (config.tamanhoFonte === "grande") document.body.classList.add("fonte-grande");
   else if (config.tamanhoFonte === "gigante") document.body.classList.add("fonte-gigante");
@@ -54,13 +55,17 @@ export function aplicarClassesAcessibilidade() {
   if (config.opacidadeControlesToque === "discreta") document.body.classList.add("controles-discretos");
   else if (config.opacidadeControlesToque === "alta") document.body.classList.add("controles-opacos");
   if (config.posicaoControlesToque === "direcional_direita") document.body.classList.add("controles-invertidos");
+  if (config.modoEconomico) document.body.classList.add("modo-economico");
 }
 
 export function montarAcessibilidade() {
   const corpo = abrirModalBase("Acessibilidade");
   const config = carregarConfigAcessibilidade();
+  const abrirPrimeira = !(typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
   corpo.innerHTML = `
-    <div class="card acc-painel" style="flex-direction:column;align-items:flex-start;gap:12px;width:100%;">
+    <div class="card acc-painel">
+      <p class="acc-intro">Ajuste leitura, combate e controles. Tudo muda na hora e fica salvo neste aparelho.</p>
+      <details class="acc-secao" ${abrirPrimeira ? "open" : ""}><summary>👁️ Interface e leitura</summary><div class="acc-secao-corpo">
       <label style="width:100%;">Velocidade das mensagens na tela
         <select id="acc-velocidade" style="display:block;margin-top:4px;width:100%;">
           ${Object.keys(VELOCIDADES_MENSAGEM).map((v) => `<option value="${v}" ${config.velocidadeMensagem === v ? "selected" : ""}>${LABEL_VELOCIDADE[v] || v}</option>`).join("")}
@@ -73,6 +78,9 @@ export function montarAcessibilidade() {
       </label>
       <label><input type="checkbox" id="acc-efeitos" ${config.reduzirEfeitos ? "checked" : ""}/> Reduzir tremor de tela e flash de dano em combate</label>
       <label><input type="checkbox" id="acc-contraste" ${config.altoContraste ? "checked" : ""}/> Alto contraste</label>
+      <label><input type="checkbox" id="acc-economico" ${config.modoEconomico ? "checked" : ""}/> Modo econômico (menos partículas e filtros)</label>
+      </div></details>
+      <details class="acc-secao"><summary>⚔️ Combate e áudio</summary><div class="acc-secao-corpo">
       <label style="width:100%;">Velocidade das animações de combate (dado, golpes, números)
         <select id="acc-vel-anim" style="display:block;margin-top:4px;width:100%;">
           ${Object.keys(VELOCIDADES_ANIMACAO_COMBATE).map((v) => `<option value="${v}" ${config.velocidadeAnimacaoCombate === v ? "selected" : ""}>${LABEL_VELOCIDADE_ANIMACAO[v] || v}</option>`).join("")}
@@ -93,11 +101,18 @@ export function montarAcessibilidade() {
           ${Object.keys(VOLUMES_EFEITOS).map((v) => `<option value="${v}" ${config.volumeEfeitos === v ? "selected" : ""}>${LABEL_VOLUME_EFEITOS[v] || v}</option>`).join("")}
         </select>
       </label>
+      <label><input type="checkbox" id="acc-vibracao" ${config.vibracao ? "checked" : ""}/> Vibração curta em golpes importantes</label>
+      </div></details>
+      <details class="acc-secao"><summary>▶️ Exploração automática</summary><div class="acc-secao-corpo">
       <label style="width:100%;">Velocidade do automático fora de combate (andar/interagir)
         <select id="acc-velocidade-auto" style="display:block;margin-top:4px;width:100%;">
           ${Object.keys(VELOCIDADES_AUTO_EXPLORACAO).map((v) => `<option value="${v}" ${config.velocidadeAutoExploracao === v ? "selected" : ""}>${LABEL_VELOCIDADE_AUTO[v] || v}</option>`).join("")}
         </select>
       </label>
+      <label><input type="checkbox" id="acc-parar-chefe" ${config.pararAutoAntesDoChefe ? "checked" : ""}/> Parar antes de enfrentar um chefe</label>
+      <label><input type="checkbox" id="acc-auto-cuidar" ${config.autoCuidarDoTime ? "checked" : ""}/> Usar poção, descansar e evitar encontro Mortal automaticamente</label>
+      </div></details>
+      <details class="acc-secao"><summary>📱 Controles de toque</summary><div class="acc-secao-corpo">
       <fieldset class="acc-grupo-controles">
         <legend>Controles de exploração no celular</legend>
         <label>Tamanho
@@ -116,9 +131,10 @@ export function montarAcessibilidade() {
           </select>
         </label>
       </fieldset>
-      <label><input type="checkbox" id="acc-parar-chefe" ${config.pararAutoAntesDoChefe ? "checked" : ""}/> Automático para (em vez de lutar sozinho) ao encontrar um chefe</label>
-      <label><input type="checkbox" id="acc-auto-cuidar" ${config.autoCuidarDoTime ? "checked" : ""}/> Automático se cuida sozinho: usa poção com HP baixo, descansa só quando elas acabam, e recusa encontro Mortal</label>
+      <div class="acc-preview" aria-label="Prévia dos controles"><span>◀ ▲ ▼ ▶</span><b>✦ Ação</b></div>
+      </div></details>
       ${suportaTelaCheia() ? `<button id="acc-tela-cheia" style="width:100%;margin-top:6px;" title="No celular a tela cheia também trava o aparelho em pé, que é a orientação para a qual o jogo é enquadrado.">${emTelaCheia() ? "⛶ Sair da tela cheia" : "⛶ Jogar em tela cheia"}</button>` : ""}
+      <button id="acc-restaurar" class="acc-restaurar">↺ Restaurar configurações padrão</button>
       <p class="desc">As mudanças valem imediatamente e ficam salvas neste dispositivo — inclusive numa Nova Aventura ou New Game+.</p>
     </div>
   `;
@@ -126,16 +142,23 @@ export function montarAcessibilidade() {
   corpo.querySelector("#acc-fonte").onchange = (e) => { atualizarConfigAcessibilidade({ tamanhoFonte: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-efeitos").onchange = (e) => { atualizarConfigAcessibilidade({ reduzirEfeitos: e.target.checked }); };
   corpo.querySelector("#acc-contraste").onchange = (e) => { atualizarConfigAcessibilidade({ altoContraste: e.target.checked }); aplicarClassesAcessibilidade(); };
+  corpo.querySelector("#acc-economico").onchange = (e) => { atualizarConfigAcessibilidade({ modoEconomico: e.target.checked }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-vel-anim").onchange = (e) => { atualizarConfigAcessibilidade({ velocidadeAnimacaoCombate: e.target.value }); };
   corpo.querySelector("#acc-limite-hp-auto").onchange = (e) => { atualizarConfigAcessibilidade({ limiteHpAutoPlay: e.target.value }); };
   corpo.querySelector("#acc-dificuldade").onchange = (e) => { atualizarConfigAcessibilidade({ dificuldade: e.target.value }); };
   corpo.querySelector("#acc-volume-efeitos").onchange = (e) => { atualizarConfigAcessibilidade({ volumeEfeitos: e.target.value }); };
+  corpo.querySelector("#acc-vibracao").onchange = (e) => { atualizarConfigAcessibilidade({ vibracao: e.target.checked }); };
   corpo.querySelector("#acc-velocidade-auto").onchange = (e) => { atualizarConfigAcessibilidade({ velocidadeAutoExploracao: e.target.value }); };
   corpo.querySelector("#acc-controles-tamanho").onchange = (e) => { atualizarConfigAcessibilidade({ tamanhoControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-controles-opacidade").onchange = (e) => { atualizarConfigAcessibilidade({ opacidadeControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-controles-posicao").onchange = (e) => { atualizarConfigAcessibilidade({ posicaoControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-parar-chefe").onchange = (e) => { atualizarConfigAcessibilidade({ pararAutoAntesDoChefe: e.target.checked }); };
   corpo.querySelector("#acc-auto-cuidar").onchange = (e) => { atualizarConfigAcessibilidade({ autoCuidarDoTime: e.target.checked }); };
+  corpo.querySelector("#acc-restaurar").onclick = () => {
+    salvarConfigAcessibilidade(null);
+    aplicarClassesAcessibilidade();
+    montarAcessibilidade();
+  };
   // Tela cheia NÃO é preferência salva: quem manda é o navegador, e ele pode
   // sair dela sozinho (Esc, troca de app, uma chamada chegando). Guardar
   // "ligado" no save daria um botão que mente sobre o estado. O rótulo é
