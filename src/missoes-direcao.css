@@ -29,23 +29,47 @@ body:has(#modal-overlay:not(.hidden)) #guia-missao { display:none; }
 #guia-missao b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.76rem; }
 #guia-missao small { color:#ddc488; font-size:.65rem; }
 
-.missao-rastreada-resumo { position:relative; margin:0 0 18px; padding:15px 17px; border:1px solid rgba(119,131,151,.28); border-radius:14px; background:linear-gradient(130deg,rgba(15,24,36,.92),rgba(20,18,29,.92)); }
+.missao-rastreada-resumo { position:relative; margin:0 0 18px; padding:17px 19px; border:1px solid rgba(119,131,151,.28); border-radius:16px; background:linear-gradient(130deg,rgba(15,24,36,.96),rgba(20,18,29,.94)); }
 .missao-rastreada-resumo.ativa { border-color:rgba(244,196,84,.56); box-shadow:0 0 26px rgba(229,160,44,.1),inset 0 1px rgba(255,255,255,.05); }
-.missao-rastreada-resumo h3 { margin:5px 0; color:#fff0bd; }
+.missao-rastreada-resumo.vazia { border-style:dashed; text-align:center; }
+.missao-rastreada-resumo h3 { margin:7px 0 10px; color:#fff0bd; font-size:clamp(1.05rem,2.1vw,1.34rem); }
 .missao-rastreada-resumo p { margin:4px 0 8px; line-height:1.45; }
 .missao-rastreada-resumo small { color:#adbac8; }
+.missao-rastreada-cabecalho,.missao-progresso-linha { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.missao-estado { padding:4px 8px; border:1px solid rgba(132,157,176,.3); border-radius:999px; color:#c8d4df; font-size:.67rem; font-weight:800; }
+.missao-estado.pronta { border-color:rgba(107,213,145,.48); background:rgba(55,155,93,.14); color:#a8f2bd; }
+.missao-objetivo-destaque { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.04); color:#f4ead6; }
+.missao-objetivo-destaque > span:first-child { color:#f2c85c; font-size:1.2rem; line-height:1.1; }
+.missao-objetivo-destaque > span:last-child { display:grid; gap:2px; }
+.missao-objetivo-destaque small,.missao-meta small { display:block; color:#9eacbc; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.missao-meta { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; margin:11px 0; }
+.missao-meta > span { min-width:0; padding:8px 10px; border:1px solid rgba(138,151,169,.16); border-radius:9px; background:rgba(5,10,17,.3); color:#ddd3bf; font-size:.76rem; }
+.missao-meta.compacta { display:flex; flex-wrap:wrap; margin:9px 0 6px; }
+.missao-meta.compacta > span { flex:1 1 180px; padding:5px 8px; }
+.missao-progresso-linha { margin-top:10px; color:#c8d2dd; font-size:.73rem; }
+.missao-rastreada-acoes { display:flex; gap:8px; margin-top:13px; }
+.missao-rastreada-acoes button { min-height:42px; }
 .missao-rastreada-selo,.missao-vertente,.missao-em-foco { color:#eec866; font-size:.66rem; font-weight:900; letter-spacing:.09em; text-transform:uppercase; }
-.missao-card { align-items:stretch; gap:13px; border-left:3px solid rgba(122,139,157,.55); }
+.missao-card { align-items:stretch; gap:13px; border-left:3px solid rgba(122,139,157,.55); transition:border-color .18s ease,box-shadow .18s ease; }
 .missao-card.principal { border-left-color:#e6b94f; background:linear-gradient(105deg,rgba(56,42,22,.42),rgba(18,22,31,.84)); }
 .missao-card.rastreada { box-shadow:0 0 0 1px rgba(244,200,91,.36),0 10px 25px rgba(0,0,0,.2); }
+.missao-card.pronta { border-left-color:#63cc88; }
+.missao-card.concluida { border-left-color:#668d76; opacity:.82; }
+.missao-card.concluida .missao-vertente { color:#8fd6a7; }
 .missao-card .info { flex:1 1 auto; }
 .missao-card-topo { display:flex; justify-content:space-between; gap:8px; margin-bottom:4px; }
 .missao-em-foco { color:#8fe6f0; }
 .missao-objetivo { margin-top:6px; color:#e9dfc8; }
 .missao-progresso { height:7px; margin:9px 0 4px; overflow:hidden; border-radius:9px; background:#090d14; box-shadow:inset 0 1px 3px #000; }
 .missao-progresso i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#b87723,#ffe078); box-shadow:0 0 8px rgba(255,200,79,.35); }
-.missao-acoes { display:flex; align-items:center; }
+.missao-entrega { margin-top:7px; color:#a8efbd; font-size:.74rem; font-weight:700; }
+.missao-acoes { display:flex; align-items:center; min-width:150px; }
+.missao-acoes button { width:100%; min-height:42px; }
 .btn-rastrear-missao.ativo { border-color:#e8c15b; color:#ffe9a5; }
+.missoes-estado-vazio { display:grid; justify-items:center; gap:5px; margin:12px 0; padding:24px 16px; border:1px dashed rgba(141,158,178,.34); border-radius:13px; text-align:center; color:#bdc8d5; }
+.missoes-estado-vazio > span { font-size:1.7rem; }
+.missoes-estado-vazio h3,.missoes-estado-vazio p { margin:0; }
+.missoes-estado-vazio.bloqueada { border-color:rgba(177,141,91,.32); background:rgba(72,51,27,.12); color:#cdbd9f; }
 .mapa-missao-atalho { max-width:min(440px,100%); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-color:#d2a843; color:#ffe59b; }
 .mapa-barra { flex-wrap:wrap; }
 
@@ -54,7 +78,24 @@ body:has(#modal-overlay:not(.hidden)) #guia-missao { display:none; }
   #guia-missao .guia-seta { width:25px; height:25px; flex-basis:25px; }
   .missao-card { flex-direction:column; }
   .missao-acoes button { width:100%; }
+  .missao-meta { grid-template-columns:1fr; }
+  .missao-rastreada-acoes { display:grid; grid-template-columns:1fr; }
+  .missao-rastreada-acoes button { width:100%; }
+  .missao-card .nome { font-size:1rem; }
   .mapa-barra { align-items:stretch; }
   .mapa-missao-atalho { flex:1 0 100%; }
+}
+@media (max-width:430px) {
+  .missao-rastreada-resumo { padding:13px; }
+  .missao-rastreada-cabecalho { align-items:flex-start; }
+  .missao-rastreada-selo { max-width:58%; }
+}
+@media (orientation:landscape) and (max-height:520px) {
+  .missao-rastreada-resumo { padding:11px 14px; }
+  .missao-rastreada-resumo h3 { margin:4px 0 6px; }
+  .missao-meta { display:flex; margin:6px 0; }
+  .missao-meta > span { flex:1 1 0; padding:5px 8px; }
+  .missao-objetivo-destaque { padding:7px 9px; }
+  .missao-rastreada-acoes { margin-top:8px; }
 }
 @media (prefers-reduced-motion:reduce) { #guia-missao .guia-seta { box-shadow:none; } }

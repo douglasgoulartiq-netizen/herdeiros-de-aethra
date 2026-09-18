@@ -91,4 +91,48 @@ function check(label, cond) {
   check("controles touch podem trocar de mão", JSON.stringify(POSICOES_CONTROLES_TOQUE) === JSON.stringify(["direcional_esquerda", "direcional_direita"]));
 }
 
+// --- Som: um gesto gera um evento semântico, sem ignorar mute/redução ---
+{
+  const eventos = [];
+  let osciladores = 0;
+  globalThis.CustomEvent = globalThis.CustomEvent || class {
+    constructor(type, init = {}) { this.type = type; this.detail = init.detail; }
+  };
+  class AudioFalso {
+    constructor() { this.currentTime = 0; this.state = "running"; this.destination = {}; }
+    createOscillator() {
+      osciladores += 1;
+      return {
+        type: "sine",
+        frequency: { setValueAtTime() {}, linearRampToValueAtTime() {} },
+        connect() {}, start() {}, stop() {},
+      };
+    }
+    createGain() {
+      return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} };
+    }
+  }
+  globalThis.window = {
+    AudioContext: AudioFalso,
+    dispatchEvent(evento) { eventos.push(evento); return true; },
+  };
+  const sons = await import("../src/ui/SoundFX.js");
+
+  _resetParaTeste();
+  salvarConfigAcessibilidade({ volumeEfeitos: "baixo", reduzirEfeitos: false });
+  sons.somConfirmar();
+  check("uma confirmação emite no máximo um evento sonoro", eventos.length === 1 && eventos[0].detail.nome === "confirmar");
+  check("o acorde normal continua sendo um único evento semântico", osciladores === 2);
+
+  eventos.length = 0; osciladores = 0;
+  salvarConfigAcessibilidade({ volumeEfeitos: "baixo", reduzirEfeitos: true });
+  sons.somConfirmar();
+  check("efeitos reduzidos eliminam notas acessórias", eventos.length === 1 && osciladores === 1);
+
+  eventos.length = 0; osciladores = 0;
+  salvarConfigAcessibilidade({ volumeEfeitos: "desligado", reduzirEfeitos: false });
+  sons.somConfirmar();
+  check("mute impede evento e oscilador", eventos.length === 0 && osciladores === 0);
+}
+
 console.log(process.exitCode ? "=== FALHAS ENCONTRADAS ===" : "=== todos os testes passaram ===");

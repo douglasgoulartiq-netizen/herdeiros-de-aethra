@@ -1,10 +1,13 @@
 /* Itens 4–6: mundo mais vivo, HUD legível e menus com hierarquia clara. */
 #app::after {
-  content:""; position:fixed; inset:0; pointer-events:none; z-index:2;
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:var(--hda-layer-ambient,2);
   background:radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(8,5,16,.18) 100%);
   animation:hda-ambiente 8s ease-in-out infinite alternate;
 }
-#hud, #mensagem-topo, #modal-overlay, #touch-controls { z-index:3; }
+#hud { z-index:var(--hda-layer-hud,10); }
+#touch-controls { z-index:var(--hda-layer-controls,12); }
+#mensagem-topo { z-index:var(--hda-layer-message,15); }
+#modal-overlay { z-index:var(--hda-layer-modal,50); }
 @keyframes hda-ambiente { from { opacity:.35; } to { opacity:.75; } }
 
 /* Barras respondem imediatamente a dano, cura e XP; o valor textual fica

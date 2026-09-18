@@ -8,6 +8,7 @@ export function ehMissaoPrincipal(questDef) {
 export function missaoRastreada(personagem, quests = []) {
   if (!personagem) return null;
   const ativas = personagem.missoesAtivas || [];
+  if (personagem.rastreamentoMissaoPausado) return null;
   let id = personagem.missaoRastreadaId;
   if (!ativas.some((m) => m.id === id)) {
     id = ativas.find((m) => ehMissaoPrincipal(quests.find((q) => q.id === m.id)))?.id || ativas[0]?.id || null;
@@ -21,7 +22,9 @@ export function missaoRastreada(personagem, quests = []) {
 
 export function rastrearMissao(personagem, questId) {
   if (!personagem || !(personagem.missoesAtivas || []).some((m) => m.id === questId)) return false;
-  personagem.missaoRastreadaId = personagem.missaoRastreadaId === questId ? null : questId;
+  const desligando = personagem.missaoRastreadaId === questId && !personagem.rastreamentoMissaoPausado;
+  personagem.missaoRastreadaId = desligando ? null : questId;
+  personagem.rastreamentoMissaoPausado = desligando;
   return true;
 }
 
@@ -50,7 +53,10 @@ export function iniciarMissao(personagem, questDef) {
   personagem.missoesAtivas.push({ id: questDef.id, progresso: 0 });
   // História principal toma o foco ao ser aceita; missões secundárias só
   // entram no rastreador quando não existe nenhuma direção ativa.
-  if (ehMissaoPrincipal(questDef) || !personagem.missaoRastreadaId) personagem.missaoRastreadaId = questDef.id;
+  if (ehMissaoPrincipal(questDef) || !personagem.missaoRastreadaId) {
+    personagem.missaoRastreadaId = questDef.id;
+    personagem.rastreamentoMissaoPausado = false;
+  }
   return true;
 }
 

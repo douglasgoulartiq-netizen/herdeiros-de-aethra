@@ -41,6 +41,7 @@ import { imgHtml, ligarCadeias } from "../systems/AssetResolver.js";
 import { USOS } from "../data/assetRegistry.js";
 import { descreverEfeitos } from "../systems/ItemEffectSystem.js";
 import { textoRequisito, penalidadeDe } from "../systems/RequisitoSystem.js";
+import { somConfirmar, somBloqueioOuErro } from "./SoundFX.js";
 
 // Qual slot um item ocupa. O InventorySystem tem a regra canônica, mas ela
 // não é exportada; esta é a mesma tabela, e o teste test-party-ui.mjs
@@ -165,11 +166,13 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     const slots = SLOTS_EQUIPAMENTO.map((sl) => {
       const it = m.equipamento && m.equipamento[sl.slot];
       return `<span class="party-slot${it ? " cheio" : " vazio"}" data-membro="${i}" data-slot="${sl.slot}"
+        ${it ? `role="button" tabindex="0" aria-label="Desequipar ${it.nome} de ${m.nome}"` : `aria-hidden="true"`}
         title="${sl.label}: ${it ? it.nome : "vazio"}${it ? " — clique para desequipar" : ""}"
         style="${it ? `border-color:${RARITY_COLORS[it.raridade] || "#6b5a3a"}` : ""}">${it ? sl.icone : "·"}</span>`;
     }).join("");
     return `
-      <div class="party-card${ehAtivo ? " ativo" : ""}" data-membro="${i}" tabindex="0"
+      <div class="party-card${ehAtivo ? " ativo" : ""}" data-membro="${i}" tabindex="${ehAtivo ? "0" : "-1"}"
+           role="radio" aria-checked="${ehAtivo}" aria-label="${m.nome}, nível ${m.nivel || 1}${ehAtivo ? ", selecionado" : ""}"
            title="${m.nome} — clique para escolher">
         <div class="party-retrato" style="border-color:${cor}">
           ${imgHtml(alvoRetrato, USOS.RETRATO, { alt: m.nome })}
@@ -188,6 +191,8 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   palcoCompanhia.className = "companhia-palco";
   const trilhoCompanhia = document.createElement("aside");
   trilhoCompanhia.className = "companhia-trilho";
+  trilhoCompanhia.setAttribute("aria-label", "Membros da formação ativa");
+  fileira.setAttribute("role", "radiogroup");
   trilhoCompanhia.innerHTML = `<small>FORMAÇÃO ATIVA</small>`;
   trilhoCompanhia.appendChild(fileira);
 
@@ -228,15 +233,30 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     el.onclick = (ev) => { if (!ev.target.closest(".party-slot")) escolher(); };
     el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); escolher(); } };
   });
+  fileira.onkeydown = (ev) => {
+    if (!ev.target.classList.contains("party-card") || !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(ev.key)) return;
+    ev.preventDefault();
+    const cards = [...fileira.querySelectorAll(".party-card")];
+    const atual = cards.indexOf(ev.target);
+    const proximo = ev.key === "Home" ? 0 : ev.key === "End" ? cards.length - 1
+      : (atual + (["ArrowRight", "ArrowDown"].includes(ev.key) ? 1 : -1) + cards.length) % cards.length;
+    cards[proximo]?.focus();
+    cards[proximo]?.click();
+  };
   // Clicar num slot cheio desequipa direto — o caminho mais curto possível.
   fileira.querySelectorAll(".party-slot.cheio").forEach((el) => {
-    el.onclick = (ev) => {
+    const desequipar = (ev) => {
       ev.stopPropagation();
       const m = membros[Number(el.dataset.membro)];
       desequiparItem(personagem, el.dataset.slot, m);
+      somConfirmar();
       onMudar();
       mostrarMensagem(`Desequipado de ${m.nome}.`, 1600);
       redesenhar();
+    };
+    el.onclick = desequipar;
+    el.onkeydown = (ev) => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); desequipar(ev); }
     };
   });
 
@@ -253,10 +273,10 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   ];
   tela.definirAbas(ABAS, (id) => { estado.aba = id; redesenhar(); }, estado.aba);
 
-  const painelMochila = document.createElement("div");
+  const painelMochila = document.createElement("section");
   painelMochila.className = "companhia-painel companhia-equipamento";
-  painelMochila.hidden = estado.aba !== "mochila";
-  corpo.appendChild(painelMochila);
+  painelMochila.setAttribute("aria-label", "Equipamento e mochila compartilhada");
+  if (estado.aba === "mochila") corpo.appendChild(painelMochila);
 
   // Aba "Montar time": seleção de convocados + formação, vindas do GachaUI.
   // Ela recebe um "voltar" que reabre ESTA tela nesta aba, para quem entra em
@@ -280,10 +300,10 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     { id: "material", rotulo: "Materiais", icone: "🪵" },
   ];
   barraFiltro.innerHTML = `
-    <div class="party-cats">
-      ${CATEGORIAS.map((c) => `<button class="party-cat${estado.filtro === c.id ? " ativa" : ""}" data-cat="${c.id}">${c.icone} ${c.rotulo}</button>`).join("")}
+    <div class="party-cats" role="group" aria-label="Filtrar itens por categoria">
+      ${CATEGORIAS.map((c) => `<button class="party-cat${estado.filtro === c.id ? " ativa" : ""}" data-cat="${c.id}" aria-pressed="${estado.filtro === c.id}">${c.icone} ${c.rotulo}</button>`).join("")}
     </div>
-    <input class="party-busca" type="search" placeholder="Buscar item..." value="${(estado.busca || "").replace(/"/g, "&quot;")}" />`;
+    <label class="party-busca-wrap"><span>Buscar na mochila</span><input class="party-busca" type="search" placeholder="Nome do item..." value="${(estado.busca || "").replace(/"/g, "&quot;")}" /></label>`;
   painelMochila.appendChild(barraFiltro);
 
   barraFiltro.querySelectorAll(".party-cat").forEach((b) => {
@@ -294,17 +314,29 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     estado.busca = campoBusca.value;
     // Redesenhar a tela inteira a cada tecla tiraria o foco do campo. Só a
     // grade é refeita, e o cursor fica onde estava.
+    const aindaVisivel = estado.uidSelecionado && pilhasVisiveis().some((p) => p.uids[0] === estado.uidSelecionado);
+    if (estado.uidSelecionado && !aindaVisivel) fecharDetalhe();
     desenharGrade();
   };
 
   // ---- 3. MOCHILA COMPARTILHADA -------------------------------------------
   const areaGrade = document.createElement("div");
   areaGrade.className = "party-mochila";
+  areaGrade.setAttribute("aria-live", "polite");
   painelMochila.appendChild(areaGrade);
 
-  const painel = document.createElement("div");
+  const painel = document.createElement("aside");
   painel.className = "party-detalhe";
+  painel.tabIndex = -1;
+  painel.setAttribute("role", "region");
+  painel.setAttribute("aria-label", "Comparação do item selecionado");
+  painel.setAttribute("aria-hidden", "true");
   painelMochila.appendChild(painel);
+
+  const orientacaoDetalhe = document.createElement("div");
+  orientacaoDetalhe.className = "companhia-estado-detalhe";
+  orientacaoDetalhe.innerHTML = `<span aria-hidden="true">↳</span><div><strong>Escolha um item</strong><small>Veja o que muda antes de equipar, usar ou vender.</small></div>`;
+  painelMochila.insertBefore(orientacaoDetalhe, painel);
 
   function pilhasVisiveis() {
     const busca = (estado.busca || "").trim().toLowerCase();
@@ -315,14 +347,17 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
 
   function desenharGrade() {
     areaGrade.innerHTML = "";
+    areaGrade.setAttribute("aria-busy", "false");
     const pilhas = pilhasVisiveis();
     if (!pilhas.length) {
-      const p = document.createElement("p");
-      p.className = "desc";
-      p.textContent = estado.busca
-        ? `Nada na mochila com "${estado.busca}".`
-        : "Nenhum item desta categoria na mochila.";
-      areaGrade.appendChild(p);
+      const inventarioVazio = personagem.inventario.length === 0;
+      const vazio = document.createElement("div");
+      vazio.className = `companhia-estado companhia-estado-${inventarioVazio ? "vazio" : "sem-resultado"}`;
+      vazio.setAttribute("role", "status");
+      vazio.innerHTML = inventarioVazio
+        ? `<span aria-hidden="true">🎒</span><strong>Mochila vazia</strong><small>Itens obtidos em jornadas e lojas aparecerão aqui.</small>`
+        : `<span aria-hidden="true">⌕</span><strong>Nenhum resultado</strong><small>${estado.busca ? `Não encontramos “${estado.busca.replace(/[<>&]/g, "")}”.` : "Não há itens nesta categoria."}</small>`;
+      areaGrade.appendChild(vazio);
       return;
     }
     const grade = criarGrade({ densidade: "densa" });
@@ -333,13 +368,28 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     grade.querySelectorAll(".hda-ladrilho").forEach((el) => {
       const pilha = pilhas.find((x) => x.uids[0] === el.dataset.uid);
       if (!pilha) return;
-      const abrir = () => {
+      el.setAttribute("aria-selected", String(el.dataset.uid === estado.uidSelecionado));
+      el.setAttribute("aria-label", `${pilha.item.nome}${pilha.uids.length > 1 ? `, ${pilha.uids.length} unidades` : ""}`);
+      const abrir = (focarDetalhe = false) => {
         estado.uidSelecionado = pilha.uids[0];
-        grade.querySelectorAll(".hda-ladrilho").forEach((o) => o.classList.toggle("selecionado", o.dataset.uid === pilha.uids[0]));
-        desenharDetalhe(pilha.item, pilha.uids);
+        grade.querySelectorAll(".hda-ladrilho").forEach((o) => {
+          const selecionado = o.dataset.uid === pilha.uids[0];
+          o.classList.toggle("selecionado", selecionado);
+          o.setAttribute("aria-selected", String(selecionado));
+        });
+        desenharDetalhe(pilha.item, pilha.uids, { focar: focarDetalhe });
       };
-      el.onclick = abrir;
-      el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); } };
+      el.onclick = () => abrir(false);
+      el.onkeydown = (ev) => {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(true); }
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(ev.key)) {
+          ev.preventDefault();
+          const itens = [...grade.querySelectorAll(".hda-ladrilho")];
+          const colunas = Math.max(1, Math.round(grade.clientWidth / Math.max(1, el.getBoundingClientRect().width)));
+          const passo = ev.key === "ArrowLeft" ? -1 : ev.key === "ArrowRight" ? 1 : ev.key === "ArrowUp" ? -colunas : colunas;
+          itens[Math.max(0, Math.min(itens.length - 1, itens.indexOf(el) + passo))]?.focus();
+        }
+      };
     });
     if (pilhas.length > visiveis.length) {
       const mais = document.createElement("button");
@@ -354,7 +404,21 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // A parte que resolve o pedido: em vez de "equipar no personagem atual",
   // uma linha por membro dizendo o que ele tem hoje naquele slot e quanto
   // muda. Decidir em quem colocar deixa de exigir memória.
-  function desenharDetalhe(item, uids) {
+  function fecharDetalhe({ devolverFoco = false } = {}) {
+    const itemAnterior = estado.uidSelecionado;
+    estado.uidSelecionado = null;
+    painel.classList.remove("visivel");
+    painel.setAttribute("aria-hidden", "true");
+    painel.innerHTML = "";
+    orientacaoDetalhe.hidden = false;
+    painelMochila.querySelectorAll(".hda-ladrilho").forEach((el) => {
+      el.classList.remove("selecionado");
+      el.setAttribute("aria-selected", "false");
+    });
+    if (devolverFoco && itemAnterior) painelMochila.querySelector(`[data-uid="${itemAnterior}"]`)?.focus();
+  }
+
+  function desenharDetalhe(item, uids, { focar = false } = {}) {
     const cor = RARITY_COLORS[item.raridade] || "#888";
     const slot = slotDoItem(item);
     const ehConsumivel = item.tipo === "consumivel";
@@ -371,14 +435,15 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       if (ehConsumivel) {
         const falta = m.hpMax - m.hp;
         const util = item.curaHP ? Math.min(item.curaHP, falta) : 0;
-        return `<div class="party-linha-membro">
+        return `<div class="party-linha-membro${i === estado.membroIdx ? " membro-ativo" : ""}">
           <span class="party-linha-nome">${m.nome}</span>
-          <span class="party-linha-info">${falta > 0 ? `faltam ${falta} HP` : "vida cheia"}${item.curaHP ? ` · curaria ${util}` : ""}</span>
-          <button class="party-btn-usar" data-membro="${i}"${falta > 0 ? "" : " disabled"}>Usar</button>
+          <span class="party-linha-info"><small>ESTADO ATUAL</small>${falta > 0 ? `Faltam ${falta} HP` : "Vida cheia"}</span>
+          <span class="party-linha-resultado"><small>AO USAR</small><b class="party-melhor">${item.curaHP ? `+${util} HP` : "Efeito aplicado"}</b></span>
+          <button class="party-btn-usar" data-membro="${i}" aria-label="Usar ${item.nome} em ${m.nome}"${falta > 0 ? "" : " disabled"}>Usar</button>
         </div>`;
       }
       if (!slot) {
-        return `<div class="party-linha-membro"><span class="party-linha-nome">${m.nome}</span>
+        return `<div class="party-linha-membro${i === estado.membroIdx ? " membro-ativo" : ""}"><span class="party-linha-nome">${m.nome}</span>
           <span class="party-linha-info">este item não se equipa</span></div>`;
       }
       const atualItem = m.equipamento && m.equipamento[slot];
@@ -393,10 +458,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       const avisoReq = req && !req.ok
         ? `<span class="party-req-falta" title="${req.texto}">⚠ ${slot === "arma" ? "arma pesada" : "requisito"}: −${Math.round((1 - pen.dano) * 100)}% dano</span>`
         : "";
-      return `<div class="party-linha-membro${req && !req.ok ? " penalizado" : ""}">
+      return `<div class="party-linha-membro${req && !req.ok ? " penalizado" : ""}${i === estado.membroIdx ? " membro-ativo" : ""}">
         <span class="party-linha-nome">${m.nome}</span>
-        <span class="party-linha-info">${atualItem ? `usa ${atualItem.nome}` : `<i>${slot} vazio</i>`} ${sinal} ${avisoReq}</span>
-        <button class="party-btn-equipar" data-membro="${i}">Equipar</button>
+        <span class="party-linha-info"><small>ATUAL</small>${atualItem ? atualItem.nome : `<i>${slot} vazio</i>`}</span>
+        <span class="party-linha-seta" aria-hidden="true">→</span>
+        <span class="party-linha-resultado"><small>NOVO</small>${item.nome} ${sinal} ${avisoReq}</span>
+        <button class="party-btn-equipar" data-membro="${i}" aria-label="Equipar ${item.nome} em ${m.nome}">Equipar</button>
       </div>`;
     }).join("");
 
@@ -407,6 +474,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
           <div class="party-detalhe-nome" style="color:${cor}">${item.nome}</div>
           <div class="desc">${RARITY_LABEL[item.raridade] || ""}${slot ? ` · ${slot}` : ""}${uids.length > 1 ? ` · x${uids.length}` : ""}</div>
         </div>
+        <button class="party-detalhe-fechar" type="button" aria-label="Fechar comparação">×</button>
       </div>
       ${item.descricao ? `<p class="desc">${item.descricao}</p>` : ""}
       ${efeitosHtml}
@@ -415,11 +483,16 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         <button class="party-btn-vender">Vender por 🪙 ${Math.max(1, Math.round((item.valor || 1) * 0.5))}</button>
       </div>`;
 
+    orientacaoDetalhe.hidden = true;
+    painel.setAttribute("aria-hidden", "false");
+    painel.querySelector(".party-detalhe-fechar").onclick = () => fecharDetalhe({ devolverFoco: true });
+    painel.onkeydown = (ev) => { if (ev.key === "Escape") fecharDetalhe({ devolverFoco: true }); };
     painel.querySelectorAll(".party-btn-equipar").forEach((b) => {
       b.onclick = () => {
         const m = membros[Number(b.dataset.membro)];
         const r = equiparItem(personagem, uids[0], m);
-        if (!r.ok) { mostrarMensagem(r.msg || "Não deu para equipar.", 2400); return; }
+        if (!r.ok) { somBloqueioOuErro(); mostrarMensagem(r.msg || "Não deu para equipar.", 2400); return; }
+        somConfirmar();
         onMudar();
         mostrarMensagem(`${item.nome} equipado em ${m.nome}.`, 1800);
         estado.uidSelecionado = null;
@@ -430,7 +503,8 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       b.onclick = () => {
         const m = membros[Number(b.dataset.membro)];
         const r = usarConsumivel(personagem, uids[0], m);
-        if (!r.ok) { mostrarMensagem(r.msg || "Não deu para usar.", 2400); return; }
+        if (!r.ok) { somBloqueioOuErro(); mostrarMensagem(r.msg || "Não deu para usar.", 2400); return; }
+        somConfirmar();
         onMudar();
         mostrarMensagem(`${m.nome} usou ${item.nome}.`, 1800);
         redesenhar();
@@ -447,13 +521,14 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       };
     }
     painel.classList.add("visivel");
+    if (focar) painel.focus({ preventScroll: true });
+    if (!focar && interfaceToque) painel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   // ---- 5. ABA "FICHA DO PERSONAGEM" ---------------------------------------
   const painelFicha = document.createElement("div");
   painelFicha.className = "party-ficha companhia-painel companhia-ficha";
-  painelFicha.hidden = estado.aba !== "ficha";
-  corpo.appendChild(painelFicha);
+  if (estado.aba === "ficha") corpo.appendChild(painelFicha);
 
   function desenharFicha() {
     const m = ativo;
@@ -529,8 +604,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // ---- 6. ABA "EQUIPAR AUTOMÁTICO" ----------------------------------------
   const painelAuto = document.createElement("div");
   painelAuto.className = "party-auto companhia-painel companhia-auto";
-  painelAuto.hidden = estado.aba !== "auto";
-  corpo.appendChild(painelAuto);
+  if (estado.aba === "auto") corpo.appendChild(painelAuto);
 
   function desenharAuto() {
     // `planejarEquipamento` já existia e já sabia decidir — só nunca teve
@@ -558,6 +632,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     if (btn && acoes.length) {
       btn.onclick = () => {
         aplicarPlanoEquipamento(personagem, acoes);
+        somConfirmar();
         onMudar();
         mostrarMensagem(`🎽 ${acoes.length} peça(s) equipada(s) automaticamente.`, 2400);
         redesenhar();
@@ -580,10 +655,18 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     personagem: ativo,
   });
 
-  desenharGrade();
-  if (estado.uidSelecionado) {
-    const pilha = pilhasVisiveis().find((x) => x.uids[0] === estado.uidSelecionado);
-    if (pilha) desenharDetalhe(pilha.item, pilha.uids);
+  if (estado.aba === "mochila") {
+    areaGrade.setAttribute("aria-busy", "true");
+    areaGrade.innerHTML = `<div class="companhia-estado companhia-estado-carregando" role="status"><span aria-hidden="true"></span><strong>Organizando mochila…</strong><small>Comparando itens com a formação ativa.</small></div>`;
+    queueMicrotask(() => {
+      if (!areaGrade.isConnected) return;
+      desenharGrade();
+      if (estado.uidSelecionado) {
+        const pilha = pilhasVisiveis().find((x) => x.uids[0] === estado.uidSelecionado);
+        if (pilha) desenharDetalhe(pilha.item, pilha.uids);
+        else fecharDetalhe();
+      }
+    });
   }
 
   const equipadosTotal = membros.reduce((s, m) => s

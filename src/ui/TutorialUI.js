@@ -22,16 +22,30 @@ function escapar(texto) {
   return String(texto ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-function atalhoDaEtapa(etapa) {
-  const toque = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
-  if (!toque) return etapa.atalho;
+function atalhosDaEtapa(etapa) {
   const rotulos = {
     orientacao: "Direcional na tela", interacao: "Botão Ação", missao: "Missões",
     mapa: "Mapa", mochila: "Companhia", invocacao: "Invocar",
     combate: "Toque no card e no alvo", d20: "Toque em Rolar d20",
     taticas: "Cards e botão Automático", recompensa: "Habilidades e Herança",
   };
-  return rotulos[etapa.id] || "Toque na opção destacada";
+  return { teclado: etapa.atalho, toque: rotulos[etapa.id] || "Toque na opção destacada" };
+}
+
+function tempoFormatado(segundos) {
+  const valor = Math.max(0, Math.round(segundos));
+  return `${Math.floor(valor / 60)}:${String(valor % 60).padStart(2, "0")}`;
+}
+
+function tempoRestante(indice) {
+  return TUTORIAL_ETAPAS.slice(indice).reduce((total, etapa) => total + etapa.duracao, 0);
+}
+
+function trilhaDeEtapas(indice) {
+  return TUTORIAL_ETAPAS.map((etapa, posicao) => {
+    const estado = posicao < indice ? "concluida" : posicao === indice ? "atual" : "futura";
+    return `<span class="tutorial-marco ${estado}" aria-hidden="true"><i></i></span>`;
+  }).join("");
 }
 
 function demoMovimento() {
@@ -73,7 +87,9 @@ export function tutorialAberto() { return !!document.getElementById(ID); }
 
 export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false, aoEncerrar = null } = {}) {
   if (tutorialAberto()) return Promise.resolve({ status: "ja_aberto" });
-  if (oferecer && !deveOferecerTutorial(personagem)) return Promise.resolve({ status: "ignorado" });
+  const estadoInicial = garantirEstadoTutorial(personagem);
+  const podeRetomar = estadoInicial.status === "em_andamento";
+  if (oferecer && !deveOferecerTutorial(personagem) && !podeRetomar) return Promise.resolve({ status: "ignorado" });
 
   return new Promise((resolve) => {
     const camada = document.createElement("section");
@@ -86,9 +102,8 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
     document.body.classList.add("com-tutorial");
 
     const estadoSalvo = garantirEstadoTutorial(personagem);
-    // Uma repetição solicitada no menu/F1 é uma nova aula, não a retomada da
-    // última tela concluída. A etapa salva só interessa ao convite inicial.
-    let indice = oferecer ? Math.min(estadoSalvo.etapa || 0, TUTORIAL_ETAPAS.length - 1) : 0;
+    const retomando = estadoSalvo.status === "em_andamento";
+    let indice = retomando ? Math.min(estadoSalvo.etapa || 0, TUTORIAL_ETAPAS.length - 1) : 0;
     let treino = {};
     let iniciado = !oferecer;
 
@@ -101,10 +116,22 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
       resolve({ status });
     };
 
+    const suspender = () => {
+      registrarEtapaTutorial(personagem, indice);
+      document.removeEventListener("keydown", aoTeclado, true);
+      camada.remove();
+      document.body.classList.remove("com-tutorial");
+      if (aoEncerrar) aoEncerrar("pausado");
+      resolve({ status: "pausado", etapa: indice });
+    };
+
     const convite = () => {
       camada.className = "tutorial tutorial-convite";
-      camada.innerHTML = `<div class="tutorial-convite-card"><span class="tutorial-emblema">✦</span><small>PRIMEIROS PASSOS</small><h1>Conhecer Aethra em 10 minutos?</h1><p>Um percurso jogável ensina exploração, missões, mapa, equipe, invocação e uma batalha pausada. Você poderá pular a qualquer momento.</p><div class="tutorial-convite-acoes"><button id="tut-iniciar" class="primario">Começar tutorial</button><button id="tut-pular">Pular tutorial</button></div><small>Você pode repeti-lo depois em Mais → Tutorial.</small></div>`;
-      camada.querySelector("#tut-iniciar").onclick = () => { iniciado = true; iniciarTutorial(personagem, { reiniciar: true }); indice = 0; render(); };
+      const progresso = Math.round(((indice + 1) / TUTORIAL_ETAPAS.length) * 100);
+      camada.innerHTML = `<div class="tutorial-convite-card"><span class="tutorial-emblema">✦</span><small>PRIMEIROS PASSOS</small><h1>${retomando ? "Continuar sua jornada?" : "Conhecer Aethra em 10 minutos?"}</h1><p>${retomando ? `Você parou na etapa ${indice + 1} de ${TUTORIAL_ETAPAS.length}. Seu progresso está salvo.` : "Explore, aceite uma missão, prepare o time e vença uma batalha guiada."}</p>${retomando ? `<div class="tutorial-retomada"><span><b>${progresso}% concluído</b><small>aprox. ${tempoFormatado(tempoRestante(indice))} restantes</small></span><i><b style="width:${progresso}%"></b></i></div>` : ""}<div class="tutorial-convite-acoes"><button id="tut-iniciar" class="primario">${retomando ? `Retomar etapa ${indice + 1}` : "Começar tutorial"}</button>${retomando ? '<button id="tut-recomecar">Recomeçar</button>' : ""}<button id="tut-pular">Pular tutorial</button></div><small>Teclado e toque funcionam em todas as etapas. Reabra depois em Mais → Tutorial.</small></div>`;
+      camada.querySelector("#tut-iniciar").onclick = () => { iniciado = true; iniciarTutorial(personagem); render(); };
+      const recomecar = camada.querySelector("#tut-recomecar");
+      if (recomecar) recomecar.onclick = () => { iniciado = true; iniciarTutorial(personagem, { reiniciar: true }); indice = 0; render(); };
       camada.querySelector("#tut-pular").onclick = () => terminar("pulado");
       camada.querySelector("#tut-iniciar").focus();
     };
@@ -153,14 +180,16 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
 
     const render = () => {
       const etapa = TUTORIAL_ETAPAS[indice];
+      const atalhos = atalhosDaEtapa(etapa);
       treino = { pronto: false };
       registrarEtapaTutorial(personagem, indice);
       camada.className = "tutorial";
-      camada.innerHTML = `<header class="tutorial-topo"><div><small>TUTORIAL · ${etapa.minuto} / 10:00</small><b>${etapa.icone} ${escapar(etapa.titulo)}</b></div><button id="tut-pular">Pular tutorial</button></header>
-        <div class="tutorial-progresso" aria-label="Etapa ${indice + 1} de ${TUTORIAL_ETAPAS.length}"><i style="width:${((indice + 1) / TUTORIAL_ETAPAS.length) * 100}%"></i></div>
-        <main class="tutorial-corpo"><section class="tutorial-explica"><span class="tutorial-numero">${indice + 1}</span><div>${CONTEUDO[etapa.id].map((p) => `<p>${escapar(p)}</p>`).join("")}<kbd>${escapar(atalhoDaEtapa(etapa))}</kbd></div></section><section class="tutorial-demo">${htmlDemo(etapa)}</section></main>
-        <footer class="tutorial-rodape"><button id="tut-voltar" ${indice === 0 ? "disabled" : ""}>← Voltar</button><span>Etapa ${indice + 1}/${TUTORIAL_ETAPAS.length} · cerca de ${Math.ceil(etapa.duracao / 60)} min</span><button id="tut-avancar" class="primario" disabled>Pratique para continuar</button></footer>`;
+      camada.innerHTML = `<header class="tutorial-topo"><div class="tutorial-identidade"><small>TUTORIAL GUIADO</small><b>${etapa.icone} ${escapar(etapa.titulo)}</b></div><div class="tutorial-resumo" aria-label="Progresso do tutorial"><strong>Etapa ${indice + 1} de ${TUTORIAL_ETAPAS.length}</strong><span>${etapa.minuto} · ${tempoFormatado(tempoRestante(indice))} restantes</span></div><div class="tutorial-topo-acoes"><button id="tut-pausar" title="Seu progresso será salvo">Retomar depois</button><button id="tut-pular">Pular</button></div></header>
+        <div class="tutorial-progresso" role="progressbar" aria-label="Etapa ${indice + 1} de ${TUTORIAL_ETAPAS.length}" aria-valuemin="1" aria-valuemax="${TUTORIAL_ETAPAS.length}" aria-valuenow="${indice + 1}"><i style="width:${((indice + 1) / TUTORIAL_ETAPAS.length) * 100}%"></i><div class="tutorial-marcos">${trilhaDeEtapas(indice)}</div></div>
+        <main class="tutorial-corpo"><section class="tutorial-explica"><span class="tutorial-numero">${indice + 1}</span><div>${CONTEUDO[etapa.id].map((p) => `<p>${escapar(p)}</p>`).join("")}<div class="tutorial-controles" aria-label="Controles desta etapa"><span><small>TECLADO</small><kbd>${escapar(atalhos.teclado)}</kbd></span><span><small>TOQUE</small><b>${escapar(atalhos.toque)}</b></span></div></div></section><section class="tutorial-demo" aria-label="Prática da etapa ${indice + 1}">${htmlDemo(etapa)}</section></main>
+        <footer class="tutorial-rodape"><button id="tut-voltar" ${indice === 0 ? "disabled" : ""}>← Voltar</button><span aria-live="polite">Etapa ${indice + 1}/${TUTORIAL_ETAPAS.length} · ${Math.ceil(etapa.duracao / 60)} min nesta prática</span><button id="tut-avancar" class="primario" disabled>Pratique para continuar</button></footer>`;
       camada.querySelector("#tut-pular").onclick = () => terminar("pulado");
+      camada.querySelector("#tut-pausar").onclick = suspender;
       camada.querySelector("#tut-voltar").onclick = () => { indice -= 1; render(); };
       camada.querySelector("#tut-avancar").onclick = () => {
         if (!treino.pronto) return;
@@ -194,7 +223,11 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
       }
     };
     document.addEventListener("keydown", aoTeclado, true);
-    if (oferecer) convite(); else { iniciarTutorial(personagem, { reiniciar: true }); render(); }
+    if (oferecer) convite();
+    else {
+      iniciarTutorial(personagem, { reiniciar: !retomando });
+      render();
+    }
   });
 }
 

@@ -28,6 +28,7 @@
     "test:mobile:completo": "npm run test:mobile && npm run test:mobile:combate && npm run test:mobile:contrato && npm run test:mobile:exploracao",
     "test:criacao": "node scripts/test-criacao-personagem.mjs",
     "test:acessibilidade": "node scripts/test_accessibility.mjs",
+    "test:save-slots": "node scripts/test-save-slots-ux.mjs",
     "test:caminhos": "node scripts/test_caminhos_herdeiro_arquitetura.mjs",
     "test:etapa2": "node scripts/test-mundo-etapa2.mjs",
     "mapa": "node scripts/mapa-preview.mjs",

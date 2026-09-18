@@ -529,7 +529,8 @@ export class Renderer {
     const dx = alvo.x - inicio.x, dy = alvo.y - inicio.y;
     const dist = Math.hypot(dx, dy);
     if (dist < T * .45) return;
-    const limite = Math.min(dist, Math.max(this.canvas.width, this.canvas.height) * .44);
+    const alvoVisivel = alvo.x >= 0 && alvo.y >= 0 && alvo.x <= this.canvas.width && alvo.y <= this.canvas.height;
+    const limite = alvoVisivel ? Math.max(0, dist - T * .36) : Math.min(dist, Math.max(this.canvas.width, this.canvas.height) * .44);
     const fim = { x: inicio.x + dx / dist * limite, y: inicio.y + dy / dist * limite };
     ctx.save();
     ctx.lineCap = "round";
@@ -542,17 +543,21 @@ export class Renderer {
     ctx.beginPath(); ctx.moveTo(inicio.x, inicio.y); ctx.lineTo(fim.x, fim.y); ctx.stroke();
     ctx.setLineDash([]);
     const angulo = Math.atan2(dy, dx);
-    ctx.translate(fim.x, fim.y); ctx.rotate(angulo);
-    ctx.fillStyle = "#ffe27a";
-    ctx.strokeStyle = "rgba(34,20,7,.92)";
-    ctx.lineWidth = Math.max(1.5, T * .025);
-    ctx.beginPath(); ctx.moveTo(T * .18, 0); ctx.lineTo(-T * .11, -T * .12); ctx.lineTo(-T * .06, 0); ctx.lineTo(-T * .11, T * .12); ctx.closePath();
-    ctx.fill(); ctx.stroke();
+    // O destino visível já tem o selo de chão abaixo. Desenhar também uma
+    // ponta de seta no mesmo ponto criava dois sinais para um único objetivo.
+    if (!alvoVisivel) {
+      ctx.translate(fim.x, fim.y); ctx.rotate(angulo);
+      ctx.fillStyle = "#ffe27a";
+      ctx.strokeStyle = "rgba(34,20,7,.92)";
+      ctx.lineWidth = Math.max(1.5, T * .025);
+      ctx.beginPath(); ctx.moveTo(T * .18, 0); ctx.lineTo(-T * .11, -T * .12); ctx.lineTo(-T * .06, 0); ctx.lineTo(-T * .11, T * .12); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    }
     ctx.restore();
 
     // Se o objetivo está dentro da câmera, ele recebe um selo pulsante no
     // chão. Fora dela, a seta acima continua indicando a direção correta.
-    if (alvo.x >= 0 && alvo.y >= 0 && alvo.x <= this.canvas.width && alvo.y <= this.canvas.height) {
+    if (alvoVisivel) {
       const pulso = .82 + Math.sin(Date.now() / 210) * .12;
       ctx.save();
       ctx.strokeStyle = "#ffe27a";

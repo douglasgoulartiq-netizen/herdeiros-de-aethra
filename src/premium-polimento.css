@@ -12,6 +12,22 @@
   --premium-sombra: 0 18px 52px rgba(0, 0, 0, .46);
 }
 
+/* A camada premium herda a mesma voz tipográfica e geometria das telas-base. */
+#modal-conteudo,
+.hda-modal,
+.hda-sheet,
+.painel-criacao,
+.recompensa-painel { font-family: var(--hda-font-body); }
+
+#modal-conteudo h1,
+#modal-conteudo h2,
+#modal-conteudo h3,
+.hda-modal h1,
+.hda-modal h2,
+.hda-sheet h2,
+.painel-criacao h1,
+.painel-criacao h2 { font-family: var(--hda-font-display); line-height: var(--hda-leading-tight); }
+
 /* Superfícies e controles passam a falar a mesma linguagem visual. */
 #modal-conteudo,
 .hda-modal,

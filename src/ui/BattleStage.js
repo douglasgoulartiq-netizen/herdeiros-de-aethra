@@ -51,6 +51,12 @@ function ruido(semente) {
   };
 }
 const semeteDe = (txt) => [...String(txt)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const comAlpha = (cor, alpha) => {
+  const hex = String(cor || "").match(/^#([0-9a-f]{6})$/i);
+  if (!hex) return cor || `rgba(20,24,28,${alpha})`;
+  const valor = Number.parseInt(hex[1], 16);
+  return `rgba(${valor >> 16},${(valor >> 8) & 255},${valor & 255},${alpha})`;
+};
 
 // Desenha o cenário no canvas de fundo usando os TILES REAIS do jogo
 // (assets/tiles/tileset.png). Três faixas: céu, vegetação distante
@@ -76,6 +82,10 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
 
   const id = String(cenario.id || "campo").toLowerCase();
   const [ceuTopo, ceuBase] = cenario.ceu || ["#161a22", "#343642"];
+  const paleta = cenario.paleta || {};
+  const [pisoHorizonte, pisoProfundo] = paleta.piso || ["#24272a", "#121316"];
+  const [silhuetaDistante, silhuetaProxima] = paleta.silhueta || ["#20272a", "#0d1215"];
+  const corNeblina = paleta.neblina || "#d2dce0";
   const rnd = ruido(semeteDe(id));
   const linhaHorizonte = Math.round(A * Math.min(0.55, Math.max(0.16, fracHorizonte)));
   const alturaChao = A - linhaHorizonte;
@@ -109,51 +119,51 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
   // Uma assinatura visual por terreno, construída com no máximo quatro
   // formas grandes. Não há repetição de árvores/pedras nem textura ruidosa.
   if (id.includes("mont") || id.includes("gelo") || id.includes("neve")) {
-    massa([[0, .02], [.16, .24], [.31, .06], [.49, .31], [.68, .08], [.83, .25], [1, .03]], "rgba(18,25,38,.62)");
-    massa([[0, .01], [.24, .13], [.42, .04], [.64, .19], [.82, .03], [1, .1]], "rgba(10,15,24,.72)");
+    massa([[0, .02], [.16, .24], [.31, .06], [.49, .31], [.68, .08], [.83, .25], [1, .03]], comAlpha(silhuetaDistante, .78));
+    massa([[0, .01], [.24, .13], [.42, .04], [.64, .19], [.82, .03], [1, .1]], comAlpha(silhuetaProxima, .88));
   } else if (id.includes("flor") || id.includes("bosque")) {
     [[.09,.12,.08],[.29,.18,.11],[.73,.16,.12],[.91,.1,.07]].forEach(([x,h,r]) => {
-      ctx.fillStyle = "rgba(9,18,17,.72)";
+      ctx.fillStyle = comAlpha(silhuetaProxima, .82);
       ctx.fillRect(x * L - L * .012, linhaHorizonte - h * A, L * .024, h * A);
-      elipse(x, linhaHorizonte - h * A, r, .08, "rgba(12,29,23,.78)");
+      elipse(x, linhaHorizonte - h * A, r, .08, comAlpha(silhuetaDistante, .9));
     });
   } else if (id.includes("pant") || id.includes("lama")) {
-    massa([[0,.01],[.2,.07],[.43,.025],[.7,.08],[1,.02]], "rgba(11,25,24,.7)");
-    ctx.strokeStyle = "rgba(36,65,54,.72)"; ctx.lineWidth = Math.max(2, L / 420);
+    massa([[0,.01],[.2,.07],[.43,.025],[.7,.08],[1,.02]], comAlpha(silhuetaDistante, .86));
+    ctx.strokeStyle = comAlpha(corNeblina, .42); ctx.lineWidth = Math.max(2, L / 420);
     for (let i = 0; i < 8; i += 1) {
       const x = (i + .5) * L / 8;
       ctx.beginPath(); ctx.moveTo(x, linhaHorizonte); ctx.lineTo(x + (i % 2 ? 5 : -5), linhaHorizonte - A * (.035 + rnd() * .04)); ctx.stroke();
     }
   } else if (id.includes("desert") || id.includes("areia")) {
-    elipse(.25, linhaHorizonte + A * .08, .43, .16, "rgba(112,76,43,.42)");
-    elipse(.78, linhaHorizonte + A * .08, .5, .2, "rgba(83,57,38,.5)");
+    elipse(.25, linhaHorizonte + A * .08, .43, .16, comAlpha(silhuetaDistante, .62));
+    elipse(.78, linhaHorizonte + A * .08, .5, .2, comAlpha(silhuetaProxima, .7));
   } else if (id.includes("cost") || id.includes("praia") || id.includes("agua")) {
-    ctx.fillStyle = "rgba(38,102,123,.25)"; ctx.fillRect(0, linhaHorizonte - 2, L, Math.max(8, alturaChao * .24));
-    elipse(.13, linhaHorizonte + A * .02, .08, .035, "rgba(18,25,31,.72)");
-    elipse(.87, linhaHorizonte + A * .015, .11, .045, "rgba(18,25,31,.68)");
+    ctx.fillStyle = comAlpha(corNeblina, .18); ctx.fillRect(0, linhaHorizonte - 2, L, Math.max(8, alturaChao * .24));
+    elipse(.13, linhaHorizonte + A * .02, .08, .035, comAlpha(silhuetaProxima, .82));
+    elipse(.87, linhaHorizonte + A * .015, .11, .045, comAlpha(silhuetaProxima, .78));
   } else if (id.includes("ruin")) {
-    ctx.fillStyle = "rgba(22,23,28,.72)";
+    ctx.fillStyle = comAlpha(silhuetaProxima, .82);
     ctx.fillRect(L * .08, linhaHorizonte - A * .2, L * .045, A * .2);
     ctx.fillRect(L * .84, linhaHorizonte - A * .26, L * .052, A * .26);
     ctx.fillRect(L * .075, linhaHorizonte - A * .21, L * .07, A * .022);
     ctx.fillRect(L * .825, linhaHorizonte - A * .27, L * .085, A * .022);
   } else if (id.includes("masm") || id.includes("dungeon") || id.includes("caver")) {
-    ctx.fillStyle = "rgba(7,9,13,.7)"; ctx.fillRect(0, 0, L, linhaHorizonte);
-    ctx.fillStyle = "rgba(30,31,38,.66)";
+    ctx.fillStyle = comAlpha(silhuetaProxima, .8); ctx.fillRect(0, 0, L, linhaHorizonte);
+    ctx.fillStyle = comAlpha(silhuetaDistante, .76);
     ctx.fillRect(L * .06, 0, L * .07, linhaHorizonte);
     ctx.fillRect(L * .87, 0, L * .07, linhaHorizonte);
   } else if (id.includes("vila") || id.includes("cidade")) {
-    massa([[0,.01],[.12,.12],[.25,.01],[.39,.17],[.54,.01],[.7,.11],[.83,.01],[.94,.15],[1,.02]], "rgba(17,20,25,.72)");
+    massa([[0,.01],[.12,.12],[.25,.01],[.39,.17],[.54,.01],[.7,.11],[.83,.01],[.94,.15],[1,.02]], comAlpha(silhuetaProxima, .84));
   } else {
-    massa([[0,.02],[.2,.09],[.42,.025],[.65,.11],[.82,.04],[1,.08]], "rgba(19,27,27,.52)");
+    massa([[0,.02],[.2,.09],[.42,.025],[.65,.11],[.82,.04],[1,.08]], comAlpha(silhuetaDistante, .66));
   }
 
   // Piso em planos largos: ainda usa a paleta do terreno verdadeiro, mas
   // sem o mosaico de blocos que poluía a batalha.
   const chao = ctx.createLinearGradient(0, linhaHorizonte, 0, A);
-  chao.addColorStop(0, "rgba(28,31,34,.88)");
-  chao.addColorStop(.5, "rgba(36,35,33,.94)");
-  chao.addColorStop(1, "rgba(18,19,22,1)");
+  chao.addColorStop(0, pisoHorizonte);
+  chao.addColorStop(.58, comAlpha(pisoHorizonte, .96));
+  chao.addColorStop(1, pisoProfundo);
   ctx.fillStyle = chao;
   ctx.fillRect(0, linhaHorizonte, L, alturaChao);
 
@@ -206,9 +216,9 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
   }
 
   const nevoa = ctx.createLinearGradient(0, linhaHorizonte - A * .06, 0, linhaHorizonte + A * .12);
-  nevoa.addColorStop(0, "rgba(210,220,224,0)");
-  nevoa.addColorStop(.5, "rgba(210,220,224,.055)");
-  nevoa.addColorStop(1, "rgba(210,220,224,0)");
+  nevoa.addColorStop(0, comAlpha(corNeblina, 0));
+  nevoa.addColorStop(.5, comAlpha(corNeblina, .075));
+  nevoa.addColorStop(1, comAlpha(corNeblina, 0));
   ctx.fillStyle = nevoa;
   ctx.fillRect(0, linhaHorizonte - A * .06, L, A * .18);
 

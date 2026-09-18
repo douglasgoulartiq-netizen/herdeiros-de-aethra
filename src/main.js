@@ -292,42 +292,147 @@ async function boot() {
   configurarControlesToque();
 }
 
-function montarSlotsDeSave() {
+function escaparHtml(texto) {
+  return String(texto ?? "").replace(/[&<>'"]/g, (caractere) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+  })[caractere]);
+}
+
+function rotuloDeId(id, reserva = "Aventureiro") {
+  if (!id) return reserva;
+  return String(id).replace(/[_-]+/g, " ").replace(/\b\p{L}/gu, (letra) => letra.toUpperCase());
+}
+
+function dataDoSave(timestamp) {
+  const data = new Date(Number(timestamp));
+  if (!timestamp || Number.isNaN(data.getTime())) return { texto: "Data não registrada", iso: "" };
+  return {
+    texto: new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(data),
+    iso: data.toISOString(),
+  };
+}
+
+function confirmarExclusaoSlot(info) {
+  const dialogo = document.createElement("dialog");
+  dialogo.className = "dialogo-excluir-save";
+  dialogo.setAttribute("aria-labelledby", "excluir-save-titulo");
+  dialogo.setAttribute("aria-describedby", "excluir-save-descricao");
+  const nome = escaparHtml(info?.nome || `Slot ${info?.numero || ""}`);
+  dialogo.innerHTML = `
+    <form method="dialog">
+      <span class="dialogo-save-icone" aria-hidden="true">⚠</span>
+      <h2 id="excluir-save-titulo">Excluir esta jornada?</h2>
+      <p id="excluir-save-descricao"><b>${nome}</b> será removido deste dispositivo. Esta ação não pode ser desfeita.</p>
+      <div class="dialogo-save-acoes">
+        <button value="cancelar" class="dialogo-save-cancelar" autofocus>Cancelar</button>
+        <button value="excluir" class="perigo dialogo-save-confirmar">Excluir definitivamente</button>
+      </div>
+    </form>`;
+  dialogo.addEventListener("keydown", (evento) => {
+    const botoes = [...dialogo.querySelectorAll("button")];
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(evento.key)) {
+      evento.preventDefault();
+      evento.stopPropagation();
+      const atual = Math.max(0, botoes.indexOf(document.activeElement));
+      const passo = evento.key === "ArrowLeft" || evento.key === "ArrowUp" ? -1 : 1;
+      botoes[(atual + passo + botoes.length) % botoes.length]?.focus();
+    } else if (evento.key === "Enter" || evento.key === " " || evento.key === "Spacebar") {
+      // O botão focado mantém sua ação nativa; só impede o cursor global da
+      // tela inicial de acionar algum controle que ficou atrás do diálogo.
+      evento.stopPropagation();
+    }
+  });
+  document.body.appendChild(dialogo);
+  dialogo.addEventListener("close", () => {
+    const deveExcluir = dialogo.returnValue === "excluir";
+    dialogo.remove();
+    if (deveExcluir) apagarSave(info.numero);
+    montarSlotsDeSave({ focarSlot: info.numero });
+  }, { once: true });
+  if (typeof dialogo.showModal === "function") dialogo.showModal();
+  else {
+    const deveExcluir = window.confirm(`Excluir a jornada de ${info?.nome || "este personagem"}? Esta ação não pode ser desfeita.`);
+    dialogo.remove();
+    if (deveExcluir) apagarSave(info.numero);
+    montarSlotsDeSave({ focarSlot: info.numero });
+  }
+}
+
+function montarSlotsDeSave({ focarSlot = null } = {}) {
   const raiz = document.getElementById("save-slots");
   if (!raiz) return;
   const ativo = slotAtivo();
   const slots = listarSlots();
-  raiz.innerHTML = `<div class="slots-titulo">Suas jornadas</div><div class="slots-grade">${slots.map((s) => `
-    <button id="save-slot-${s.numero}" class="save-slot${s.numero === ativo ? " ativo" : ""}${s.vazio ? " vazio" : ""}" data-slot="${s.numero}">
-      <span class="slot-numero">${s.numero}</span>
-      <span class="slot-info"><b>${s.vazio ? "Nova história" : s.nome}</b><small>${s.vazio ? "Slot vazio" : `Nível ${s.nivel} · ${s.racaId} ${s.classeId}`}</small></span>
-      ${s.vazio ? "" : `<span class="slot-apagar" data-apagar="${s.numero}" title="Excluir esta jornada">×</span>`}
-    </button>`).join("")}</div>`;
-  raiz.querySelectorAll(".save-slot").forEach((btn) => btn.onclick = (ev) => {
-    if (ev.target.closest("[data-apagar]")) return;
+  raiz.innerHTML = `
+    <div class="slots-cabecalho">
+      <div><span class="slots-sobrelinha">Arquivo de jornadas</span><h2 class="slots-titulo">Escolha seu herdeiro</h2></div>
+      <span class="slots-ajuda">4 espaços independentes</span>
+    </div>
+    <div class="slots-grade">${slots.map((s) => {
+      const selecionado = s.numero === ativo;
+      const estado = s.corrompido ? "indisponível" : s.vazio ? "livre" : "em andamento";
+      const data = dataDoSave(s.atualizadoEm);
+      const nome = s.corrompido ? "Dados indisponíveis" : s.vazio ? "Nova jornada" : escaparHtml(s.nome);
+      const identidade = s.vazio
+        ? (s.corrompido ? "Exclua os dados inválidos para reutilizar este espaço." : "Um novo destino aguarda seu personagem.")
+        : `Nv. ${s.nivel} · ${rotuloDeId(s.racaId)} · ${rotuloDeId(s.classeId)}`;
+      const progresso = s.vazio ? "Sem progresso" : `${s.missoesConcluidas} missões · ${s.areasDescobertas} áreas${s.ngPlus ? ` · NG+${s.ngPlus}` : ""}`;
+      const descricao = s.vazio ? identidade : `${identidade}. ${progresso}. Último save: ${data.texto}.`;
+      return `
+        <article class="save-slot-card ${s.vazio ? "vazio" : "ocupado"}${s.corrompido ? " corrompido" : ""}${selecionado ? " ativo" : ""}" data-slot-card="${s.numero}">
+          <button type="button" id="save-slot-${s.numero}" class="save-slot" data-slot="${s.numero}"
+            aria-pressed="${selecionado}" aria-label="Slot ${s.numero}: ${escaparHtml(descricao)}">
+            <span class="slot-topo"><span class="slot-numero">${s.numero}</span><span class="slot-estado">${estado}</span></span>
+            <span class="slot-info">
+              <b>${nome}</b>
+              <small class="slot-identidade">${identidade}</small>
+              <small class="slot-progresso">${progresso}</small>
+              ${s.vazio ? "" : `<time datetime="${data.iso}">Salvo em ${data.texto}</time>`}
+            </span>
+            <span class="slot-chamada">${selecionado ? "✓ Selecionado" : (s.vazio ? "Usar este espaço" : "Selecionar jornada")}</span>
+          </button>
+          ${s.vazio && !s.corrompido ? "" : `<button type="button" id="apagar-save-slot-${s.numero}" class="slot-apagar" data-apagar="${s.numero}" aria-label="Excluir ${nome} do Slot ${s.numero}"><span aria-hidden="true">⌫</span> Excluir</button>`}
+        </article>`;
+    }).join("")}</div>
+    <p class="slot-instrucao">Use as setas para navegar e Enter para selecionar.</p>`;
+  raiz.querySelectorAll(".save-slot").forEach((btn) => btn.onclick = () => {
     selecionarSlot(Number(btn.dataset.slot));
-    montarSlotsDeSave();
+    montarSlotsDeSave({ focarSlot: Number(btn.dataset.slot) });
   });
   raiz.querySelectorAll("[data-apagar]").forEach((btn) => btn.onclick = (ev) => {
     ev.stopPropagation();
     const n = Number(btn.dataset.apagar);
     const info = slots.find((s) => s.numero === n);
-    if (window.confirm(`Excluir a jornada de ${info?.nome || "este personagem"}? Esta ação não pode ser desfeita.`)) {
-      apagarSave(n); montarSlotsDeSave();
-    }
+    confirmarExclusaoSlot(info);
   });
-  const tem = existeSave(slotAtivo());
+  const selecionado = slots.find((s) => s.numero === slotAtivo());
+  const tem = !!selecionado && !selecionado.vazio && !selecionado.corrompido;
   const continuar = document.getElementById("btn-continuar");
   const novo = document.getElementById("btn-novo-jogo");
   continuar.classList.toggle("hidden", !tem);
-  continuar.textContent = `Continuar Slot ${slotAtivo()}`;
+  continuar.classList.toggle("primario", tem);
+  continuar.textContent = tem ? `Continuar com ${selecionado.nome}` : "Continuar aventura";
   continuar.onclick = () => continuarJogo();
-  novo.textContent = tem ? `Nova aventura no Slot ${slotAtivo()}` : `Criar personagem no Slot ${slotAtivo()}`;
+  novo.classList.toggle("primario", !tem);
+  novo.classList.toggle("secundario", tem);
+  novo.textContent = tem ? `Recomeçar o Slot ${slotAtivo()}` : `Criar personagem no Slot ${slotAtivo()}`;
   novo.onclick = () => {
     if (tem && !window.confirm(`O Slot ${slotAtivo()} já tem uma jornada. Deseja substituí-la por um novo personagem?`)) return;
     iniciarCriacao();
   };
+  const ng = document.getElementById("btn-ng-plus");
+  ng.classList.add("hidden");
+  if (tem) {
+    const salvoAtual = carregarJogo();
+    if (elegivelParaNgPlus(salvoAtual)) {
+      const proximoNivel = (salvoAtual.personagem.ngPlus || 0) + 1;
+      ng.textContent = `Nova Jornada+ (NG+${proximoNivel})`;
+      ng.classList.remove("hidden");
+      ng.onclick = () => iniciarCriacaoNgPlus(salvoAtual);
+    }
+  }
   configurarNavegacaoBoot();
+  if (focarSlot !== null) requestAnimationFrame(() => document.getElementById(`save-slot-${focarSlot}`)?.focus());
 }
 
 function configurarNavegacaoBoot() {
@@ -339,14 +444,28 @@ function configurarNavegacaoBoot() {
   const login = document.querySelector("#painel-login button");
   const principal = continuar && !continuar.classList.contains("hidden") ? continuar : novo;
   const acoes = [novo, continuar, ng].filter((el) => el && !el.classList.contains("hidden"));
+  const compacto = window.matchMedia("(max-width: 720px)").matches;
 
   slots.forEach((slot, indice) => {
-    slot.dataset.navLeft = `#save-slot-${slots[(indice - 1 + slots.length) % slots.length].dataset.slot}`;
-    slot.dataset.navRight = `#save-slot-${slots[(indice + 1) % slots.length].dataset.slot}`;
-    if (principal) slot.dataset.navDown = `#${principal.id}`;
+    const anterior = compacto && indice % 2 === 0 ? slots[indice + 1] : slots[(indice - 1 + slots.length) % slots.length];
+    const proximo = compacto && indice % 2 === 1 ? slots[indice - 1] : slots[(indice + 1) % slots.length];
+    slot.dataset.navLeft = `#${anterior.id}`;
+    slot.dataset.navRight = `#${proximo.id}`;
+    const abaixo = compacto ? slots[indice + 2] : null;
+    const excluir = slot.closest(".save-slot-card")?.querySelector(".slot-apagar");
+    if (abaixo) slot.dataset.navDown = `#${abaixo.id}`;
+    else if (excluir) slot.dataset.navDown = `#${excluir.id}`;
+    else if (principal) slot.dataset.navDown = `#${principal.id}`;
+    if (compacto && indice >= 2) slot.dataset.navUp = `#${slots[indice - 2].id}`;
+    if (excluir) {
+      excluir.dataset.navUp = `#${slot.id}`;
+      if (principal) excluir.dataset.navDown = `#${principal.id}`;
+    }
   });
   acoes.forEach((acao, indice) => {
-    const anterior = acoes[indice - 1] || slots.find((s) => s.classList.contains("ativo")) || slots[0];
+    const slotSelecionado = slots.find((s) => s.getAttribute("aria-pressed") === "true") || slots[0];
+    const excluirSelecionado = slotSelecionado?.closest(".save-slot-card")?.querySelector(".slot-apagar");
+    const anterior = acoes[indice - 1] || excluirSelecionado || slotSelecionado;
     const proxima = acoes[indice + 1] || acessibilidade;
     if (anterior) acao.dataset.navUp = `#${anterior.id}`;
     if (proxima) acao.dataset.navDown = `#${proxima.id}`;
@@ -358,7 +477,7 @@ function configurarNavegacaoBoot() {
   }
   if (login) {
     login.dataset.navUp = "#btn-acessibilidade";
-    login.dataset.navDown = `#${slots.find((s) => s.classList.contains("ativo"))?.id || slots[0]?.id}`;
+    login.dataset.navDown = `#${slots.find((s) => s.getAttribute("aria-pressed") === "true")?.id || slots[0]?.id}`;
   }
 }
 

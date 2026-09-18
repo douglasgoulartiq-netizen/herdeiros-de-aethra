@@ -23,10 +23,129 @@
 // fazia a ação principal sair de vista assim que a lista crescia — o problema
 // nº 1 da auditoria.
 import { INTERVALO_CAIXA_TEXTO_MS } from "../systems/AutoPlayState.js";
-import { somInterfaceAbrir, somInterfaceFechar } from "./SoundFX.js";
+import { somInterfaceAbrir, somInterfaceFechar, somTrocarAba } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
+
+// O modal e o mundo dividem o mesmo #app. Enquanto uma janela estiver
+// aberta, o foco deve pertencer somente a ela: além de ser previsível para
+// teclado, isso impede leitores de tela e controles por switch de alcançarem
+// o HUD/canvas que continuam visíveis atrás da camada.
+let modalAtivo = false;
+let focoAntesDoModal = null;
+let acaoFecharModalAtual = null;
+let quadroFocoModal = 0;
+const inertAnterior = new Map();
+
+const SELETOR_FOCAVEL = [
+  "button:not([disabled])", "[href]", "input:not([disabled])",
+  "select:not([disabled])", "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function modalEstaAberto() {
+  const camada = overlay();
+  return !!camada && !camada.classList.contains("hidden");
+}
+
+function elementoEstaVisivel(el) {
+  if (!el || el.hidden || el.closest("[hidden], [aria-hidden='true']")) return false;
+  const estilo = typeof getComputedStyle === "function" ? getComputedStyle(el) : null;
+  return !estilo || (estilo.display !== "none" && estilo.visibility !== "hidden");
+}
+
+function focaveisDentro(raiz) {
+  return [...(raiz?.querySelectorAll(SELETOR_FOCAVEL) || [])].filter(elementoEstaVisivel);
+}
+
+function tornarMundoInerte() {
+  if (typeof HTMLElement === "undefined" || !("inert" in HTMLElement.prototype)) return;
+  const camada = overlay();
+  const app = camada?.parentElement;
+  const alvos = [
+    ...(app ? [...app.children].filter((el) => el !== camada) : []),
+    ...document.querySelectorAll("body > .hda-navbar"),
+  ];
+  for (const el of alvos) {
+    if (inertAnterior.has(el)) continue;
+    inertAnterior.set(el, el.inert);
+    el.inert = true;
+  }
+}
+
+function restaurarMundo() {
+  for (const [el, valor] of inertAnterior) {
+    if (el.isConnected) el.inert = valor;
+  }
+  inertAnterior.clear();
+}
+
+function associarTituloAoDialogo() {
+  const raiz = conteudo();
+  if (!raiz) return null;
+  raiz.setAttribute("role", "dialog");
+  raiz.setAttribute("aria-modal", "true");
+  raiz.setAttribute("tabindex", "-1");
+  const titulo = raiz.querySelector(".hda-modal-cab h2, h1, h2, h3");
+  if (titulo) {
+    if (!titulo.id) titulo.id = "hda-modal-titulo";
+    titulo.setAttribute("tabindex", "-1");
+    raiz.setAttribute("aria-labelledby", titulo.id);
+    raiz.removeAttribute("aria-label");
+  } else {
+    raiz.removeAttribute("aria-labelledby");
+    raiz.setAttribute("aria-label", "Janela do jogo");
+  }
+  return titulo;
+}
+
+function focarInicioDoModal() {
+  if (!modalEstaAberto()) return;
+  const raiz = conteudo();
+  const titulo = associarTituloAoDialogo();
+  const alvo = raiz?.querySelector("[autofocus], .hda-fechar, .fechar")
+    || focaveisDentro(raiz)[0]
+    || titulo
+    || raiz;
+  alvo?.focus?.({ preventScroll: true });
+}
+
+function ativarModal(acaoFechar = null) {
+  const camada = overlay();
+  if (!camada) return;
+  if (!modalAtivo) {
+    const ativo = document.activeElement;
+    focoAntesDoModal = ativo && ativo !== document.body ? ativo : null;
+  }
+  modalAtivo = true;
+  if (acaoFechar) acaoFecharModalAtual = acaoFechar;
+  camada.setAttribute("aria-hidden", "false");
+  associarTituloAoDialogo();
+  tornarMundoInerte();
+  if (quadroFocoModal) cancelAnimationFrame(quadroFocoModal);
+  quadroFocoModal = requestAnimationFrame(() => {
+    quadroFocoModal = 0;
+    focarInicioDoModal();
+  });
+}
+
+function desativarModal() {
+  if (!modalAtivo && !inertAnterior.size) return;
+  const origem = focoAntesDoModal;
+  modalAtivo = false;
+  focoAntesDoModal = null;
+  acaoFecharModalAtual = null;
+  if (quadroFocoModal) cancelAnimationFrame(quadroFocoModal);
+  quadroFocoModal = 0;
+  overlay()?.setAttribute("aria-hidden", "true");
+  restaurarMundo();
+  requestAnimationFrame(() => {
+    if (!modalEstaAberto() && origem?.isConnected && !origem.disabled && !origem.inert) {
+      origem.focus({ preventScroll: true });
+    }
+  });
+}
 
 // Largura-alvo por densidade de conteúdo. Uma tela de leitura (Acessibilidade)
 // não deve esticar até 1400px; uma grade de itens deve.
@@ -66,6 +185,7 @@ export function cabeDuasColunas() {
  * @returns {{raiz, cabecalho, corpo, definirAbas, definirAcoes, definirSubtitulo, fechar}}
  */
 export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, classe = "", corpoSemPadding = false, aoFechar = null } = {}) {
+  const estavaAberta = modalEstaAberto();
   const raiz = conteudo();
   overlay().classList.remove("hidden");
   delete raiz.dataset.autoAvancarEm;
@@ -74,7 +194,7 @@ export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, cla
   raiz.style.setProperty("--hda-modal-larg", largura);
   raiz.innerHTML = `
     <header class="hda-modal-cab">
-      <h2 title="${escapar(titulo)}">${titulo}</h2>
+      <h2 id="hda-modal-titulo" tabindex="-1" title="${escapar(titulo)}">${escapar(titulo)}</h2>
       ${subtitulo ? `<span class="hda-modal-sub">${subtitulo}</span>` : ""}
       <button type="button" class="hda-fechar fechar" aria-label="Fechar" title="Fechar (Esc)">✕</button>
     </header>
@@ -84,6 +204,8 @@ export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, cla
   const cabecalho = raiz.querySelector(".hda-modal-cab");
   const fechar = () => { fecharTela(); if (aoFechar) aoFechar(); };
   raiz.querySelector(".hda-fechar").onclick = fechar;
+  ativarModal(fechar);
+  if (!estavaAberta) somInterfaceAbrir();
 
   return {
     raiz, cabecalho, corpo, fechar,
@@ -131,14 +253,19 @@ export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, cla
 }
 
 export function fecharTela() {
-  fecharSheet();
-  overlay().classList.add("hidden");
+  const estavaAberta = modalEstaAberto();
+  fecharSheet(true);
+  const camada = overlay();
+  camada.classList.add("hidden");
+  camada.setAttribute("aria-hidden", "true");
   const raiz = conteudo();
   delete raiz.dataset.autoAvancarEm;
   delete raiz.dataset.interacao;
   raiz.className = "";
   raiz.removeAttribute("style");
   raiz.innerHTML = "";
+  desativarModal();
+  if (estavaAberta) somInterfaceFechar();
 }
 
 // Interações narrativas abertas durante a exploração recebem um relógio
@@ -178,35 +305,60 @@ function escapar(s) {
  * @param {Array<{id, rotulo, icone?}>} abas
  */
 export function montarAbas(abas, aoTrocar, ativa = null, { sub = false } = {}) {
-  const atual = ativa || abas[0].id;
-  if (ehMobile() && abas.length > 5) {
-    const wrap = document.createElement("div");
-    wrap.className = "hda-tabs-wrap";
-    const sel = document.createElement("select");
-    sel.className = "hda-tabs-select";
-    sel.setAttribute("aria-label", "Seção");
-    sel.innerHTML = abas.map((a) => `<option value="${a.id}"${a.id === atual ? " selected" : ""}>${a.icone ? `${a.icone} ` : ""}${a.rotulo}</option>`).join("");
-    sel.onchange = () => aoTrocar(sel.value);
-    wrap.appendChild(sel);
-    return wrap;
-  }
-  const nav = document.createElement("nav");
-  nav.className = `hda-tabs${sub ? " hda-subtabs" : ""}`;
-  nav.setAttribute("role", "tablist");
+  let atual = abas.some((a) => a.id === ativa) ? ativa : abas[0]?.id;
+  const nav = document.createElement("div");
+  nav.className = `hda-tabs${sub ? " hda-subtabs" : ""}${abas.length > 5 ? " hda-tabs-muitas" : ""}`;
+  nav.dataset.abaAtiva = atual || "";
+
+  // Os dois controles ficam no DOM o tempo inteiro. O CSS decide qual deles
+  // aparece em cada largura; assim girar o aparelho não exige remontar a tela
+  // nem perde a aba que o jogador estava usando.
+  const sel = document.createElement("select");
+  sel.className = "hda-tabs-select";
+  sel.setAttribute("aria-label", "Seção");
+  sel.innerHTML = abas.map((a) => `<option value="${a.id}"${a.id === atual ? " selected" : ""}>${a.icone ? `${a.icone} ` : ""}${a.rotulo}</option>`).join("");
+  nav.appendChild(sel);
+
+  const faixa = document.createElement("div");
+  faixa.className = "hda-tabs-faixa";
+  faixa.setAttribute("role", "tablist");
   for (const a of abas) {
     const b = document.createElement("button");
     b.type = "button";
     b.setAttribute("role", "tab");
     b.setAttribute("aria-selected", String(a.id === atual));
+    b.dataset.abaId = a.id;
     b.className = a.id === atual ? "ativa" : "";
     b.textContent = a.icone ? `${a.icone} ${a.rotulo}` : a.rotulo;
-    b.onclick = () => aoTrocar(a.id);
-    nav.appendChild(b);
+    faixa.appendChild(b);
   }
+  nav.appendChild(faixa);
+
+  const selecionar = (id, notificar = true) => {
+    if (!abas.some((a) => a.id === id)) return;
+    if (id === atual) return;
+    atual = id;
+    nav.dataset.abaAtiva = id;
+    sel.value = id;
+    faixa.querySelectorAll("[role='tab']").forEach((b) => {
+      const selecionada = b.dataset.abaId === id;
+      b.classList.toggle("ativa", selecionada);
+      b.setAttribute("aria-selected", String(selecionada));
+    });
+    if (notificar) {
+      somTrocarAba();
+      aoTrocar(id);
+    }
+  };
+  sel.onchange = () => selecionar(sel.value);
+  faixa.querySelectorAll("[role='tab']").forEach((b) => {
+    b.onclick = () => selecionar(b.dataset.abaId);
+  });
+
   // A aba ativa entra visível mesmo que a faixa esteja rolada.
   requestAnimationFrame(() => {
-    const at = nav.querySelector(".ativa");
-    if (at && nav.scrollWidth > nav.clientWidth) at.scrollIntoView({ inline: "center", block: "nearest" });
+    const at = faixa.querySelector(".ativa");
+    if (at && faixa.scrollWidth > faixa.clientWidth) at.scrollIntoView({ inline: "center", block: "nearest" });
   });
   return nav;
 }
@@ -336,11 +488,60 @@ export function criarSplit({ colunas = "duas" } = {}) {
 // TECLADO
 // ---------------------------------------------------------------------
 
-// Esc fecha primeiro o painel de detalhes e só depois a tela — sem isto, uma
-// tecla fechava as duas coisas de uma vez e o jogador perdia o contexto.
+// Teclado do modal compartilhado. O listener roda na captura para o Escape
+// não chegar também ao atalho global de main.js e fechar duas camadas.
 if (typeof document !== "undefined") {
   document.addEventListener("keydown", (ev) => {
-    if (ev.key !== "Escape") return;
-    if (sheetAberto) { ev.stopPropagation(); fecharSheet(); }
+    if (!modalEstaAberto()) return;
+
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      if (sheetAberto) { fecharSheet(); return; }
+      const raiz = conteudo();
+      // Fluxos realmente inadiáveis podem declarar o bloqueio sem criar uma
+      // segunda implementação de modal. Fora disso, Esc é sempre uma saída.
+      if (raiz?.dataset.escapeBloqueado === "true" || raiz?.querySelector("[data-escape-bloqueado='true']")) return;
+      const acao = acaoFecharModalAtual;
+      if (acao) acao();
+      else {
+        const botaoFechar = raiz?.querySelector(".hda-fechar, .fechar");
+        if (botaoFechar) botaoFechar.click();
+        else fecharTela();
+      }
+      return;
+    }
+
+    if (ev.key !== "Tab") return;
+    const raiz = sheetAberto?.el || conteudo();
+    const focaveis = focaveisDentro(raiz);
+    if (!focaveis.length) {
+      ev.preventDefault();
+      raiz?.focus?.({ preventScroll: true });
+      return;
+    }
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+    const fora = !raiz.contains(document.activeElement);
+    if (ev.shiftKey && (fora || document.activeElement === primeiro)) {
+      ev.preventDefault();
+      ultimo.focus();
+    } else if (!ev.shiftKey && (fora || document.activeElement === ultimo)) {
+      ev.preventDefault();
+      primeiro.focus();
+    }
   }, true);
+
+  // Algumas telas antigas ainda preenchem #modal-conteudo diretamente. O
+  // observador aplica o mesmo contrato de foco/semântica a elas sem tocar em
+  // cada componente e também garante limpeza se alguma fechar a camada sem
+  // passar por fecharTela().
+  const camada = overlay();
+  if (camada) {
+    camada.setAttribute("aria-hidden", camada.classList.contains("hidden") ? "true" : "false");
+    new MutationObserver(() => {
+      if (modalEstaAberto()) ativarModal();
+      else desativarModal();
+    }).observe(camada, { attributes: true, attributeFilter: ["class"] });
+  }
 }

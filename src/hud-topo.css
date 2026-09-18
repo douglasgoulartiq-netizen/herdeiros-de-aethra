@@ -49,6 +49,9 @@
   --hud-fundo: rgba(22, 17, 13, 0.92);
 }
 
+#hud,
+#hud-buttons { font-family: var(--hda-font-body); }
+
 /* O contêiner cobre a tela para poder ancorar faixa no topo e trilho na
    direita, mas não intercepta nada: só as duas peças recebem o ponteiro.
    Sem isto, metade da tela vira uma parede invisível entre o clique e o
@@ -65,7 +68,7 @@
 #hud-topo {
   pointer-events: auto;
   position: absolute; top: 0; left: 0; right: 0;
-  display: flex; align-items: center; gap: clamp(10px, 2vw, 28px);
+  display: flex; align-items: center; gap: clamp(var(--hda-space-5), 2vw, var(--hda-space-14));
   min-height: var(--hud-faixa-alt);
   padding: 6px clamp(10px, 1.6vw, 20px);
   padding-top: calc(6px + var(--hda-safe-top, 0px));
@@ -91,7 +94,7 @@
 #hud-info > span { display: block; }
 #hud-info .hud-linha-identidade {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  line-height: 1.15;
+  line-height: var(--hda-leading-tight);
 }
 #hud-info .hud-linha-identidade b {
   color: var(--hud-ouro); font-size: 1.04em; letter-spacing: 0.2px;
@@ -102,7 +105,7 @@
 #hud-info .hud-nivel,
 #hud-info .hud-classe {
   font-size: 0.78em; line-height: 1;
-  padding: 3px 7px; border-radius: 999px;
+  padding: 3px 7px; border-radius: var(--hda-radius-pill);
   border: 1px solid var(--hud-borda); background: rgba(58, 44, 30, 0.75);
   color: var(--hud-apagado); white-space: nowrap;
 }
@@ -156,14 +159,14 @@
 }
 #hud-clima {
   margin: 0; font-size: 0.76em; color: var(--hud-apagado);
-  padding: 4px 9px; border-radius: 999px;
+  padding: var(--hda-space-2) 9px; border-radius: var(--hda-radius-pill);
   border: 1px solid var(--hud-borda); background: rgba(36, 27, 20, 0.7);
   white-space: nowrap;
 }
 #hud-clima:empty { display: none; }
 #hud-salvo {
   margin: 0; font-size: 0.74em; color: #8fd14f;
-  padding: 4px 9px; border-radius: 999px;
+  padding: var(--hda-space-2) 9px; border-radius: var(--hda-radius-pill);
   border: 1px solid rgba(143, 209, 79, 0.45); background: rgba(30, 48, 24, 0.8);
   white-space: nowrap;
 }
@@ -191,7 +194,7 @@
   background: var(--hud-fundo);
   border: 1px solid var(--hud-borda);
   border-right: 0;
-  border-radius: 12px 0 0 12px;
+  border-radius: var(--hda-radius-2xl) 0 0 var(--hda-radius-2xl);
   box-shadow: -4px 0 14px rgba(0, 0, 0, 0.35);
 }
 
@@ -251,7 +254,7 @@
 }
 .hud-painel-rotulo {
   font-size: 0.64em; letter-spacing: 0.1em; text-transform: uppercase;
-  color: #8a7a5c; padding: 0 2px 6px; margin-bottom: 4px;
+  color: var(--hud-apagado); padding: 0 var(--hda-space-1) var(--hda-space-3); margin-bottom: var(--hda-space-2);
   border-bottom: 1px solid #3a2f22;
 }
 #hud-buttons.hud-trilho .hud-painel button {
@@ -370,3 +373,23 @@
    atributo `title`, desenhado pelo navegador fora do documento — nada de CSS
    o alcança, e ele some sozinho quando o ponteiro sai. Deixo registrado para
    ninguém perder tempo caçando isso de novo. */
+
+/* Celular deitado: a largura lembrava tablet e ativava o trilho lateral sem
+   rótulos, apesar de o aparelho continuar sendo operado por toque. A barra
+   inferior de HUBS assume a navegação; o topo conserva apenas o estado do
+   jogo e devolve ao mapa toda a lateral direita. */
+@media (pointer: coarse) and (max-height: 460px) and (orientation: landscape) {
+  #hud-buttons.hud-trilho { display: none; }
+  #hud-topo {
+    min-height: 42px;
+    padding: calc(3px + var(--hda-safe-top, 0px))
+             calc(10px + var(--hda-safe-right, 0px)) 5px
+             calc(10px + var(--hda-safe-left, 0px));
+    gap: 10px;
+  }
+  #hud-bars { justify-content: flex-start; gap: 8px; }
+  #hud-bars .barra { width: clamp(58px, 11vw, 92px); height: 8px; }
+  #hud-bars .barra-num { display: none; }
+  #hud-direita { margin-right: 0; gap: 5px; }
+  .hud-ficha, #hud-clima, #hud-salvo { padding: 3px 7px; font-size: 0.68em; }
+}

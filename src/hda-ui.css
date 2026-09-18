@@ -196,16 +196,22 @@ img, canvas, svg, video { max-width: 100%; }
    ========================================================================= */
 .hda-tabs {
   flex: 0 0 auto;
-  display: flex; gap: 4px;
+  display: flex;
   padding: 6px var(--hda-pad);
   border-bottom: 1px solid var(--hda-line, #4a3a26);
+  min-width: 0;
+  overflow: hidden;
+}
+.hda-tabs-faixa {
+  display: flex; gap: 4px;
+  flex: 1 1 auto; min-width: 0;
   overflow-x: auto; overflow-y: hidden;
   scrollbar-width: thin;
   scroll-snap-type: x proximity;
   overscroll-behavior-x: contain;
 }
-.hda-tabs::-webkit-scrollbar { height: 4px; }
-.hda-tabs::-webkit-scrollbar-thumb { background: #4a3a26; border-radius: 2px; }
+.hda-tabs-faixa::-webkit-scrollbar { height: 4px; }
+.hda-tabs-faixa::-webkit-scrollbar-thumb { background: #4a3a26; border-radius: 2px; }
 .hda-tabs button {
   flex: 0 0 auto;                   /* nunca quebra linha: não vira torre */
   margin: 0; scroll-snap-align: start;
@@ -227,13 +233,18 @@ img, canvas, svg, video { max-width: 100%; }
    ninguém a descobrir aba escondida arrastando. */
 .hda-tabs-wrap { flex: 0 0 auto; padding: 6px var(--hda-pad); border-bottom: 1px solid var(--hda-line, #4a3a26); }
 .hda-tabs-select {
+  display: none;
   width: 100%; min-height: var(--hda-toque);
   padding: 6px 10px; margin: 0;
   background: #241b14; color: var(--hda-text, #f1e9d8);
   border: 1px solid var(--hda-line, #4a3a26); border-radius: 6px;
   font-family: inherit; font-size: 0.9em;
 }
-@media (max-width: 719px) { .hda-tabs, .hda-tabs-wrap { padding: 6px 10px; } }
+@media (max-width: 719px) {
+  .hda-tabs, .hda-tabs-wrap { padding: 6px 10px; }
+  .hda-tabs-muitas .hda-tabs-faixa { display: none; }
+  .hda-tabs-muitas .hda-tabs-select { display: block; }
+}
 
 /* Sub-abas: mesma mecânica, um degrau visual abaixo. */
 .hda-subtabs { border-bottom: 0; padding-top: 0; }
@@ -394,6 +405,53 @@ img, canvas, svg, video { max-width: 100%; }
 .hda-navbar { display: none; }
 @media (max-width: 719px) {
   body:has(#hud:not(.hidden)) .hda-navbar { display: flex; }
+}
+
+/* Celular deitado não é um desktop baixo. Em aparelhos touch de 740–844px
+   a largura ultrapassa o breakpoint do retrato, mas a altura curta continua
+   exigindo navegação direta, rotulada e alcançável pelo polegar. Reusamos a
+   mesma barra gerada de HUBS em vez do trilho lateral compacto. */
+@media (pointer: coarse) and (max-height: 460px) and (orientation: landscape) {
+  :root { --hda-navbar-alt: 54px; }
+
+  body:has(#hud:not(.hidden)) .hda-navbar {
+    display: flex;
+    left: var(--hda-safe-left);
+    right: var(--hda-safe-right);
+    height: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom));
+  }
+  .hda-navbar button {
+    min-width: 0;
+    min-height: 44px;
+    padding: 3px 8px;
+    flex-direction: row;
+    gap: 7px;
+    font-size: clamp(0.72rem, 1.8vw, 0.84rem);
+  }
+  .hda-navbar button .hda-nav-icone { flex: 0 0 auto; font-size: 1.25em; }
+  .hda-navbar button .hda-nav-rotulo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* O direcional e a ação ficam acima da barra, nunca debaixo dela. */
+  body:has(#hud:not(.hidden)) #touch-dpad {
+    bottom: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom) + 8px);
+  }
+  body:has(#hud:not(.hidden)) .touch-acao {
+    bottom: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom) + 12px);
+  }
+
+  /* A lista aberta pelo hub também respeita a navegação persistente. */
+  .hda-sheet {
+    bottom: calc(var(--hda-navbar-alt) + var(--hda-safe-bottom));
+    max-height: calc(100dvh - var(--hda-navbar-alt) - var(--hda-safe-bottom) - var(--hda-safe-top) - 8px);
+    padding-left: var(--hda-safe-left);
+    padding-right: var(--hda-safe-right);
+  }
+  .hda-sheet-acoes button { min-height: 44px; }
 }
 
 /* =========================================================================

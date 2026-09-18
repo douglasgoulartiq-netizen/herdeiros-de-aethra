@@ -25,6 +25,7 @@ import { montarMao, preverCard } from "../src/systems/BattleForecast.js";
 import { montarContextoTatico, avaliarMao } from "../src/systems/TacticalAdvisor.js";
 import { aplicarEstadoElemental } from "../src/systems/ElementalReactionSystem.js";
 import { identidadeElemento } from "../src/systems/ElementIdentity.js";
+import { descreverCenario } from "../src/systems/BattleTerrainSystem.js";
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), "..");
 const json = (nome) => JSON.parse(readFileSync(join(raiz, "src", "data", `${nome}.json`), "utf8"));
@@ -362,6 +363,37 @@ console.log("\n[15] Cura acima do limite não engana o jogador (item 18)");
   checar("A cura bruta é maior que o espaço disponível", prev.esperado === undefined ? prev.cura.esperado > prev.cura.espaco : true, JSON.stringify(prev.cura));
   checar("A cura efetiva é limitada ao espaço restante", prev.cura.efetivaEsperada <= 5, String(prev.cura.efetivaEsperada));
   checar("A cura desperdiçada é reportada", prev.cura.desperdicada > 0, String(prev.cura.desperdicada));
+}
+
+// =====================================================================
+console.log("\n[16] Identidade visual determinística dos biomas de batalha");
+// =====================================================================
+{
+  const casos = [
+    ["floresta", { zonaNome: "Floresta Eterna" }],
+    ["pantano", { zonaNome: "Pântano Negro" }],
+    ["deserto", { zonaNome: "Deserto de Karn" }],
+    ["montanha", { zonaNome: "Montanhas de Aethra" }],
+    ["costa", { zonaNome: "Costa da Aurora" }],
+    ["ruinas", { zonaNome: "Ruínas Esquecidas" }],
+    ["masmorra", { mapaAtual: "dungeon2", zonaNome: "Galerias Profundas" }],
+    ["vila", { zonaNome: "Vila de Altaverde" }],
+    ["campo", { zonaNome: "Campo Ventoso" }],
+  ];
+  const descritores = casos.map(([id, contexto]) => {
+    const primeiro = descreverCenario(contexto);
+    const segundo = descreverCenario(contexto);
+    checar(`${id} resolve o bioma esperado`, primeiro.id === id, primeiro.id);
+    checar(`${id} mantém a mesma paleta`, JSON.stringify(primeiro.paleta) === JSON.stringify(segundo.paleta));
+    return primeiro;
+  });
+  const assinaturas = descritores.map((cenario) => JSON.stringify(cenario.paleta));
+  checar("os nove biomas têm paletas distintas", new Set(assinaturas).size === casos.length, `${new Set(assinaturas).size}/${casos.length}`);
+
+  const palco = readFileSync(join(raiz, "src", "ui", "BattleStage.js"), "utf8");
+  checar("o palco consome piso, neblina e silhueta do descritor",
+    palco.includes("cenario.paleta") && palco.includes("pisoHorizonte")
+      && palco.includes("corNeblina") && palco.includes("silhuetaDistante"));
 }
 
 // =====================================================================

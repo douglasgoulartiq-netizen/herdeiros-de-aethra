@@ -38,8 +38,8 @@
 .combate-impacto.elemento-defesa { border-radius:15% 15% 50% 50%; }
 .combate-impacto.elemento-radiante { border-style:dashed; border-width:3px; }
 .combate-impacto.elemento-sombrio { border-width:0 5px 0 2px; }
-.bt-slot .combatente.porte-grande .sprite-wrap { transform:scale(1.08); }
-.bt-row-herois .combatente .sprite-wrap { transform:scale(1.08); }
+.bt-slot .combatente.porte-grande .sprite-wrap { transform:scale(var(--porte, 1)); }
+.bt-row-herois .combatente .sprite-wrap { transform:scale(var(--porte, 1)); }
 .bt-slot .combatente .nome-c { position:relative; z-index:6; }
 .bt-slot .combatente.ativo .nome-c { color:#ffedb1; background:#252013; border-bottom:2px solid #dbc280; }
 .bt-slot .combatente .sprite-canvas { image-rendering:pixelated; object-fit:contain; filter:drop-shadow(0 1px 1px #d5d8de55) drop-shadow(0 3px 2px #101522); }
@@ -56,7 +56,6 @@
 .bt-slot .combatente.aviso-alvo[data-aviso^="CURA"],.bt-slot .combatente.aviso-alvo[data-aviso^="PROTEÇÃO"] { box-shadow:inset 0 -5px #90d8ae; }
 .bt-slot .combatente.aviso-alvo[data-aviso^="CURA"]::before,.bt-slot .combatente.aviso-alvo[data-aviso^="PROTEÇÃO"]::before { background:#142c25; color:#c8f1dd; }
 .bt-slot .combatente.aviso-alvo::before { content:attr(data-aviso); position:absolute; top:0; left:0; right:0; transform:translateY(-100%); z-index:8; background:#302016ed; color:#ffe1b8; text-align:center; font-size:clamp(9px,.85vw,12px); padding:3px; pointer-events:none; }
-.bt-slot .combatente .sprite-wrap { animation:none; }
 .bt-slot .combatente .sprite-canvas { filter:drop-shadow(0 1px 1px #d5d8de55) drop-shadow(0 3px 2px #101522); transform-origin:center bottom; }
 .bt-slot .combatente .status-icone { animation:none; border-radius:5px; background:#15202ee8; border:1px solid #a9b7c8; min-width:22px; min-height:22px; }
 .bt-slot .combatente .status-icone.expirando { border-color:#f0c385; }
@@ -66,11 +65,10 @@
 .bt-slot .combatente .status-mais { padding:0; margin:0; font-size:11px; color:#eef3f9; border:1px solid #a9b7c8; border-radius:5px; background:#15202e; }
 .bt-cena { filter:saturate(.65) brightness(.80); transition:none; }
 .combate-em-acao .bt-cena { filter:saturate(.65) brightness(.80); }
-.bt-cena.shake,.bt-cena.shake-forte { animation:none; }
-.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto.hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante { animation:none !important; transition:none !important; }
+.combate-conforto .bt-cena.shake,.combate-conforto .bt-cena.shake-forte,.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto .hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante { animation:none !important; transition:none !important; }
 .combate-conforto .combate-impacto,.combate-conforto .combate-trajeto { display:none; }
 .combate-conforto .bt-cena { filter:saturate(.78) brightness(.84); transition:none; }
-@media(prefers-reduced-motion:reduce) { .bt-cena { transition:none; } .combate-trajeto { display:none; } .bt-slot .combatente,.bt-slot .sprite-wrap { animation:none !important; } }
+@media(prefers-reduced-motion:reduce) { .bt-cena { transition:none; } .bt-cena.shake,.bt-cena.shake-forte,.bt-field.hit-stop,.bt-slot .combatente,.bt-slot .sprite-wrap { animation:none !important; } .combate-impacto,.combate-trajeto { display:none; } }
 @media(max-width:719px) {
   .bt-infobar { grid-template-columns:minmax(70px,.55fr) minmax(120px,1fr) auto; gap:4px; padding-inline:5px; }
   .bt-legenda-acao { height:28px; }
@@ -86,7 +84,7 @@
    nomes/barras porque o sprite cresce a partir dos pés. */
 #screen-batalha.bt-screen .bt-row-inimigos{top:1%;left:12%;right:12%;height:38%;padding-inline:0}
 #screen-batalha.bt-screen .bt-row-herois{left:18%;right:18%;height:38%;padding-inline:0}
-.bt-row-herois .combatente .sprite-wrap{width:clamp(88px,9vw,128px);height:clamp(88px,9vw,128px);transform:scale(1.08);transform-origin:50% 100%}
+.bt-row-herois .combatente .sprite-wrap{width:clamp(88px,9vw,128px);height:clamp(88px,9vw,128px);transform:scale(var(--porte, 1));transform-origin:50% 100%}
 .bt-row-inimigos .combatente .sprite-wrap{width:clamp(84px,8.5vw,120px);height:clamp(84px,8.5vw,120px);transform-origin:50% 100%}
 .bt-slot .combatente .sprite-canvas{width:100%;height:100%;object-position:center bottom}
 
@@ -135,7 +133,7 @@
     width: 62px; height: 62px;
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
-    transform: scale(1.22);
+    transform: scale(var(--porte, 1));
   }
   #screen-batalha.bt-screen .combatente { width: 82px; font-size: .82em; }
   #screen-batalha.bt-screen .combatente .formacao-linha,
@@ -314,7 +312,9 @@
     width: min(68px, 96%); height: min(68px, 100%);
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
-    width: min(66px, 98%); height: min(66px, 100%); transform: none;
+    width: min(66px, 98%); height: min(66px, 100%);
+    position: relative; bottom: clamp(18px, 5.5dvh, 24px);
+    transform: scale(var(--porte, 1));
   }
   #screen-batalha.bt-screen .combatente-sinais { top: 18px; }
   #screen-batalha.bt-screen .sinal-combate { padding: 1px 4px; font-size: 8px; }
@@ -341,7 +341,7 @@
     width: min(66px, 96%); height: min(66px, 100%);
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
-    width: min(80px, 98%); height: min(80px, 100%); transform: none;
+    width: min(80px, 98%); height: min(80px, 100%); transform: scale(var(--porte, 1));
   }
   #screen-batalha.bt-screen .btn-alvo { min-height: 36px; }
   #screen-batalha.bt-screen .combatente-sinais { top: 24px; }

@@ -4,6 +4,18 @@ import { infoAfinidade } from "../systems/AffinitySystem.js";
 
 export const ETAPAS_CRIACAO = ["nome", "raca", "classe", "elemento", "antecedente", "traco", "faccao", "preferencias", "resumo"];
 
+const APRESENTACAO_ETAPAS = {
+  nome: { icone: "✦", nome: "Identidade" },
+  raca: { icone: "◈", nome: "Raça" },
+  classe: { icone: "⚔", nome: "Classe" },
+  elemento: { icone: "◆", nome: "Elemento" },
+  antecedente: { icone: "⌂", nome: "Origem" },
+  traco: { icone: "◉", nome: "Personalidade" },
+  faccao: { icone: "⚑", nome: "Facção" },
+  preferencias: { icone: "♥", nome: "Motivações" },
+  resumo: { icone: "✓", nome: "Revisão" },
+};
+
 export const PREFERENCIAS_CRIACAO = [
   { id: "exploracao", icone: "🧭", nome: "Exploração", descricao: "Descobrir lugares e caminhos esquecidos." },
   { id: "combate", icone: "⚔️", nome: "Combate", descricao: "Superar inimigos e provar sua força." },
@@ -100,20 +112,55 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
   const lista = (painel, classe = "") => { const el = document.createElement("div"); el.className = `grid-opcoes ${classe}`.trim(); painel.appendChild(el); return el; };
   const textoApoio = (painel, texto) => { const p = document.createElement("p"); p.className = "criacao-intro"; p.textContent = texto; painel.appendChild(p); };
   const botao = (texto, onclick, classe = "") => { const b = document.createElement("button"); b.type = "button"; b.className = classe; b.textContent = texto; b.onclick = onclick; return b; };
-  const navegacao = (painel, valido) => { const a = document.createElement("div"); a.className = "criacao-navegacao"; a.append(botao("Voltar", () => { estado.etapaIdx--; render(); })); const prox = botao("Avançar", () => { estado.etapaIdx++; render(); }, "primario"); prox.disabled = !valido(); a.append(prox); painel.appendChild(a); };
+  const navegacao = (painel, valido) => {
+    const proxima = APRESENTACAO_ETAPAS[ETAPAS_CRIACAO[estado.etapaIdx + 1]];
+    const a = document.createElement("div"); a.className = "criacao-navegacao";
+    const contexto = document.createElement("span"); contexto.className = "criacao-navegacao-status"; contexto.textContent = proxima ? `Próxima etapa: ${proxima.nome}` : "Pronto para começar";
+    const voltar = botao("← Voltar", () => { estado.etapaIdx--; render(); }, "criacao-voltar");
+    const prox = botao(proxima ? `Continuar: ${proxima.nome} →` : "Continuar →", () => { estado.etapaIdx++; render(); }, "primario criacao-continuar");
+    prox.disabled = !valido();
+    a.append(contexto, voltar, prox); painel.appendChild(a);
+  };
   const tituloSecao = (painel, texto) => { const h = document.createElement("h3"); h.className = "criacao-secao-titulo"; h.textContent = texto; painel.appendChild(h); };
+  const nomeDe = (listaDados, id) => listaDados?.find((item) => item.id === id)?.nome || "";
+
+  const montarResumoEscolhas = () => {
+    const itens = [
+      ["Nome", estado.nome],
+      ["Raça", nomeDe(dados.races, estado.raca)],
+      ["Classe", nomeDe(dados.classes, estado.classe)],
+      ["Elemento", nomeDe(elementosDisponiveis(dados), estado.elemento)],
+      ["Origem", nomeDe(dados.backgrounds, estado.antecedente)],
+      ["Personalidade", nomeDe(dados.traits, estado.traco)],
+      ["Facção", nomeDe(dados.worldStateVariables?.facoes, estado.faccao)],
+      ["Motivação", nomeDe(MOTIVACOES_CRIACAO, estado.motivacao)],
+      ["Interesses", estado.preferencias.map((id) => nomeDe(PREFERENCIAS_CRIACAO, id)).filter(Boolean).join(", ")],
+    ].filter(([, valor]) => valor);
+    if (!itens.length) return null;
+    const resumo = document.createElement("section"); resumo.className = "criacao-escolhas"; resumo.setAttribute("aria-label", "Resumo das escolhas atuais");
+    const cabecalho = document.createElement("div"); cabecalho.className = "criacao-escolhas-cabecalho";
+    const rotulo = document.createElement("b"); rotulo.textContent = "Seu herói até aqui";
+    const contagem = document.createElement("span"); contagem.textContent = `${itens.length}/9 escolhas definidas`; cabecalho.append(rotulo, contagem);
+    const listaEscolhas = document.createElement("div"); listaEscolhas.className = "criacao-escolhas-lista";
+    itens.forEach(([nome, valor]) => { const item = document.createElement("span"); item.className = "criacao-escolha"; const legenda = document.createElement("small"); legenda.textContent = nome; const escolha = document.createElement("b"); escolha.textContent = valor; item.append(legenda, escolha); listaEscolhas.appendChild(item); });
+    resumo.append(cabecalho, listaEscolhas); return resumo;
+  };
 
   function render() {
     const etapa = ETAPAS_CRIACAO[estado.etapaIdx];
     container.innerHTML = "";
     const painel = document.createElement("div"); painel.className = "painel-criacao";
     const topo = document.createElement("div"); topo.className = "criacao-topo";
-    const progresso = document.createElement("div"); progresso.className = "criacao-progresso"; progresso.setAttribute("aria-label", `Etapa ${estado.etapaIdx + 1} de ${ETAPAS_CRIACAO.length}`); progresso.innerHTML = ETAPAS_CRIACAO.map((_, i) => `<span class="criacao-passo${i <= estado.etapaIdx ? " ativo" : ""}"></span>`).join("");
+    const progresso = document.createElement("div"); progresso.className = "criacao-progresso"; progresso.setAttribute("aria-label", `Etapa ${estado.etapaIdx + 1} de ${ETAPAS_CRIACAO.length}`); progresso.innerHTML = ETAPAS_CRIACAO.map((id, i) => { const info = APRESENTACAO_ETAPAS[id]; return `<span class="criacao-passo${i < estado.etapaIdx ? " ativo concluido" : i === estado.etapaIdx ? " ativo atual" : ""}" title="${i + 1}. ${info.nome}"${i === estado.etapaIdx ? ' aria-current="step"' : ""}><i>${info.icone}</i><small>${info.nome}</small></span>`; }).join("");
     const aleatorio = botao("✨ Sortear escolhas livres", () => { aplicarCriacaoAleatoriaComTravas(estado, dados); estado.etapaIdx = ETAPAS_CRIACAO.length - 1; render(); }, "criacao-aleatoria");
     aleatorio.title = "Mantém as escolhas marcadas com cadeado e sorteia somente as demais.";
     topo.append(progresso, aleatorio);
     const titulo = document.createElement("h2"); titulo.className = "passo-titulo";
-    painel.append(topo, titulo); container.appendChild(painel);
+    const identificador = document.createElement("p"); identificador.className = "criacao-etapa-identificador"; identificador.textContent = `Etapa ${estado.etapaIdx + 1} de ${ETAPAS_CRIACAO.length} · ${APRESENTACAO_ETAPAS[etapa].nome}`;
+    painel.append(topo, identificador, titulo); container.appendChild(painel);
+
+    const resumoEscolhas = montarResumoEscolhas();
+    if (resumoEscolhas && etapa !== "resumo") painel.appendChild(resumoEscolhas);
 
     const escolhasPreenchidas = CAMPOS_TRAVAVEIS.filter(([campo]) => Array.isArray(estado[campo]) ? estado[campo].length : estado[campo]);
     if (escolhasPreenchidas.length) {
@@ -138,7 +185,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
       const input = document.createElement("input"); input.type = "text"; input.maxLength = 28; input.placeholder = "Digite um nome..."; input.value = estado.nome;
       const avancar = () => { estado.nome = input.value.trim() || "Aventureiro"; estado.etapaIdx++; render(); };
       input.addEventListener("keydown", (e) => { if (e.key === "Enter") avancar(); });
-      painel.append(input, botao("Começar criação", avancar, "primario")); setTimeout(() => input.focus(), 0); return;
+      painel.append(input, botao("Definir nome e continuar →", avancar, "primario criacao-inicio")); setTimeout(() => input.focus(), 0); return;
     }
     if (etapa === "raca") {
       titulo.textContent = "Escolha sua raça"; const grid = lista(painel);
@@ -164,7 +211,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
       const encontrar = (listaDados, id) => listaDados.find((x) => x.id === id); const raca = encontrar(dados.races, estado.raca); const classe = encontrar(dados.classes, estado.classe); const antecedente = encontrar(dados.backgrounds, estado.antecedente); const traco = encontrar(dados.traits, estado.traco); const elemento = encontrar(elementosDisponiveis(dados), estado.elemento); const faccao = encontrar(dados.worldStateVariables.facoes, estado.faccao); const motivacao = encontrar(MOTIVACOES_CRIACAO, estado.motivacao); const gostos = estado.preferencias.map((id) => encontrar(PREFERENCIAS_CRIACAO, id)).filter(Boolean);
       const resumo = document.createElement("div"); resumo.className = "criacao-resumo"; resumo.innerHTML = `<div class="criacao-heroi-resumo" style="background-image:url('assets/sprites/pc_${estado.raca}_${estado.classe}.png')"></div><div class="resumo-identidade"><h3>${classe.icone || ""} ${raca.nome} ${classe.nome}</h3><p>${elemento.icone} <b>${elemento.nome}</b> · ${faccao.icone || "◆"} <b>${faccao.nome}</b></p><p>${motivacao.icone} <b>${motivacao.nome}</b> · ${antecedente.nome} · ${traco.nome}</p><div class="resumo-gostos">${gostos.map((g) => `<span>${g.icone} ${g.nome}</span>`).join("")}</div></div><div class="resumo-atributos">${[["FOR", "Força"], ["DES", "Destreza"], ["CON", "Constituição"], ["INT", "Inteligência"]].map(([id, nome]) => `<div class="stat-row"><span>${nome}</span><b>${personagem.atributos[id]}</b></div>`).join("")}<div class="stat-row"><span>HP / MP</span><b>${personagem.hpMax} / ${personagem.mpMax}</b></div><div class="stat-row"><span>Ouro</span><b>${personagem.ouro}</b></div></div>`; painel.appendChild(resumo);
       const modo = document.createElement("label"); modo.className = "modo-historia-card"; const check = document.createElement("input"); check.type = "checkbox"; check.checked = estado.modoHistoria; check.onchange = () => { estado.modoHistoria = check.checked; personagem.modoHistoria = estado.modoHistoria; }; modo.append(check, document.createTextNode(" 📖 Modo História — inimigos mais leves, sem reduzir XP ou recompensas.")); painel.appendChild(modo);
-      const acoes = document.createElement("div"); acoes.className = "criacao-navegacao"; acoes.append(botao("Voltar", () => { estado.etapaIdx--; render(); }), botao("Começar aventura!", () => onFinalizar(personagem), "primario")); painel.appendChild(acoes);
+      const acoes = document.createElement("div"); acoes.className = "criacao-navegacao"; const pronto = document.createElement("span"); pronto.className = "criacao-navegacao-status"; pronto.textContent = "Tudo pronto para entrar em Aethra"; acoes.append(pronto, botao("← Voltar", () => { estado.etapaIdx--; render(); }, "criacao-voltar"), botao("Começar aventura →", () => onFinalizar(personagem), "primario criacao-continuar")); painel.appendChild(acoes);
     }
   }
   render();

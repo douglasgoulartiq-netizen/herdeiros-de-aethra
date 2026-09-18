@@ -33,6 +33,11 @@
   /* Metade da pista, usada nas três contas abaixo. Escrito uma vez para as
      fileiras e a pista não poderem discordar. */
   --anuncio-meio: calc(var(--anuncio-alt) / 2);
+  /* O dado pertence à pista — inclusive no quadro mais aberto da animação.
+     86% × 1,12 = 96,3%: sobra uma pequena margem acima e abaixo mesmo no
+     pouso, sem transformar o d20 em um ícone minúsculo no desktop. */
+  --d20-size: min(84px, calc(var(--anuncio-alt) * .86));
+  --d20-escala-max: 1.12;
 }
 
 /* As duas fileiras param onde a pista começa. */
@@ -66,8 +71,41 @@
   height: var(--anuncio-alt);
   left:0;right:0;justify-content:center;padding-left:0;z-index:24;
 }
-#screen-batalha.bt-screen .dado-rolagem {
-  min-width:104px;min-height:104px;
+#screen-batalha.bt-screen .bt-field .dado-layer .dado-rolagem {
+  width: var(--d20-size);
+  height: var(--d20-size);
+  min-width: var(--d20-size);
+  min-height: var(--d20-size);
+  max-width: var(--d20-size);
+  max-height: var(--d20-size);
+  font-size: clamp(1rem, calc(var(--d20-size) * .29), 1.72rem);
+  animation: dado-girando-pista .56s cubic-bezier(.34,.08,.66,.92) infinite;
+}
+
+/* A animação original chegava a 142% no pouso. Era bonita isoladamente,
+   mas fazia um dado de 82px ocupar 116px e escapar da pista em toda tela
+   baixa. Aqui o giro continua tridimensional e o pouso continua enfático;
+   o impacto vem de rotação, brilho e sombra, não de invadir os combatentes. */
+@keyframes dado-girando-pista {
+  0%   { transform: perspective(420px) rotateX(-18deg) rotateY(0deg) rotateZ(-8deg) scale(.84); }
+  30%  { transform: perspective(420px) rotateX(32deg) rotateY(150deg) rotateZ(18deg) scale(1.06) translateY(-2%); }
+  65%  { transform: perspective(420px) rotateX(-28deg) rotateY(300deg) rotateZ(-16deg) scale(.92); }
+  100% { transform: perspective(420px) rotateX(-18deg) rotateY(360deg) rotateZ(8deg) scale(.84); }
+}
+#screen-batalha.bt-screen .bt-field .dado-layer .dado-rolagem.parado {
+  animation: dado-pousa-pista .42s cubic-bezier(.18,.85,.26,1.25);
+}
+@keyframes dado-pousa-pista {
+  0%   { transform: perspective(420px) scale(var(--d20-escala-max)) rotateX(22deg) rotateZ(12deg); filter:brightness(1.8) drop-shadow(0 12px 11px #000); }
+  58%  { transform: perspective(420px) scale(.93) rotateX(-6deg) rotateZ(-3deg); }
+  100% { transform: perspective(420px) scale(1) rotateX(0) rotateZ(0); filter:drop-shadow(0 9px 9px rgba(0,0,0,.72)); }
+}
+#screen-batalha.bt-screen .bt-field .dado-layer .dado-rolagem.critico {
+  animation: dado-pousa-pista .28s ease-out, dado-critico-pista .5s ease-in-out .28s 2;
+}
+@keyframes dado-critico-pista {
+  0%, 100% { transform:scale(1); filter:drop-shadow(0 0 13px rgba(255,224,102,.9)) drop-shadow(0 9px 9px #000); }
+  50%      { transform:scale(1.09); filter:drop-shadow(0 0 24px #ffe066) drop-shadow(0 11px 10px #000); }
 }
 
 /* A camada de letreiros passa a viver DENTRO da pista, centrada nos dois
@@ -158,7 +196,6 @@
   #screen-batalha.bt-screen { --anuncio-alt: clamp(48px, 11vh, 64px); }
   #screen-batalha.bt-screen .revelacao { padding: 5px 12px 5px 8px; }
   #screen-batalha.bt-screen .rev-desc { -webkit-line-clamp: 1; }
-  #screen-batalha.bt-screen .dado-rolagem { min-width:82px;min-height:82px;width:82px;height:82px;font-size:1.45rem; }
 }
 
 @media (max-width: 719px) {

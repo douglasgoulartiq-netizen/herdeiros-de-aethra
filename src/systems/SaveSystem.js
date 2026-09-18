@@ -57,7 +57,11 @@ export function listarSlots() {
       const salvo = migrarSave(JSON.parse(raw));
       const p = salvo.personagem || {};
       return { numero, vazio: false, nome: p.nome || "Herdeiro", nivel: p.nivel || 1,
-        classeId: p.classeId || "", racaId: p.racaId || "", atualizadoEm: salvo.salvoEm || null };
+        classeId: p.classeId || "", racaId: p.racaId || "", atualizadoEm: salvo.salvoEm || null,
+        missoesConcluidas: Array.isArray(p.missoesConcluidas) ? p.missoesConcluidas.length : 0,
+        areasDescobertas: Array.isArray(p.biomaVisitados) ? p.biomaVisitados.length : 0,
+        zonaAtualId: salvo.mundo?.zonaAtualId || "",
+        ngPlus: Number(p.ngPlus) || 0 };
     } catch (_) { return { numero, vazio: true, corrompido: true }; }
   });
 }

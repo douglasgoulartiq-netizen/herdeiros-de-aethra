@@ -32,46 +32,55 @@ const CENARIOS = {
   floresta: {
     nome: "Floresta", chao: TILE.GRASS, detalhe: TILE.TALL_GRASS, decor: [TILE.TREE, TILE.BUSH],
     ceu: ["#16241c", "#25402c"], particula: "folhas",
+    paleta: { piso: ["#26392c", "#111b17"], neblina: "#9bbd98", silhueta: ["#13271e", "#091511"] },
     descricao: "Copas fechadas e raízes expostas: pouco espaço para recuar.",
   },
   pantano: {
     nome: "Pântano", chao: TILE.GRASS_DETAIL, detalhe: TILE.WATER, decor: [TILE.TREE, TILE.BUSH],
     ceu: ["#141d1a", "#22322a"], particula: "bolhas",
+    paleta: { piso: ["#283932", "#101a18"], neblina: "#89b5a6", silhueta: ["#172d28", "#091815"] },
     descricao: "Solo encharcado que segura os pés e engole o som dos passos.",
   },
   deserto: {
     nome: "Deserto", chao: TILE.SAND, detalhe: TILE.SAND, decor: [TILE.WALL],
     ceu: ["#2a1f14", "#54402a"], particula: "areia",
+    paleta: { piso: ["#755536", "#2d2119"], neblina: "#e1bd7b", silhueta: ["#714c2f", "#3d291e"] },
     descricao: "Areia solta e calor que sobe do chão em ondas.",
   },
   montanha: {
     nome: "Montanha", chao: TILE.PATH, detalhe: TILE.WALL, decor: [TILE.WALL],
     ceu: ["#1a1a24", "#33333f"], particula: "poeira",
+    paleta: { piso: ["#424854", "#1c2028"], neblina: "#c7d8e5", silhueta: ["#273142", "#111925"] },
     descricao: "Pedra nua e vento cortante entre as encostas.",
   },
   costa: {
     nome: "Costa", chao: TILE.SAND, detalhe: TILE.WATER, decor: [TILE.BUSH],
     ceu: ["#12202c", "#1f3a4c"], particula: "respingo",
+    paleta: { piso: ["#55665f", "#1b2d32"], neblina: "#a7e0e7", silhueta: ["#274955", "#101f29"] },
     descricao: "Faixa de areia batida pela maré, com o mar logo atrás.",
   },
   ruinas: {
     nome: "Ruínas", chao: TILE.DUNGEON_FLOOR, detalhe: TILE.PATH, decor: [TILE.WALL, TILE.DUNGEON_WALL],
     ceu: ["#1d1a16", "#332e26"], particula: "poeira",
+    paleta: { piso: ["#49443b", "#201d1a"], neblina: "#c8bca5", silhueta: ["#302d2b", "#151517"] },
     descricao: "Colunas caídas e mosaicos rachados de uma Aethra que não existe mais.",
   },
   masmorra: {
     nome: "Masmorra", chao: TILE.DUNGEON_FLOOR, detalhe: TILE.DUNGEON_FLOOR, decor: [TILE.DUNGEON_WALL],
     ceu: ["#0f0d12", "#1e1a22"], particula: "poeira",
+    paleta: { piso: ["#29262e", "#0d0c10"], neblina: "#8e8499", silhueta: ["#1b1920", "#07070a"] },
     descricao: "Corredor de pedra sem saída à vista, iluminado só pelo que você trouxe.",
   },
   vila: {
     nome: "Vila", chao: TILE.VILLAGE_FLOOR, detalhe: TILE.PATH, decor: [TILE.BUSH],
     ceu: ["#241d16", "#3d3126"], particula: null,
+    paleta: { piso: ["#574735", "#241c16"], neblina: "#d7bd91", silhueta: ["#342a22", "#171315"] },
     descricao: "Chão batido entre casas — ninguém esperava luta aqui.",
   },
   campo: {
     nome: "Campo Aberto", chao: TILE.GRASS, detalhe: TILE.GRASS_DETAIL, decor: [TILE.BUSH],
     ceu: ["#1a2418", "#2e4028"], particula: null,
+    paleta: { piso: ["#35452e", "#151d17"], neblina: "#b8cda9", silhueta: ["#243526", "#101912"] },
     descricao: "Terreno plano e sem cobertura: nada atrapalha, nada protege.",
   },
 };
@@ -189,6 +198,13 @@ export function descreverCenario(contexto = {}) {
     detalhe: base.detalhe,
     decor: base.decor,
     ceu: base.ceu,
+    // Três grupos compactos bastam para dar identidade ao fundo sem competir
+    // com combatentes: piso, névoa atmosférica e silhueta distante.
+    paleta: {
+      piso: [...base.paleta.piso],
+      neblina: base.paleta.neblina,
+      silhueta: [...base.paleta.silhueta],
+    },
     particula: base.particula,
     clima: climaNome ? { nome: climaNome, icone: climaIcone || "" } : null,
     elementoTerreno,

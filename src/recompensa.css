@@ -1,6 +1,6 @@
 .recompensa-vitoria { position:fixed; inset:0; z-index:1400; display:grid; place-items:center; overflow:hidden; pointer-events:auto; background:radial-gradient(circle,rgba(17,34,43,.18),rgba(4,7,11,.74)); animation:recompensa-fundo .28s ease-out both; }
 .recompensa-vitoria.saindo { animation:recompensa-sair .26s ease-in both; }
-.recompensa-raios { position:absolute; width:min(82vw,620px); aspect-ratio:1; background:repeating-conic-gradient(from 0deg,rgba(245,165,36,.2) 0 7deg,transparent 7deg 17deg); border-radius:50%; animation:recompensa-girar 12s linear infinite,recompensa-pulso 1.1s ease-in-out infinite alternate; }
+.recompensa-raios { position:absolute; width:min(82vw,620px); aspect-ratio:1; pointer-events:none; background:repeating-conic-gradient(from 0deg,rgba(245,165,36,.2) 0 7deg,transparent 7deg 17deg); border-radius:50%; animation:recompensa-girar 12s linear infinite,recompensa-pulso 1.1s ease-in-out infinite alternate; }
 .recompensa-painel { position:relative; width:min(90vw,620px); max-height:86vh; overflow:auto; padding:28px clamp(18px,4vw,42px); text-align:center; color:#f8efd9; border:2px solid #d79a32; border-radius:18px; background:linear-gradient(160deg,rgba(40,30,22,.98),rgba(10,18,25,.98)); box-shadow:0 0 0 5px rgba(245,165,36,.15),0 22px 70px #000; animation:recompensa-entrada .52s cubic-bezier(.2,1.35,.35,1) both; }
 .recompensa-selo { color:#ffd978; font-size:.76rem; font-weight:900; letter-spacing:.22em; }
 .recompensa-painel h2 { margin:8px 0 18px; color:#fff5cf; text-shadow:0 2px 0 #6a3b16; }
@@ -9,9 +9,14 @@
 .recompensa-item img { width:50px; height:50px; image-rendering:pixelated; border-radius:8px; background:#151a1c; }
 .recompensa-item span { display:grid; gap:3px; }.recompensa-item small { opacity:.74; }
 .recompensa-extras { display:flex; justify-content:center; flex-wrap:wrap; gap:16px; margin-top:18px; color:#ffd978; font-weight:800; font-size:1.05rem; }
-.recompensa-fechar { display:block; margin-top:16px; opacity:.55; }
+.recompensa-instrucao { margin:16px 0 10px; color:#d8cfbd; font-size:.82rem; }
+.recompensa-continuar { min-width:148px; min-height:48px; padding:10px 22px; color:#1a1208; font:inherit; font-weight:900; letter-spacing:.04em; cursor:pointer; border:1px solid #ffe098; border-radius:10px; background:linear-gradient(180deg,#ffe29a,#d79a32); box-shadow:0 4px 0 #754715,0 8px 22px rgba(0,0,0,.32); touch-action:manipulation; }
+.recompensa-continuar:hover { filter:brightness(1.08); }
+.recompensa-continuar:active { transform:translateY(2px); box-shadow:0 2px 0 #754715,0 5px 14px rgba(0,0,0,.28); }
+.recompensa-continuar:focus-visible { outline:3px solid #fff5cf; outline-offset:4px; }
 .recompensa-item.rar-raro { border-color:#3d8bfd }.recompensa-item.rar-epico { border-color:#a855f7 }.recompensa-item.rar-lendario { border-color:#f5a524; box-shadow:0 0 18px rgba(245,165,36,.28) }
 @keyframes recompensa-entrada { from{opacity:0;transform:translateY(24px) scale(.75)} to{opacity:1;transform:none} }
 @keyframes recompensa-fundo { from{opacity:0}to{opacity:1} } @keyframes recompensa-sair { to{opacity:0;transform:scale(1.04)} }
 @keyframes recompensa-girar { to{transform:rotate(360deg)} } @keyframes recompensa-pulso { to{opacity:.48;transform:scale(1.08)} }
+@media (max-width:520px){.recompensa-painel{width:min(92vw,620px);max-height:90dvh;padding:22px 16px}.recompensa-continuar{width:100%}}
 @media (prefers-reduced-motion:reduce){.recompensa-vitoria,.recompensa-painel,.recompensa-raios{animation:none}}

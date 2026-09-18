@@ -33,6 +33,7 @@
 
 /* Enquanto uma cena roda, nada mais recebe clique nem rola atrás dela. */
 body.com-cutscene { overflow: hidden; }
+body.com-cutscene { overscroll-behavior: none; touch-action: manipulation; }
 
 /* --- Arte de fundo ------------------------------------------------------ */
 .cutscene-arte {
@@ -134,6 +135,11 @@ body.com-cutscene { overflow: hidden; }
   gap: 12px;
   flex: 0 0 auto;
 }
+.cutscene-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .cutscene-titulo {
   font-size: clamp(0.72rem, 1.6vw, 0.84rem);
   letter-spacing: 0.22em;
@@ -141,7 +147,8 @@ body.com-cutscene { overflow: hidden; }
   color: var(--hda-gold, #f5a524);
   opacity: 0.85;
 }
-.cutscene-pular {
+.cutscene-pular,
+.cutscene-auto {
   background: transparent;
   border: 1px solid rgba(241, 233, 216, 0.22);
   color: rgba(241, 233, 216, 0.72);
@@ -152,7 +159,17 @@ body.com-cutscene { overflow: hidden; }
   min-height: 36px;
   transition: border-color 160ms ease, color 160ms ease;
 }
-.cutscene-pular:hover { border-color: rgba(245, 165, 36, 0.6); color: var(--hda-gold, #f5a524); }
+.cutscene-pular:hover,
+.cutscene-auto:hover,
+.cutscene-auto[aria-pressed="true"] {
+  border-color: rgba(245, 165, 36, 0.6);
+  color: var(--hda-gold, #f5a524);
+  background: rgba(245, 165, 36, 0.08);
+}
+.cutscene :is(button, [tabindex]):focus-visible {
+  outline: 3px solid var(--hda-gold, #f5a524);
+  outline-offset: 3px;
+}
 
 /* O corpo cresce e centra o texto verticalmente: a cena respira, em vez de
    o texto ficar colado no topo numa tela de 1440x900. */
@@ -163,6 +180,10 @@ body.com-cutscene { overflow: hidden; }
   justify-content: center;
   gap: clamp(8px, 1.6vh, 16px);
   overflow-y: auto;
+  min-height: 0;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   cursor: pointer;
 }
 
@@ -255,7 +276,35 @@ body.com-cutscene { overflow: hidden; }
   justify-content: space-between;
   gap: 14px;
 }
+.cutscene-progresso {
+  display: grid;
+  grid-template-columns: auto minmax(70px, 180px);
+  align-items: center;
+  gap: 5px 10px;
+  min-width: min(46vw, 250px);
+}
+.cutscene-contador {
+  color: rgba(241, 233, 216, 0.78);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cutscene-trilha {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(241, 233, 216, 0.16);
+}
+.cutscene-trilha > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d6881b, var(--hda-gold, #f5a524));
+  transition: width 260ms ease;
+}
 .cutscene-pontos { display: flex; gap: 7px; }
+.cutscene-progresso .cutscene-pontos { grid-column: 1 / -1; }
 .cutscene-pontos.hidden { display: none; }
 .cutscene-pontos i {
   width: 7px; height: 7px; border-radius: 50%;
@@ -265,6 +314,58 @@ body.com-cutscene { overflow: hidden; }
 .cutscene-pontos i.ativo { background: var(--hda-gold, #f5a524); transform: scale(1.15); }
 .cutscene-avancar { min-height: 46px; padding: 0 28px; }
 .cutscene-avancar.hidden { display: none; }
+
+/* A confirmação vive dentro da própria cena: não cria uma segunda janela do
+   navegador, mantém foco/teclado previsíveis e deixa clara a consequência. */
+.cutscene-confirmar {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 4, 8, 0.78);
+  backdrop-filter: blur(8px);
+}
+.cutscene-confirmar.hidden { display: none; }
+.cutscene-confirmar-caixa {
+  width: min(100%, 460px);
+  padding: clamp(20px, 5vw, 30px);
+  border: 1px solid rgba(245, 165, 36, 0.45);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(39, 29, 45, 0.98), rgba(13, 10, 18, 0.98));
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.6);
+}
+.cutscene-confirmar-caixa h3 {
+  margin: 0 0 10px;
+  color: var(--hda-text, #f1e9d8);
+  font-size: clamp(1.2rem, 4vw, 1.55rem);
+}
+.cutscene-confirmar-caixa p {
+  margin: 0;
+  color: rgba(241, 233, 216, 0.78);
+  line-height: 1.55;
+}
+.cutscene-confirmar-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+.cutscene-confirmar-acoes button {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid rgba(241, 233, 216, 0.25);
+  border-radius: 8px;
+  background: rgba(241, 233, 216, 0.06);
+  color: var(--hda-text, #f1e9d8);
+  cursor: pointer;
+}
+.cutscene-confirmar-pulo {
+  border-color: rgba(235, 106, 90, 0.7) !important;
+  color: #ffd6cf !important;
+  background: rgba(145, 42, 32, 0.24) !important;
+}
 
 /* --- Celular ------------------------------------------------------------ */
 @media (max-width: 719px) {
@@ -280,6 +381,29 @@ body.com-cutscene { overflow: hidden; }
   .cutscene:has(.arte-retrato.com-imagem) .cutscene-corpo { justify-content: flex-end; padding-bottom: 4px; }
   .cutscene-avancar { flex: 1; }
   .cutscene-rodape { gap: 10px; }
+  .cutscene-progresso { min-width: 110px; grid-template-columns: 1fr; }
+  .cutscene-trilha { width: 100%; }
+  .cutscene-pontos { display: none; }
+  .cutscene-auto,
+  .cutscene-pular { min-width: 44px; min-height: 44px; padding: 7px 10px; }
+  .cutscene-confirmar-acoes { flex-direction: column-reverse; }
+  .cutscene-confirmar-acoes button { width: 100%; min-height: 48px; }
+}
+
+/* Em paisagem baixa a composição vira duas faixas compactas. O texto pode
+   rolar sozinho; cabeçalho e ações nunca saem da tela nem cobrem a leitura. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .cutscene-frente { max-width: 1080px; padding: 8px 14px; gap: 6px; }
+  .cutscene-cab { min-height: 40px; }
+  .cutscene-corpo { justify-content: flex-start; padding: 4px 0; }
+  .cutscene-subtitulo { font-size: clamp(1.1rem, 4.5vh, 1.45rem); }
+  .cutscene-p { font-size: clamp(0.9rem, 3.5vh, 1rem); line-height: 1.42; max-width: 72ch; }
+  .cutscene-epigrafe { font-size: 0.85rem; }
+  .cutscene-rodape { min-height: 44px; }
+  .cutscene-avancar { min-height: 42px; }
+  .cutscene-arte.arte-retrato.com-imagem { background-position: 88% 42%; background-size: auto 70%; }
+  .cutscene-confirmar-caixa { padding: 16px 20px; }
+  .cutscene-confirmar-acoes { margin-top: 14px; }
 }
 
 /* Telas baixas (notebook 768p com barra do navegador): reduz o respiro
@@ -290,6 +414,6 @@ body.com-cutscene { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cutscene, .cutscene-p, .cutscene-eco, .cutscene-arte, .cutscene-opcao { transition: none !important; }
+  .cutscene, .cutscene-p, .cutscene-eco, .cutscene-arte, .cutscene-opcao, .cutscene-trilha > span { transition: none !important; }
   .cutscene-p { transform: none; }
 }

@@ -37,6 +37,7 @@ import { textoSubStatus, GRAU_ROTULO, GRAU_COR, MARCOS, NIVEL_MAXIMO as SUB_NIVE
 import { celebrarNivel } from "./CartaoUI.js";
 import { cenaDeAbertura, cenaDaMissao, jaViu } from "../systems/CutsceneSystem.js";
 import { proximoPassoAltaverde, podeRecrutarAshryn, recrutarAshryn } from "../systems/JornadaSystem.js";
+import { somConfirmar, somCancelar, somBloqueioOuErro } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
 const conteudo = () => document.getElementById("modal-conteudo");
@@ -161,9 +162,18 @@ export const HUBS = [
   ] },
 ];
 
+// `montarNavegacao` roda novamente em toda troca de tamanho/orientação.
+// Os elementos antigos são substituídos, mas listeners ligados em `document`
+// sobreviveriam a eles e se acumulariam. Um controlador por montagem encerra
+// o ciclo anterior antes de instalar o novo, inclusive após várias rotações.
+let eventosNavegacao = null;
+
 // Monta a navegação nos dois formatos a partir de HUBS. Chamada uma vez pelo
 // boot (main.js) e de novo em toda troca de orientação/tamanho.
 export function montarNavegacao(onAcao) {
+  eventosNavegacao?.abort();
+  eventosNavegacao = new AbortController();
+  const { signal } = eventosNavegacao;
   const hud = document.getElementById("hud-buttons");
   if (hud) {
     // TRILHO LATERAL (desktop). A parede de 17 botões empilhados ocupava 760
@@ -184,21 +194,31 @@ export function montarNavegacao(onAcao) {
 
     const abas = document.createElement("div");
     abas.className = "hud-abas";
-    abas.setAttribute("role", "tablist");
+    abas.setAttribute("role", "group");
     abas.setAttribute("aria-label", "Menus do jogo");
 
     let abertoId = null;
     const fecharPainel = () => {
       abertoId = null;
-      paineis.querySelectorAll(".hud-painel").forEach((p) => p.classList.add("hidden"));
-      abas.querySelectorAll("button").forEach((b) => { b.classList.remove("ativa"); b.setAttribute("aria-expanded", "false"); });
+      paineis.querySelectorAll(".hud-painel").forEach((p) => {
+        p.classList.add("hidden");
+        p.hidden = true;
+      });
+      abas.querySelectorAll("button[data-hub]").forEach((b) => {
+        b.classList.remove("ativa");
+        b.setAttribute("aria-expanded", "false");
+      });
       hud.classList.remove("aberto");
     };
     const abrirPainel = (id) => {
       if (abertoId === id) { fecharPainel(); return; }
       abertoId = id;
-      paineis.querySelectorAll(".hud-painel").forEach((p) => p.classList.toggle("hidden", p.dataset.hub !== id));
-      abas.querySelectorAll("button").forEach((b) => {
+      paineis.querySelectorAll(".hud-painel").forEach((p) => {
+        const oculto = p.dataset.hub !== id;
+        p.classList.toggle("hidden", oculto);
+        p.hidden = oculto;
+      });
+      abas.querySelectorAll("button[data-hub]").forEach((b) => {
         const ativo = b.dataset.hub === id;
         b.classList.toggle("ativa", ativo);
         b.setAttribute("aria-expanded", String(ativo));
@@ -210,8 +230,9 @@ export function montarNavegacao(onAcao) {
       const aba = document.createElement("button");
       aba.type = "button";
       aba.dataset.hub = hub.id;
-      aba.setAttribute("role", "tab");
+      aba.id = `hud-hub-${hub.id}`;
       aba.setAttribute("aria-expanded", "false");
+      aba.setAttribute("aria-controls", `hud-painel-${hub.id}`);
       aba.title = hub.rotulo;
       aba.innerHTML = `<span class="hud-aba-icone" aria-hidden="true">${hub.icone}</span><span class="hud-aba-rotulo">${hub.curto || hub.rotulo}</span>`;
       aba.onclick = (ev) => { ev.stopPropagation(); abrirPainel(hub.id); };
@@ -223,7 +244,11 @@ export function montarNavegacao(onAcao) {
       // menu está aberto seria um id que não existe na hora em que é usado.
       const painel = document.createElement("div");
       painel.className = "hud-painel hidden";
+      painel.id = `hud-painel-${hub.id}`;
       painel.dataset.hub = hub.id;
+      painel.hidden = true;
+      painel.setAttribute("role", "region");
+      painel.setAttribute("aria-labelledby", aba.id);
       painel.innerHTML = `<span class="hud-painel-rotulo">${hub.icone} ${hub.rotulo}</span>`;
       for (const a of hub.acoes) {
         const b = document.createElement("button");
@@ -259,8 +284,8 @@ export function montarNavegacao(onAcao) {
 
     // Clicar no mundo ou apertar Esc fecha o painel. Sem isto o menu aberto
     // vira um estado preso: some só se você acertar a mesma aba de novo.
-    document.addEventListener("click", (ev) => { if (abertoId && !hud.contains(ev.target)) fecharPainel(); });
-    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && abertoId) fecharPainel(); });
+    document.addEventListener("click", (ev) => { if (abertoId && !hud.contains(ev.target)) fecharPainel(); }, { signal });
+    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && abertoId) fecharPainel(); }, { signal });
   }
 
   // Barra inferior (celular). Um hub com uma única ação abre direto; os
@@ -527,9 +552,10 @@ function painelAutoEquipar(personagem, time, dados, aoAplicar) {
         <button class="btn-aplicar-plano">✅ Aplicar tudo</button>
         <button class="btn-cancelar-plano">Cancelar</button>
       </div>`;
-    areaPlano.querySelector(".btn-cancelar-plano").onclick = () => { areaPlano.innerHTML = ""; };
+    areaPlano.querySelector(".btn-cancelar-plano").onclick = () => { somCancelar(); areaPlano.innerHTML = ""; };
     areaPlano.querySelector(".btn-aplicar-plano").onclick = () => {
       aplicarPlanoEquipamento(personagem, plano);
+      somConfirmar();
       aoAplicar();
     };
   };
@@ -690,6 +716,7 @@ export function montarInventario(personagem, onMudar, alvo = personagem, aoVolta
     }
     corpo.querySelectorAll(".btn-desequipar").forEach((b) => b.onclick = () => {
       desequiparItem(personagem, b.dataset.slot, alvo);
+      somConfirmar();
       onMudar(); redesenhar();
     });
 
@@ -803,10 +830,18 @@ function abrirDetalheItem(item, uids, personagem, alvo, ehOutroAlvo, onMudar, re
   const acoes = [];
   if (["arma", "armadura", "acessorio"].includes(item.tipo)) {
     acoes.push({ rotulo: ehOutroAlvo ? `Equipar em ${alvo.nome}` : "Equipar", classe: "primario",
-      onClick: () => { equiparItem(personagem, uids[0], alvo); fecharSheet(); onMudar(); redesenhar(); } });
+      onClick: () => {
+        const r = equiparItem(personagem, uids[0], alvo);
+        if (!r.ok) { somBloqueioOuErro(); if (r.msg) mostrarMensagem(r.msg); return; }
+        somConfirmar(); fecharSheet(true); onMudar(); redesenhar();
+      } });
   } else if (item.tipo === "consumivel") {
     acoes.push({ rotulo: ehOutroAlvo ? `Usar em ${alvo.nome}` : "Usar", classe: "primario",
-      onClick: () => { const r = usarConsumivel(personagem, uids[0], alvo); if (r.msg) mostrarMensagem(r.msg); fecharSheet(); onMudar(); redesenhar(); } });
+      onClick: () => {
+        const r = usarConsumivel(personagem, uids[0], alvo);
+        if (!r.ok) { somBloqueioOuErro(); if (r.msg) mostrarMensagem(r.msg); return; }
+        somConfirmar(); if (r.msg) mostrarMensagem(r.msg); fecharSheet(true); onMudar(); redesenhar();
+      } });
   }
   acoes.push({ rotulo: `Vender (${precoUnitario}o)`,
     onClick: () => { const v = venderItem(personagem, uids[0]); mostrarMensagem(`Vendido por ${v} de ouro.`); fecharSheet(); onMudar(); redesenhar(); } });
@@ -852,42 +887,88 @@ function montarMissoesDiarias(corpo, personagem, onMudar) {
 
 let abaMissoesAtual = "ativas";
 
+function nomeLegivelMissao(valor, padrao = "Região não informada") {
+  if (!valor) return padrao;
+  return String(valor).replace(/_/g, " ").replace(/\b\w/g, (letra) => letra.toUpperCase());
+}
+
+function recompensaMissao(def) {
+  const partes = [];
+  if (def.recompensaOuro) partes.push(`🪙 ${def.recompensaOuro}`);
+  if (def.recompensaXP) partes.push(`✦ ${def.recompensaXP} XP`);
+  if (def.recompensaFragmentos) partes.push(`💎 ${def.recompensaFragmentos}`);
+  return partes.join(" · ") || "Recompensa narrativa";
+}
+
+function regiaoMissao(def) {
+  return nomeLegivelMissao(def.mapaAlvo || def.zonaAlvo || def.regiao || def.localAlvo);
+}
+
 export function montarMissoes(personagem, dados) {
   const corpo = abrirModalBase("🧭 Missões", { largura: LARGURA.media });
   const rastreada = missaoRastreada(personagem, dados.quests);
   const resumo = document.createElement("section");
-  resumo.className = `missao-rastreada-resumo${rastreada ? " ativa" : ""}`;
-  resumo.innerHTML = rastreada ? `
-    <span class="missao-rastreada-selo">${ehMissaoPrincipal(rastreada.def) ? "✦ HISTÓRIA PRINCIPAL" : "◆ MISSÃO RASTREADA"}</span>
-    <h3>${rastreada.def.nome}</h3>
-    <p>${textoObjetivoMissao(rastreada.def)}</p>
-    <small>O rastro dourado aparece no mundo, no minimapa e no mapa de Aethra.</small>
-    <button type="button" class="missao-ver-mapa">🗺️ Ver objetivo no mapa</button>` : `
-    <span class="missao-rastreada-selo">◇ SEM RASTRO ATIVO</span>
-    <h3>Escolha uma direção</h3>
-    <p>Selecione “Rastrear” em uma missão ativa para receber direção no mapa.</p>`;
+  resumo.className = `missao-rastreada-resumo${rastreada ? " ativa" : " vazia"}`;
+  if (rastreada) {
+    const progresso = progressoDaMissao(personagem, rastreada.def);
+    const percentual = Math.round(progresso.atual / Math.max(1, progresso.meta) * 100);
+    resumo.innerHTML = `
+      <div class="missao-rastreada-cabecalho">
+        <span class="missao-rastreada-selo">${ehMissaoPrincipal(rastreada.def) ? "✦ HISTÓRIA PRINCIPAL" : "◆ MISSÃO RASTREADA"}</span>
+        <span class="missao-estado ${progresso.pronto ? "pronta" : "em-andamento"}">${progresso.pronto ? "Pronta para entregar" : "Em andamento"}</span>
+      </div>
+      <h3>${rastreada.def.nome}</h3>
+      <p class="missao-objetivo-destaque"><span aria-hidden="true">◎</span><span><small>Objetivo atual</small>${textoObjetivoMissao(rastreada.def)}</span></p>
+      <div class="missao-meta" aria-label="Informações da missão">
+        <span><small>Região</small>📍 ${regiaoMissao(rastreada.def)}</span>
+        <span><small>Recompensa</small>${recompensaMissao(rastreada.def)}</span>
+      </div>
+      <div class="missao-progresso-linha"><b>Progresso</b><span>${progresso.atual}/${progresso.meta}</span></div>
+      <div class="missao-progresso" role="progressbar" aria-label="Progresso de ${rastreada.def.nome}" aria-valuemin="0" aria-valuemax="${progresso.meta}" aria-valuenow="${progresso.atual}"><i style="width:${percentual}%"></i></div>
+      <div class="missao-rastreada-acoes">
+        <button type="button" class="missao-ver-mapa primario">🗺️ Ver no mapa</button>
+        <button type="button" class="missao-parar-rastro">Parar de rastrear</button>
+      </div>`;
+  } else {
+    resumo.innerHTML = `
+      <span class="missao-rastreada-selo">◇ SEM OBJETIVO RASTREADO</span>
+      <h3>${personagem.missoesAtivas.length ? "Escolha uma direção" : "Sua jornada está livre"}</h3>
+      <p>${personagem.missoesAtivas.length ? "Use “Rastrear no mapa” em uma missão ativa." : "Converse com personagens marcados por ! para descobrir novas histórias."}</p>`;
+  }
   corpo.appendChild(resumo);
   resumo.querySelector(".missao-ver-mapa")?.addEventListener("click", () => {
     fecharModal();
     document.dispatchEvent(new CustomEvent("hda:abrir-mapa-missao"));
   });
+  resumo.querySelector(".missao-parar-rastro")?.addEventListener("click", () => {
+    if (!rastreada || !rastrearMissao(personagem, rastreada.def.id)) return;
+    mostrarMensagem("Rastreamento removido. Você pode escolher outro objetivo quando quiser.");
+    montarMissoes(personagem, dados);
+  });
   const abas = document.createElement("nav");
   abas.className = "missoes-abas";
+  abas.setAttribute("role", "tablist");
   abas.setAttribute("aria-label", "Categorias de missões");
   abas.innerHTML = `
-    <button type="button" data-missao-aba="ativas">Ativas <b>${personagem.missoesAtivas.length}</b></button>
-    <button type="button" data-missao-aba="diarias">Diárias</button>
-    <button type="button" data-missao-aba="concluidas">Concluídas <b>${personagem.missoesConcluidas.length}</b></button>`;
+    <button type="button" role="tab" aria-controls="missoes-grupo-ativas" data-missao-aba="ativas">Ativas <b>${personagem.missoesAtivas.length}</b></button>
+    <button type="button" role="tab" aria-controls="missoes-grupo-diarias" data-missao-aba="diarias">Diárias</button>
+    <button type="button" role="tab" aria-controls="missoes-grupo-concluidas" data-missao-aba="concluidas">Concluídas <b>${personagem.missoesConcluidas.length}</b></button>`;
   corpo.appendChild(abas);
 
   const grupoAtivas = document.createElement("div");
   grupoAtivas.className = "missoes-grupo";
+  grupoAtivas.id = "missoes-grupo-ativas";
+  grupoAtivas.setAttribute("role", "tabpanel");
   grupoAtivas.dataset.missaoGrupo = "ativas";
   const grupoDiarias = document.createElement("div");
   grupoDiarias.className = "missoes-grupo";
+  grupoDiarias.id = "missoes-grupo-diarias";
+  grupoDiarias.setAttribute("role", "tabpanel");
   grupoDiarias.dataset.missaoGrupo = "diarias";
   const grupoConcluidas = document.createElement("div");
   grupoConcluidas.className = "missoes-grupo";
+  grupoConcluidas.id = "missoes-grupo-concluidas";
+  grupoConcluidas.setAttribute("role", "tabpanel");
   grupoConcluidas.dataset.missaoGrupo = "concluidas";
   corpo.append(grupoAtivas, grupoDiarias, grupoConcluidas);
   const jornada = proximoPassoAltaverde(personagem);
@@ -919,9 +1000,15 @@ export function montarMissoes(personagem, dados) {
   hSeparador.textContent = "Missões de NPCs";
   grupoAtivas.appendChild(hSeparador);
   if (personagem.missoesAtivas.length === 0 && personagem.missoesConcluidas.length === 0) {
-    const p = document.createElement("p");
-    p.textContent = "Nenhuma missão aceita ainda. Converse com os NPCs da vila!";
-    grupoAtivas.appendChild(p);
+    const vazio = document.createElement("section");
+    vazio.className = "missoes-estado-vazio";
+    vazio.innerHTML = "<span aria-hidden=\"true\">🧭</span><h3>Nenhuma missão ativa</h3><p>Explore o mundo e converse com personagens marcados por <b>!</b>.</p>";
+    grupoAtivas.appendChild(vazio);
+  } else if (personagem.missoesAtivas.length === 0) {
+    const bloqueada = document.createElement("section");
+    bloqueada.className = "missoes-estado-vazio bloqueada";
+    bloqueada.innerHTML = "<span aria-hidden=\"true\">🔒</span><h3>Próximo capítulo ainda bloqueado</h3><p>Continue explorando e procure personagens importantes para abrir uma nova missão.</p>";
+    grupoAtivas.appendChild(bloqueada);
   }
   [...personagem.missoesAtivas].sort((a, b) => Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === b.id))) - Number(ehMissaoPrincipal(dados.quests.find((q) => q.id === a.id)))).forEach((m) => {
     const def = dados.quests.find((q) => q.id === m.id);
@@ -929,14 +1016,16 @@ export function montarMissoes(personagem, dados) {
     const progresso = progressoDaMissao(personagem, def);
     const sendoRastreada = personagem.missaoRastreadaId === def.id;
     const div = document.createElement("div");
-    div.className = `card missao-card${ehMissaoPrincipal(def) ? " principal" : ""}${sendoRastreada ? " rastreada" : ""}`;
+    div.className = `card missao-card${ehMissaoPrincipal(def) ? " principal" : ""}${sendoRastreada ? " rastreada" : ""}${progresso.pronto ? " pronta" : ""}`;
     div.innerHTML = `<div class="info">
       <div class="missao-card-topo"><span class="missao-vertente">${ehMissaoPrincipal(def) ? "✦ História principal" : "Missão de NPC"}</span>${sendoRastreada ? `<span class="missao-em-foco">◎ Em foco</span>` : ""}</div>
-      <div class="nome">${def.nome} ${progresso.pronto ? "✅" : ""}</div>
+      <div class="nome">${def.nome}</div>
       <div class="desc missao-objetivo">${textoObjetivoMissao(def)}</div>
+      <div class="missao-meta compacta"><span>📍 ${regiaoMissao(def)}</span><span>${recompensaMissao(def)}</span></div>
+      <div class="missao-progresso-linha"><b>${progresso.pronto ? "Pronta para entregar" : "Progresso"}</b><span>${progresso.atual}/${progresso.meta}</span></div>
       <div class="missao-progresso" role="progressbar" aria-valuemin="0" aria-valuemax="${progresso.meta}" aria-valuenow="${progresso.atual}"><i style="width:${Math.round(progresso.atual / progresso.meta * 100)}%"></i></div>
-      <div class="desc">Progresso: ${progresso.atual}/${progresso.meta}${progresso.pronto ? " · Volte ao responsável para entregar." : ""}</div>
-    </div><div class="missao-acoes"><button type="button" class="btn-rastrear-missao${sendoRastreada ? " ativo" : ""}" data-id="${def.id}">${sendoRastreada ? "Parar de rastrear" : "Rastrear no mapa"}</button></div>`;
+      ${progresso.pronto ? '<div class="missao-entrega">✓ Volte ao responsável para receber a recompensa.</div>' : ""}
+    </div><div class="missao-acoes"><button type="button" aria-pressed="${sendoRastreada}" class="btn-rastrear-missao${sendoRastreada ? " ativo" : ""}" data-id="${def.id}">${sendoRastreada ? "Parar de rastrear" : "Rastrear no mapa"}</button></div>`;
     grupoAtivas.appendChild(div);
   });
   corpo.querySelectorAll(".btn-rastrear-missao").forEach((b) => b.onclick = () => {
@@ -950,9 +1039,10 @@ export function montarMissoes(personagem, dados) {
     grupoConcluidas.appendChild(h);
     personagem.missoesConcluidas.forEach((id) => {
       const def = dados.quests.find((q) => q.id === id);
+      if (!def) return;
       const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `<div class="info"><div class="nome">${def.nome}</div></div>`;
+      div.className = "card missao-card concluida";
+      div.innerHTML = `<div class="info"><div class="missao-card-topo"><span class="missao-vertente">✓ Concluída</span></div><div class="nome">${def.nome}</div><div class="missao-meta compacta"><span>📍 ${regiaoMissao(def)}</span><span>${recompensaMissao(def)}</span></div></div>`;
       grupoConcluidas.appendChild(div);
     });
   }
@@ -964,10 +1054,20 @@ export function montarMissoes(personagem, dados) {
       const ativo = b.dataset.missaoAba === id;
       b.classList.toggle("ativo", ativo);
       b.setAttribute("aria-selected", String(ativo));
+      b.tabIndex = ativo ? 0 : -1;
     });
     corpo.querySelectorAll("[data-missao-grupo]").forEach((g) => { g.hidden = g.dataset.missaoGrupo !== id; });
   };
   corpo.querySelectorAll("[data-missao-aba]").forEach((b) => { b.onclick = () => ativarAba(b.dataset.missaoAba); });
+  abas.addEventListener("keydown", (evento) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(evento.key)) return;
+    evento.preventDefault();
+    const botoes = [...abas.querySelectorAll("[data-missao-aba]")];
+    const atual = botoes.indexOf(document.activeElement);
+    const destino = evento.key === "Home" ? 0 : evento.key === "End" ? botoes.length - 1 : (atual + (evento.key === "ArrowRight" ? 1 : -1) + botoes.length) % botoes.length;
+    ativarAba(botoes[destino].dataset.missaoAba);
+    botoes[destino].focus();
+  });
   ativarAba(abaMissoesAtual);
 }
 

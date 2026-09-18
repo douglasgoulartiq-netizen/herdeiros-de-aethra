@@ -45,30 +45,35 @@ const CSS = `
 .arv-ramo-nome { font-weight:700; font-size:1.02em; }
 .arv-ramo-inv { margin-left:auto; font-size:0.78em; color:#f5a524; white-space:nowrap; }
 .arv-ramo-desc { font-size:0.76em; opacity:0.7; margin-bottom:8px; line-height:1.3; }
-.arv-no { border:1px solid rgba(255,255,255,0.12); border-left-width:4px; border-radius:8px;
-  padding:7px 9px; margin-bottom:6px; background:rgba(0,0,0,0.22); }
+.arv-no { position:relative; display:block; width:100%; border:1px solid rgba(255,255,255,0.12); border-left-width:4px; border-radius:9px;
+  padding:8px 10px; margin-bottom:8px; background:rgba(0,0,0,0.22); color:inherit; text-align:left; font:inherit; }
+.arv-no:not(:first-of-type)::before { content:""; position:absolute; left:20px; top:-10px; width:2px; height:8px; background:rgba(151,111,210,.58); }
 .arv-no.escolhido { border-left-color:#4ecb71; background:rgba(78,203,113,0.1); }
 .arv-no.disponivel { border-left-color:#f5a524; background:rgba(245,165,36,0.1); cursor:pointer; }
 .arv-no.disponivel:hover { background:rgba(245,165,36,0.2); }
-.arv-no.bloqueado { border-left-color:rgba(255,255,255,0.15); opacity:0.55; }
+.arv-no.bloqueado { border-left-color:rgba(255,255,255,0.22); opacity:0.76; }
+.arv-no:focus-visible { outline:3px solid #fff1a8; outline-offset:2px; }
 .arv-no-cab { display:flex; gap:6px; align-items:baseline; }
+.arv-no-tier { flex:0 0 auto; color:#d8b75e; font-size:.68em; font-weight:900; letter-spacing:.05em; }
 .arv-no-nome { font-weight:600; font-size:0.92em; overflow-wrap:anywhere; }
 .arv-no-custo { margin-left:auto; font-size:0.74em; white-space:nowrap; opacity:0.85;
   border:1px solid rgba(255,255,255,0.2); border-radius:20px; padding:1px 7px; }
-.arv-no-desc { font-size:0.78em; opacity:0.85; line-height:1.35; margin-top:3px; overflow-wrap:anywhere; }
-.arv-no-tipo { font-size:0.7em; opacity:0.62; margin-top:3px; text-transform:uppercase; letter-spacing:0.04em; }
-.arv-no-trava { font-size:0.75em; color:#ff9a9a; margin-top:4px; line-height:1.3; }
-.arv-no-ok { font-size:0.75em; color:#4ecb71; margin-top:4px; }
+.arv-no-desc { display:block; font-size:0.78em; opacity:0.85; line-height:1.35; margin-top:3px; overflow-wrap:anywhere; }
+.arv-no-tipo { display:block; font-size:0.7em; opacity:0.62; margin-top:3px; text-transform:uppercase; letter-spacing:0.04em; }
+.arv-no-trava { display:block; font-size:0.75em; color:#ff9a9a; margin-top:4px; line-height:1.3; }
+.arv-no-ok { display:block; font-size:0.75em; color:#4ecb71; margin-top:4px; font-weight:700; }
 .arv-legenda { margin-top:10px; font-size:0.78em; opacity:0.72; line-height:1.45; }
 .arv-filtros { display:flex; gap:6px; margin:0 0 10px; overflow-x:auto; scrollbar-width:none; }
 .arv-filtro-ramo { flex:0 0 auto; min-height:42px; padding:7px 12px; border-radius:999px; }
 .arv-filtro-ramo.ativo { border-color:#f5a524; background:rgba(245,165,36,.2); color:#fff2cf; }
+.arv-filtro-ramo:focus-visible,.arv-aba:focus-visible,.ld-bt:focus-visible { outline:3px solid #fff1a8; outline-offset:2px; }
 @media (max-width:900px) { .arv-grade { grid-template-columns:1fr; } }
 .arv-grade .arv-ramo { display:none; }
 .arv-grade .arv-ramo.ativo { display:block; }
 @media (max-width:719px) {
   .arv-topo { top:0; }
   .arv-ramo-desc,.arv-no-desc { font-size:.82rem; }
+  .arv-no { min-height:68px; }
 }
 
 /* --- Abas: Árvore | Cards de batalha --- */
@@ -121,19 +126,21 @@ function htmlNo(entrada) {
     ? ` · exige ${Object.entries(no.requisito).map(([k, v]) => `${k} ${v}`).join(", ")}`
     : "";
   const rodape =
-    estado === "escolhido" ? `<div class="arv-no-ok">✅ desbloqueado</div>`
-      : estado === "disponivel" ? `<div class="arv-no-ok">▸ clique para desbloquear</div>`
-        : `<div class="arv-no-trava">🔒 falta ${escapar(motivos.join(" · "))}</div>`;
+    estado === "escolhido" ? `<span class="arv-no-ok">✓ Adquirido</span>`
+      : estado === "disponivel" ? `<span class="arv-no-ok">✦ Disponível para aprender</span>`
+        : `<span class="arv-no-trava">🔒 falta ${escapar(motivos.join(" · "))}</span>`;
+  const rotuloEstado = estado === "escolhido" ? "adquirido" : estado === "disponivel" ? "disponível" : "bloqueado";
   return `
-    <div class="arv-no ${estado}" data-no="${no.id}" title="${escapar(no.descricao)}">
-      <div class="arv-no-cab">
+    <button type="button" class="arv-no ${estado}" data-no="${escapar(no.id)}" title="${escapar(no.descricao)}" aria-label="${escapar(no.nome)}, nível ${no.nivelRequerido}, ${rotuloEstado}" aria-pressed="${estado === "escolhido"}">
+      <span class="arv-no-cab">
+        <span class="arv-no-tier">NÍVEL ${no.nivelRequerido}</span>
         <span class="arv-no-nome">${escapar(no.nome)}</span>
         <span class="arv-no-custo">${custo} pt${custo > 1 ? "s" : ""}</span>
-      </div>
-      <div class="arv-no-desc">${escapar(no.descricao)}</div>
-      <div class="arv-no-tipo">${escapar(descreverConcessao(no))} · nível ${no.nivelRequerido}${req}</div>
+      </span>
+      <span class="arv-no-desc">${escapar(no.descricao)}</span>
+      <span class="arv-no-tipo">${escapar(descreverConcessao(no))}${req}</span>
       ${rodape}
-    </div>`;
+    </button>`;
 }
 
 // --- Aba "Cards de batalha" -------------------------------------------------
@@ -263,7 +270,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
       </button>
     </div>
     <div class="arv-filtros" role="tablist" aria-label="Ramos de habilidade">
-      ${ramos.map((r) => `<button type="button" class="arv-filtro-ramo ${r.id === ramoAtual ? "ativo" : ""}" data-ramo-filtro="${escapar(r.id)}">${r.icone || "◆"} ${escapar(r.nome)}</button>`).join("")}
+      ${ramos.map((r) => `<button type="button" role="tab" aria-selected="${r.id === ramoAtual}" class="arv-filtro-ramo ${r.id === ramoAtual ? "ativo" : ""}" data-ramo-filtro="${escapar(r.id)}">${r.icone || "◆"} ${escapar(r.nome)}</button>`).join("")}
     </div>
     <div class="arv-grade">${colunas}</div>
     ${marcas ? `<div class="arv-legenda"><b>Suas marcas de classe:</b><br>${marcas}</div>` : ""}
@@ -277,13 +284,13 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
   conteudo().innerHTML = `
     <button class="fechar">Fechar (Esc)</button>
     <nav class="progressao-heroi-nav" aria-label="Progressão do herói">
-      <button class="ativo" type="button">🌳 Habilidades e cards</button>
+      <button class="ativo" type="button" aria-current="page">🌳 Habilidades e cards</button>
       ${opcoes.abrirHeranca ? '<button type="button" data-progressao-heranca>💠 Caminhos e Herança</button>' : ""}
     </nav>
     <h2>Habilidades — ${escapar(personagem.classeNome)}</h2>
-    <div class="arv-abas">
-      <button class="arv-aba ${abaAtual === "arvore" ? "ativa" : ""}" data-aba="arvore">🌳 Árvore${disponiveis > 0 ? ` · ${disponiveis} pt` : ""}</button>
-      <button class="arv-aba ${abaAtual === "cards" ? "ativa" : ""}" data-aba="cards">🃏 Cards de batalha · ${naMao}/${LIMITE_CARDS}</button>
+    <div class="arv-abas" role="tablist" aria-label="Conteúdo das habilidades">
+      <button role="tab" aria-selected="${abaAtual === "arvore"}" class="arv-aba ${abaAtual === "arvore" ? "ativa" : ""}" data-aba="arvore">🌳 Árvore${disponiveis > 0 ? ` · ${disponiveis} pt` : ""}</button>
+      <button role="tab" aria-selected="${abaAtual === "cards"}" class="arv-aba ${abaAtual === "cards" ? "ativa" : ""}" data-aba="cards">🃏 Cards de batalha · ${naMao}/${LIMITE_CARDS}</button>
     </div>
     ${abaAtual === "cards" ? painelCards(personagem) : painelArvore}
   `;
@@ -297,9 +304,34 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
   conteudo().querySelectorAll("[data-ramo-filtro]").forEach((b) => {
     b.onclick = () => {
       ramoAtual = b.dataset.ramoFiltro;
-      conteudo().querySelectorAll(".arv-filtro-ramo").forEach((x) => x.classList.toggle("ativo", x === b));
+      conteudo().querySelectorAll(".arv-filtro-ramo").forEach((x) => {
+        x.classList.toggle("ativo", x === b);
+        x.setAttribute("aria-selected", x === b ? "true" : "false");
+      });
       conteudo().querySelectorAll(".arv-ramo").forEach((x) => x.classList.toggle("ativo", x.dataset.ramo === ramoAtual));
+      conteudo().querySelector(`.arv-ramo[data-ramo="${CSS.escape(ramoAtual)}"] .arv-no`)?.focus();
     };
+  });
+
+  // Setas percorrem a trilha ativa sem depender do mouse. Esquerda/direita
+  // troca de ramo; cima/baixo percorre os níveis. Enter e Espaço mantêm o
+  // comportamento nativo do botão, inclusive para talentos disponíveis.
+  conteudo().querySelector(".arv-grade")?.addEventListener("keydown", (evento) => {
+    if (!evento.target.matches(".arv-no")) return;
+    const ativos = [...conteudo().querySelectorAll(".arv-ramo.ativo .arv-no")];
+    const indice = ativos.indexOf(evento.target);
+    if (evento.key === "ArrowDown" || evento.key === "ArrowUp" || evento.key === "Home" || evento.key === "End") {
+      evento.preventDefault();
+      const destino = evento.key === "Home" ? 0 : evento.key === "End" ? ativos.length - 1 : Math.max(0, Math.min(ativos.length - 1, indice + (evento.key === "ArrowDown" ? 1 : -1)));
+      ativos[destino]?.focus();
+      return;
+    }
+    if (evento.key !== "ArrowLeft" && evento.key !== "ArrowRight") return;
+    evento.preventDefault();
+    const filtros = [...conteudo().querySelectorAll(".arv-filtro-ramo")];
+    const atual = filtros.findIndex((x) => x.classList.contains("ativo"));
+    const destino = Math.max(0, Math.min(filtros.length - 1, atual + (evento.key === "ArrowRight" ? 1 : -1)));
+    filtros[destino]?.click();
   });
 
   // Aba de cards: ligar/desligar e reordenar. Um clique recusado escreve o

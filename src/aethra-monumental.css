@@ -183,14 +183,84 @@
   padding:12px;
 }
 .companhia-equipamento .party-filtros { margin-top:0;border-top:0;padding-top:0; }
+.companhia-equipamento {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(350px,.46fr);
+  grid-template-areas:"filtros filtros" "mochila detalhe";
+  gap:10px 14px;
+  align-items:start;
+}
+.companhia-equipamento .party-filtros { grid-area:filtros; }
+.companhia-equipamento .party-mochila { grid-area:mochila;min-width:0; }
+.companhia-equipamento .party-detalhe,
+.companhia-equipamento .companhia-estado-detalhe { grid-area:detalhe; }
 .companhia-equipamento .hda-ladrilho { background:linear-gradient(145deg,#152229,#0b1114);border-color:#394951;border-radius:3px; }
-.companhia-equipamento .hda-ladrilho.selecionado { border-color:#d7aa52;box-shadow:inset 0 0 0 1px #d7aa52,0 0 16px #d7aa5222; }
+.companhia-equipamento .hda-ladrilho.selecionado {
+  border-color:#f0c46a;
+  background:linear-gradient(145deg,#263840,#121b1f);
+  box-shadow:inset 4px 0 #f0c46a,inset 0 0 0 1px #d7aa52,0 0 18px #d7aa5230;
+}
+.companhia-equipamento .hda-ladrilho:focus-visible,
+.companhia-trilho .party-card:focus-visible,
+.tela-party button:focus-visible,
+.tela-party input:focus-visible {
+  outline:3px solid #77d1dc;
+  outline-offset:2px;
+}
+.party-busca-wrap { display:grid;gap:3px;flex:0 1 250px;color:#98a6a8;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase; }
+.party-busca-wrap .party-busca { width:100%;min-height:38px;border-radius:3px;background:#071014;border-color:#3d5058; }
+.companhia-estado,
+.companhia-estado-detalhe {
+  min-height:150px;
+  display:grid;
+  place-content:center;
+  justify-items:center;
+  gap:5px;
+  padding:24px;
+  border:1px dashed #3b4b50;
+  background:linear-gradient(145deg,#0e181c,#081014);
+  color:#aeb9ba;
+  text-align:center;
+}
+.companhia-estado > span,.companhia-estado-detalhe > span { color:#d7aa52;font-size:1.8rem; }
+.companhia-estado strong,.companhia-estado-detalhe strong { color:#ead9b5;font:500 1rem Georgia,serif; }
+.companhia-estado small,.companhia-estado-detalhe small { display:block;max-width:300px;margin-top:4px;color:#899799;line-height:1.45; }
+.companhia-estado-detalhe { grid-template-columns:auto 1fr;place-content:center;justify-items:start;text-align:left; }
+.companhia-estado-carregando > span { width:24px;height:24px;border:2px solid #3b4b50;border-top-color:#d7aa52;border-radius:50%;animation:companhia-giro .8s linear infinite; }
+@keyframes companhia-giro { to { transform:rotate(360deg); } }
 .tela-party .ficha-bloco,.tela-party .ficha-slot,.tela-party .auto-linha {
   border-radius:3px;
   border-color:#34454a;
   background:#091216b8;
 }
-.tela-party .party-detalhe { background:#081115f5;border-color:#d7aa52;border-radius:3px; }
+.tela-party .party-detalhe {
+  position:sticky;
+  top:0;
+  bottom:auto;
+  margin:0;
+  max-height:min(52vh,520px);
+  background:#081115f5;
+  border:1px solid #d7aa52;
+  border-radius:3px;
+  box-shadow:0 16px 36px #0008;
+}
+.tela-party .party-detalhe-cabecalho { padding-right:34px;position:relative; }
+.tela-party .party-detalhe-fechar {
+  position:absolute;right:0;top:0;width:32px;height:32px;padding:0;
+  border:1px solid #4a5b60;background:#101c20;color:#dce4e2;font-size:1.15rem;
+}
+.tela-party .party-linhas { gap:6px; }
+.tela-party .party-linha-membro {
+  grid-template-columns:minmax(86px,.72fr) minmax(100px,1fr) auto minmax(110px,1fr) auto;
+  gap:7px;
+  border-color:#2e4047;
+  background:#0b161ac7;
+}
+.tela-party .party-linha-membro.membro-ativo { border-color:#806835;box-shadow:inset 3px 0 #d7aa52; }
+.tela-party .party-linha-info,.tela-party .party-linha-resultado { min-width:0;overflow-wrap:anywhere;color:#c4cecc;font-size:.74rem; }
+.tela-party .party-linha-info small,.tela-party .party-linha-resultado small { display:block;margin-bottom:2px;color:#708083;font-size:.57rem;letter-spacing:.1em; }
+.tela-party .party-linha-seta { color:#d7aa52; }
+.tela-party .party-melhor,.tela-party .party-pior,.tela-party .party-igual { display:inline-block;margin-left:4px;padding:1px 5px;border-radius:999px;background:#071014; }
 
 /* =====================================================================
    COMBATE — campo domina, cenário respira e interface vive nas bordas
@@ -265,7 +335,7 @@
   box-shadow:0 5px 12px #0007,inset 0 0 0 1px rgba(255,255,255,.035);
   outline-color:#05090c;
 }
-#screen-batalha.bt-screen .carta-batalha:hover,#screen-batalha.bt-screen .carta-batalha.selecionada {
+#screen-batalha.bt-screen .carta-batalha:hover,#screen-batalha.bt-screen .carta-batalha.estado-selecionado {
   border-color:#d7aa52;box-shadow:0 7px 18px #000b,0 0 18px rgba(215,170,82,.18),inset 0 0 0 1px rgba(255,225,166,.1);
 }
 #screen-batalha.bt-screen .carta-nome { color:#f3ead7; }
@@ -296,6 +366,22 @@
   .companhia-poder-barra { grid-column:1/-1;width:100%;margin:2px 0; }
   .companhia-recursos { grid-column:1/-1;justify-content:flex-start; }
   .companhia-painel { padding:8px; }
+  .companhia-equipamento { display:block; }
+  .companhia-equipamento .party-filtros { position:sticky;top:0;z-index:2;padding:5px;background:#0c171cf5;border-bottom:1px solid #344249; }
+  .party-busca-wrap { flex:1 0 100%; }
+  .companhia-estado-detalhe { min-height:72px;margin-top:8px;padding:12px; }
+  .tela-party .party-detalhe {
+    position:sticky;bottom:0;top:auto;z-index:8;
+    max-height:min(62dvh,520px);margin-top:8px;
+    border-radius:8px 8px 0 0;
+    box-shadow:0 -18px 42px #000d;
+  }
+  .tela-party .party-linha-membro { grid-template-columns:minmax(82px,.8fr) 1fr auto;gap:5px; }
+  .tela-party .party-linha-info { grid-column:1/2; }
+  .tela-party .party-linha-seta { display:none; }
+  .tela-party .party-linha-resultado { grid-column:2/3; }
+  .tela-party .party-btn-equipar,.tela-party .party-btn-usar { grid-column:3;grid-row:1/3;min-height:44px; }
+  .tela-party .party-detalhe-acoes { position:sticky;bottom:0;padding-top:8px;background:#081115; }
   #screen-batalha.bt-screen .bt-header { min-height:40px; }
   #screen-batalha.bt-screen .bt-cena { filter:saturate(.72) brightness(.74) contrast(1.02); }
   #screen-batalha.bt-screen .bt-slot .combatente .nome-c { font-size:.66rem;padding:1px 4px; }
@@ -307,5 +393,11 @@
   .companhia-arte { min-height:130px;grid-row:auto; }
   .companhia-sprite { max-height:138px; }
   .companhia-poder { grid-column:auto;display:block;text-align:right; }
+  .tela-party .party-detalhe { max-height:72dvh; }
   #screen-batalha.bt-screen .bt-header { min-height:34px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .companhia-estado-carregando > span { animation:none;border-color:#d7aa52; }
+  .companhia-equipamento .hda-ladrilho,.companhia-trilho .party-card { scroll-behavior:auto;transition:none; }
 }
