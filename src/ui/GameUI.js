@@ -131,7 +131,7 @@ export const HUBS = [
     // (PartyUI.js). Antes, para vestir um convocado era preciso passar pelo
     // gacha — uma tela de sorteio — o que misturava duas coisas que não têm
     // nada a ver uma com a outra.
-    { acao: "party", rotulo: "Time e Mochila", icone: "🛡️", atalho: "Y" },
+    { acao: "party", rotulo: "Companhia", icone: "🛡️", atalho: "Y" },
     { acao: "gacha", rotulo: "Invocação", icone: "✨", atalho: "G" },
   ] },
   // "Mapa" e "Atlas" são duas coisas e continuam separadas: o Mapa (U) é
@@ -148,7 +148,7 @@ export const HUBS = [
     { acao: "compendio", rotulo: "Compêndio", icone: "📚", atalho: "C" },
   ] },
   { id: "mochila", icone: "🎒", rotulo: "Mochila", acoes: [
-    { acao: "party", rotulo: "Mochila do grupo", icone: "🎒", atalho: "I" },
+    { acao: "party", rotulo: "Equipamento da companhia", icone: "🎒", atalho: "I" },
     { acao: "inventario", rotulo: "Só do principal", icone: "👤" },
     { acao: "forja", rotulo: "Forja & Alquimia", icone: "🔨", atalho: "F" },
   ] },
@@ -909,7 +909,7 @@ export function montarMissoes(personagem, dados) {
       if (!resultado.ok) { mostrarMensagem("Não foi possível encontrar a aliada. Tente abrir as missões novamente."); return; }
       atualizarHUD(personagem);
       montarMissoes(personagem, dados);
-      mostrarMensagem(resultado.jaPossuia ? "Ashryn reafirma seu compromisso com a jornada. Seu progresso com ela foi preservado." : resultado.noTime ? "Ashryn entrou no time! Abra Time e Mochila para equipá-la." : "Ashryn se juntou à coleção. Escolha seu time em Time e Mochila.", 7000);
+      mostrarMensagem(resultado.jaPossuia ? "Ashryn reafirma seu compromisso com a jornada. Seu progresso com ela foi preservado." : resultado.noTime ? "Ashryn entrou no time! Abra Companhia para equipá-la." : "Ashryn se juntou à coleção. Escolha sua formação em Companhia.", 7000);
     };
     painelJornada.append(historia, recrutar);
   }

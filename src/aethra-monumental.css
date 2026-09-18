@@ -1,0 +1,311 @@
+/* AETHRA MONUMENTAL
+   Novo corte vertical aprovado: Combate + Companhia. Esta camada não muda
+   regras; transforma os mesmos dados numa composição durável para PC e toque. */
+
+:root {
+  --am-ink:#f1eadc;
+  --am-muted:#aeb5b6;
+  --am-night:#071014;
+  --am-panel:#0c171c;
+  --am-panel-2:#12232a;
+  --am-gold:#d7aa52;
+  --am-gold-soft:#7c6135;
+  --am-line:#30424a;
+  --am-cyan:#62b9c2;
+}
+
+/* =====================================================================
+   COMPANHIA — herói, equipamento, formação e otimização num único lugar
+   ===================================================================== */
+.tela-party.hda-modal {
+  --hda-modal-larg:min(1500px,97vw) !important;
+  background:
+    radial-gradient(circle at 45% 14%,rgba(42,96,111,.19),transparent 35%),
+    linear-gradient(145deg,#11191d 0%,#080d10 58%,#17120d 100%);
+  border-color:#5a4a31;
+  box-shadow:0 30px 90px #000c,inset 0 0 80px #0008;
+}
+.tela-party .hda-modal-cab {
+  min-height:62px;
+  background:linear-gradient(180deg,#17262c,#0b1418);
+  border-bottom:1px solid #5d4928;
+  padding-inline:18px;
+}
+.tela-party .hda-modal-cab h2 {
+  color:#f5dfaf;
+  letter-spacing:.035em;
+  font-family:Georgia,"Times New Roman",serif;
+  text-shadow:0 2px 10px #000;
+}
+.tela-party .hda-modal-sub {
+  border:1px solid #57482f;
+  background:#090f12b8;
+  color:#d9c79f;
+}
+.tela-party > .hda-tabs {
+  margin:0;
+  padding:7px 16px 0;
+  gap:4px;
+  background:#0a1216;
+  border-bottom:1px solid #3e3425;
+}
+.tela-party > .hda-tabs button {
+  min-width:145px;
+  min-height:43px;
+  color:#aeb8bb;
+  border:1px solid transparent;
+  border-bottom:0;
+  border-radius:7px 7px 0 0;
+  background:transparent;
+}
+.tela-party > .hda-tabs button.ativa {
+  color:#ffe8b1;
+  border-color:#5e4a29;
+  background:linear-gradient(180deg,#26343a,#142127);
+  box-shadow:inset 0 2px #d7aa52;
+}
+.tela-party .companhia-corpo {
+  padding:14px 16px 24px;
+  background:linear-gradient(90deg,rgba(6,11,13,.72),transparent 22%,transparent 78%,rgba(6,11,13,.72));
+}
+.companhia-palco {
+  display:grid;
+  grid-template-columns:190px minmax(0,1fr);
+  min-height:clamp(270px,36vh,390px);
+  margin-bottom:12px;
+  border:1px solid #4d432f;
+  background:
+    linear-gradient(90deg,#081014 0 190px,transparent 190px),
+    radial-gradient(circle at 48% 42%,rgba(68,126,137,.22),transparent 34%),
+    linear-gradient(135deg,#152229,#090f12 64%,#1b140d);
+  box-shadow:inset 0 0 60px #0008,0 14px 38px #0008;
+  overflow:hidden;
+  position:relative;
+}
+.companhia-palco::after {
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 72%,rgba(215,170,82,.035)),repeating-linear-gradient(90deg,transparent 0 79px,rgba(255,255,255,.015) 80px);
+}
+.companhia-trilho {
+  min-width:0;
+  padding:10px;
+  border-right:1px solid #4d432f;
+  position:relative;z-index:1;
+}
+.companhia-trilho > small {
+  display:block;
+  margin:0 4px 8px;
+  color:#8f9da0;
+  font-size:.67rem;
+  letter-spacing:.14em;
+}
+.companhia-trilho .party-fileira {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  max-height:330px;
+  padding:0 3px 6px 0;
+}
+.companhia-trilho .party-card {
+  width:100%;
+  min-height:68px;
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr);
+  grid-template-rows:auto auto;
+  align-items:center;
+  gap:1px 8px;
+  padding:7px;
+  border:1px solid #33434a;
+  border-radius:4px;
+  background:#0e191ec7;
+  box-shadow:none;
+}
+.companhia-trilho .party-card:hover { transform:translateX(2px); border-color:#7f6a40; }
+.companhia-trilho .party-card.ativo {
+  border-color:#d7aa52;
+  background:linear-gradient(90deg,#20323a,#121d22);
+  box-shadow:inset 3px 0 #d7aa52,0 0 18px rgba(215,170,82,.12);
+}
+.companhia-trilho .party-retrato { grid-row:1/3;width:48px;height:52px;border-radius:3px; }
+.companhia-trilho .party-nome { text-align:left;font-size:.78rem;align-self:end; }
+.companhia-trilho .party-nivel { align-self:start;font-size:.69rem; }
+.companhia-trilho .party-vitais,.companhia-trilho .party-slots { display:none; }
+.companhia-vitrine {
+  display:grid;
+  grid-template-columns:minmax(210px,.9fr) minmax(260px,1.2fr) minmax(130px,.55fr);
+  align-items:center;
+  min-width:0;
+  padding:20px clamp(18px,3vw,48px);
+  position:relative;z-index:1;
+}
+.companhia-arte {
+  align-self:stretch;
+  min-height:230px;
+  display:grid;
+  place-items:end center;
+  position:relative;
+  isolation:isolate;
+}
+.companhia-arte::before {
+  content:"";position:absolute;left:13%;right:13%;bottom:4%;height:15%;z-index:-1;
+  border:1px solid color-mix(in srgb,var(--companhia-cor) 65%,transparent);
+  border-radius:50%;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--companhia-cor) 20%,transparent),transparent 68%);
+  box-shadow:0 0 24px color-mix(in srgb,var(--companhia-cor) 18%,transparent);
+}
+.companhia-sprite {
+  width:min(100%,270px);height:100%;max-height:330px;
+  object-fit:contain;object-position:center bottom;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 10px 5px #0009) drop-shadow(0 0 2px color-mix(in srgb,var(--companhia-cor) 62%,transparent));
+}
+.companhia-arte-vazia { width:150px;height:210px;align-items:center;justify-content:center;color:var(--companhia-cor);font-size:4rem; }
+.companhia-identidade { min-width:0;padding:12px clamp(8px,2vw,28px);border-left:1px solid #34454a; }
+.companhia-identidade > small,.companhia-poder > small { color:#8ea0a4;letter-spacing:.14em;font-size:.66rem; }
+.companhia-identidade h3 { margin:5px 0 2px;font:500 clamp(1.45rem,2.4vw,2.35rem)/1 Georgia,serif;color:#fff0c9; }
+.companhia-identidade p { margin:7px 0 14px;color:#aeb8b8; }
+.companhia-selos { display:flex;flex-wrap:wrap;gap:6px; }
+.companhia-selos span { padding:5px 9px;border:1px solid #3a4b50;border-radius:999px;background:#081216c9;color:#d8e0dd;font-size:.76rem; }
+.companhia-selos span:first-child { border-color:var(--selo-cor);box-shadow:inset 0 -2px color-mix(in srgb,var(--selo-cor) 42%,transparent); }
+.companhia-poder { min-width:0;padding:16px;text-align:right;border-left:1px solid #34454a; }
+.companhia-poder strong { display:block;margin-top:3px;color:#f1c765;font:500 clamp(2rem,4vw,3.3rem)/1 Georgia,serif; }
+.companhia-poder > span { color:#8e999a;font-size:.72rem; }
+.companhia-poder-barra { height:5px;margin:11px 0;background:#080d0f;border:1px solid #35454a;overflow:hidden; }
+.companhia-poder-barra i { display:block;height:100%;background:linear-gradient(90deg,#5e8790,#e0ae53);box-shadow:0 0 8px #e0ae53; }
+.companhia-recursos { display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;color:#bac6c5;font-size:.72rem; }
+.companhia-painel {
+  border:1px solid #344249;
+  background:linear-gradient(145deg,#101b20e8,#090f12ed);
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+  padding:12px;
+}
+.companhia-equipamento .party-filtros { margin-top:0;border-top:0;padding-top:0; }
+.companhia-equipamento .hda-ladrilho { background:linear-gradient(145deg,#152229,#0b1114);border-color:#394951;border-radius:3px; }
+.companhia-equipamento .hda-ladrilho.selecionado { border-color:#d7aa52;box-shadow:inset 0 0 0 1px #d7aa52,0 0 16px #d7aa5222; }
+.tela-party .ficha-bloco,.tela-party .ficha-slot,.tela-party .auto-linha {
+  border-radius:3px;
+  border-color:#34454a;
+  background:#091216b8;
+}
+.tela-party .party-detalhe { background:#081115f5;border-color:#d7aa52;border-radius:3px; }
+
+/* =====================================================================
+   COMBATE — campo domina, cenário respira e interface vive nas bordas
+   ===================================================================== */
+#screen-batalha.bt-screen {
+  --am-combat-line:#4a5760;
+  background:#05090c;
+  color:var(--am-ink);
+}
+#screen-batalha.bt-screen .bt-header {
+  min-height:48px;
+  padding-inline:clamp(10px,2vw,24px);
+  background:linear-gradient(180deg,#111d22f5,#071014ee);
+  border-bottom:1px solid #5e4a2d;
+  box-shadow:0 8px 24px #0008;
+  z-index:20;
+}
+#screen-batalha.bt-screen .bt-header-nome { color:#f2ddb0;font-family:Georgia,"Times New Roman",serif;letter-spacing:.025em; }
+#screen-batalha.bt-screen .bt-header-desc { color:#93a2a4; }
+#screen-batalha.bt-screen .bt-mod { border-radius:3px;background:#081014d8;border-color:#3b4c52; }
+#screen-batalha.bt-screen .bt-field { background:#0a1115; }
+#screen-batalha.bt-screen .bt-cena { filter:saturate(.76) brightness(.78) contrast(1.02); }
+#screen-batalha.bt-screen .bt-field::after {
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.06),transparent 24%,transparent 72%,rgba(0,0,0,.34)),
+    radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.32));
+}
+/* As duas formações terminam exatamente na pista de anúncio/d20. Esta
+   regra final impede folhas visuais anteriores de voltarem a ocupar o
+   centro em resoluções intermediárias de notebook. */
+#screen-batalha.bt-screen .bt-row-inimigos {
+  top:2%;
+  height:calc(50% - var(--anuncio-meio) - 2%);
+}
+#screen-batalha.bt-screen .bt-row-herois {
+  bottom:var(--ctx-alt);
+  height:calc(50% - var(--anuncio-meio) - var(--ctx-alt));
+}
+#screen-batalha.bt-screen .bt-slot {
+  min-height:0;
+  overflow:hidden;
+}
+#screen-batalha.bt-screen .bt-slot .combatente {
+  background:transparent;
+  border-color:transparent;
+  box-shadow:none;
+}
+#screen-batalha.bt-screen .bt-slot .combatente.ativo { background:transparent;box-shadow:none; }
+#screen-batalha.bt-screen .bt-slot .combatente .nome-c {
+  max-width:100%;padding:2px 7px;border:1px solid #48565b;border-radius:999px;
+  background:#071014df;color:#edf2ef;text-shadow:0 1px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#screen-batalha.bt-screen .bt-slot .combatente.ativo .nome-c { border-color:#d7aa52;background:#17170fdf; }
+#screen-batalha.bt-screen .bt-slot .combatente .sprite-wrap::after {
+  content:"";position:absolute;left:12%;right:12%;bottom:1%;height:10%;z-index:-1;
+  border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.62),transparent 70%);
+}
+#screen-batalha.bt-screen .bt-infobar {
+  background:#071014f5;border-color:#37464c;box-shadow:0 -6px 20px #0007;
+}
+#screen-batalha.bt-screen .bt-dock {
+  background:
+    linear-gradient(90deg,rgba(215,170,82,.05),transparent 16%,transparent 84%,rgba(215,170,82,.05)),
+    linear-gradient(180deg,#101b20,#070d10);
+  border-top:1px solid #70572f;
+  box-shadow:0 -12px 30px #0009,inset 0 1px rgba(255,225,166,.08);
+}
+#screen-batalha.bt-screen .carta-batalha {
+  --carta-fundo:linear-gradient(160deg,#17262d,#0b1216 72%);
+  --carta-borda:#405158;
+  border-radius:4px;
+  box-shadow:0 5px 12px #0007,inset 0 0 0 1px rgba(255,255,255,.035);
+  outline-color:#05090c;
+}
+#screen-batalha.bt-screen .carta-batalha:hover,#screen-batalha.bt-screen .carta-batalha.selecionada {
+  border-color:#d7aa52;box-shadow:0 7px 18px #000b,0 0 18px rgba(215,170,82,.18),inset 0 0 0 1px rgba(255,225,166,.1);
+}
+#screen-batalha.bt-screen .carta-nome { color:#f3ead7; }
+#screen-batalha.bt-screen .carta-custo-item,#screen-batalha.bt-screen .mao-recursos,#screen-batalha.bt-screen .mao-linha { background:#071014;border-color:#3a4b51; }
+#screen-batalha.bt-screen #batalha-contexto-tatico { background:linear-gradient(180deg,transparent,#071014f4); }
+
+@media (max-width:719px) {
+  .tela-party .hda-modal-cab { min-height:52px;padding-inline:10px; }
+  .tela-party > .hda-tabs { padding-inline:8px;overflow-x:auto; }
+  .tela-party > .hda-tabs button { min-width:auto;flex:1 0 auto;min-height:44px;padding-inline:12px; }
+  .tela-party .companhia-corpo { padding:8px 8px calc(84px + env(safe-area-inset-bottom)); }
+  .companhia-palco { grid-template-columns:1fr;min-height:0;margin-bottom:8px; }
+  .companhia-trilho { order:2;border-right:0;border-top:1px solid #4d432f;padding:7px; }
+  .companhia-trilho > small { display:none; }
+  .companhia-trilho .party-fileira { display:flex !important;max-height:none;overflow-x:auto;overflow-y:hidden;padding:0; }
+  .companhia-trilho .party-card { flex:0 0 150px;width:150px;min-height:58px;grid-template-columns:44px minmax(0,1fr);padding:5px; }
+  .companhia-trilho .party-retrato { width:40px;height:44px; }
+  .companhia-vitrine { grid-template-columns:118px minmax(0,1fr);padding:10px;min-height:178px; }
+  .companhia-arte { min-height:158px;grid-row:1/3; }
+  .companhia-sprite { max-height:170px; }
+  .companhia-identidade { padding:6px 8px;border-left:0; }
+  .companhia-identidade h3 { font-size:1.25rem; }
+  .companhia-identidade p { margin:4px 0 8px;font-size:.72rem; }
+  .companhia-selos span { padding:3px 6px;font-size:.65rem; }
+  .companhia-poder { grid-column:2;padding:5px 8px;border-left:0;text-align:left;display:grid;grid-template-columns:auto auto 1fr;gap:3px 7px;align-items:end; }
+  .companhia-poder > small { grid-column:1/-1; }
+  .companhia-poder strong { font-size:1.45rem;margin:0; }
+  .companhia-poder-barra { grid-column:1/-1;width:100%;margin:2px 0; }
+  .companhia-recursos { grid-column:1/-1;justify-content:flex-start; }
+  .companhia-painel { padding:8px; }
+  #screen-batalha.bt-screen .bt-header { min-height:40px; }
+  #screen-batalha.bt-screen .bt-cena { filter:saturate(.72) brightness(.74) contrast(1.02); }
+  #screen-batalha.bt-screen .bt-slot .combatente .nome-c { font-size:.66rem;padding:1px 4px; }
+  #screen-batalha.bt-screen .carta-batalha { border-radius:3px; }
+}
+
+@media (max-height:460px) and (orientation:landscape) {
+  .companhia-vitrine { min-height:140px;grid-template-columns:110px minmax(0,1fr) 120px;padding-block:6px; }
+  .companhia-arte { min-height:130px;grid-row:auto; }
+  .companhia-sprite { max-height:138px; }
+  .companhia-poder { grid-column:auto;display:block;text-align:right; }
+  #screen-batalha.bt-screen .bt-header { min-height:34px; }
+}

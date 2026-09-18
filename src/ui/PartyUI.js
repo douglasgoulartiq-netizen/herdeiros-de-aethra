@@ -31,7 +31,7 @@ import { ligarTooltips } from "./Tooltip.js";
 // olhando o grupo. GachaUI.js continua dono do desenho porque conhece o
 // estado do gacha; esta tela só o hospeda.
 import { montarSelecaoDeTime } from "./GachaUI.js";
-import { planejarEquipamento, aplicarPlanoEquipamento, LABEL_SLOT } from "../systems/AutoEquipSystem.js";
+import { planejarEquipamento, aplicarPlanoEquipamento, poderDeCombate, LABEL_SLOT } from "../systems/AutoEquipSystem.js";
 import { relacaoElemental, infoElemento } from "../systems/ElementSystem.js";
 import { habilidadesEquipadas, habilidadesNaReserva } from "../systems/LoadoutSystem.js";
 import { passivasDe } from "../systems/PassiveSystem.js";
@@ -141,12 +141,13 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   const ativo = membros[estado.membroIdx];
 
   const tela = abrirTela({
-    titulo: "Time e Mochila",
+    titulo: "Companhia",
     subtitulo: `🪙 ${personagem.ouro} · 🎒 ${personagem.inventario.length} itens`,
     largura: LARGURA.larga,
     classe: "tela-party",
   });
   const corpo = tela.corpo;
+  corpo.classList.add("companhia-corpo");
   const redesenhar = () => montarParty(personagem, time, dados, onMudar, estado);
 
   // ---- 1. FILEIRA DA PARTY ------------------------------------------------
@@ -183,8 +184,44 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         <div class="party-slots">${slots}</div>
       </div>`;
   }).join("");
-  corpo.appendChild(fileira);
+  const palcoCompanhia = document.createElement("section");
+  palcoCompanhia.className = "companhia-palco";
+  const trilhoCompanhia = document.createElement("aside");
+  trilhoCompanhia.className = "companhia-trilho";
+  trilhoCompanhia.innerHTML = `<small>FORMAÇÃO ATIVA</small>`;
+  trilhoCompanhia.appendChild(fileira);
+
+  const elementoAtivo = ativo.elemento || ativo.equipamento?.arma?.elemento || "fisico";
+  const infoAtivo = infoElemento(elementoAtivo, dados.elements) || { nome: elementoAtivo, icone: "◆", cor: "#c9c9c9" };
+  const poderAtivo = Math.min(250, Math.max(0, Math.round(poderDeCombate(ativo, dados))));
+  const alvoArte = ativo.rosterId ? { rosterId: ativo.rosterId } : { racaId: ativo.racaId, classeId: ativo.classeId };
+  const vitrineCompanhia = document.createElement("div");
+  vitrineCompanhia.className = "companhia-vitrine";
+  vitrineCompanhia.style.setProperty("--companhia-cor", infoAtivo.cor || "#d8b56f");
+  vitrineCompanhia.innerHTML = `
+    <div class="companhia-arte">
+      ${imgHtml(alvoArte, USOS.COMBATE, { alt: ativo.nome, classe: "companhia-sprite", lazy: false })}
+      <span class="companhia-arte-vazia asset-vazio">◆</span>
+    </div>
+    <div class="companhia-identidade">
+      <small>${ativo === personagem ? "HERDEIRO" : "ALIADO CONVOCADO"}</small>
+      <h3>${ativo.nome}</h3>
+      <p>${ativo.classeNome || ativo.classeId || "Aventureiro"}${ativo.racaNome ? ` · ${ativo.racaNome}` : ""} · Nível ${ativo.nivel || 1}</p>
+      <div class="companhia-selos">
+        <span style="--selo-cor:${infoAtivo.cor || "#c9c9c9"}">${infoAtivo.icone} ${infoAtivo.nome}</span>
+        ${ativo.faccaoNome || ativo.faccaoId ? `<span>⚑ ${ativo.faccaoNome || ativo.faccaoId}</span>` : ""}
+        ${ativo.personalidadeNome || ativo.personalidade ? `<span>✦ ${ativo.personalidadeNome || ativo.personalidade}</span>` : ""}
+      </div>
+    </div>
+    <div class="companhia-poder">
+      <small>PODER INDIVIDUAL</small><strong>${poderAtivo}</strong><span>de 250</span>
+      <div class="companhia-poder-barra"><i style="width:${Math.min(100, Math.round(poderAtivo / 2.5))}%"></i></div>
+      <div class="companhia-recursos"><span>♥ ${ativo.hp}/${ativo.hpMax}</span><span>◆ ${ativo.mp}/${ativo.mpMax}</span></div>
+    </div>`;
+  palcoCompanhia.append(trilhoCompanhia, vitrineCompanhia);
+  corpo.appendChild(palcoCompanhia);
   ligarCadeias(fileira);
+  ligarCadeias(vitrineCompanhia);
 
   fileira.querySelectorAll(".party-card").forEach((el) => {
     const escolher = () => { estado.membroIdx = Number(el.dataset.membro); redesenhar(); };
@@ -209,20 +246,15 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // desta tela. Aqui as três coisas que se faz com o grupo ficam lado a
   // lado — ver o que cada um tem, vestir, e mandar vestir sozinho.
   const ABAS = [
-    { id: "mochila", rotulo: "🎒 Mochila" },
-    { id: "time", rotulo: "🛡️ Montar time" },
-    { id: "ficha", rotulo: "👤 Ficha do personagem" },
-    { id: "auto", rotulo: "⚙️ Equipar automático" },
+    { id: "ficha", rotulo: "Herói", icone: "👤" },
+    { id: "mochila", rotulo: "Equipamento", icone: "🎒" },
+    { id: "time", rotulo: "Formação", icone: "🛡️" },
+    { id: "auto", rotulo: "Otimizar", icone: "⚙️" },
   ];
-  const barraAbas = document.createElement("div");
-  barraAbas.className = "party-abas";
-  barraAbas.innerHTML = ABAS.map((a) => `<button class="party-aba${estado.aba === a.id ? " ativa" : ""}" data-aba="${a.id}">${a.rotulo}</button>`).join("");
-  corpo.appendChild(barraAbas);
-  barraAbas.querySelectorAll(".party-aba").forEach((b) => {
-    b.onclick = () => { estado.aba = b.dataset.aba; redesenhar(); };
-  });
+  tela.definirAbas(ABAS, (id) => { estado.aba = id; redesenhar(); }, estado.aba);
 
   const painelMochila = document.createElement("div");
+  painelMochila.className = "companhia-painel companhia-equipamento";
   painelMochila.hidden = estado.aba !== "mochila";
   corpo.appendChild(painelMochila);
 
@@ -231,6 +263,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // Equipar/Curar por aqui não ser cuspido na tela de invocação.
   if (estado.aba === "time") {
     const painelTime = document.createElement("div");
+    painelTime.className = "companhia-painel companhia-formacao";
     corpo.appendChild(painelTime);
     montarSelecaoDeTime(painelTime, personagem, dados || {}, onMudar, redesenhar);
   }
@@ -418,7 +451,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
 
   // ---- 5. ABA "FICHA DO PERSONAGEM" ---------------------------------------
   const painelFicha = document.createElement("div");
-  painelFicha.className = "party-ficha";
+  painelFicha.className = "party-ficha companhia-painel companhia-ficha";
   painelFicha.hidden = estado.aba !== "ficha";
   corpo.appendChild(painelFicha);
 
@@ -495,7 +528,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
 
   // ---- 6. ABA "EQUIPAR AUTOMÁTICO" ----------------------------------------
   const painelAuto = document.createElement("div");
-  painelAuto.className = "party-auto";
+  painelAuto.className = "party-auto companhia-painel companhia-auto";
   painelAuto.hidden = estado.aba !== "auto";
   corpo.appendChild(painelAuto);
 

@@ -74,133 +74,148 @@ export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, L, A);
 
-  const [ceuTopo, ceuBase] = cenario.ceu || ["#161616", "#2a2a2a"];
-  const grad = ctx.createLinearGradient(0, 0, 0, A);
-  grad.addColorStop(0, ceuTopo);
-  grad.addColorStop(1, ceuBase);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, L, A);
+  const id = String(cenario.id || "campo").toLowerCase();
+  const [ceuTopo, ceuBase] = cenario.ceu || ["#161a22", "#343642"];
+  const rnd = ruido(semeteDe(id));
+  const linhaHorizonte = Math.round(A * Math.min(0.55, Math.max(0.16, fracHorizonte)));
+  const alturaChao = A - linhaHorizonte;
+
+  // O cenário é deliberadamente amplo e silencioso. Ele comunica o bioma
+  // com poucas massas grandes; personagens, efeitos e decisões continuam
+  // sendo o foco visual mesmo quando o encontro tem dez combatentes.
+  const ceu = ctx.createLinearGradient(0, 0, 0, linhaHorizonte + 1);
+  ceu.addColorStop(0, ceuTopo);
+  ceu.addColorStop(0.68, ceuBase);
+  ceu.addColorStop(1, "rgba(18,21,27,1)");
+  ctx.fillStyle = ceu;
+  ctx.fillRect(0, 0, L, linhaHorizonte + 2);
+
+  const massa = (pontos, cor) => {
+    ctx.beginPath();
+    ctx.moveTo(0, linhaHorizonte + 2);
+    pontos.forEach(([x, y]) => ctx.lineTo(x * L, linhaHorizonte - y * A));
+    ctx.lineTo(L, linhaHorizonte + 2);
+    ctx.closePath();
+    ctx.fillStyle = cor;
+    ctx.fill();
+  };
+  const elipse = (x, y, rx, ry, cor) => {
+    ctx.beginPath();
+    ctx.ellipse(x * L, y, rx * L, ry * A, 0, 0, Math.PI * 2);
+    ctx.fillStyle = cor;
+    ctx.fill();
+  };
+
+  // Uma assinatura visual por terreno, construída com no máximo quatro
+  // formas grandes. Não há repetição de árvores/pedras nem textura ruidosa.
+  if (id.includes("mont") || id.includes("gelo") || id.includes("neve")) {
+    massa([[0, .02], [.16, .24], [.31, .06], [.49, .31], [.68, .08], [.83, .25], [1, .03]], "rgba(18,25,38,.62)");
+    massa([[0, .01], [.24, .13], [.42, .04], [.64, .19], [.82, .03], [1, .1]], "rgba(10,15,24,.72)");
+  } else if (id.includes("flor") || id.includes("bosque")) {
+    [[.09,.12,.08],[.29,.18,.11],[.73,.16,.12],[.91,.1,.07]].forEach(([x,h,r]) => {
+      ctx.fillStyle = "rgba(9,18,17,.72)";
+      ctx.fillRect(x * L - L * .012, linhaHorizonte - h * A, L * .024, h * A);
+      elipse(x, linhaHorizonte - h * A, r, .08, "rgba(12,29,23,.78)");
+    });
+  } else if (id.includes("pant") || id.includes("lama")) {
+    massa([[0,.01],[.2,.07],[.43,.025],[.7,.08],[1,.02]], "rgba(11,25,24,.7)");
+    ctx.strokeStyle = "rgba(36,65,54,.72)"; ctx.lineWidth = Math.max(2, L / 420);
+    for (let i = 0; i < 8; i += 1) {
+      const x = (i + .5) * L / 8;
+      ctx.beginPath(); ctx.moveTo(x, linhaHorizonte); ctx.lineTo(x + (i % 2 ? 5 : -5), linhaHorizonte - A * (.035 + rnd() * .04)); ctx.stroke();
+    }
+  } else if (id.includes("desert") || id.includes("areia")) {
+    elipse(.25, linhaHorizonte + A * .08, .43, .16, "rgba(112,76,43,.42)");
+    elipse(.78, linhaHorizonte + A * .08, .5, .2, "rgba(83,57,38,.5)");
+  } else if (id.includes("cost") || id.includes("praia") || id.includes("agua")) {
+    ctx.fillStyle = "rgba(38,102,123,.25)"; ctx.fillRect(0, linhaHorizonte - 2, L, Math.max(8, alturaChao * .24));
+    elipse(.13, linhaHorizonte + A * .02, .08, .035, "rgba(18,25,31,.72)");
+    elipse(.87, linhaHorizonte + A * .015, .11, .045, "rgba(18,25,31,.68)");
+  } else if (id.includes("ruin")) {
+    ctx.fillStyle = "rgba(22,23,28,.72)";
+    ctx.fillRect(L * .08, linhaHorizonte - A * .2, L * .045, A * .2);
+    ctx.fillRect(L * .84, linhaHorizonte - A * .26, L * .052, A * .26);
+    ctx.fillRect(L * .075, linhaHorizonte - A * .21, L * .07, A * .022);
+    ctx.fillRect(L * .825, linhaHorizonte - A * .27, L * .085, A * .022);
+  } else if (id.includes("masm") || id.includes("dungeon") || id.includes("caver")) {
+    ctx.fillStyle = "rgba(7,9,13,.7)"; ctx.fillRect(0, 0, L, linhaHorizonte);
+    ctx.fillStyle = "rgba(30,31,38,.66)";
+    ctx.fillRect(L * .06, 0, L * .07, linhaHorizonte);
+    ctx.fillRect(L * .87, 0, L * .07, linhaHorizonte);
+  } else if (id.includes("vila") || id.includes("cidade")) {
+    massa([[0,.01],[.12,.12],[.25,.01],[.39,.17],[.54,.01],[.7,.11],[.83,.01],[.94,.15],[1,.02]], "rgba(17,20,25,.72)");
+  } else {
+    massa([[0,.02],[.2,.09],[.42,.025],[.65,.11],[.82,.04],[1,.08]], "rgba(19,27,27,.52)");
+  }
+
+  // Piso em planos largos: ainda usa a paleta do terreno verdadeiro, mas
+  // sem o mosaico de blocos que poluía a batalha.
+  const chao = ctx.createLinearGradient(0, linhaHorizonte, 0, A);
+  chao.addColorStop(0, "rgba(28,31,34,.88)");
+  chao.addColorStop(.5, "rgba(36,35,33,.94)");
+  chao.addColorStop(1, "rgba(18,19,22,1)");
+  ctx.fillStyle = chao;
+  ctx.fillRect(0, linhaHorizonte, L, alturaChao);
 
   const tileset = imagens && imagens.tileset;
-  const rnd = ruido(semeteDe(cenario.id));
-  // Tiles maiores em telas grandes: o campo tem que parecer cenário, não
-  // mosaico. Piso de 48px pra não virar pontilhado no celular.
-  const t = Math.max(48, Math.round(L / 18));
-  // Limitado a uma faixa sã: um horizonte colado no topo não deixa céu, e um
-  // colado na base não deixa chão.
-  const linhaHorizonte = Math.round(A * Math.min(0.55, Math.max(0.12, fracHorizonte)));
-
-  // Direção de arte: foco luminoso e relevo em dois planos. As formas são
-  // determinísticas por bioma e ficam atrás dos tiles, acrescentando escala
-  // sem competir com os personagens ou exigir imagens extras pesadas.
-  const luzX = Math.round(L * (0.22 + rnd() * 0.56));
-  const luzY = Math.round(A * 0.15);
-  const luzR = Math.max(18, Math.round(Math.min(L, A) * 0.075));
-  const halo = ctx.createRadialGradient(luzX, luzY, 0, luzX, luzY, luzR * 3.2);
-  halo.addColorStop(0, "rgba(255,226,166,.28)");
-  halo.addColorStop(0.3, "rgba(245,165,36,.11)");
-  halo.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = halo; ctx.fillRect(0, 0, L, linhaHorizonte);
-  ctx.fillStyle = "rgba(255,226,166,.22)";
-  ctx.beginPath(); ctx.arc(luzX, luzY, luzR, 0, Math.PI * 2); ctx.fill();
-
-  const desenharRelevo = (baseY, amplitude, passo, cor) => {
-    ctx.beginPath(); ctx.moveTo(0, baseY);
-    for (let x = 0; x <= L + passo; x += passo) {
-      ctx.lineTo(x + passo * 0.5, baseY - amplitude * (0.35 + rnd() * 0.65));
-      ctx.lineTo(x + passo, baseY);
-    }
-    ctx.lineTo(L, linhaHorizonte + 8); ctx.lineTo(0, linhaHorizonte + 8); ctx.closePath();
-    ctx.fillStyle = cor; ctx.fill();
-  };
-  desenharRelevo(linhaHorizonte - 16, Math.max(16, A * 0.12), Math.max(70, L / 8), "rgba(8,9,13,.28)");
-  desenharRelevo(linhaHorizonte - 5, Math.max(12, A * 0.08), Math.max(52, L / 11), "rgba(5,7,9,.48)");
-
-  // O tileset é uma tira horizontal de 12 tiles de 64px. Se o arquivo não
-  // carregou, `carregarImagem` devolve um placeholder de 32x32 (ver
-  // loader.js) — desenhar recortes de 64px dele encheria o campo de
-  // quadradinhos vazios. Melhor detectar e cair no chão liso.
   const tilesetValido = !!(tileset && tileset.width >= 12 * TILE_SIZE);
-  const desenharTile = (idx, x, y, tam) => {
-    if (!tilesetValido) return false;
-    ctx.drawImage(tileset, idx * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE, x, y, tam, tam);
-    return true;
-  };
-
-  // --- vegetação/pedra distante, escurecida para virar silhueta ---------
-  ctx.save();
-  ctx.globalAlpha = 0.55;
-  const decor = cenario.decor && cenario.decor.length ? cenario.decor : [];
-  if (decor.length) {
-    const tamD = Math.round(t * 0.8);
-    for (let x = -tamD; x < L + tamD; x += Math.round(tamD * 0.9)) {
-      const idx = decor[Math.floor(rnd() * decor.length)];
-      const y = linhaHorizonte - tamD + Math.round(rnd() * 6);
-      desenharTile(idx, x, y, tamD);
+  if (tilesetValido) {
+    // Cinco manchas suaves do tile real dão continuidade ao mapa sem criar
+    // uma parede de quadrados. O recorte é grande e quase transparente.
+    ctx.save();
+    ctx.globalAlpha = .13;
+    const tam = Math.max(72, Math.round(L / 7));
+    for (let i = 0; i < 5; i += 1) {
+      const idx = i % 3 === 0 ? cenario.detalhe : cenario.chao;
+      const x = Math.round((i - .25) * L / 4 + (rnd() - .5) * tam * .35);
+      const y = Math.round(linhaHorizonte + alturaChao * (.08 + rnd() * .62));
+      ctx.drawImage(tileset, idx * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE, x, y, tam, tam);
     }
-  }
-  ctx.restore();
-  // Véu escuro sobre a faixa distante: dá profundidade e garante contraste
-  // pros sprites e pra HUD por cima (requisito de legibilidade).
-  ctx.fillStyle = "rgba(0,0,0,0.26)";
-  ctx.fillRect(0, 0, L, linhaHorizonte);
-
-  // --- chão -------------------------------------------------------------
-  for (let y = linhaHorizonte; y < A; y += t) {
-    for (let x = 0; x < L; x += t) {
-      const usaDetalhe = rnd() < 0.18;
-      const idx = usaDetalhe ? cenario.detalhe : cenario.chao;
-      if (!desenharTile(idx, x, y, t)) {
-        // Sem tileset (publicação sem assets): pinta o chão liso em vez de
-        // deixar buraco. O jogo continua jogável, só menos bonito.
-        ctx.fillStyle = usaDetalhe ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.14)";
-        ctx.fillRect(x, y, t, t);
-      }
-    }
+    ctx.restore();
   }
 
-  // Grade de perspectiva sutil: conecta as sombras dos combatentes ao plano
-  // do chão e deixa claro quem está à frente e quem está ao fundo.
+  // Uma linha ambiental discreta reforça água, neve ou solo sem virar grade.
   ctx.save();
-  ctx.strokeStyle = "rgba(244,205,133,.07)"; ctx.lineWidth = 1;
-  for (let i = -6; i <= 6; i += 1) {
-    ctx.beginPath(); ctx.moveTo(L / 2, linhaHorizonte); ctx.lineTo(L / 2 + i * L * 0.12, A); ctx.stroke();
-  }
-  for (let i = 1; i <= 5; i += 1) {
-    const p = i / 5; const y = linhaHorizonte + (A - linhaHorizonte) * p * p;
-    ctx.globalAlpha = p * 0.7; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(L, y); ctx.stroke();
+  ctx.strokeStyle = id.includes("cost") || id.includes("agua")
+    ? "rgba(115,211,225,.18)" : "rgba(231,205,151,.075)";
+  ctx.lineWidth = Math.max(1, L / 900);
+  for (let i = 1; i <= 3; i += 1) {
+    const y = linhaHorizonte + alturaChao * (i / 4);
+    ctx.beginPath();
+    ctx.moveTo(L * (.06 + i * .015), y);
+    ctx.quadraticCurveTo(L * .5, y + (i % 2 ? 4 : -4), L * (.94 - i * .015), y);
+    ctx.stroke();
   }
   ctx.restore();
 
   if (cenario.particula) {
     const cores = {
-      folhas: ["#6d9d51", "#a38d46"], bolhas: ["#6f9b88", "#bad7c2"],
-      areia: ["#c79c57", "#e1c27b"], poeira: ["#a28d75", "#d0bd9e"],
-      respingo: ["#68b7cf", "#b9e7ef"],
+      folhas: ["#7ca15c", "#c09c55"], bolhas: ["#77a596", "#b8d5c7"],
+      areia: ["#caa66b", "#ead092"], poeira: ["#b19b81", "#d6c5aa"],
+      respingo: ["#6bbbd1", "#c0edf2"],
     };
     const paleta = cores[cenario.particula] || cores.poeira;
-    for (let i = 0; i < 18; i += 1) {
-      const x = Math.round(rnd() * L); const y = Math.round(linhaHorizonte * 0.25 + rnd() * A * 0.65);
-      const s = rnd() > 0.76 ? 3 : 2;
-      ctx.globalAlpha = 0.18 + rnd() * 0.28; ctx.fillStyle = paleta[i % paleta.length];
-      ctx.fillRect(x, y, s, cenario.particula === "respingo" ? s + 2 : s);
+    for (let i = 0; i < 6; i += 1) {
+      const x = Math.round(rnd() * L);
+      const y = Math.round(linhaHorizonte * .2 + rnd() * A * .68);
+      ctx.globalAlpha = .14 + rnd() * .18;
+      ctx.fillStyle = paleta[i % paleta.length];
+      ctx.fillRect(x, y, 2, cenario.particula === "respingo" ? 4 : 2);
     }
     ctx.globalAlpha = 1;
   }
 
-  // Junção céu/chão suavizada e escurecimento progressivo pro fundo do
-  // campo — ancora os sprites e evita "sprite flutuando".
-  const sombraChao = ctx.createLinearGradient(0, linhaHorizonte - t * 0.5, 0, A);
-  sombraChao.addColorStop(0, "rgba(0,0,0,0.38)");
-  sombraChao.addColorStop(0.35, "rgba(0,0,0,0.02)");
-  sombraChao.addColorStop(1, "rgba(0,0,0,0.3)");
-  ctx.fillStyle = sombraChao;
-  ctx.fillRect(0, linhaHorizonte - t * 0.5, L, A - linhaHorizonte + t * 0.5);
+  const nevoa = ctx.createLinearGradient(0, linhaHorizonte - A * .06, 0, linhaHorizonte + A * .12);
+  nevoa.addColorStop(0, "rgba(210,220,224,0)");
+  nevoa.addColorStop(.5, "rgba(210,220,224,.055)");
+  nevoa.addColorStop(1, "rgba(210,220,224,0)");
+  ctx.fillStyle = nevoa;
+  ctx.fillRect(0, linhaHorizonte - A * .06, L, A * .18);
 
-  // Vinheta: escurece as bordas pra HUD encostar sem competir com o centro.
-  const vinheta = ctx.createRadialGradient(L / 2, A * 0.55, Math.min(L, A) * 0.25, L / 2, A * 0.55, Math.max(L, A) * 0.75);
+  // Vinheta curta: mantém os controles legíveis, mas não apaga o terreno.
+  const vinheta = ctx.createRadialGradient(L / 2, A * .53, Math.min(L, A) * .34, L / 2, A * .53, Math.max(L, A) * .7);
   vinheta.addColorStop(0, "rgba(0,0,0,0)");
-  vinheta.addColorStop(1, "rgba(0,0,0,0.45)");
+  vinheta.addColorStop(1, "rgba(0,0,0,.3)");
   ctx.fillStyle = vinheta;
   ctx.fillRect(0, 0, L, A);
 }

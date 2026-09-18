@@ -10,7 +10,7 @@ const CONTEUDO = {
   interacao: ["Quando E aparecer perto de algo, pressione E para conversar, coletar, abrir um baú, descansar ou entrar numa masmorra.", "NPCs com ! oferecem algo importante; ícones mostram comércio, cura e outros serviços."],
   missao: ["Missões de história recebem o selo dourado. Ao aceitar uma, ela entra automaticamente em foco.", "A aba Missões mostra objetivo, progresso e permite trocar qual missão está sendo rastreada."],
   mapa: ["O rastro dourado aponta a direção do objetivo sem esconder o cenário.", "O minimapa prende o ! na borda quando o destino está longe. No mapa-múndi, o atalho leva à região correta."],
-  mochila: ["Abra Time e Mochila para comparar equipamento, curar aliados e escolher até três convocados.", "Cada personagem pode chegar ao nível 25 e a 250 PC. Convocados ativos recebem XP total; reservas recebem 35%. Verde melhora o time, vermelho enfraquece — mas a estratégia ainda importa."],
+  mochila: ["Abra Companhia para comparar equipamento, curar aliados e escolher até três convocados.", "Cada personagem pode chegar ao nível 25 e a 250 PC. Convocados ativos recebem XP total; reservas recebem 35%. Verde melhora o time, vermelho enfraquece — mas a estratégia ainda importa."],
   invocacao: ["Fragmentos de Aethra são usados nos banners. O Banner Iniciante oferece invocações grátis e garantias progressivas.", "Personagens repetidos fortalecem o vínculo; cada convocado tem classe, elemento e habilidade própria. Esta demonstração não gasta fragmentos."],
   combate: ["A batalha está pausada. Primeiro leia a intenção do inimigo, depois escolha um card e confirme o alvo.", "A previsão mostra dano, custo, alcance e reações elementais antes de você se comprometer."],
   d20: ["Ataques e desafios importantes rolam um d20. Resultado alto melhora suas chances; 20 é excepcional e 1 é uma falha grave.", "Atributos, equipamento e vantagens somam bônus ao resultado — o dado importa, mas sua preparação também."],
@@ -27,7 +27,7 @@ function atalhoDaEtapa(etapa) {
   if (!toque) return etapa.atalho;
   const rotulos = {
     orientacao: "Direcional na tela", interacao: "Botão Ação", missao: "Missões",
-    mapa: "Mapa", mochila: "Time e Mochila", invocacao: "Invocar",
+    mapa: "Mapa", mochila: "Companhia", invocacao: "Invocar",
     combate: "Toque no card e no alvo", d20: "Toque em Rolar d20",
     taticas: "Cards e botão Automático", recompensa: "Habilidades e Herança",
   };
