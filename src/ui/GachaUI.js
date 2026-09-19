@@ -8,7 +8,10 @@ import {
   resgatarDesafioDiario, resgatarMissaoSemanal, podeResgatarMissaoSemanal,
   atualizarDesafioDiario, checarConquistas, MAX_CONVOCADOS_GACHA, membrosDoTime,
 } from "../systems/GachaSystem.js";
-import { CUSTO_INVOCACAO, CUSTO_PACOTE_10, EVENTO_FEATURED_ID, BANNER_INICIANTE, PITY_DURO } from "../data/economyConfig.js";
+import {
+  CUSTO_INVOCACAO, CUSTO_PACOTE_10, EVENTO_FEATURED_ID, BANNER_INICIANTE,
+  PITY_DURO, CHANCES_BASE, GARANTIA_RARO_A_CADA, GARANTIA_EPICO_A_CADA,
+} from "../data/economyConfig.js";
 import { RARITY_COLORS, RARITY_LABEL } from "../systems/InventorySystem.js";
 import { estadoDespertarResumo, montarDespertar } from "./AwakeningUI.js";
 import { resumoVinculoParaCard, montarVinculo } from "./BondUI.js";
@@ -73,6 +76,12 @@ function retratoConvocado(rosterId, raridade, tamanho = 72) {
 }
 
 export function montarGacha(personagem, dados, onMudar, abaInicial = "invocar") {
+  // Chamadas antigas podiam pedir "time" dentro do gacha. A formação agora
+  // tem uma única casa (Companhia); aqui mostramos a coleção, sem duplicar o
+  // mesmo fluxo em dois lugares.
+  const abasValidas = ["invocar", "colecao", "pets", "recompensas"];
+  if (abaInicial === "time") abaInicial = "colecao";
+  if (!abasValidas.includes(abaInicial)) abaInicial = "invocar";
   const roster = dados.gachaRoster;
   atualizarDesafioDiario(personagem);
   const g = personagem.gacha;
@@ -93,7 +102,6 @@ export function montarGacha(personagem, dados, onMudar, abaInicial = "invocar") 
   const corpo = tela.corpo;
   corpo.id = "gacha-corpo";
   if (abaInicial === "colecao") renderColecao(corpo, personagem, onMudar, dados);
-  else if (abaInicial === "time") montarSelecaoDeTime(corpo, personagem, dados, onMudar);
   else if (abaInicial === "pets") renderPets(corpo, personagem, dados, onMudar);
   else if (abaInicial === "recompensas") renderRecompensas(corpo, personagem, dados, onMudar);
   else renderInvocar(corpo, personagem, roster, dados, onMudar, tela);
@@ -111,6 +119,22 @@ function atualizarSaldo(personagem) {
 function textoPity(pityState) {
   const faltam = Math.max(0, PITY_DURO - pityState.desdeUltimoLendario);
   return `Pity atual: <b>${pityState.desdeUltimoLendario}/${PITY_DURO}</b> desde o último Lendário${faltam > 0 ? ` (garantido em mais ${faltam})` : " (garantido AGORA!)"}.`;
+}
+
+function percentualChance(valor) {
+  const pct = valor * 100;
+  return `${pct < 1 ? pct.toFixed(1) : pct.toFixed(0)}%`;
+}
+
+function historicoRecenteHtml(g, limite = 8) {
+  const itens = [...(g.historicoInvocacoes || [])].reverse().slice(0, limite);
+  if (!itens.length) return `<p class="gacha-vazio-compacto">Nenhuma invocação realizada ainda.</p>`;
+  return `<ol class="gacha-historico-lista">${itens.map((item) => `
+    <li>
+      <span class="gacha-historico-raridade" style="--raridade:${RARITY_COLORS[item.raridade] || "#777"}" aria-hidden="true"></span>
+      <span><b>${item.nome}</b><small>${RARITY_LABEL[item.raridade] || item.raridade} · ${item.banner === "evento" ? "Evento" : item.banner === "iniciante" ? "Iniciante" : "Permanente"}</small></span>
+      <em class="${item.duplicata ? "duplicata" : "novo"}">${item.duplicata ? "Duplicata" : "Novo"}</em>
+    </li>`).join("")}</ol>`;
 }
 
 // Tela de invocação (itens 23 e 24 do briefing de UX).
@@ -151,32 +175,64 @@ function renderInvocar(corpo, personagem, roster, dados, onMudar, tela, bannerAt
   }
 
   const atual = BANNERS.find((b) => b.id === bannerAtivo) || BANNERS[0];
+  const semSaldo1 = atual.custo1 > g.fragmentos;
+  const semSaldo10 = atual.temX10 && atual.custo10 > g.fragmentos;
+  const faltam1 = Math.max(0, atual.custo1 - g.fragmentos);
   const garantia = atual.id === "evento" && g.pity.evento.garantiaFeaturedPendente
     ? `<p class="gacha-garantia">🎯 Garantia ativa: o PRÓXIMO Lendário deste banner será ${featured ? featured.nome : "o personagem em destaque"}, sem precisar do 50/50.</p>` : "";
 
   corpo.innerHTML = `
-    <div class="gacha-escolha" role="tablist" aria-label="Banners">
-      ${BANNERS.map((b) => `<button type="button" class="gacha-escolha-btn${b.id === atual.id ? " ativa" : ""}" data-banner="${b.id}" role="tab" aria-selected="${b.id === atual.id}"><span aria-hidden="true">${b.icone}</span> ${b.nome.replace("Banner ", "")}</button>`).join("")}
-    </div>
-    <section class="gacha-banner-destaque" aria-live="polite">
+    <section class="gacha-secao gacha-secao-banners" aria-labelledby="gacha-titulo-banners">
+      <div class="gacha-secao-cab"><span>1</span><div><h3 id="gacha-titulo-banners">Escolha o banner</h3><p>Cada banner mantém seu próprio progresso e garantia.</p></div></div>
+      <div class="gacha-escolha" role="tablist" aria-label="Banners disponíveis">
+      ${BANNERS.map((b) => `<button type="button" id="gacha-tab-${b.id}" class="gacha-escolha-btn${b.id === atual.id ? " ativa" : ""}" data-banner="${b.id}" role="tab" aria-controls="gacha-banner-atual" aria-selected="${b.id === atual.id}" tabindex="${b.id === atual.id ? "0" : "-1"}"><span aria-hidden="true">${b.icone}</span> ${b.nome.replace("Banner ", "")}</button>`).join("")}
+      </div>
+    </section>
+    <section id="gacha-banner-atual" class="gacha-banner-destaque" role="tabpanel" aria-labelledby="gacha-tab-${atual.id}" aria-live="polite">
       <div class="gacha-banner-icone" aria-hidden="true">${atual.icone}</div>
       <div class="gacha-banner-texto">
+        <span class="gacha-sobrelinha">Banner selecionado</span>
         <h3 class="gacha-banner-nome">${atual.nome}</h3>
         <p class="gacha-banner-featured">${atual.destaque}</p>
         ${atual.pity ? `<p class="gacha-pity">${textoPity(atual.pity)}</p>` : `<p class="gacha-pity">Sem pity: as garantias deste banner são por número de invocações.</p>`}
+        ${atual.pity ? `<div class="gacha-pity-barra" role="progressbar" aria-label="Progresso até a garantia lendária" aria-valuemin="0" aria-valuemax="${PITY_DURO}" aria-valuenow="${atual.pity.desdeUltimoLendario}"><i style="width:${Math.min(100, atual.pity.desdeUltimoLendario / PITY_DURO * 100)}%"></i></div>` : ""}
         ${garantia}
       </div>
     </section>
-    <details class="gacha-detalhes">
-      <summary>Detalhes e probabilidades</summary>
-      <p class="desc">${atual.desc}</p>
-      <p class="desc">Custo por invocação: <b>${CUSTO_INVOCACAO}</b> Fragmentos${atual.temX10 ? ` · pacote de 10: <b>${CUSTO_PACOTE_10}</b> (sem desconto — a vantagem é a garantia de raridade embutida)` : ""}.</p>
-    </details>
-    <div id="gacha-resultado"></div>
+    ${semSaldo1 ? `<div class="gacha-saldo-aviso" role="status"><span aria-hidden="true">💠</span><div><b>Faltam ${faltam1} Fragmentos</b><small>Ganhe mais em missões, recompensas e exploração.</small></div></div>` : ""}
+    <section class="gacha-informacoes" aria-label="Regras do banner">
+      <article class="gacha-info-card">
+        <h3><span aria-hidden="true">🎲</span> Chances base</h3>
+        <div class="gacha-taxas">${["lendario", "epico", "raro", "incomum", "comum"].map((r) => `<span><i style="--raridade:${RARITY_COLORS[r]}"></i>${RARITY_LABEL[r]} <b>${percentualChance(CHANCES_BASE[r])}</b></span>`).join("")}</div>
+        <small>O pity pode elevar a chance Lendária.</small>
+      </article>
+      <article class="gacha-info-card">
+        <h3><span aria-hidden="true">🛡️</span> Garantias</h3>
+        <p>${atual.desc}</p>
+        ${atual.pity ? `<div class="gacha-garantias-chips"><span>Raro+ a cada ${GARANTIA_RARO_A_CADA}</span><span>Épico+ a cada ${GARANTIA_EPICO_A_CADA}</span><span>Lendário até ${PITY_DURO}</span></div>` : ""}
+      </article>
+      <details class="gacha-info-card gacha-historico">
+        <summary><span><span aria-hidden="true">🕘</span> Histórico recente</span><small>${(g.historicoInvocacoes || []).length} registrada(s)</small></summary>
+        ${historicoRecenteHtml(g)}
+      </details>
+    </section>
+    <p class="gacha-custo-resumo">Cada invocação custa <b>💠 ${CUSTO_INVOCACAO}</b>${atual.temX10 ? ` · x10 custa <b>💠 ${CUSTO_PACOTE_10}</b>` : atual.custo1 === 0 ? " · sua próxima invocação é grátis" : ""}.</p>
+    <div id="gacha-resultado" class="gacha-resultado" aria-live="polite" aria-atomic="true"></div>
   `;
 
   corpo.querySelectorAll(".gacha-escolha-btn").forEach((b) => {
     b.onclick = () => renderInvocar(corpo, personagem, roster, dados, onMudar, tela, b.dataset.banner);
+  });
+  const seletorBanners = corpo.querySelector(".gacha-escolha");
+  seletorBanners?.addEventListener("keydown", (evento) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(evento.key)) return;
+    const botoes = [...seletorBanners.querySelectorAll("[role='tab']")];
+    const atualIdx = Math.max(0, botoes.indexOf(document.activeElement));
+    const destino = evento.key === "Home" ? 0 : evento.key === "End" ? botoes.length - 1
+      : (atualIdx + (evento.key === "ArrowRight" ? 1 : -1) + botoes.length) % botoes.length;
+    evento.preventDefault();
+    botoes[destino]?.focus();
+    botoes[destino]?.click();
   });
 
   const puxar = (qtd) => {
@@ -199,10 +255,10 @@ function renderInvocar(corpo, personagem, roster, dados, onMudar, tela, bannerAt
   // A ação principal vive na barra fixa — nunca rola para fora (item 6/23).
   if (tela) {
     const acoes = [{ rotulo: atual.custo1 === 0 ? "Invocar (grátis)" : `Invocar (${atual.custo1})`, classe: "primario btn-puxar", onClick: () => puxar(1),
-                     desabilitado: atual.custo1 > g.fragmentos }];
+                     titulo: semSaldo1 ? `Faltam ${faltam1} Fragmentos de Aethra` : "Realizar uma invocação", desabilitado: semSaldo1 }];
     if (atual.temX10) {
       acoes.push({ rotulo: `Invocar x10 (${atual.custo10})`, classe: "primario btn-puxar", onClick: () => puxar(10),
-                   desabilitado: atual.custo10 > g.fragmentos });
+                   titulo: semSaldo10 ? `São necessários ${atual.custo10} Fragmentos de Aethra` : "Realizar dez invocações", desabilitado: semSaldo10 });
     }
     const rodape = tela.definirAcoes(acoes, `💠 <b>${g.fragmentos}</b> Fragmentos de Aethra`);
     // Marcações que a auditoria automatizada procura (item 72) e que também
@@ -221,23 +277,25 @@ function mostrarResultado(corpo, resultados, dados) {
   const falhas = resultados.filter((r) => !r.ok);
   const sucessos = resultados.filter((r) => r.ok);
   div.innerHTML = `
-    <h3>Resultado</h3>
-    ${falhas.length ? `<p style="color:#e0574a;">${falhas[0].motivo === "sem_fragmentos" ? "Fragmentos de Aethra insuficientes." : "Este banner já se esgotou para você."}</p>` : ""}
-    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <h3 tabindex="-1">${sucessos.length > 1 ? `${sucessos.length} resultados` : "Resultado da invocação"}</h3>
+    ${falhas.length ? `<div class="gacha-resultado-falha" role="alert"><b>Não foi possível invocar.</b><span>${falhas[0].motivo === "sem_fragmentos" ? "Fragmentos de Aethra insuficientes." : "Este banner já se esgotou para você."}</span></div>` : ""}
+    <div class="gacha-resultados-grade" role="list">
       ${sucessos.map((r) => {
         const classeInfo = (dados && dados.classes || []).find((c) => c.id === r.def.classeId);
         return `
-        <div class="card" style="flex-direction:column;width:130px;align-items:center;border-color:${RARITY_COLORS[r.raridade]}">
+        <article class="card gacha-resultado-card ${r.duplicata ? "duplicata" : "novo"}" role="listitem" style="--raridade:${RARITY_COLORS[r.raridade]}">
+          <span class="gacha-resultado-estado">${r.duplicata ? "↻ DUPLICATA" : "✦ NOVO PERSONAGEM"}</span>
           ${retratoConvocado(r.def.id, r.raridade, 64)}
           <div class="nome" style="text-align:center;">${r.def.nome}${r.featured ? " ⭐" : ""}</div>
           ${badge(r.raridade)}
           ${classeInfo ? `<div class="desc classe-evidente" style="text-align:center;">${classeInfo.icone} ${classeInfo.nome}</div>` : ""}
-          ${r.duplicata ? `<div class="desc" style="text-align:center;">Duplicata → +${r.xpConvertido} XP para ${r.def.nome}${r.subiuNivelDuplicata && r.subiuNivelDuplicata.length ? ` (subiu para Nv. ${r.subiuNivelDuplicata[r.subiuNivelDuplicata.length - 1]}!)` : ""}</div>` : ""}
-        </div>`;
+          ${r.duplicata ? `<div class="gacha-duplicata-conversao"><b>+${r.xpConvertido} XP</b><span>aplicado em ${r.def.nome}${r.subiuNivelDuplicata && r.subiuNivelDuplicata.length ? ` · agora Nv. ${r.subiuNivelDuplicata[r.subiuNivelDuplicata.length - 1]}` : ""}</span></div>` : `<p class="gacha-novo-texto">Adicionado à sua coleção.</p>`}
+        </article>`;
       }).join("")}
     </div>
   `;
   ligarCadeias(div);
+  div.querySelector("h3")?.focus({ preventScroll: true });
 }
 
 // Item 39 de 100_melhorias.md: filtro de coleção por raridade/classe — só
@@ -247,30 +305,35 @@ const RARIDADES_FILTRO = ["comum", "incomum", "raro", "epico", "lendario"];
 function renderColecao(corpo, personagem, onMudar, dados) {
   const g = personagem.gacha;
   if (!g.personagensObtidos.length) {
-    corpo.innerHTML = "<p>Você ainda não invocou nenhum personagem. Vá para a aba Invocar!</p>";
+    corpo.innerHTML = `<section class="gacha-colecao-vazia"><span aria-hidden="true">📚</span><h3>Sua coleção começa aqui</h3><p>Invoque seu primeiro personagem para desbloquear fichas, vínculos e evolução.</p><button type="button" id="gacha-ir-invocar">Ir para Invocar</button></section>`;
+    corpo.querySelector("#gacha-ir-invocar").onclick = () => montarGacha(personagem, dados, onMudar, "invocar");
     return;
   }
   const classesPresentes = [...new Set(g.personagensObtidos.map((p) => p.classeId))];
   corpo.innerHTML = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;width:100%;">
-      <select id="filtro-colecao-raridade" style="padding:4px;">
+    <header class="gacha-colecao-cab"><div><span>ACERVO DE HERÓIS</span><h3>${g.personagensObtidos.length} personagem(ns) desbloqueado(s)</h3><p>Selecione uma carta para ver Despertar. Formação e equipamento ficam na Companhia.</p></div><output id="gacha-colecao-contagem">${g.personagensObtidos.length} exibido(s)</output></header>
+    <div class="gacha-colecao-filtros" aria-label="Filtros da coleção">
+      <label>Raridade<select id="filtro-colecao-raridade">
         <option value="">Todas as raridades</option>
         ${RARIDADES_FILTRO.map((r) => `<option value="${r}">${RARITY_LABEL[r] || r}</option>`).join("")}
-      </select>
-      <select id="filtro-colecao-classe" style="padding:4px;">
+      </select></label>
+      <label>Classe<select id="filtro-colecao-classe">
         <option value="">Todas as classes</option>
         ${classesPresentes.map((c) => { const info = (dados.classes || []).find((x) => x.id === c); return `<option value="${c}">${info ? info.nome : c}</option>`; }).join("")}
-      </select>
+      </select></label>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;"></div>`;
+    <div class="gacha-colecao-grade"></div>`;
   const grid = corpo.lastElementChild;
   function aplicarFiltro() {
     const raridadeF = corpo.querySelector("#filtro-colecao-raridade").value;
     const classeF = corpo.querySelector("#filtro-colecao-classe").value;
+    let visiveis = 0;
     [...grid.children].forEach((card) => {
       const ok = (!raridadeF || card.dataset.raridade === raridadeF) && (!classeF || card.dataset.classe === classeF);
       card.style.display = ok ? "" : "none";
+      if (ok) visiveis += 1;
     });
+    corpo.querySelector("#gacha-colecao-contagem").textContent = `${visiveis} exibido(s)`;
   }
   corpo.querySelector("#filtro-colecao-raridade").onchange = aplicarFiltro;
   corpo.querySelector("#filtro-colecao-classe").onchange = aplicarFiltro;
@@ -294,7 +357,9 @@ function renderColecao(corpo, personagem, onMudar, dados) {
     const xpPct = nivelMaximo ? 100 : Math.max(0, Math.min(100, Math.round((p.xp || 0) / Math.max(1, p.xpProximo || 1) * 100)));
     const pc = poderDoMembro(p, dados);
     const div = document.createElement("div");
-    div.className = "card convocado-card";
+    div.className = "card convocado-card gacha-colecao-card";
+    div.setAttribute("role", "group");
+    div.setAttribute("aria-label", `${p.nome}, ${RARITY_LABEL[p.raridade] || p.raridade}, nível ${p.nivel}`);
     div.dataset.raridade = p.raridade;
     div.dataset.classe = p.classeId;
     div.style.cssText = `flex-direction:column;width:190px;align-items:center;border-color:${RARITY_COLORS[p.raridade]};cursor:pointer;`;
@@ -318,6 +383,7 @@ function renderColecao(corpo, personagem, onMudar, dados) {
       ${habilidade ? `<div class="desc" style="text-align:center;margin-top:4px;"><b>${habilidade.nome}</b> — ${habilidade.descricao}</div>` : ""}
       ${resumoDespertar ? `<div class="desc despertar-tag ${resumoDespertar.classe}" style="text-align:center;margin-top:4px;">${resumoDespertar.texto}</div>` : ""}
       <div class="desc vinculo-tag ${resumoVinculo.classe}" style="text-align:center;margin-top:4px;">${resumoVinculo.texto}</div>
+      <button type="button" class="btn-despertar-card">✦ Ver detalhes</button>
       <button class="btn-vinculo-card" style="margin-top:6px;">💬 Vínculo</button>
     `;
     ligarCadeias(div);
@@ -325,7 +391,9 @@ function renderColecao(corpo, personagem, onMudar, dados) {
     // diretamente: montarDespertar()/montarVinculo() substituem todo o
     // #modal-conteudo, então o nó `corpo` capturado aqui ficaria desanexado
     // do DOM depois disso.
-    div.onclick = () => montarDespertar(personagem, dados, p.uid, onMudar, () => montarGacha(personagem, dados, onMudar, "colecao"));
+    const abrirDetalhes = () => montarDespertar(personagem, dados, p.uid, onMudar, () => montarGacha(personagem, dados, onMudar, "colecao"));
+    div.onclick = abrirDetalhes;
+    div.querySelector(".btn-despertar-card").onclick = (evento) => { evento.stopPropagation(); abrirDetalhes(); };
     // Botão de Vínculo fica DENTRO do card clicável de Despertar — precisa
     // parar a propagação do clique, senão os dois modais tentariam abrir ao
     // mesmo tempo (o card inteiro também tem onclick pro Despertar).

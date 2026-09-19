@@ -591,6 +591,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // A ordem é a MESMA que o ATB vai usar: quem está mais perto de encher a
   // barra aparece primeiro. Não é uma previsão nova nem um sistema paralelo,
   // é só uma leitura do estado que o CombatSystem já mantém.
+  let assinaturaTimeline = "";
   function renderTimeline() {
     if (!timelineEl) return;
     const vivos = [...combatentesTime, ...inimigos].filter((c) => c.vivo);
@@ -600,6 +601,17 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       if (atacanteAtivo === b) return 1;
       return faltando(a) - faltando(b);
     }).slice(0, 8);
+
+    // O ATB chama renderArena a cada 140 ms. A ordem visual, porém, muda
+    // muito menos: preservar o DOM evita recriar retratos, reiniciar fallbacks
+    // de imagem e provocar trabalho de layout quando nada visível mudou.
+    const assinaturaAtual = ordem.map((c) => [
+      c.id,
+      atacanteAtivo === c ? 1 : 0,
+      Math.round(Math.max(0, (c.hp / c.hpMax) * 100)),
+    ].join(":")).join("|");
+    if (assinaturaAtual === assinaturaTimeline) return;
+    assinaturaTimeline = assinaturaAtual;
 
     timelineEl.innerHTML = ordem.map((c, i) => {
       const ativo = atacanteAtivo && c === atacanteAtivo;
@@ -964,7 +976,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
           const cont = (e.turnos !== null && e.turnos !== undefined)
             ? `<b class="status-turnos${ultimo ? " ultimo" : ""}">${Math.max(0, e.turnos)}</b>` : "";
           const dataEstado = e.estadoId ? ` data-estado="${e.estadoId}"` : "";
-          return `<span class="status-icone status-${e.classe}${ultimo ? " expirando" : ""}"${dataEstado} title="${String(e.titulo).replace(/"/g, "&quot;")}${e.turnos ? ` (${e.turnos} turno${e.turnos > 1 ? "s" : ""})` : ""}">${e.icone}${cont}</span>`;
+          const tituloEstado = `${String(e.titulo).replace(/"/g, "&quot;")}${e.turnos ? ` (${e.turnos} turno${e.turnos > 1 ? "s" : ""})` : ""}`;
+          return `<button type="button" class="status-icone status-${e.classe}${ultimo ? " expirando" : ""}"${dataEstado} title="${tituloEstado}" aria-label="${tituloEstado}">${e.icone}${cont}</button>`;
         }).join("")}${resumoStatus.restantes ? `<button type="button" class="status-mais" aria-label="Ver todos os estados">+${resumoStatus.restantes}</button>` : ''}</div>`
       : "";
     div.innerHTML = `
@@ -978,20 +991,16 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         <span class="sinal-combate sinal-aliado-area">⚠ ALIADO</span>
       </div>
       <div class="sprite-wrap"><canvas width="192" height="192" class="sprite-canvas"></canvas></div>
-      <div class="barra"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div><div class="barra-fantasma"><div class="fantasma-max"></div><div class="fantasma-esperado"></div><div class="fantasma-min"></div></div></div>
+      <div class="barra" role="progressbar" aria-label="Pontos de vida de ${String(c.nome).replace(/"/g, "&quot;")}" aria-valuemin="0" aria-valuemax="${c.hpMax}" aria-valuenow="${Math.max(0, c.hp)}" aria-valuetext="${Math.max(0, c.hp)} de ${c.hpMax}"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div><div class="barra-fantasma"><div class="fantasma-max"></div><div class="fantasma-esperado"></div><div class="fantasma-min"></div></div></div>
       <div style="font-size:0.7em">${c.hp}/${c.hpMax} HP <span class="previa-hp-rotulo"></span></div>
       ${c.chefe && c.posturaMax ? `<div class="barra postura-barra" title="Postura: fraquezas elementais enchem mais rápido. Ao encher, o chefe fica atordoado."><div class="barra-fill postura${c.atordoado ? " cheia" : ""}" style="width:${Math.max(0, (c.postura / c.posturaMax) * 100)}%"></div></div>` : ""}
-      ${c.isPlayer ? `<div class="barra"><div class="barra-fill mp" style="width:${Math.max(0, (c.mp / c.mpMax) * 100)}%"></div></div>` : ""}
+      ${c.isPlayer ? `<div class="barra" role="progressbar" aria-label="Pontos de magia de ${String(c.nome).replace(/"/g, "&quot;")}" aria-valuemin="0" aria-valuemax="${c.mpMax}" aria-valuenow="${Math.max(0, c.mp)}" aria-valuetext="${Math.max(0, c.mp)} de ${c.mpMax}"><div class="barra-fill mp" style="width:${Math.max(0, (c.mp / c.mpMax) * 100)}%"></div></div>` : ""}
       <div class="atb-barra"><div class="atb-fill" style="width:${Math.min(100, c.atb)}%"></div></div>
       ${statusIconesHTML}
       ${!c.isPlayer ? `<button data-id="${c.id}" class="btn-alvo" aria-pressed="${alvoSelecionado && alvoSelecionado.id === c.id}" style="margin-top:4px;font-size:0.7em;padding:3px 6px;">${alvoSelecionado && alvoSelecionado.id === c.id ? "◎ Alvo atual" : "Selecionar alvo"}</button>` : ""}
     `;
     div.querySelectorAll('.status-icone').forEach(icone => {
-      icone.tabIndex = 0;
-      icone.setAttribute('role', 'button');
-      icone.setAttribute('aria-label', icone.title);
       icone.onclick = e => { e.stopPropagation(); mostrarEstadoCombate(arena, icone.title); };
-      icone.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); mostrarEstadoCombate(arena, icone.title); } };
     });
     const maisStatus = div.querySelector('.status-mais');
     if (maisStatus) maisStatus.onclick = e => { e.stopPropagation(); mostrarEstadoCombate(arena, `${c.nome}\n${resumoStatus.descricao}`); };
@@ -2142,6 +2151,9 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
 
   function loopATB() {
     intervalId = setInterval(() => {
+      // Uma aba invisível não precisa animar barras nem reconstruir cards.
+      // Pausar aqui também impede o combate de avançar sem o jogador ver.
+      if (typeof document !== "undefined" && document.hidden) return;
       if (pausado || batalha.terminada || apresentandoAcao) return;
       const prontos = batalha.avancarATB(1.6);
       for (const c of prontos) {

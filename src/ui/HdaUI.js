@@ -289,6 +289,7 @@ function escapar(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
+
 // ---------------------------------------------------------------------
 // ABAS
 // ---------------------------------------------------------------------
@@ -458,7 +459,12 @@ export function removerNavbar() {
 
 export function marcarNavbarAtiva(id) {
   if (!navbarEl) return;
-  navbarEl.querySelectorAll("button").forEach((b) => b.classList.toggle("ativa", b.dataset.destino === id));
+  navbarEl.querySelectorAll("button").forEach((b) => {
+    const ativa = b.dataset.destino === id;
+    b.classList.toggle("ativa", ativa);
+    if (ativa) b.setAttribute("aria-current", "page");
+    else b.removeAttribute("aria-current");
+  });
 }
 
 // ---------------------------------------------------------------------

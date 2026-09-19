@@ -23,6 +23,16 @@ function fecharModalLocal() {
 const BIOMA_LABEL = { floresta: "Floresta", estrada: "Estrada", masmorra: "Masmorra", deserto: "Deserto", aguas: "Águas" };
 const ELEMENTO_LABEL = { fogo: "Fogo", agua: "Água", gelo: "Gelo", natureza: "Natureza", sombrio: "Sombrio", radiante: "Radiante", vento: "Vento", terra: "Terra", raio: "Raio", arcano: "Arcano", veneno: "Veneno" };
 
+function criarEstadoCompendio({ icone, titulo, descricao, tipo = "vazio" }) {
+  const estado = document.createElement("section");
+  estado.className = `compendio-estado compendio-estado-${tipo}`;
+  estado.setAttribute("role", tipo === "erro" ? "alert" : "status");
+  estado.setAttribute("aria-live", tipo === "erro" ? "assertive" : "polite");
+  estado.setAttribute("aria-atomic", "true");
+  estado.innerHTML = `<span aria-hidden="true">${icone}</span><h3>${titulo}</h3><p>${descricao}</p>`;
+  return estado;
+}
+
 export function montarCompendio(personagem, dados, abaInicial = "bestiario") {
   const tela = abrirTela({
     titulo: "Compêndio",
@@ -89,6 +99,14 @@ function renderMitologia(corpo, personagem, dados) {
 function renderBestiario(corpo, personagem, dados, tela) {
   const bestiario = bestiarioParaCompendio(personagem, dados);
   const progresso = progressoBestiario(personagem, dados);
+
+  if (!bestiario.length) {
+    corpo.appendChild(criarEstadoCompendio({
+      icone: "🐉", titulo: "Bestiário indisponível",
+      descricao: "Continue a jornada; as criaturas encontradas serão registradas aqui.",
+    }));
+    return;
+  }
 
   const cabecalho = document.createElement("p");
   cabecalho.className = "desc";
@@ -160,6 +178,14 @@ function renderMissoes(corpo, personagem, dados) {
   const missoes = missoesParaCompendio(personagem, dados);
   const concluidas = missoes.filter((q) => q.concluida).length;
 
+  if (!missoes.length) {
+    corpo.appendChild(criarEstadoCompendio({
+      icone: "📜", titulo: "Nenhuma missão registrada",
+      descricao: "Explore o mundo e converse com personagens marcados para iniciar uma história.",
+    }));
+    return;
+  }
+
   corpo.innerHTML = `
     <p>Concluídas: ${concluidas}/${missoes.length}.</p>
     <div style="display:flex;flex-direction:column;gap:6px;"></div>
@@ -186,7 +212,10 @@ function renderInvocacoes(corpo, personagem, dados) {
   const BANNER_LABEL = { permanente: "Permanente", evento: "Evento", iniciante: "Iniciante" };
 
   if (!historico.length) {
-    corpo.innerHTML = "<p>Nenhuma invocação registrada ainda. Vá até a tela de Time (G) para invocar.</p>";
+    corpo.appendChild(criarEstadoCompendio({
+      icone: "✨", titulo: "Nenhuma invocação registrada",
+      descricao: "Abra Invocação para conquistar seu primeiro aliado; o resultado aparecerá neste histórico.",
+    }));
     return;
   }
 

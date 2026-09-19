@@ -11,7 +11,7 @@
 .combate-estado-detalhe span { flex:1; min-width:0; overflow-wrap:anywhere; }
 .combate-estado-detalhe span { white-space:pre-line; max-height:25vh; overflow:auto; line-height:1.5; }
 .combate-estado-detalhe button { min-height:40px; flex-shrink:0; }
-.bt-slot .combatente .status-icone[role=button] { cursor:pointer; }
+.bt-slot .combatente button.status-icone { appearance:none; padding:0; margin:0; color:inherit; font:inherit; cursor:pointer; }
 .combate-leitura button { pointer-events:auto; min-height:32px; font-size:11px; white-space:nowrap; }
 .combate-leitura button[hidden] { display:none; }
 .combate-trajeto { position:absolute; pointer-events:none; z-index:18; font:700 36px/1 Georgia,serif; color:var(--fx-cor); text-shadow:0 0 8px var(--fx-cor); margin:-18px; width:36px; text-align:center; }

@@ -99,6 +99,7 @@ export function imgHtml(alvo, uso = USOS.COMBATE, opcoes = {}) {
     `data-cadeia="${fila.join("|")}"`,
     `alt="${(opcoes.alt || "").replace(/"/g, "&quot;")}"`,
     opcoes.lazy === false ? "" : 'loading="lazy"',
+    'decoding="async"',
     opcoes.classe ? `class="${opcoes.classe}"` : "",
   ].filter(Boolean).join(" ");
   return `<img ${attrs}>`;

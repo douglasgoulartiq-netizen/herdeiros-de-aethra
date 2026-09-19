@@ -90,7 +90,8 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
     camada.className = "cutscene";
     camada.setAttribute("role", "dialog");
     camada.setAttribute("aria-modal", "true");
-    camada.setAttribute("aria-labelledby", idTitulo);
+    if (cena.titulo) camada.setAttribute("aria-labelledby", idTitulo);
+    else camada.setAttribute("aria-label", "Cena narrativa");
     camada.innerHTML = `
       <div class="cutscene-arte" aria-hidden="true"></div>
       <div class="cutscene-frente" tabindex="-1">
@@ -144,6 +145,7 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
     const btnCancelarPulo = camada.querySelector(".cutscene-cancelar");
     const btnConfirmarPulo = camada.querySelector(".cutscene-confirmar-pulo");
     const frente = camada.querySelector(".cutscene-frente");
+    const partesPlanoFundo = [...camada.querySelectorAll(".cutscene-cab, .cutscene-corpo, .cutscene-rodape")];
 
     elTitulo.textContent = cena.titulo || "";
     cena.paineis.forEach(() => {
@@ -194,6 +196,7 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       finalizado = true;
       cancelarAutomatico();
       document.removeEventListener("keydown", aoTeclado, true);
+      document.removeEventListener("visibilitychange", aoMudarVisibilidade);
       camada.classList.add("saindo");
       const espera = efeitosReduzidos() ? 0 : duracaoAnimacao(320);
       setTimeout(() => {
@@ -398,6 +401,10 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       confirmandoPulo = true;
       confirmacao.classList.remove("hidden");
       frente.classList.add("confirmando");
+      partesPlanoFundo.forEach((parte) => {
+        parte.inert = true;
+        parte.setAttribute("aria-hidden", "true");
+      });
       btnCancelarPulo.focus();
     }
 
@@ -406,6 +413,10 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       confirmandoPulo = false;
       confirmacao.classList.add("hidden");
       frente.classList.remove("confirmando");
+      partesPlanoFundo.forEach((parte) => {
+        parte.inert = false;
+        parte.removeAttribute("aria-hidden");
+      });
       btnPular.focus();
       agendarAutomatico(cena.paineis[indice]);
     }
@@ -422,6 +433,11 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       btnAuto.title = automatico ? "Desativar avanço automático" : "Ativar avanço automático";
       if (automatico) agendarAutomatico(cena.paineis[indice]);
       else cancelarAutomatico();
+    }
+
+    function aoMudarVisibilidade() {
+      if (document.hidden) cancelarAutomatico();
+      else if (automatico && !confirmandoPulo) agendarAutomatico(cena.paineis[indice]);
     }
 
     function aoTeclado(ev) {
@@ -444,7 +460,7 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       if (ev.key === " " || ev.key === "Enter" || ev.key === "ArrowRight" || ev.key === "PageDown") {
         // Espaço/Enter com foco num botão já dispara o click dele — deixar
         // passar aqui também avançaria duas vezes.
-        if (document.activeElement && document.activeElement.tagName === "BUTTON") return;
+        if ((ev.key === " " || ev.key === "Enter") && document.activeElement?.tagName === "BUTTON") return;
         ev.preventDefault(); ev.stopPropagation();
         if (!btnAvancar.classList.contains("hidden")) btnAvancar.click();
       }
@@ -462,6 +478,7 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       if (!btnAvancar.classList.contains("hidden")) avancar();
     };
     document.addEventListener("keydown", aoTeclado, true);
+    document.addEventListener("visibilitychange", aoMudarVisibilidade);
 
     requestAnimationFrame(() => camada.classList.add("visivel"));
     mostrarPainel(0);

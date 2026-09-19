@@ -121,7 +121,8 @@ export function relacoesDoElemento(elementoId, dados) {
 
 function barra(atual, max, classe) {
   const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((atual / max) * 100))) : 0;
-  return `<span class="party-barra ${classe}"><i style="width:${pct}%"></i></span>`;
+  const rotulo = classe === "hp" ? "Pontos de vida" : "Pontos de magia";
+  return `<span class="party-barra ${classe}" role="progressbar" aria-label="${rotulo}" aria-valuemin="0" aria-valuemax="${Math.max(0, max || 0)}" aria-valuenow="${Math.max(0, atual || 0)}" aria-valuetext="${Math.max(0, atual || 0)} de ${Math.max(0, max || 0)}"><i style="width:${pct}%"></i></span>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -469,7 +470,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
 
     painel.innerHTML = `
       <div class="party-detalhe-cabecalho">
-        <span class="icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" /></span>
+        <span class="icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(item)}" alt="" loading="lazy" decoding="async" /></span>
         <div>
           <div class="party-detalhe-nome" style="color:${cor}">${item.nome}</div>
           <div class="desc">${RARITY_LABEL[item.raridade] || ""}${slot ? ` · ${slot}` : ""}${uids.length > 1 ? ` · x${uids.length}` : ""}</div>

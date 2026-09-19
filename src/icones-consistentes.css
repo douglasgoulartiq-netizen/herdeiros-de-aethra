@@ -1,0 +1,81 @@
+/* Vocabulário visual compartilhado para símbolos de interface.
+ * A moldura não substitui as artes: apenas dá a emojis/rúnas a mesma métrica,
+ * alinhamento e área de toque em todas as telas. */
+.hda-icone {
+  --hda-icone-tamanho: 1.1em;
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--hda-icone-tamanho);
+  min-inline-size: var(--hda-icone-tamanho);
+  block-size: var(--hda-icone-tamanho);
+  line-height: 1;
+  vertical-align: -0.1em;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: none;
+}
+
+.hda-icone--fechar { font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 800; }
+
+button > .hda-icone:first-child,
+[role="button"] > .hda-icone:first-child { margin-inline-end: .38em; }
+
+.hda-botao-icone {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 40px;
+  min-inline-size: 40px;
+  block-size: 40px;
+  min-block-size: 40px;
+  padding: 0;
+  line-height: 1;
+}
+
+.hda-botao-icone > .hda-icone { margin: 0; --hda-icone-tamanho: 1.2rem; }
+
+/* Fechar, configurar e ações compactas compartilham a mesma área de toque. */
+.hda-fechar.hda-botao-icone,
+.fechar.hda-botao-icone,
+.detalhe-fechar.hda-botao-icone,
+.party-detalhe-fechar.hda-botao-icone,
+.cartao-fechar.hda-botao-icone,
+.mao-btn-config.hda-botao-icone {
+  border-radius: 8px;
+}
+
+/* Estados de combate continuam compactos, porém com glifo centralizado. */
+.status-icone .hda-icone,
+.status-mais .hda-icone,
+.intencao-chip .hda-icone,
+.tl-chip .hda-icone { margin: 0; --hda-icone-tamanho: 1em; }
+
+.status-icone.hda-botao-icone,
+.status-mais.hda-botao-icone {
+  inline-size: 26px;
+  min-inline-size: 26px;
+  block-size: 24px;
+  min-block-size: 24px;
+}
+
+/* Rótulos seguem visíveis; o símbolo decorativo deixa de ser anunciado duas vezes. */
+.hda-tabs .hda-icone,
+#hud-buttons .hda-icone,
+.companhia-painel .hda-icone,
+.gacha-conteudo .hda-icone,
+.tela-missoes .hda-icone,
+.missao-card .hda-icone { color: currentColor; }
+
+@media (pointer: coarse) {
+  .hda-botao-icone:not(.status-icone):not(.status-mais) {
+    inline-size: 44px;
+    min-inline-size: 44px;
+    block-size: 44px;
+    min-block-size: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hda-icone { animation: none !important; transition: none !important; }
+}

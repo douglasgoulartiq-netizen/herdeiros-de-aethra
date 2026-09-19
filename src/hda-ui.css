@@ -688,15 +688,106 @@ img, canvas, svg, video { max-width: 100%; }
 .gacha-detalhes .desc { margin: 6px 0 0; }
 #gacha-saldo-chip { font-size: 1.05em; color: #c9a2ff; }
 
+/* Invocação com hierarquia de leitura: banner -> estado -> regras -> ação.
+   As regras continuam no sistema; esta camada apenas as torna verificáveis
+   antes de gastar Fragmentos. */
+.tela-gacha #gacha-corpo { background: linear-gradient(180deg,rgba(18,17,31,.72),rgba(11,12,23,.42)); }
+.gacha-secao { margin-bottom: 10px; }
+.gacha-secao-cab { display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+.gacha-secao-cab > span { display:grid; place-items:center; flex:0 0 26px; height:26px; border:1px solid #977136; border-radius:50%; background:#302316; color:#ffd67a; font-weight:900; }
+.gacha-secao-cab h3 { margin:0; color:#f4e8d2; font-size:.9rem; }
+.gacha-secao-cab p { margin:1px 0 0; color:#9e96aa; font-size:.72rem; }
+.gacha-sobrelinha { display:block; margin-bottom:2px; color:#c69a50; font-size:.7rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+.gacha-pity-barra { width:min(520px,100%); height:7px; margin-top:8px; overflow:hidden; border:1px solid #594b66; border-radius:999px; background:#131320; }
+.gacha-pity-barra > i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#7051ae,#e3b74f); box-shadow:0 0 10px rgba(210,170,75,.35); }
+.gacha-saldo-aviso { display:flex; align-items:center; gap:10px; margin:0 0 10px; padding:9px 12px; border:1px solid #9d5360; border-radius:10px; background:rgba(92,29,42,.34); color:#ffd9df; }
+.gacha-saldo-aviso > span { font-size:1.3rem; }
+.gacha-saldo-aviso div { display:flex; flex-direction:column; }
+.gacha-saldo-aviso small { color:#d8b4ba; }
+.gacha-informacoes { display:grid; grid-template-columns:minmax(210px,.8fr) minmax(300px,1.2fr) minmax(250px,1fr); gap:10px; }
+.gacha-info-card { min-width:0; margin:0; padding:11px 12px; border:1px solid #45405c; border-radius:11px; background:linear-gradient(145deg,rgba(42,37,59,.84),rgba(24,23,37,.94)); color:#d9d2df; }
+.gacha-info-card h3 { margin:0 0 7px; color:#f1e7d4; font-size:.86rem; }
+.gacha-info-card p { margin:0; color:#bbb3c2; font-size:.74rem; line-height:1.35; }
+.gacha-info-card > small { display:block; margin-top:7px; color:#8f8798; font-size:.7rem; }
+.gacha-taxas { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 9px; }
+.gacha-taxas > span { display:flex; align-items:center; gap:5px; min-width:0; color:#c5bdca; font-size:.69rem; }
+.gacha-taxas i { flex:0 0 7px; height:7px; border-radius:50%; background:var(--raridade); box-shadow:0 0 7px var(--raridade); }
+.gacha-taxas b { margin-left:auto; color:#fff1c6; }
+.gacha-garantias-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.gacha-garantias-chips span { padding:3px 7px; border:1px solid #6d5c36; border-radius:999px; background:#2e281c; color:#e8cf87; font-size:.7rem; font-weight:800; }
+.gacha-historico { padding:0; }
+.gacha-historico summary { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:46px; padding:0 12px; cursor:pointer; color:#f1e7d4; font-size:.8rem; font-weight:800; }
+.gacha-historico summary small { color:#928b9b; font-size:.62rem; font-weight:600; }
+.gacha-historico-lista { max-height:210px; margin:0; padding:0 10px 9px; overflow:auto; list-style:none; }
+.gacha-historico-lista li { display:grid; grid-template-columns:8px minmax(0,1fr) auto; align-items:center; gap:7px; padding:6px 1px; border-top:1px solid rgba(105,96,120,.3); }
+.gacha-historico-raridade { width:7px; height:24px; border-radius:5px; background:var(--raridade); }
+.gacha-historico-lista li > span:nth-child(2) { display:flex; min-width:0; flex-direction:column; }
+.gacha-historico-lista b { overflow:hidden; color:#ded8e4; font-size:.69rem; text-overflow:ellipsis; white-space:nowrap; }
+.gacha-historico-lista small { color:#898292; font-size:.59rem; }
+.gacha-historico-lista em { padding:2px 5px; border-radius:5px; font-size:.56rem; font-style:normal; font-weight:900; text-transform:uppercase; }
+.gacha-historico-lista em.novo { background:#174735; color:#8ce5b6; }
+.gacha-historico-lista em.duplicata { background:#463b20; color:#f1cf73; }
+.gacha-vazio-compacto { padding:0 12px 10px; color:#958e9d; font-size:.72rem; }
+.gacha-custo-resumo { margin:9px 0 0; color:#a9a1b2; font-size:.7rem; text-align:center; }
+.gacha-resultado:empty { display:none; }
+.gacha-resultado { margin-top:13px; padding-top:11px; border-top:1px solid #45405c; }
+.gacha-resultado > h3 { margin:0 0 9px; color:#f5dd9c; }
+.gacha-resultados-grade { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:9px; }
+.gacha-resultado-card { position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0; width:auto; min-height:238px; padding:30px 10px 11px; border-color:var(--raridade); background:linear-gradient(160deg,#28263b,#181825); box-shadow:0 9px 20px rgba(0,0,0,.25); }
+.gacha-resultado-card.novo { box-shadow:0 0 0 1px var(--raridade),0 10px 24px color-mix(in srgb,var(--raridade) 22%,transparent); }
+.gacha-resultado-estado { position:absolute; top:7px; left:7px; right:7px; padding:3px 6px; border-radius:6px; background:#173c30; color:#a9f0c9; font-size:.58rem; font-weight:900; letter-spacing:.06em; text-align:center; }
+.gacha-resultado-card.duplicata .gacha-resultado-estado { background:#45391b; color:#f5d477; }
+.gacha-duplicata-conversao,.gacha-novo-texto { width:100%; margin:auto 0 0; text-align:center; }
+.gacha-duplicata-conversao { display:flex; flex-direction:column; padding:6px; border-radius:7px; background:#1e1c28; }
+.gacha-duplicata-conversao b { color:#f6d477; }
+.gacha-duplicata-conversao span,.gacha-novo-texto { color:#aaa2b2; font-size:.65rem; }
+.gacha-resultado-falha { display:flex; flex-direction:column; gap:2px; padding:10px 12px; border:1px solid #a04a57; border-radius:9px; background:#421f29; color:#ffd8df; }
+
+/* Coleção é consulta e progressão; montar o time permanece exclusivamente em
+   Companhia, indicado pela microcópia sem repetir seus controles aqui. */
+.gacha-colecao-cab { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:10px; padding:12px 14px; border:1px solid #4a435b; border-radius:12px; background:linear-gradient(110deg,#242135,#181722); }
+.gacha-colecao-cab span { color:#c3974f; font-size:.59rem; font-weight:900; letter-spacing:.14em; }
+.gacha-colecao-cab h3 { margin:2px 0; color:#f0e7d8; }
+.gacha-colecao-cab p { margin:0; color:#9991a2; font-size:.7rem; }
+.gacha-colecao-cab output { flex:0 0 auto; padding:5px 9px; border:1px solid #655a73; border-radius:999px; color:#d9cfdf; font-size:.68rem; }
+.gacha-colecao-filtros { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:10px; }
+.gacha-colecao-filtros label { display:flex; flex-direction:column; gap:3px; min-width:min(190px,100%); color:#a49bac; font-size:.61rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.gacha-colecao-filtros select { min-height:40px; padding:6px 32px 6px 9px; border-color:#5a506a; background:#211e2d; color:#eee8f3; text-transform:none; }
+.gacha-colecao-grade { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; align-items:stretch; }
+.gacha-colecao-card { width:100% !important; min-width:0; }
+.gacha-colecao-card .btn-despertar-card { margin-top:auto !important; }
+.gacha-colecao-card .btn-vinculo-card { margin-top:0 !important; }
+.gacha-colecao-vazia { display:grid; justify-items:center; max-width:480px; margin:8vh auto; padding:28px; border:1px solid #4d465d; border-radius:15px; background:#201e2c; text-align:center; }
+.gacha-colecao-vazia > span { font-size:3rem; }
+.gacha-colecao-vazia h3 { margin:8px 0 3px; color:#f0e7d8; }
+.gacha-colecao-vazia p { color:#a69dac; }
+.gacha-colecao-vazia button { min-height:44px; padding:8px 18px; }
+
 @media (max-width: 719px) {
   .gacha-banner-destaque { padding: var(--hda-gap); gap: var(--hda-gap); }
   .gacha-escolha-btn { font-size: 0.76em; padding: 5px 8px; }
+  .gacha-informacoes { grid-template-columns:1fr; }
+  .gacha-info-card { padding:10px; }
+  .gacha-historico summary { min-height:44px; }
+  .gacha-colecao-cab { align-items:flex-start; flex-direction:column; padding:10px; }
+  .gacha-colecao-filtros { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .gacha-colecao-filtros label { min-width:0; }
+  .gacha-colecao-grade { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+  .gacha-colecao-card { min-height:300px; padding:11px 8px; }
+  .gacha-resultados-grade { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 /* Celular deitado: o banner deita junto, para sobrar altura ao rodapé. */
 @media (max-height: 460px) and (orientation: landscape) {
   .gacha-banner-destaque { padding: 6px 10px; }
   .gacha-banner-icone { font-size: 1.8em; }
   .gacha-banner-featured { margin-bottom: 2px; }
+  .gacha-informacoes { grid-template-columns:repeat(3,minmax(200px,1fr)); }
+  .gacha-secao-cab { display:none; }
+  .gacha-colecao-cab { padding:7px 10px; }
+}
+@media (max-width:380px) {
+  .gacha-colecao-filtros,.gacha-colecao-grade,.gacha-resultados-grade { grid-template-columns:1fr; }
+  .gacha-colecao-card { min-height:280px; }
 }
 
 /* Ficha em lista de definição — legível nos dois formatos, sem tabela (que
@@ -708,6 +799,31 @@ img, canvas, svg, video { max-width: 100%; }
 .hda-ladrilho.chefe { border-color: #f5a524; }
 .hda-ladrilho.desconhecido { opacity: 0.55; }
 .hda-ladrilho .hda-ladrilho-icone { font-size: 1.5em; line-height: 1; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Compêndio: estado vazio é conteúdo orientador, não um parágrafo perdido. */
+.compendio-estado {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 7px;
+  min-height: clamp(190px, 38vh, 330px);
+  width: min(100%, 560px);
+  margin: 20px auto;
+  padding: clamp(22px, 5vw, 38px);
+  border: 1px dashed color-mix(in srgb, var(--hda-gold, #f5a524) 40%, transparent);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(35, 29, 45, 0.88), rgba(18, 17, 27, 0.94));
+  text-align: center;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
+}
+.compendio-estado > span { font-size: clamp(2rem, 8vw, 3rem); filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.4)); }
+.compendio-estado h3 { margin: 2px 0 0; color: #f0e7d8; font-size: clamp(1rem, 4vw, 1.25rem); }
+.compendio-estado p { max-width: 44ch; margin: 0; color: #b9afbd; line-height: 1.55; }
+.compendio-estado-erro { border-color: rgba(226, 91, 91, 0.58); }
+
+@media (max-width: 719px) {
+  .compendio-estado { min-height: 180px; margin: 8px auto; padding: 22px 16px; }
+}
 
 /* Bloco recolhido: conteúdo secundário que não deve competir com o principal
    (itens 49, 51) mas também não pode sumir. */

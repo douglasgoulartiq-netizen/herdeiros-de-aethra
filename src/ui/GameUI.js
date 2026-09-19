@@ -325,10 +325,31 @@ export function atualizarHUD(personagem) {
   // ramos próprios mais profundos, mas esconder todo o destino tirava do
   // Patrulheiro (e das demais classes) o acesso aos nós universais.
   if (btnCaminhos) btnCaminhos.classList.remove("hidden");
-  document.getElementById("hud-hp").style.width = `${Math.max(0, (personagem.hp / personagem.hpMax) * 100)}%`;
-  document.getElementById("hud-mp").style.width = `${Math.max(0, (personagem.mp / personagem.mpMax) * 100)}%`;
   const nivelMaximo = personagem.nivel >= NIVEL_MAXIMO_PERSONAGEM;
-  document.getElementById("hud-xp").style.width = `${nivelMaximo ? 100 : Math.max(0, (personagem.xp / personagem.xpProximo) * 100)}%`;
+  const atualizarBarra = (id, atual, max, rotulo, texto = null) => {
+    const fill = document.getElementById(id);
+    if (!fill) return;
+    const limite = Math.max(1, Number(max) || 1);
+    const valor = Math.max(0, Math.min(limite, Number(atual) || 0));
+    fill.style.width = `${Math.max(0, Math.min(100, (valor / limite) * 100))}%`;
+    const barra = fill.parentElement;
+    if (!barra) return;
+    barra.setAttribute("role", "progressbar");
+    barra.setAttribute("aria-label", rotulo);
+    barra.setAttribute("aria-valuemin", "0");
+    barra.setAttribute("aria-valuemax", String(limite));
+    barra.setAttribute("aria-valuenow", String(valor));
+    barra.setAttribute("aria-valuetext", texto || `${valor} de ${limite}`);
+  };
+  atualizarBarra("hud-hp", personagem.hp, personagem.hpMax, "Pontos de vida");
+  atualizarBarra("hud-mp", personagem.mp, personagem.mpMax, "Pontos de magia");
+  atualizarBarra(
+    "hud-xp",
+    nivelMaximo ? personagem.xpProximo : personagem.xp,
+    personagem.xpProximo,
+    "Experiência",
+    nivelMaximo ? `Nível máximo ${NIVEL_MAXIMO_PERSONAGEM}` : null,
+  );
   const fragmentos = personagem.gacha ? personagem.gacha.fragmentos : 0;
   // New Game+ (melhoria pós-backlog original): selo visível só quando o
   // personagem está numa run de NG+ (ngPlus > 0) — jogo normal fica igual a

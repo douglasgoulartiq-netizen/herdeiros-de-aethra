@@ -77,13 +77,25 @@ const CSS_CAMINHO = `
  .caminho-mobile-trilhas{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 }
 @media(max-width:560px){
- #caminho-topo{max-height:none!important;overflow:visible!important}
+ #caminho-topo{max-height:min(132px,24dvh)!important;overflow-y:auto!important;overscroll-behavior:contain}
  #caminho-pontos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
  #caminho-pontos .ponto-badge{padding:5px 4px;text-align:center;white-space:nowrap}
  #caminho-pontos #btn-respec{grid-column:1/-1;margin:0}
  #caminho-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
  .preset-btn{padding:5px 4px;overflow:hidden;text-overflow:ellipsis}
  .caminho-mobile-trilhas{grid-template-columns:1fr}
+}
+@media(max-width:560px) and (max-height:840px){
+ #caminho-topo{max-height:118px!important}
+ #caminho-corpo{grid-template-rows:minmax(110px,1fr) minmax(0,160px)}
+ #caminho-detalhe.caminho-detalhe-fixo{height:160px;max-height:160px}
+ #caminho-detalhe .hda-sheet-corpo,#caminho-painel{height:100%;max-height:100%;min-height:0;overflow-y:auto}
+}
+@media(max-width:560px) and (max-height:650px){
+ #modal-conteudo.arvore-caminhos>h2{font-size:.9rem}
+ #caminho-topo{max-height:90px!important}
+ #caminho-corpo{grid-template-rows:minmax(78px,1fr) minmax(0,124px)}
+ #caminho-detalhe.caminho-detalhe-fixo{height:124px;max-height:124px}
 }
 @media(max-height:500px) and (orientation:landscape){
  #modal-conteudo.arvore-caminhos{display:grid!important;grid-template-columns:minmax(190px,250px) minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}

@@ -75,6 +75,7 @@
 <link rel="stylesheet" href="src/missoes-direcao.css" />
 <link rel="stylesheet" href="src/mobile-premium.css" />
 <link rel="stylesheet" href="src/aethra-monumental.css" />
+<link rel="stylesheet" href="src/icones-consistentes.css" />
 </head>
 <body>
   <div id="app">
@@ -91,9 +92,9 @@
       <div id="hud-topo">
         <div id="hud-info"></div>
         <div id="hud-bars">
-          <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra"><div id="hud-hp" class="barra-fill hp"></div></div><span class="barra-num" id="hud-hp-num"></span></div>
-          <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra"><div id="hud-mp" class="barra-fill mp"></div></div><span class="barra-num" id="hud-mp-num"></span></div>
-          <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra"><div id="hud-xp" class="barra-fill xp"></div></div><span class="barra-num" id="hud-xp-num"></span></div>
+          <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra" role="progressbar" aria-label="Pontos de vida" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><div id="hud-hp" class="barra-fill hp"></div></div><span class="barra-num" id="hud-hp-num"></span></div>
+          <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra" role="progressbar" aria-label="Pontos de magia" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><div id="hud-mp" class="barra-fill mp"></div></div><span class="barra-num" id="hud-mp-num"></span></div>
+          <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra" role="progressbar" aria-label="Experiência" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><div id="hud-xp" class="barra-fill xp"></div></div><span class="barra-num" id="hud-xp-num"></span></div>
         </div>
         <div id="hud-direita">
           <div id="hud-bolsa"></div>
@@ -148,5 +149,6 @@
   </div>
 
   <script type="module" src="src/main.js"></script>
+  <script type="module" src="src/ui/IconesUI.js"></script>
 </body>
 </html>
