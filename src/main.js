@@ -280,7 +280,26 @@ async function boot() {
     document.body.classList.toggle("mobile-retrato", !paisagem);
   };
   atualizarOrientacaoMobile();
-  window.addEventListener("resize", () => { atualizarOrientacaoMobile(); montarNavegacao(onHudAction); atualizarInterfacePrincipal(); });
+  let larguraAnterior = window.innerWidth;
+  let alturaAnterior = window.innerHeight;
+  let resizePendente = 0;
+  window.addEventListener("resize", () => {
+    atualizarOrientacaoMobile();
+    if (resizePendente) cancelAnimationFrame(resizePendente);
+    resizePendente = requestAnimationFrame(() => {
+      resizePendente = 0;
+      const largura = window.innerWidth;
+      const altura = window.innerHeight;
+      // Barras de endereço/teclado virtual mudam só a altura. Não recriar
+      // botões e listeners durante cada pixel desse ajuste no celular.
+      if (largura !== larguraAnterior || (largura > altura) !== (larguraAnterior > alturaAnterior)) {
+        montarNavegacao(onHudAction);
+        atualizarInterfacePrincipal();
+      }
+      larguraAnterior = largura;
+      alturaAnterior = altura;
+    });
+  });
   document.addEventListener("hda:abrir-mapa-missao", () => abrirMapaMundo());
   // Em celular, trocar de aplicativo ou apagar a tela não pode custar
   // progresso. As animações também param enquanto a página está oculta.
@@ -1401,7 +1420,18 @@ function petParaDesenho() {
   };
 }
 
-function loopRender() {
+let ultimoQuadroMundo = 0;
+function loopRender(agora = performance.now()) {
+  // O mundo segue vivo sob as janelas, mas não precisa redesenhar dezenas de
+  // camadas a 60 FPS enquanto o jogador lê inventário/árvore. Este limite
+  // reserva a thread principal para os cliques e a rolagem dos painéis.
+  const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
+  const intervalo = modalAberto ? 120 : 33;
+  if (agora - ultimoQuadroMundo < intervalo) {
+    requestAnimationFrame(loopRender);
+    return;
+  }
+  ultimoQuadroMundo = agora;
   const grid = gridAtiva();
   mundo.player.spriteKey = personagem.spriteKey;
   atualizarPosicaoRenderizada();

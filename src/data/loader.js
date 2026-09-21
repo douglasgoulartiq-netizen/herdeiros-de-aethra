@@ -1,6 +1,6 @@
 // Carrega todos os arquivos JSON de dados do jogo.
 import { IDS_DE_PROP } from "./propRegistry.js";
-import { definirIndiceDeIcones, chavesDeIconeEmUso } from "./itemIcons.js";
+import { definirIndiceDeIcones } from "./itemIcons.js";
 
 const ARQUIVOS = [
   "races", "classes", "backgrounds", "traits", "items",
@@ -184,16 +184,29 @@ export async function carregarTodasImagens(dados) {
     if (n.sprite) jobs.push([n.id, `assets/sprites/${n.sprite}`]);
   });
 
-  // Um ícone por ITEM (ver itemIcons.js), mais os vinte nomes antigos como
-  // rede de segurança. Antes eram só os vinte — e como a pasta não existia,
-  // os 287 itens do jogo apareciam todos como o mesmo placeholder marrom.
-  chavesDeIconeEmUso(dados.items.itens)
-    .forEach((ic) => jobs.push([`icon_${ic}`, `assets/icons/${ic}.png`]));
+  // Ícones de itens pertencem às telas de inventário/forja e são imagens DOM.
+  // O navegador os busca apenas quando essas telas são abertas. Pré-carregar
+  // todos aqui atrasava a entrada no jogo com centenas de pedidos que não
+  // eram usados pelo canvas, inclusive em sessões sem abrir a mochila.
 
-  await Promise.all(
-    jobs.map(async ([key, path]) => {
-      cache[key] = await carregarImagemCadeia(path);
-    })
-  );
+  // O menu e o mapa precisam das folhas comuns; artes grandes de batalha e
+  // convocados só serão usadas depois. Manter o MESMO objeto de cache permite
+  // ao renderer receber essas imagens quando ficarem prontas, sem remontar a
+  // partida. Dois pedidos por lote evitam disputar rede/decodificação com os
+  // cliques nas primeiras telas, especialmente em celulares modestos.
+  const essenciais = jobs.filter(([key]) => !/^(pcb_|mb_|gacha_)/.test(key));
+  const posteriores = jobs.filter(([key]) => /^(pcb_|mb_|gacha_)/.test(key));
+  await Promise.all(essenciais.map(async ([key, path]) => {
+    cache[key] = await carregarImagemCadeia(path);
+  }));
+  const carregarPosteriores = async () => {
+    for (let i = 0; i < posteriores.length; i += 2) {
+      await Promise.all(posteriores.slice(i, i + 2).map(async ([key, path]) => {
+        cache[key] = await carregarImagemCadeia(path);
+      }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  };
+  setTimeout(() => { carregarPosteriores().catch((erro) => console.warn("[arte] carregamento complementar:", erro)); }, 1200);
   return cache;
 }

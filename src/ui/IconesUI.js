@@ -82,10 +82,35 @@ function varrer(raiz = document) {
 }
 
 varrer();
+const pendentes = new Set();
+let agendado = false;
+function processarPendentes() {
+  agendado = false;
+  // Não fazer varredura de uma tela inteira dentro do mesmo clique que a
+  // abriu. O acabamento dos ícones é secundário à resposta do botão.
+  const lote = [...pendentes].slice(0, 20);
+  for (const no of lote) {
+    pendentes.delete(no);
+    if (no.isConnected) varrer(no);
+  }
+  if (pendentes.size) agendar();
+}
+function agendar() {
+  if (agendado) return;
+  agendado = true;
+  if ("requestIdleCallback" in window) requestIdleCallback(processarPendentes, { timeout: 500 });
+  else setTimeout(processarPendentes, 16);
+}
 new MutationObserver((mudancas) => {
   for (const mudanca of mudancas) {
-    mudanca.addedNodes.forEach((no) => {
-      if (no.nodeType === Node.ELEMENT_NODE) varrer(no);
-    });
+    for (const no of mudanca.addedNodes) {
+      if (no.nodeType !== Node.ELEMENT_NODE) continue;
+      // Uma tela inserida de uma vez já inclui seus filhos. Ignorar entradas
+      // descendentes do mesmo lote evita varrê-la repetidamente.
+      if ([...pendentes].some((pai) => pai.contains(no))) continue;
+      for (const outro of pendentes) if (no.contains(outro)) pendentes.delete(outro);
+      pendentes.add(no);
+    }
   }
+  if (pendentes.size) agendar();
 }).observe(document.body, { childList: true, subtree: true });
