@@ -389,7 +389,6 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
     dockEl: screenEl.querySelector("#batalha-acoes"),
     alternarLog,
     logEstaAberto: () => logAberto,
-    redesenharCena,
     destruir() {
       if (observador) observador.disconnect();
     },

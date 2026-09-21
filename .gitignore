@@ -19,6 +19,7 @@ bundle/
 
 # Dependências
 node_modules/
+dist/
 
 # Vercel
 .vercel/
