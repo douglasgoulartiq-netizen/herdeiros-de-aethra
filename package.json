@@ -5,7 +5,6 @@
   "type": "module",
   "description": "Herdeiros de Aethra - RPG em JavaScript puro",
   "scripts": {
-    "build": "node scripts/build-dist.mjs",
     "dev": "node scripts/dev-server.js",
     "start": "node scripts/dev-server.js",
     "test:cards": "node scripts/test-battle-cards.mjs",
