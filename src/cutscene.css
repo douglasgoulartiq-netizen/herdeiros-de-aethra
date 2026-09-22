@@ -170,6 +170,11 @@ body.com-cutscene { overscroll-behavior: none; touch-action: manipulation; }
   outline: 3px solid var(--hda-gold, #f5a524);
   outline-offset: 3px;
 }
+/* A frente recebe o foco só para prender o Tab dentro da cena e anunciar o
+   texto ao leitor de tela — não é um controle. Com o anel de foco, a cena
+   inteira ganhava um contorno laranja nas laterais quando se chegava nela
+   pelo teclado. Os botões continuam com o anel. */
+.cutscene .cutscene-frente[tabindex="-1"]:is(:focus, :focus-visible) { outline: none; }
 
 /* O corpo cresce e centra o texto verticalmente: a cena respira, em vez de
    o texto ficar colado no topo numa tela de 1440x900. */

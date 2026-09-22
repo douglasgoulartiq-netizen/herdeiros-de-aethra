@@ -13,6 +13,8 @@
 // e os dois somam quando coincidem (ex.: chuva numa zona de água já forte
 // fica ainda mais forte; chuva n uma zona de fogo esfria um pouco a
 // vantagem do bioma sem removê-la).
+import { ZONAS_MUNDO } from "../data/world/zones.js";
+
 export const DURACAO_CLIMA_MS = 5 * 60 * 1000; // cada "rodada" de clima dura 5 minutos reais
 export const DURACAO_HORA_DIA_MS = 4 * 60 * 1000; // manhã/tarde/noite, 4 min reais cada — ciclo completo de 12 min
 
@@ -44,15 +46,27 @@ function hashString(str) {
 
 // `agora` é injetável (testabilidade determinística) — em produção, o
 // chamador sempre passa Date.now() (nunca lido diretamente aqui dentro).
-export function climaAtualDaZona(zonaId, agora) {
+const ZONA_POR_ID = new Map(ZONAS_MUNDO.map((zona) => [zona.id, zona]));
+
+export function climaAtualDaZona(zonaId, agora, altitude = 0) {
   if (!zonaId) return TIPOS_CLIMA[0];
   const periodo = Math.floor(agora / DURACAO_CLIMA_MS);
   const semente = hashString(`${zonaId}:${periodo}`);
-  const pesoTotal = TIPOS_CLIMA.reduce((s, c) => s + c.peso, 0);
+  const zona = ZONA_POR_ID.get(zonaId);
+  // A neve segue a altitude e a latitude glacial, não um sorteio global.
+  // Vulkor é uma exceção intencional: calor vulcânico impede nevasca.
+  const altaMontanha = altitude >= 5 && zona?.clima !== "vulcanico";
+  const pesos = zona?.clima === "nevado" || altaMontanha
+    ? { limpo: 15, chuva: 0, nevasca: 55, tempestade: 0, neblina: 10, vento_forte: 20 }
+    : zona?.clima === "arido" || zona?.clima === "vulcanico"
+      ? { limpo: 65, chuva: 0, nevasca: 0, tempestade: 5, neblina: 10, vento_forte: 20 }
+      : null;
+  const pesoTotal = TIPOS_CLIMA.reduce((s, c) => s + (pesos ? pesos[c.id] : c.peso), 0);
   let alvo = semente % pesoTotal;
   for (const clima of TIPOS_CLIMA) {
-    if (alvo < clima.peso) return clima;
-    alvo -= clima.peso;
+    const peso = pesos ? pesos[clima.id] : clima.peso;
+    if (alvo < peso) return clima;
+    alvo -= peso;
   }
   return TIPOS_CLIMA[0];
 }

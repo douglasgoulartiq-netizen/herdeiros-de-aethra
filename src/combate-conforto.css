@@ -183,17 +183,40 @@
 /* =====================================================================
  * ACABAMENTO MOBILE — seleção legível, toque seguro e formações cheias
  * ===================================================================== */
+/* Os sinais (TURNO, ALVO, ÁREA, ALIADO) dividem uma célula de grade com a
+   linha de formação: enquanto um sinal está aceso, a linha fica invisível mas
+   continua reservando a altura, então o sprite não muda de tamanho quando o
+   alvo muda. Antes eles eram absolutos a 22–34px do topo do card e caíam em
+   cima da linha de formação ("◎ ALVO" tapando o comportamento do inimigo). */
+.bt-slot .combatente .linha-sinais {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.bt-slot .combatente .linha-sinais > * { grid-area: 1 / 1; min-width: 0; }
+/* O sinal é 2px mais alto que a linha de formação: com altura zero e
+   centralizado nela, ele não estica a célula (senão o sprite do alvo ficava
+   menor que o dos vizinhos). */
+.bt-slot .combatente .linha-sinais > .combatente-sinais { height: 0; align-items: center; }
+.combatente:is(.ativo, .alvo-confirmado, .alvo-principal, .alvo-na-area, .aliado-na-area) .linha-sinais > .formacao-linha { visibility: hidden; }
+/* Sem linha de formação (inimigo sem comportamento nomeado; celular, onde ela
+   sai da arena) a linha de sinais tem altura zero e o sinal pende sobre o
+   topo do sprite — se ela crescesse, o sprite encolheria a cada troca de alvo. */
+.bt-slot .combatente .linha-sinais:not(:has(> .formacao-linha)) { height: 0; align-items: start; }
+.bt-slot .combatente .linha-sinais:not(:has(> .formacao-linha)) > .combatente-sinais { height: auto; align-items: flex-start; }
+/* Card de quem já caiu não é alvo nem tem turno — o "◎ ALVO" ficava aceso no
+   inimigo morto até o jogador escolher outro. */
+.bt-slot .combatente.morto .combatente-sinais { display: none; }
 .combatente-sinais {
-  position: absolute;
-  top: clamp(22px, 3.2vh, 34px);
-  left: 50%;
-  z-index: 8;
   display: flex;
   justify-content: center;
   gap: 3px;
   width: max-content;
   max-width: 100%;
-  transform: translateX(-50%);
   pointer-events: none;
 }
 .sinal-combate {
@@ -291,6 +314,13 @@
   #screen-batalha.bt-screen .combatente { width: auto !important; }
   #screen-batalha.bt-screen .bt-slot { min-height: 0; max-height: 100%; overflow: hidden; }
   #screen-batalha.bt-screen .bt-slot .combatente > :not(.sprite-wrap):not(.combatente-sinais):not(.status-icones) { max-width: 100%; }
+  /* Aqui a linha de formação sai da arena (display:none), então a linha de
+     sinais volta a ter altura zero e o sinal pende sobre o topo do sprite. */
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais { height: 0; align-items: start; }
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais > .combatente-sinais { height: auto; align-items: flex-start; }
+  /* Card estreito (três inimigos num celular em pé): o "Selecionar" não
+     cabia nos 6px de respiro do estilo inline do botão. */
+  #screen-batalha.bt-screen .bt-slot .combatente .btn-alvo { padding-inline: 2px !important; font-size: .62em !important; }
 }
 
 @media (max-height: 460px) and (orientation: landscape) {
@@ -305,18 +335,20 @@
     height: calc(50% - var(--anuncio-meio) - var(--ctx-alt));
   }
   #screen-batalha.bt-screen .bt-row { gap: 2px; padding-inline: 2px; }
+  /* Altura em px, não min(Npx, 100%): o card do inimigo agora tem a altura do
+     conteúdo (aethra-monumental.css), onde o 100% não resolve e o sprite
+     encolhia à toa. Quem impede o card de passar do slot é o flex-shrink. */
   #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap {
-    width: min(54px, 96%); height: min(54px, 100%);
+    width: min(54px, 96%); height: 54px;
   }
   #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap {
-    width: min(68px, 96%); height: min(68px, 100%);
+    width: min(68px, 96%); height: 68px;
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
-    width: min(66px, 98%); height: min(66px, 100%);
+    width: min(66px, 98%); height: 66px;
     position: relative; bottom: clamp(18px, 5.5dvh, 24px);
     transform: scale(var(--porte, 1));
   }
-  #screen-batalha.bt-screen .combatente-sinais { top: 18px; }
   #screen-batalha.bt-screen .sinal-combate { padding: 1px 4px; font-size: 8px; }
   #screen-batalha.bt-screen .btn-alvo { min-height: 26px; padding-block: 2px !important; }
   #screen-batalha.bt-screen .mao-cards > .carta-batalha { min-height: 72px; }
@@ -335,19 +367,67 @@
   }
   #screen-batalha.bt-screen .bt-row { gap: 2px; padding-inline: 1px; }
   #screen-batalha.bt-screen .bt-row-herois .combatente .sprite-wrap {
-    width: min(82px, 96%); height: min(82px, 100%);
+    width: min(82px, 96%); height: 82px;
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente .sprite-wrap {
-    width: min(66px, 96%); height: min(66px, 100%);
+    width: min(66px, 96%); height: 66px;
   }
   #screen-batalha.bt-screen .bt-row-inimigos .combatente.porte-grande .sprite-wrap {
-    width: min(80px, 98%); height: min(80px, 100%); transform: scale(var(--porte, 1));
+    width: min(80px, 98%); height: 80px; transform: scale(var(--porte, 1));
   }
   #screen-batalha.bt-screen .btn-alvo { min-height: 36px; }
-  #screen-batalha.bt-screen .combatente-sinais { top: 24px; }
   #screen-batalha.bt-screen .mao-cards { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
   #screen-batalha.bt-screen .mao-cards > .carta-batalha {
     flex: 0 0 clamp(104px, 31vw, 132px);
     min-height: 86px;
   }
+}
+
+/* =====================================================================
+ * CELULAR DEITADO — card na horizontal
+ * =====================================================================
+ * Deitado, cada fileira tem só 50–75px de altura, e o card empilhado (nome,
+ * sprite, barras, botão) precisa de ~140px: o slot cortava metade dele e o
+ * herói ficava sem nenhuma barra de vida na tela. Aqui o sprite ocupa a
+ * primeira coluna (altura inteira do card, o que força o resto a quebrar
+ * para a segunda) e nome + barras ficam ao lado. O número de HP e o botão de
+ * alvo saem: a barra mostra a vida e tocar no sprite escolhe o alvo.
+ */
+@media (max-height: 460px) and (orientation: landscape) {
+  #screen-batalha.bt-screen .bt-slot .combatente {
+    height: 100%;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    column-gap: 5px;
+    row-gap: 2px;
+  }
+  #screen-batalha.bt-screen .bt-slot .combatente .sprite-wrap {
+    order: -1;
+    flex: 0 0 100%;
+    height: 100%;
+    min-height: 0;
+    /* respiro para o contorno de "pronto" do canvas, que desce 3px (translateY) */
+    padding-bottom: 5px;
+  }
+  #screen-batalha.bt-screen .bt-slot .combatente > div[style*="0.7em"],
+  #screen-batalha.bt-screen .bt-slot .combatente .btn-alvo { display: none; }
+  #screen-batalha.bt-screen .bt-slot .combatente .barra,
+  #screen-batalha.bt-screen .bt-slot .combatente .postura-barra { height: 8px; }
+  #screen-batalha.bt-screen .bt-slot .combatente .atb-barra { height: 4px; margin-top: 0; }
+  /* O sinal (ALVO, TURNO) sai do fluxo e fica no canto do sprite: na coluna
+     das barras ele cairia em cima da barra de vida. */
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais {
+    position: absolute; top: 2px; left: 2px; height: auto;
+  }
+  /* A mão: o botão de ajustes com 44px de altura fazia o cabeçalho do dock
+     comer 44 dos ~100px, e as cartas (72px) saíam cortadas pela borda da
+     tela. 32px de altura (44 de largura) ainda é um alvo de toque folgado. */
+  #screen-batalha.bt-screen .mao-btn-config { min-height: 32px; height: 32px; }
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha { min-height: 60px; max-height: 64px; }
+  /* Carta deitada: nome, número e o primeiro selo (PODE MATAR, MELHOR
+     JOGADA…). Elemento, custo e o rótulo "DANO" ficavam empilhados acima do
+     número e o empurravam para fora da carta. */
+  #screen-batalha.bt-screen .mao-cards > .carta-batalha :is(.carta-elemento, .carta-custos, .carta-valor-rotulo) { display: none; }
 }

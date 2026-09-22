@@ -71,14 +71,14 @@ export function listarSlots() {
 // quebrar. Cada migração vira uma função NOVA no array MIGRACOES abaixo,
 // nunca uma edição numa já existente — o histórico de migrações fica
 // preservado e legível, igual um changelog.
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 
 // Versão do LAYOUT do mundo. Diferente de saveVersion: esta sobe quando o
 // mapa muda de forma a ponto de uma coordenada antiga não querer dizer mais
 // nada. A ETAPA 2 trocou um mundo de 106x72 com 22 zonas retangulares por um
 // de 224x176 com 48 territórios orgânicos — a posição (30, 50) existia nos
 // dois e apontava para lugares sem nenhuma relação.
-export const LAYOUT_MUNDO = 3;
+export const LAYOUT_MUNDO = 4;
 
 // Mapas que existem hoje. Um `mapaAtual` fora desta lista num save antigo
 // significa mapa removido do jogo: o jogador volta pra superfície em vez de
@@ -290,6 +290,14 @@ const MIGRACOES = [
       if (m.worldStateRegional[chave] === undefined) m.worldStateRegional[chave] = valor;
     });
   },
+  // v6 -> v7: versão carimbada sem migração própria. Até a v7 este array
+  // terminava na v5 -> v6 e o save já saía com saveVersion 7; as migrações
+  // acrescentadas depois caíram um índice antes do lugar. A regra do laço em
+  // migrarSave é MIGRACOES[v] levar um save da versão v para a v + 1 — sem
+  // esta posição, a da malha 4x (v9 -> v10) nunca rodava para um save v9, e o
+  // herói abria na coordenada do mapa 2x, em outro canto do mundo. Vazia de
+  // propósito: só realinha a série (as migrações seguintes são idempotentes).
+  () => {},
   // v7 -> v8: tutorial inicial opcional e repetível. Saves antigos não são
   // interrompidos ao carregar: o estado nasce disponível no menu Mais; só
   // um personagem recém-criado recebe a oferta automática em main.js.
@@ -310,6 +318,26 @@ const MIGRACOES = [
         membro.xpProximo = xpParaNivel(NIVEL_MAXIMO_PERSONAGEM);
       }
     });
+  },
+  // v9 -> v10: a malha dobra nos dois eixos. Mantemos o lugar aproximado
+  // do herói e o estado dos baús/nós; as posições dos objetos são refeitas
+  // pelo gerador no carregamento, com os mesmos ids.
+  //
+  // O fator depende do mapa em que a coordenada foi salva: layout 3 é o mapa
+  // 2x (448x352), então dobra; layout 2 é o desenho-base da ETAPA 2
+  // (224x176), então quadruplica. Números fixos de propósito: esta migração
+  // leva ao mapa 4x, e continua levando mesmo que a escala mude de novo.
+  (salvo) => {
+    const m = salvo.mundo || (salvo.mundo = {});
+    if (m.layoutMundo === LAYOUT_MUNDO) return;
+    const fator = m.layoutMundo === 2 ? 4 : 2;
+    if (m.mapaAtual === "overworld" && m.player) {
+      m.player.x = Math.max(0, Math.min(OVERWORLD_W - 1, Math.round((Number(m.player.x) || 0) * fator)));
+      m.player.y = Math.max(0, Math.min(OVERWORLD_H - 1, Math.round((Number(m.player.y) || 0) * fator)));
+      const zona = zonaNoPonto(m.player.x, m.player.y);
+      if (zona) m.zonaAtualId = zona.id;
+    }
+    m.layoutMundo = LAYOUT_MUNDO;
   },
 ];
 

@@ -121,6 +121,19 @@ function ruidoCoerente(semente, x, y, escala = ESCALA_RUIDO, largura = 256, altu
   return amostrarMalha(malha, x, y);
 }
 
+// Quando o mesmo campo é amostrado centenas de milhares de vezes (terreno e
+// altitude), resolvemos a malha uma vez. Mantém exatamente o mesmo ruído,
+// sem reconstruir chave de cache a cada tile.
+export function amostradorRuidoCoerente(semente, escala = ESCALA_RUIDO, largura = 256, altura = 256) {
+  const chave = `${semente}|${escala}|${largura}x${altura}`;
+  let malha = malhasAvulsas.get(chave);
+  if (!malha) {
+    malha = criarMalha(typeof semente === "number" ? semente : hashTexto(String(semente)), largura, altura, escala);
+    malhasAvulsas.set(chave, malha);
+  }
+  return (x, y) => amostrarMalha(malha, x, y);
+}
+
 // Ângulo próprio de cada zona, derivado do id. Sem isto, todos os vales do
 // mundo apontariam na mesma direção — que é o tipo de repetição que denuncia
 // mapa gerado.

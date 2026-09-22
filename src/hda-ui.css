@@ -837,6 +837,32 @@ img, canvas, svg, video { max-width: 100%; }
    Celular: a árvore ocupa a largura inteira e o painel do nó vira bottom
    sheet (o MESMO elemento, movido — ver TalentTreeUI.js). */
 .caminho-mobile-trilhas { display: none; }
+/* Aparência dos nós das trilhas, em QUALQUER largura. As trilhas nasceram
+   como a versão de celular da árvore e estas regras moravam dentro do
+   @media (max-width: 899px); quando as trilhas viraram a interface em
+   todas as telas (ver TalentTreeUI.js), o computador passou a mostrar os
+   nós sem layout nenhum — nível gigante, nome miúdo. */
+.caminho-mobile-legenda { position: sticky; top: -10px; z-index: 3; display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: -10px -9px 0; padding: 8px; border-bottom: 1px solid rgba(158,117,216,.3); background: rgba(19,15,31,.94); backdrop-filter: blur(8px); }
+.caminho-mobile-legenda span { padding: 4px 7px; border: 1px solid #4d405d; border-radius: 999px; color: #bfb5c9; font-size: .68rem; font-weight: 800; }
+.caminho-mobile-legenda .disponivel { color: #ffd97c; border-color: #d59c32; }
+.caminho-mobile-legenda .escolhido { color: #aef1bd; border-color: #4bb66b; }
+.caminho-mobile-trilha { position: relative; padding: 10px 8px 4px; border: 1px solid rgba(132,92,184,.35); border-radius: 13px; background: linear-gradient(160deg,rgba(50,35,73,.54),rgba(20,17,31,.82)); }
+.caminho-mobile-trilha > h3 { position: sticky; top: 34px; z-index: 2; width: max-content; max-width: 100%; margin: -2px auto 8px; padding: 5px 12px; border: 1px solid #7653a6; border-radius: 999px; background: #251a37; color: #f1ddff; font-size: .78rem; text-align: center; pointer-events: none; }
+.caminho-mobile-nos { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 16px; }
+.caminho-mobile-no { position: relative; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; grid-template-rows: auto auto; align-items: center; gap: 1px 8px; min-width: 0; min-height: 68px; margin: 0; padding: 9px; border: 2px solid #4b4158; border-radius: 12px; background: #1c1826; color: #eee8f4; text-align: left; }
+.caminho-mobile-no::before { content: ""; position: absolute; left: calc(50% - 1px); top: -12px; width: 2px; height: 10px; background: #795fa1; opacity: .72; }
+.caminho-mobile-no:nth-child(-n+2)::before { display: none; }
+.caminho-mobile-no.estado-desbloqueavel { border-color: #e1a53d; box-shadow: 0 0 13px rgba(225,165,61,.18); }
+.caminho-mobile-no.estado-escolhido { border-color: #55c978; background: linear-gradient(140deg,#183b2b,#191927); }
+.caminho-mobile-no.estado-bloqueado { opacity: .62; filter: saturate(.65); }
+.caminho-mobile-no.selecionado { outline: 3px solid #d6b1ff; outline-offset: 2px; }
+.caminho-mobile-nivel { grid-column: 2; color: #d9b75b; font-size: .59rem; font-weight: 900; letter-spacing: .06em; }
+.caminho-mobile-icone { grid-column: 1; grid-row: 1 / 3; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #312541; font-size: 1.42rem; }
+.caminho-mobile-nome { grid-column: 2; grid-row: 2; min-width: 0; overflow-wrap: anywhere; font-size: .76rem; font-weight: 800; line-height: 1.12; }
+.caminho-mobile-estado { grid-column: 3; grid-row: 1 / 3; display: flex; flex-direction: column; align-items: center; color: #c7bdcf; font-size: .88rem; }
+.caminho-mobile-estado small { font-size: .51rem; text-transform: uppercase; }
+.caminho-mobile-no.estado-desbloqueavel .caminho-mobile-estado { color: #ffd05f; }
+.caminho-mobile-no.estado-escolhido .caminho-mobile-estado { color: #8ce9a4; }
 @media (max-width: 899px) {
   #modal-conteudo.arvore-caminhos { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; padding: 8px; border-radius: 0; }
   #modal-conteudo.arvore-caminhos > .fechar { min-height: 42px; flex: 0 0 auto; }
@@ -850,27 +876,6 @@ img, canvas, svg, video { max-width: 100%; }
   #caminho-viewport { min-height: 100%; }
   #svg-arvore { display: none; }
   .caminho-mobile-trilhas { display: grid; gap: 14px; padding: 10px 9px 22px; }
-  .caminho-mobile-legenda { position: sticky; top: -10px; z-index: 3; display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: -10px -9px 0; padding: 8px; border-bottom: 1px solid rgba(158,117,216,.3); background: rgba(19,15,31,.94); backdrop-filter: blur(8px); }
-  .caminho-mobile-legenda span { padding: 4px 7px; border: 1px solid #4d405d; border-radius: 999px; color: #bfb5c9; font-size: .68rem; font-weight: 800; }
-  .caminho-mobile-legenda .disponivel { color: #ffd97c; border-color: #d59c32; }
-  .caminho-mobile-legenda .escolhido { color: #aef1bd; border-color: #4bb66b; }
-  .caminho-mobile-trilha { position: relative; padding: 10px 8px 4px; border: 1px solid rgba(132,92,184,.35); border-radius: 13px; background: linear-gradient(160deg,rgba(50,35,73,.54),rgba(20,17,31,.82)); }
-  .caminho-mobile-trilha > h3 { position: sticky; top: 34px; z-index: 2; width: max-content; max-width: 100%; margin: -2px auto 8px; padding: 5px 12px; border: 1px solid #7653a6; border-radius: 999px; background: #251a37; color: #f1ddff; font-size: .78rem; text-align: center; pointer-events: none; }
-  .caminho-mobile-nos { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 16px; }
-  .caminho-mobile-no { position: relative; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; grid-template-rows: auto auto; align-items: center; gap: 1px 8px; min-width: 0; min-height: 68px; margin: 0; padding: 9px; border: 2px solid #4b4158; border-radius: 12px; background: #1c1826; color: #eee8f4; text-align: left; }
-  .caminho-mobile-no::before { content: ""; position: absolute; left: calc(50% - 1px); top: -12px; width: 2px; height: 10px; background: #795fa1; opacity: .72; }
-  .caminho-mobile-no:nth-child(-n+2)::before { display: none; }
-  .caminho-mobile-no.estado-desbloqueavel { border-color: #e1a53d; box-shadow: 0 0 13px rgba(225,165,61,.18); }
-  .caminho-mobile-no.estado-escolhido { border-color: #55c978; background: linear-gradient(140deg,#183b2b,#191927); }
-  .caminho-mobile-no.estado-bloqueado { opacity: .62; filter: saturate(.65); }
-  .caminho-mobile-no.selecionado { outline: 3px solid #d6b1ff; outline-offset: 2px; }
-  .caminho-mobile-nivel { grid-column: 2; color: #d9b75b; font-size: .59rem; font-weight: 900; letter-spacing: .06em; }
-  .caminho-mobile-icone { grid-column: 1; grid-row: 1 / 3; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #312541; font-size: 1.42rem; }
-  .caminho-mobile-nome { grid-column: 2; grid-row: 2; min-width: 0; overflow-wrap: anywhere; font-size: .76rem; font-weight: 800; line-height: 1.12; }
-  .caminho-mobile-estado { grid-column: 3; grid-row: 1 / 3; display: flex; flex-direction: column; align-items: center; color: #c7bdcf; font-size: .88rem; }
-  .caminho-mobile-estado small { font-size: .51rem; text-transform: uppercase; }
-  .caminho-mobile-no.estado-desbloqueavel .caminho-mobile-estado { color: #ffd05f; }
-  .caminho-mobile-no.estado-escolhido .caminho-mobile-estado { color: #8ce9a4; }
   .hda-sheet:has(#caminho-painel) { max-height: min(72dvh,560px); }
   .hda-sheet:has(#caminho-painel) .hda-sheet-corpo { overflow-y: auto; }
   .hda-sheet:has(#caminho-painel) .painel-no-acao { position: sticky; bottom: 0; padding-top: 8px; background: linear-gradient(0deg,#181320 75%,transparent); }

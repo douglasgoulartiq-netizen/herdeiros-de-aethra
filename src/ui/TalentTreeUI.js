@@ -60,10 +60,11 @@ const CSS_CAMINHO = `
 .caminho-mobile-no.estado-escolhido{background:linear-gradient(135deg,rgba(21,67,45,.86),rgba(24,24,38,.96))!important}
 .caminho-mobile-nome{font-size:.83rem!important;line-height:1.2!important}
 .caminho-mobile-estado small{font-size:.56rem!important}
-#caminho-detalhe.caminho-detalhe-fixo{position:sticky!important;inset:auto!important;top:0!important;z-index:2;align-self:start;width:100%!important;max-height:100%;display:flex;overflow:hidden;border:1px solid #7653a6;border-radius:12px;background:linear-gradient(180deg,#2b1f3d,#17131f);box-shadow:0 10px 28px rgba(0,0,0,.24);animation:none!important}
+#caminho-detalhe.caminho-detalhe-fixo{position:sticky!important;inset:auto!important;top:0!important;z-index:2;align-self:start;width:100%!important;max-height:100%;display:flex;flex-direction:column;overflow:hidden;border:1px solid #7653a6;border-radius:12px;background:linear-gradient(180deg,#2b1f3d,#17131f);box-shadow:0 10px 28px rgba(0,0,0,.24);animation:none!important}
 #caminho-detalhe.caminho-detalhe-fixo[hidden]{display:none!important}
 #caminho-detalhe .hda-fechar{flex:0 0 auto;min-height:36px;margin:0;border-width:0 0 1px;border-radius:0;text-align:center}
-#caminho-detalhe .hda-sheet-corpo{padding:0!important}
+#caminho-detalhe .hda-sheet-corpo{padding:0!important;flex:1 1 auto;min-height:0;overflow:auto}
+@media(min-width:900px){#caminho-detalhe:has(#caminho-painel>.painel-vazio) .hda-fechar{display:none}}
 #caminho-painel{display:block!important;position:static;align-self:start;width:100%!important;max-height:100%;overflow:auto;padding:12px;background:transparent;box-shadow:none}
 #caminho-painel:empty{display:none!important}
 #caminho-painel .painel-no-acao{position:sticky;bottom:0;padding:9px 0 2px;background:linear-gradient(0deg,#17131f 72%,transparent)}

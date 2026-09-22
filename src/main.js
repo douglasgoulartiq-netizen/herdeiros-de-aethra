@@ -11,6 +11,7 @@ import {
 // nó, POI, assentamento, boca de masmorra e chefe saem todos daqui, cada um
 // num tile andável da própria zona. Ver src/systems/WorldBuilder.js.
 import { mundoDaSemente } from "./systems/WorldBuilder.js";
+import { ROTAS_MARITIMAS } from "./data/world/routes.js";
 import { Renderer } from "./render/Renderer.js";
 import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
 import { montarCriacaoPersonagem } from "./ui/CharacterCreationUI.js";
@@ -73,8 +74,8 @@ import {
 } from "./systems/RegionalQuestSystem.js";
 // Cenas: o prólogo (uma vez, em jogo novo) e as aberturas de questline
 // regional (disparadas de dentro do diálogo do NPC, em GameUI.js).
-import { reproduzirCutscene } from "./ui/CutsceneUI.js";
-import { abrirTutorialInicial } from "./ui/TutorialUI.js";
+import { reproduzirCutscene, cutsceneAberta } from "./ui/CutsceneUI.js";
+import { abrirTutorialInicial, tutorialAberto } from "./ui/TutorialUI.js";
 import { melhorRecomendacaoTime, chaveDaRecomendacao } from "./systems/CombatPowerSystem.js";
 import { cutscenePorId } from "./systems/CutsceneSystem.js";
 // Mapas: o minimapa do HUD (arredores, canto superior esquerdo) e o
@@ -812,7 +813,11 @@ function climaAtual() {
   if (mundo.mapaAtual !== "overworld") return null;
   const zona = zonaNoPonto(mundo.player.x, mundo.player.y);
   if (!zona || zona.id === "vila") return null;
-  return climaAtualDaZona(zona.id, Date.now());
+  return climaAtualDaZona(zona.id, Date.now(), altitudeNoPonto(mundo.player.x, mundo.player.y));
+}
+
+function altitudeNoPonto(x, y) {
+  return mundo.gerado?.alturas?.[Math.floor(y) * OVERWORLD_W + Math.floor(x)] || 0;
 }
 
 // Faixa de lugar e ambiente da HUD — chamada ao entrar/trocar de zona e
@@ -914,6 +919,13 @@ function iniciarMundo(jaCarregado = false) {
   // POIs, landmarks, bocas de masmorra, baús, nós, chefes e vagas de NPC.
   mundo.gerado = mundoDaSemente(mundo.semente);
   mundo.grid = mundo.gerado.grid;
+  if (jaCarregado) {
+    // Objetos persistem pelo id, nunca pela coordenada de uma malha antiga.
+    const bausSalvos = new Map((mundo.chests || []).map((c) => [c.id, c]));
+    const nosSalvos = new Map((mundo.nodes || []).map((n) => [n.id, n]));
+    mundo.chests = mundo.gerado.baus.map((c) => ({ ...c, aberto: !!bausSalvos.get(c.id)?.aberto }));
+    mundo.nodes = mundo.gerado.nos.map((n) => ({ ...n, disponivel: nosSalvos.get(n.id)?.disponivel ?? true }));
+  }
   // Arte das construções (casa, templo). Vem do mundo gerado, não do save: é
   // função da semente, igual à grade. Nenhum save antigo precisa migrar — quem
   // carregar uma partida velha recebe os prédios junto com o mesmo mapa que
@@ -1649,7 +1661,7 @@ function verificarMudancaDeZona(x, y) {
     const macro = macroDaZona(zona.id);
     const entrouEmMacro = macro && macro.id !== mundo.macroAtualId && !macro.derivado;
     if (macro) mundo.macroAtualId = macro.id;
-    const clima = zona.id === "vila" ? null : climaAtualDaZona(zona.id, Date.now());
+    const clima = zona.id === "vila" ? null : climaAtualDaZona(zona.id, Date.now(), altitudeNoPonto(x, y));
     // Uma mensagem só: mostrarMensagem() substitui a anterior na hora, então
     // duas chamadas seguidas fariam a primeira nunca ser lida.
     const texto = [
@@ -2344,7 +2356,24 @@ function abrirViagemRapida() {
   // jogador saber que o mapa continua.
   const todos = (mundo.gerado ? mundo.gerado.assentamentos : []).filter((a) => a.viagemRapida);
   const destinos = pontosDeViagemDisponiveis(personagem, mundo.gerado ? mundo.gerado.assentamentos : [], (z) => estadoDaZona(personagem, z));
-  montarViagemRapida(personagem, destinos, mundo.zonaAtualId, (id) => viajarParaPonto(id), todos.length - destinos.length);
+  const assentamentos = mundo.gerado?.assentamentos || [];
+  const barcos = ROTAS_MARITIMAS.flatMap((rota) => [
+    { origemId: rota.de, destinoId: rota.para },
+    { origemId: rota.para, destinoId: rota.de },
+  ].map((sentido) => {
+    const origem = assentamentos.find((a) => a.id === sentido.origemId);
+    const destino = assentamentos.find((a) => a.id === sentido.destinoId);
+    if (!origem || !destino || Math.hypot(mundo.player.x - origem.x, mundo.player.y - origem.y) > origem.raio + 4) return null;
+    return { ...rota, origem: origem.nome, destino: destino.nome, destinoId: destino.id };
+  }).filter(Boolean));
+  montarViagemRapida(personagem, destinos, mundo.zonaAtualId, (id) => viajarParaPonto(id), todos.length - destinos.length,
+    barcos, (rota) => {
+      if (personagem.ouro < rota.custo) { mostrarMensagem(`Faltam ${rota.custo - personagem.ouro} moedas para a travessia.`, 3200); return; }
+      personagem.ouro -= rota.custo;
+      viajarParaPonto(rota.destinoId);
+      atualizarInterfacePrincipal();
+      mostrarMensagem(`⛵ ${rota.nome}: chegada a ${rota.destino}. −${rota.custo} moedas.`, 3600);
+    });
 }
 
 // Atlas do Mapa-Múndi (mitologia): mesma restrição da viagem rápida — só
@@ -2373,7 +2402,7 @@ function abrirPainelEstado() {
   const nivelZona = zona ? faixaDeNivel(zona) : null;
   montarPainelEstado(personagem, dados, {
     time: [personagem, ...membrosDoTime(personagem)],
-    clima: climaAtualDaZona(mundo.zonaAtualId, Date.now()),
+    clima: climaAtualDaZona(mundo.zonaAtualId, Date.now(), altitudeNoPonto(mundo.player.x, mundo.player.y)),
     hora: horaDoDiaAtual(Date.now()),
     zonaNome: zona ? zona.nome : null,
     zonaNivel: nivelZona ? nivelZona.texto : null,
@@ -2448,6 +2477,17 @@ function viajarParaZona(zonaId) {
 let intervaloAuto = null;
 let direcaoAuto = null;
 let ultimoNpcInteragido = null;
+// NPCs com quem o automático conversou há pouco. A trava de um NPC só
+// (`ultimoNpcInteragido`) não bastava na praça da vila, onde o herói nasce
+// cercado de 4–6 NPCs: ele falava com A, depois B, e A voltava a valer —
+// um rodízio sem fim, sem nunca sair da vila. Cada NPC agora espera
+// ESPERA_NPC_AUTO_MS antes de voltar a ser alvo do automático.
+const npcsConversadosAuto = new Map();
+const ESPERA_NPC_AUTO_MS = 90000;
+const npcConversadoHaPouco = (id) => {
+  const quando = npcsConversadosAuto.get(id);
+  return quando !== undefined && Date.now() - quando < ESPERA_NPC_AUTO_MS;
+};
 let ligadoAutoEm = null; // item 22 de 100_melhorias.md: timestamp de quando o automático ligou
 
 function alternarModoAutomatico() {
@@ -2563,6 +2603,21 @@ function autoPlayDevePararPorHpBaixo() {
 
 function tickAutoPlay() {
   if (!autoPlayState.ativo || !personagem) return;
+  // Cena de história e tutorial são leitura: o automático espera o jogador
+  // terminar. Sem esta trava ele seguia andando, aceitando diálogos e até
+  // entrando em luta POR BAIXO da cena, que continuava aberta por cima de tudo.
+  if (cutsceneAberta()) {
+    // Com o automático ligado, a cena liga o avanço automático DELA (uma vez
+    // por cena: se o jogador desligar, fica desligado). Cena com decisão para
+    // na escolha — decidir continua sendo do jogador.
+    const btnAutoCena = document.getElementById("cutscene-auto");
+    if (btnAutoCena && !btnAutoCena.dataset.ligadoPeloAuto) {
+      btnAutoCena.dataset.ligadoPeloAuto = "1";
+      if (btnAutoCena.getAttribute("aria-pressed") !== "true") btnAutoCena.click();
+    }
+    return;
+  }
+  if (tutorialAberto()) return;
   if (document.body.classList.contains("desafio-encontro-ativo") || document.querySelector(".rolagem-camada")) return;
   const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
   if (emBatalha) return; // a própria batalha se resolve sozinha (ver BattleUI.js)
@@ -2687,8 +2742,9 @@ function tickAutoPlay() {
     // com o mesmo NPC em vez de seguir explorando. Só conversa de novo depois
     // de se afastar (o alvo deixa de ser encontrado e a trava é liberada).
     if (alvo.tipo === "npc") {
-      if (alvo.ref.id === ultimoNpcInteragido) { autoAndar(); return; }
+      if (alvo.ref.id === ultimoNpcInteragido || npcConversadoHaPouco(alvo.ref.id)) { autoAndar(); return; }
       ultimoNpcInteragido = alvo.ref.id;
+      npcsConversadosAuto.set(alvo.ref.id, Date.now());
     } else {
       ultimoNpcInteragido = null;
     }
@@ -2720,6 +2776,10 @@ function masmorraTemAlgoAFazer(id, m) {
   if (baus.some((c) => !c.aberto)) return true;
   return chefeDaMasmorraDisponivel(m) && !pararAutoAntesDoChefe() && !chefeMortalDemais(m.boss);
 }
+
+// Quantos níveis acima do herói uma zona pode estar para o automático ir até
+// ela sozinho (ver o filtro no fim da parte do mundo aberto, abaixo).
+const FOLGA_NIVEL_AUTO = 3;
 
 function alvosAutoExploracao({ somenteExploracao = false } = {}) {
   const alvos = [];
@@ -2770,10 +2830,23 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
     // posições vêm das vagas que o gerador abriu na praça da vila.
     const vagasAuto = (mundo.gerado && mundo.gerado.vagasNpc) || [];
     dados.npcs.forEach((n, i) => {
-      if (n.id === ultimoNpcInteragido) return;
+      if (n.id === ultimoNpcInteragido || npcConversadoHaPouco(n.id)) return;
       const pos = vagasAuto[i % Math.max(1, vagasAuto.length)];
       if (pos) alvos.push({ x: pos.x, y: pos.y, tipo: "npc", prioridade: PRIORIDADE.npc });
     });
+    // O automático não leva o time para zona muito acima do nível dele. Sem
+    // este filtro, um herói nível 1 ia em ~2 minutos atrás de baú e de lugar
+    // novo até zonas Nv. 13–15 — e morria lá. Alvo em zona cujo perigo mínimo
+    // passa do nível do herói + FOLGA_NIVEL_AUTO fica de fora e volta a valer
+    // quando o time sobe. Descanso e NPC ficam sempre (são a saída do perigo).
+    const tetoDeNivel = (personagem?.nivel || 1) + FOLGA_NIVEL_AUTO;
+    const perigoMinimo = (alvo) => {
+      const z = alvo.zonaId ? ZONAS.find((zz) => zz.id === alvo.zonaId) : zonaNoPonto(alvo.x, alvo.y);
+      return z && Array.isArray(z.perigo) ? z.perigo[0] : 0;
+    };
+    const dentroDoNivel = alvos.filter((alvo) => alvo.tipo === "descanso" || alvo.tipo === "npc" || perigoMinimo(alvo) <= tetoDeNivel);
+    alvos.length = 0;
+    alvos.push(...dentroDoNivel);
   } else {
     const m = MASMORRAS[mundo.mapaAtual];
     if (!m) return alvos;

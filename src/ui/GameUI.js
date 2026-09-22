@@ -950,6 +950,16 @@ export function montarMissoes(personagem, dados) {
         <button type="button" class="missao-ver-mapa primario">🗺️ Ver no mapa</button>
         <button type="button" class="missao-parar-rastro">Parar de rastrear</button>
       </div>`;
+  } else if (proximoPassoAltaverde(personagem).passo) {
+    // Sem missão rastreada, mas com a Jornada de Altaverde em andamento. O
+    // cabeçalho dizia "Sem objetivo rastreado" com o próximo passo da Jornada
+    // escrito logo abaixo — quem está começando o jogo tem, sim, um objetivo.
+    const jornadaAtual = proximoPassoAltaverde(personagem);
+    resumo.className = "missao-rastreada-resumo ativa";
+    resumo.innerHTML = `
+      <span class="missao-rastreada-selo">✦ PRÓXIMO PASSO DA JORNADA</span>
+      <h3>Jornada de Altaverde · ${jornadaAtual.concluidos}/${jornadaAtual.total}</h3>
+      <p class="missao-objetivo-destaque"><span aria-hidden="true">◎</span><span><small>Objetivo atual</small>${jornadaAtual.orientacao}</span></p>`;
   } else {
     resumo.innerHTML = `
       <span class="missao-rastreada-selo">◇ SEM OBJETIVO RASTREADO</span>
@@ -1326,7 +1336,7 @@ export function montarForja(personagem, dados, onMudar, aba = "criar") {
 const ICONE_DESTINO = { CAPITAL: "🏛️", CIDADE: "🏰", VILA: "🏘️", ASSENTAMENTO: "⛺", ACAMPAMENTO: "🔥" };
 const ROTULO_DESTINO = { CAPITAL: "capital", CIDADE: "cidade", VILA: "vila", ASSENTAMENTO: "assentamento", ACAMPAMENTO: "acampamento" };
 
-export function montarViagemRapida(personagem, destinos, zonaAtualId, onViajar, bloqueados = 0) {
+export function montarViagemRapida(personagem, destinos, zonaAtualId, onViajar, bloqueados = 0, barcos = [], onBarco = null) {
   const tela = abrirTela({ titulo: "🧭 Viagem Rápida", largura: LARGURA.media });
   const corpo = tela.corpo;
   const intro = document.createElement("p");
@@ -1369,6 +1379,21 @@ export function montarViagemRapida(personagem, destinos, zonaAtualId, onViajar, 
     det.className = "hda-recolhido";
     det.innerHTML = `<summary>${naoVisitadas.length} lugar(es) ainda por descobrir</summary><p class="desc">Chegue a pé para liberar cada um: ${naoVisitadas.map(() => "???").join(" · ")}</p>`;
     corpo.appendChild(det);
+  }
+  if (barcos.length && onBarco) {
+    const travessias = document.createElement("section");
+    travessias.className = "viagem-travessias";
+    travessias.innerHTML = "<h3>⛵ Travessias marítimas</h3><p class=\"desc\">Partida do porto onde você está; ilhas não têm estrada de acesso.</p>";
+    for (const rota of barcos) {
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.textContent = `${rota.destino} · 🪙 ${rota.custo}`;
+      botao.disabled = personagem.ouro < rota.custo;
+      botao.title = botao.disabled ? "Moedas insuficientes para a passagem" : `${rota.nome}, saindo de ${rota.origem}`;
+      botao.onclick = () => onBarco(rota);
+      travessias.appendChild(botao);
+    }
+    corpo.appendChild(travessias);
   }
   tela.definirAcoes([], `${visitadas} de ${visitadas + naoVisitadas.length} lugares descobertos`);
 }

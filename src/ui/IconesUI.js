@@ -12,7 +12,7 @@ const SELETORES = [
   ".status-mais",
   ".intencao-chip",
   ".tl-chip",
-  ".companhia-selos span",
+  ".companhia-selos > span",
   ".tela-party .nome",
   ".gacha-conteudo .nome",
   ".tela-gacha .nome",
@@ -63,7 +63,9 @@ function envolverIconeInicial(el) {
 }
 
 function aprimorar(el) {
-  if (!(el instanceof HTMLElement) || el.dataset.hdaIconeOk === "1") return;
+  // A moldura também é um <span>. Nunca processá-la de novo: seletores
+  // amplos de outras telas poderiam criar uma corrente infinita de ícones.
+  if (!(el instanceof HTMLElement) || el.classList.contains("hda-icone") || el.dataset.hdaIconeOk === "1") return;
   envolverIconeInicial(el);
 
   const texto = el.textContent.trim();

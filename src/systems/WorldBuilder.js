@@ -30,7 +30,7 @@ import {
 } from "../data/worldMap.js";
 import { ZONAS_MUNDO } from "../data/world/zones.js";
 import { identidadeDaRegiao } from "../data/world/regionIdentity.js";
-import { mapaDePosse, resumoDasZonas, ruidoCoerente } from "../data/world/WorldLayout.js";
+import { mapaDePosse, resumoDasZonas, ruidoCoerente, amostradorRuidoCoerente } from "../data/world/WorldLayout.js";
 import { ASSENTAMENTOS, CATEGORIAS, POIS, LANDMARKS, MASMORRAS_MUNDO } from "../data/world/settlements.js";
 import { ESTRADAS_PRINCIPAIS, CAMINHOS_SECRETOS, RIOS, NIVEIS_ESTRADA } from "../data/world/routes.js";
 import { prngDe, hashTexto, embaralhar } from "./WorldSeed.js";
@@ -46,38 +46,56 @@ const dentro = (x, y) => x >= 0 && y >= 0 && x < W && y < H;
 // inteiro a cada passo — o que, com 66 estradas, seriam alguns segundos de
 // tela parada.
 // ---------------------------------------------------------------------------
+//
+// Guardada em dois arrays tipados em vez de um objeto {no, prioridade} por
+// entrada: com o mundo 4x maior a busca de estrada inseria milhões de objetos
+// e o coletor de lixo virava parte do tempo de carregamento. As comparações e
+// as trocas são exatamente as mesmas da versão com objetos, então a ordem de
+// saída — e com ela o traçado de cada estrada — não muda.
 class FilaMinima {
-  constructor() { this.itens = []; }
-  get tamanho() { return this.itens.length; }
+  constructor() {
+    this.nos = new Int32Array(1024);
+    this.pri = new Float64Array(1024);
+    this.n = 0;
+  }
+  get tamanho() { return this.n; }
+  crescer() {
+    const nos = new Int32Array(this.nos.length * 2); nos.set(this.nos); this.nos = nos;
+    const pri = new Float64Array(this.pri.length * 2); pri.set(this.pri); this.pri = pri;
+  }
   inserir(no, prioridade) {
-    const it = this.itens;
-    it.push({ no, prioridade });
-    let i = it.length - 1;
+    if (this.n === this.nos.length) this.crescer();
+    const nos = this.nos; const pri = this.pri;
+    let i = this.n++;
+    nos[i] = no; pri[i] = prioridade;
     while (i > 0) {
       const pai = (i - 1) >> 1;
-      if (it[pai].prioridade <= it[i].prioridade) break;
-      const t = it[pai]; it[pai] = it[i]; it[i] = t;
+      if (pri[pai] <= pri[i]) break;
+      const tn = nos[pai]; nos[pai] = nos[i]; nos[i] = tn;
+      const tp = pri[pai]; pri[pai] = pri[i]; pri[i] = tp;
       i = pai;
     }
   }
   retirar() {
-    const it = this.itens;
-    const topo = it[0];
-    const ultimo = it.pop();
-    if (it.length) {
-      it[0] = ultimo;
+    const nos = this.nos; const pri = this.pri;
+    const topo = nos[0];
+    this.n -= 1;
+    const n = this.n;
+    if (n) {
+      nos[0] = nos[n]; pri[0] = pri[n];
       let i = 0;
       for (;;) {
         const e = i * 2 + 1; const d = e + 1;
         let menor = i;
-        if (e < it.length && it[e].prioridade < it[menor].prioridade) menor = e;
-        if (d < it.length && it[d].prioridade < it[menor].prioridade) menor = d;
+        if (e < n && pri[e] < pri[menor]) menor = e;
+        if (d < n && pri[d] < pri[menor]) menor = d;
         if (menor === i) break;
-        const t = it[menor]; it[menor] = it[i]; it[i] = t;
+        const tn = nos[menor]; nos[menor] = nos[i]; nos[i] = tn;
+        const tp = pri[menor]; pri[menor] = pri[i]; pri[i] = tp;
         i = menor;
       }
     }
-    return topo.no;
+    return topo;
   }
 }
 
@@ -141,8 +159,22 @@ function pintarTerreno(g, semente, posse, zonas) {
   // Uma malha de ruído por zona, com a semente do MUNDO misturada: a forma do
   // território é canônica, mas onde exatamente cai cada árvore muda de semente
   // para semente.
-  const ruido = (zonaId, camada, x, y, escala) =>
-    ruidoCoerente(hashTexto(`${semente}:${zonaId}:${camada}`), x, y, escala, W, H);
+  // Cache em três níveis (zona → camada → escala) em vez de uma chave de
+  // texto montada a cada consulta: o terreno faz ~2 milhões delas no mundo 4x.
+  const sementesRuido = new Map();
+  const amostradorDe = (zonaId, camada, escala) => {
+    let porCamada = sementesRuido.get(zonaId);
+    if (!porCamada) { porCamada = new Map(); sementesRuido.set(zonaId, porCamada); }
+    let porEscala = porCamada.get(camada);
+    if (!porEscala) { porEscala = new Map(); porCamada.set(camada, porEscala); }
+    let amostrar = porEscala.get(escala);
+    if (!amostrar) {
+      amostrar = amostradorRuidoCoerente(hashTexto(`${semente}:${zonaId}:${camada}`), escala, W, H);
+      porEscala.set(escala, amostrar);
+    }
+    return amostrar;
+  };
+  const ruido = (zonaId, camada, x, y, escala) => amostradorDe(zonaId, camada, escala)(x, y);
 
   // Amostra de tiles REAIS de cada zona, para a calibragem de densidade saber
   // de que pedaço do campo de ruído está falando. Passo 3 nos dois eixos:
@@ -157,12 +189,22 @@ function pintarTerreno(g, semente, posse, zonas) {
     }
   }
 
+  const perfis = zonas.map((z, zi) => {
+    const ident = identidadeDaRegiao(z.regiaoId);
+    const pontos = amostrasDaZona.get(zi) || null;
+    const limiares = ident.mistura.map(([, densidade], c) =>
+      limiarDeDensidade(`${semente}:${z.id}:mix${c}`,
+        (px, py) => ruido(z.id, `mix${c}`, px, py, 7), densidade, pontos));
+    // Um amostrador por camada de mistura, resolvido antes do laço de tiles.
+    const misturas = ident.mistura.map((_, c) => amostradorDe(z.id, `mix${c}`, 7));
+    return { ident, pontos, limiares, misturas };
+  });
+
   for (let y = 0; y < H; y += 1) {
     for (let x = 0; x < W; x += 1) {
       const zi = posse[idx(x, y)];
       const z = zonas[zi];
-      const amostras = amostrasDaZona.get(zi) || null;
-      const ident = identidadeDaRegiao(z.regiaoId);
+      const { ident, pontos: amostras, limiares, misturas } = perfis[zi];
       let tile = ident.chao;
 
       // Mistura da região: manchas coerentes, não chuvisco. Ruído suave
@@ -173,10 +215,9 @@ function pintarTerreno(g, semente, posse, zonas) {
       // 10% dos tiles daquela zona, e não "algum número menor que ninguém
       // mediu".
       for (let c = 0; c < ident.mistura.length; c += 1) {
-        const [tileMistura, densidade] = ident.mistura[c];
-        const chave = `${semente}:${z.id}:mix${c}`;
-        const limiar = limiarDeDensidade(chave, (px, py) => ruido(z.id, `mix${c}`, px, py, 7), densidade, amostras);
-        if (ruido(z.id, `mix${c}`, x, y, 7) < limiar) tile = tileMistura;
+        const [tileMistura] = ident.mistura[c];
+        const limiar = limiares[c];
+        if (misturas[c](x, y) < limiar) tile = tileMistura;
       }
 
       // Forma da zona: a diferença entre um cânion e uma planície de mesma
@@ -324,6 +365,34 @@ function desenharOceano(g, semente) {
     const leste = 3 + Math.round((ruido("l", y) + 1) * 3);
     for (let x = 0; x < oeste; x += 1) g[y][x] = x < oeste - 1 ? TILE.DEEP_WATER : TILE.WATER;
     for (let x = W - leste; x < W; x += 1) g[y][x] = x > W - leste ? TILE.DEEP_WATER : TILE.WATER;
+  }
+}
+
+// Corallia é um arquipélago, não uma península ligada por uma estrada
+// invisível. A faixa marítima acompanha a fronteira orgânica das zonas do
+// recife; uma expansão do mundo não a transforma numa linha reta artificial.
+function isolarArquipelagoCoral(g, posse) {
+  const ilha = new Uint8Array(W * H);
+  const distancia = new Uint8Array(W * H);
+  const fila = new Int32Array(W * H);
+  let fim = 0;
+  for (let i = 0; i < ilha.length; i += 1) {
+    if (ZONAS_MUNDO[posse[i]]?.regiaoId !== "recife_coralino") continue;
+    ilha[i] = 1;
+    fila[fim++] = i;
+  }
+  for (let inicio = 0; inicio < fim; inicio += 1) {
+    const i = fila[inicio];
+    const x = i % W; const y = (i - x) / W;
+    if (distancia[i] >= 7) continue;
+    for (const [nx, ny] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+      if (!dentro(nx, ny)) continue;
+      const j = idx(nx, ny);
+      if (ilha[j] || distancia[j]) continue;
+      distancia[j] = distancia[i] + 1;
+      fila[fim++] = j;
+      g[ny][nx] = distancia[j] <= 2 ? TILE.WATER : TILE.DEEP_WATER;
+    }
   }
 }
 
@@ -1028,7 +1097,9 @@ const AMPLITUDE_RELEVO = 4.0;
 const ESCALA_RELEVO = 14;
 function relevoDeCusto(semente) {
   const hash = hashTexto(`${semente}:relevo-de-estrada`);
-  const bruto = (x, y) => ruidoCoerente(hash, x, y, ESCALA_RELEVO, W, H);
+  // Amostrador resolvido uma vez: `ruidoCoerente` montava uma chave de texto
+  // por consulta, e o A* consulta o mesmo tile várias vezes por estrada.
+  const bruto = amostradorRuidoCoerente(hash, ESCALA_RELEVO, W, H);
   // NORMALIZAÇÃO — sem ela o relevo não existe.
   //
   // Primeira versão: `(ruido + 1) * 0.5 * amplitude`, assumindo ruído em
@@ -1046,19 +1117,48 @@ function relevoDeCusto(semente) {
   const baixo = amostras[Math.floor(amostras.length * 0.05)];
   const alto = amostras[Math.floor(amostras.length * 0.95)];
   const faixa = Math.max(1e-6, alto - baixo);
+  // Memória por tile (Float64, o mesmo valor exato que seria recalculado): as
+  // dezenas de estradas do mundo passam pelos mesmos corredores.
+  const memoria = new Float64Array(W * H).fill(NaN);
   return (x, y) => {
+    const i = y * W + x;
+    const guardado = memoria[i];
+    if (guardado === guardado) return guardado;
     const t = Math.min(1, Math.max(0, (bruto(x, y) - baixo) / faixa));
-    return t * AMPLITUDE_RELEVO;
+    const valor = t * AMPLITUDE_RELEVO;
+    memoria[i] = valor;
+    return valor;
   };
 }
 
+// Buffers da busca, reaproveitados entre as dezenas de estradas do mundo. Um
+// carimbo de "rodada" diz se o custo guardado vale para a busca atual; assim
+// nenhuma chamada precisa preencher 600 mil posições antes de começar.
+let buscaCusto = null;
+let buscaAnterior = null;
+let buscaCarimbo = null;
+let buscaRodada = 0;
+// Tiles em que o relevo de custo se aplica (terreno aberto): tabela em vez de
+// duas consultas a Set por vizinho visitado.
+const ABERTO_PARA_RELEVO = new Uint8Array(256);
+for (let t = 0; t < 256; t += 1) ABERTO_PARA_RELEVO[t] = (!SOLID_TILES.has(t) && !TILES_AGUA.has(t)) ? 1 : 0;
+
 function buscarCaminho(g, inicio, fim, custoBarreira, larguraAgua, relevo = null) {
-  const custoAte = new Float32Array(W * H).fill(Infinity);
-  const anterior = new Int32Array(W * H).fill(-1);
+  if (!buscaCusto || buscaCusto.length !== W * H) {
+    buscaCusto = new Float32Array(W * H);
+    buscaAnterior = new Int32Array(W * H);
+    buscaCarimbo = new Uint32Array(W * H);
+    buscaRodada = 0;
+  }
+  buscaRodada += 1;
+  if (buscaRodada >= 0xFFFFFFFF) { buscaCarimbo.fill(0); buscaRodada = 1; }
+  const rodada = buscaRodada;
+  const custoGuardado = buscaCusto; const carimbo = buscaCarimbo; const anterior = buscaAnterior;
+  const custoDe = (i) => (carimbo[i] === rodada ? custoGuardado[i] : Infinity);
   const fila = new FilaMinima();
   const iIni = idx(inicio.x, inicio.y);
   const iFim = idx(fim.x, fim.y);
-  custoAte[iIni] = 0;
+  custoGuardado[iIni] = 0; carimbo[iIni] = rodada; anterior[iIni] = -1;
   fila.inserir(iIni, 0);
   const h = (i) => {
     const x = i % W; const y = (i - x) / W;
@@ -1068,23 +1168,24 @@ function buscarCaminho(g, inicio, fim, custoBarreira, larguraAgua, relevo = null
     const atual = fila.retirar();
     if (atual === iFim) break;
     const x = atual % W; const y = (atual - x) / W;
-    const base = custoAte[atual];
+    const base = custoGuardado[atual];
     for (let d = 0; d < 4; d += 1) {
       const nx = x + (d === 0 ? 1 : d === 1 ? -1 : 0);
       const ny = y + (d === 2 ? 1 : d === 3 ? -1 : 0);
       if (!dentro(nx, ny)) continue;
       const vizinho = idx(nx, ny);
-      let novo = base + custoDoTile(g[ny][nx], custoBarreira, larguraAgua ? larguraAgua[vizinho] : 1);
+      const tile = g[ny][nx];
+      let novo = base + custoDoTile(tile, custoBarreira, larguraAgua ? larguraAgua[vizinho] : 1);
       // Só o terreno aberto ganha relevo: encarecer rocha ou água já caras
       // não muda decisão nenhuma e só deixaria a busca mais lenta.
-      if (relevo && !SOLID_TILES.has(g[ny][nx]) && !TILES_AGUA.has(g[ny][nx])) novo += relevo(nx, ny);
-      if (novo >= custoAte[vizinho]) continue;
-      custoAte[vizinho] = novo;
+      if (relevo && ABERTO_PARA_RELEVO[tile]) novo += relevo(nx, ny);
+      if (novo >= custoDe(vizinho)) continue;
+      custoGuardado[vizinho] = novo; carimbo[vizinho] = rodada;
       anterior[vizinho] = atual;
       fila.inserir(vizinho, novo + h(vizinho));
     }
   }
-  if (custoAte[iFim] === Infinity) return null;
+  if (custoDe(iFim) === Infinity) return null;
   const caminho = [];
   let cur = iFim;
   while (cur !== -1) {
@@ -1196,7 +1297,11 @@ function alturaBaseDaRegiao(ident) {
 
 function gerarMapaDeAlturas(g, posse, zonas, semente, assentamentos, tracados) {
   const alturas = new Uint8Array(W * H);
-  const ruido = (x, y) => ruidoCoerente(hashTexto(`${semente}:altitude-real`), x, y, 24, W, H);
+  // A versão anterior calculava o hash da semente e montava a chave do ruído
+  // DUAS vezes por tile. Mesmo campo, resolvido uma vez.
+  const ruido = amostradorRuidoCoerente(hashTexto(`${semente}:altitude-real`), 24, W, H);
+  // Altura-base por zona: depende só da região, não do tile.
+  const basePorZona = zonas.map((zona) => alturaBaseDaRegiao(identidadeDaRegiao(zona?.regiaoId)));
 
   for (let y = 0; y < H; y += 1) {
     for (let x = 0; x < W; x += 1) {
@@ -1205,14 +1310,14 @@ function gerarMapaDeAlturas(g, posse, zonas, semente, assentamentos, tracados) {
         alturas[idx(x, y)] = 0;
         continue;
       }
-      const zona = zonas[posse[idx(x, y)]];
-      const ident = identidadeDaRegiao(zona?.regiaoId);
-      let h = alturaBaseDaRegiao(ident);
+      const zi = posse[idx(x, y)];
+      let h = zonas[zi] ? basePorZona[zi] : alturaBaseDaRegiao(identidadeDaRegiao(undefined));
       if (tile === TILE.SAND || tile === TILE.MARSH) h = Math.min(h, 1);
       if (tile === TILE.ICE) h = Math.max(h, 5);
-      if ([TILE.WALL, TILE.CRYSTAL, TILE.LAVA].includes(tile)) h += 1;
-      if (ruido(x, y) > 0.24) h += 1;
-      if (ruido(x, y) < -0.28) h -= 1;
+      if (tile === TILE.WALL || tile === TILE.CRYSTAL || tile === TILE.LAVA) h += 1;
+      const r = ruido(x, y);
+      if (r > 0.24) h += 1;
+      if (r < -0.28) h -= 1;
       alturas[idx(x, y)] = Math.max(0, Math.min(ALTURA_MAXIMA_MUNDO, h));
     }
   }
@@ -1230,11 +1335,13 @@ function gerarMapaDeAlturas(g, posse, zonas, semente, assentamentos, tracados) {
       for (let y = y0; y !== yFim; y += sy) for (let x = x0; x !== xFim; x += sx) {
         const i = idx(x, y);
         if (TILES_AGUA.has(g[y][x])) continue;
+        // Os quatro vizinhos sem criar um array por tile (eram cinco
+        // alocações por tile, em até dezesseis varreduras do mapa).
         let teto = ALTURA_MAXIMA_MUNDO;
-        for (const [nx, ny] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
-          if (!dentro(nx, ny)) continue;
-          teto = Math.min(teto, alturas[idx(nx, ny)] + 1);
-        }
+        if (x > 0) teto = Math.min(teto, alturas[i - 1] + 1);
+        if (x < W - 1) teto = Math.min(teto, alturas[i + 1] + 1);
+        if (y > 0) teto = Math.min(teto, alturas[i - W] + 1);
+        if (y < H - 1) teto = Math.min(teto, alturas[i + W] + 1);
         if (alturas[i] > teto) { alturas[i] = teto; mudou = true; }
       }
     }
@@ -1313,12 +1420,12 @@ function gerarMapaDeAlturas(g, posse, zonas, semente, assentamentos, tracados) {
         const ia = idx(a.x, a.y); const ib = idx(b.x, b.y);
         const ha = alturas[ia]; const hb = alturas[ib];
         if (ha > hb + 1) {
-          if (ancoras.has(ia)) alturas[ib] = ha - 1;
-          else alturas[ia] = hb + 1;
+          if (ancoras.has(ib)) alturas[ia] = hb + 1;
+          else alturas[ib] = ha - 1;
           mudou = true;
         } else if (hb > ha + 1) {
-          if (ancoras.has(ib)) alturas[ia] = hb - 1;
-          else alturas[ib] = ha + 1;
+          if (ancoras.has(ia)) alturas[ib] = ha + 1;
+          else alturas[ia] = hb - 1;
           mudou = true;
         }
       }
@@ -1386,21 +1493,59 @@ function tileAndavelNaZona(g, posse, zonaIndice, alvo, rnd, ocupados) {
 // ---------------------------------------------------------------------------
 // 8. ACESSO — nada pode ficar inalcançável
 // ---------------------------------------------------------------------------
-function componenteAndavel(g, origem) {
-  const visto = new Uint8Array(W * H);
-  const fila = [idx(origem.x, origem.y)];
-  visto[fila[0]] = 1;
-  for (let i = 0; i < fila.length; i += 1) {
+// Tiles sólidos em tabela: a inundação consulta um por vizinho visitado.
+const SOLIDO = new Uint8Array(256);
+for (let t = 0; t < 256; t += 1) SOLIDO[t] = SOLID_TILES.has(t) ? 1 : 0;
+
+// Espalha `visto` a partir das posições em `sementes` por todo tile andável
+// ainda não visto. Fila em array tipado: no mundo 4x a componente principal
+// passa de 400 mil tiles.
+function inundar(g, visto, sementes) {
+  const fila = new Int32Array(W * H);
+  let fim = 0;
+  for (const s of sementes) fila[fim++] = s;
+  for (let i = 0; i < fim; i += 1) {
     const p = fila[i]; const x = p % W; const y = (p - x) / W;
     for (let d = 0; d < 4; d += 1) {
       const nx = x + (d === 0 ? 1 : d === 1 ? -1 : 0);
       const ny = y + (d === 2 ? 1 : d === 3 ? -1 : 0);
-      if (!dentro(nx, ny) || visto[idx(nx, ny)] || SOLID_TILES.has(g[ny][nx])) continue;
+      if (!dentro(nx, ny) || visto[idx(nx, ny)] || SOLIDO[g[ny][nx]]) continue;
       visto[idx(nx, ny)] = 1;
-      fila.push(idx(nx, ny));
+      fila[fim++] = idx(nx, ny);
     }
   }
   return visto;
+}
+
+function componenteAndavel(g, origem) {
+  const visto = new Uint8Array(W * H);
+  const inicio = idx(origem.x, origem.y);
+  visto[inicio] = 1;
+  return inundar(g, visto, [inicio]);
+}
+
+// O tile alcançável mais próximo do alvo em distância de Manhattan. Em caso de
+// empate vence o que vem primeiro na leitura linha a linha — o MESMO critério
+// da varredura do mapa inteiro que isto substitui, só que andando em anéis a
+// partir do alvo em vez de percorrer 600 mil tiles por alvo.
+function alcancavelMaisProximo(visto, alvo) {
+  const maxD = W + H;
+  for (let d = 0; d <= maxD; d += 1) {
+    let melhorI = -1;
+    for (let dy = -d; dy <= d; dy += 1) {
+      const y = alvo.y + dy;
+      if (y < 0 || y >= H) continue;
+      const dx = d - Math.abs(dy);
+      const xs = dx === 0 ? [alvo.x] : [alvo.x - dx, alvo.x + dx];
+      for (const x of xs) {
+        if (x < 0 || x >= W) continue;
+        const i = idx(x, y);
+        if (visto[i] && (melhorI < 0 || i < melhorI)) melhorI = i;
+      }
+    }
+    if (melhorI >= 0) { const x = melhorI % W; return { x, y: (melhorI - x) / W }; }
+  }
+  return null;
 }
 
 function garantirAcesso(g, alvos, origem) {
@@ -1411,13 +1556,11 @@ function garantirAcesso(g, alvos, origem) {
     // Liga ao tile alcançável mais próximo com um corredor em L, abrindo o
     // que estiver no caminho. É a mesma ideia da ETAPA 1, agora sobre um mapa
     // onde barreira é intencional — por isso a trilha aberta é estreita.
-    let melhor = null; let melhorD = Infinity;
-    for (let y = 0; y < H; y += 1) for (let x = 0; x < W; x += 1) {
-      if (!visto[idx(x, y)]) continue;
-      const d = Math.abs(x - alvo.x) + Math.abs(y - alvo.y);
-      if (d < melhorD) { melhorD = d; melhor = { x, y }; }
-    }
+    const melhor = alcancavelMaisProximo(visto, alvo);
     if (!melhor) continue;
+    // Tiles que este corredor abrir: só eles podem ligar coisa nova à parte
+    // já alcançável, então a inundação recomeça deles em vez do mapa todo.
+    const abertos = [];
     const passoX = melhor.x > alvo.x ? 1 : -1;
     // NUNCA através de um prédio: a garantia de acesso abria caminho em
     // qualquer tile sólido, e depois que casas viraram construções de verdade
@@ -1426,15 +1569,27 @@ function garantirAcesso(g, alvos, origem) {
     // esta etapa precisa abrir é rocha e mata.
     for (let x = alvo.x; x !== melhor.x; x += passoX) {
       if (g[alvo.y][x] === TILE.BUILDING) continue;
-      if (SOLID_TILES.has(g[alvo.y][x])) g[alvo.y][x] = TILE.PATH;
+      if (SOLID_TILES.has(g[alvo.y][x])) { g[alvo.y][x] = TILE.PATH; abertos.push(idx(x, alvo.y)); }
     }
     const passoY = melhor.y > alvo.y ? 1 : -1;
     for (let y = alvo.y; y !== melhor.y; y += passoY) {
       if (g[y][melhor.x] === TILE.BUILDING) continue;
-      if (SOLID_TILES.has(g[y][melhor.x])) g[y][melhor.x] = TILE.PATH;
+      if (SOLID_TILES.has(g[y][melhor.x])) { g[y][melhor.x] = TILE.PATH; abertos.push(idx(melhor.x, y)); }
     }
-    if (SOLID_TILES.has(g[alvo.y][alvo.x]) && g[alvo.y][alvo.x] !== TILE.BUILDING) g[alvo.y][alvo.x] = TILE.PATH;
-    visto = componenteAndavel(g, origem);
+    if (SOLID_TILES.has(g[alvo.y][alvo.x]) && g[alvo.y][alvo.x] !== TILE.BUILDING) { g[alvo.y][alvo.x] = TILE.PATH; abertos.push(idx(alvo.x, alvo.y)); }
+    // Abrir um tile só aumenta a região alcançável (nada vira sólido aqui).
+    // Todo tile novo nela é ligado à parte antiga por um tile recém-aberto
+    // vizinho de um tile já visto — então inundar a partir desses dá a mesma
+    // componente que refazer a busca inteira desde a origem.
+    const sementes = [];
+    for (const i of abertos) {
+      if (visto[i]) continue;
+      const x = i % W; const y = (i - x) / W;
+      const encosta = (x > 0 && visto[i - 1]) || (x < W - 1 && visto[i + 1])
+        || (y > 0 && visto[i - W]) || (y < H - 1 && visto[i + W]);
+      if (encosta) { visto[i] = 1; sementes.push(i); }
+    }
+    if (sementes.length) inundar(g, visto, sementes);
   }
 }
 
@@ -1452,6 +1607,7 @@ export function construirMundo(semente) {
   const g = Array.from({ length: H }, () => new Array(W).fill(TILE.GRASS));
   pintarTerreno(g, semente, posse, ZONAS_MUNDO);
   desenharOceano(g, semente);
+  isolarArquipelagoCoral(g, posse);
 
   const rios = [];
   cavarRios(g, semente, resumo, rios);
@@ -1518,6 +1674,7 @@ export function construirMundo(semente) {
   const naEspinha = new Set(ESTRADAS_PRINCIPAIS.flatMap((r) => [r.de, r.para]));
   for (const a of assentamentos) {
     if (naEspinha.has(a.id)) continue;
+    if (porId.get(a.zonaId)?.regiaoId === "recife_coralino") continue;
     let alvo = null; let melhor = Infinity;
     for (const b of assentamentos) {
       if (!naEspinha.has(b.id)) continue;
@@ -1525,6 +1682,12 @@ export function construirMundo(semente) {
       if (d < melhor) { melhor = d; alvo = b; }
     }
     if (alvo) ligar(a, alvo, "SECUNDARIA", `Ramal de ${a.nome}`);
+  }
+  const portoIlha = assentamentoPorIdMapa.get("cidade_de_corallia");
+  if (portoIlha) for (const a of assentamentos) {
+    if (a.id !== portoIlha.id && porId.get(a.zonaId)?.regiaoId === "recife_coralino") {
+      ligar(portoIlha, a, "TRILHA", `Trilha do Recife até ${a.nome}`);
+    }
   }
   // caminhos secretos: atravessam barreira, e nascem ocultos
   for (const c of CAMINHOS_SECRETOS) {
@@ -1620,14 +1783,27 @@ export function construirMundo(semente) {
   // --- acesso ---
   const inicial = assentamentos.find((a) => a.inicial) || assentamentos[0];
   const spawn = inicial ? { x: inicial.x, y: inicial.y } : { x: Math.floor(W / 2), y: Math.floor(H / 2) };
-  garantirAcesso(g, [
+  const alvosDeAcesso = [
     ...baus, ...nos, ...chefes, ...pois, ...landmarks,
     ...masmorras.map((m) => m.entrada),
     ...assentamentos.map((a) => ({ x: a.x, y: a.y })),
     ...vagasNpc,
-  ], spawn);
+  ];
+  const ehDoRecife = (alvo) => ZONAS_MUNDO[posse[idx(alvo.x, alvo.y)]]?.regiaoId === "recife_coralino";
+  garantirAcesso(g, alvosDeAcesso.filter((alvo) => !ehDoRecife(alvo)), spawn);
+  const corallia = assentamentoPorIdMapa.get("cidade_de_corallia");
+  if (corallia) garantirAcesso(g, alvosDeAcesso.filter(ehDoRecife), corallia);
+  // A garantia de acesso pode abrir uma trilha de terra sobre uma faixa de
+  // água para conectar outro objetivo. Reafirmar o canal no fim impede que
+  // isso vire uma ponte acidental até a ilha.
+  isolarArquipelagoCoral(g, posse);
 
   const alturas = gerarMapaDeAlturas(g, posse, ZONAS_MUNDO, semente, assentamentos, tracados);
+
+  // Os buffers da busca de estradas só servem durante a construção. Soltos
+  // aqui, não ficam 7,5 MB presos na memória pelo resto da partida — o que no
+  // celular faz diferença. Um próximo mundo (outro save, jogo novo) os recria.
+  buscaCusto = null; buscaAnterior = null; buscaCarimbo = null; buscaRodada = 0;
 
   return {
     grid: g, alturas, spawn, props,

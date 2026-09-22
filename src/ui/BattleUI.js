@@ -982,14 +982,13 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       : "";
     div.innerHTML = `
       <div class="nome-c">${c.nome}${c.chefe ? " 👑" : ""}${c.solo && !c.chefe ? ` <span title="Reforçado por estar sozinho contra o time (task #46)">💪</span>` : ""}${c.emboscada ? ` <span title="Emboscada: moradores hostis por sua reputação ruim com esta região">🗡️ Emboscada</span>` : ""}${ehAtivo ? " ⬅" : ""}${iconeTelegrafo}${badgeElemento(c)}${c.atordoado ? ` <span class="badge-atordoado" title="Atordoado: perde o turno e recebe dano extra">💫 Atordoado</span>` : ""}</div>
-      ${badgeFormacao || badgePapel || badgeComportamento ? `<div class="formacao-linha">${badgeFormacao}${badgePapel}${badgeComportamento}</div>` : ""}
-      ${badgeEscala || badgeFase || badgeMarca ? `<div class="selos-linha">${badgeEscala}${badgeFase}${badgeFuria}${badgeMarca}</div>` : ""}
-      <div class="combatente-sinais" aria-hidden="true">
+      <div class="linha-sinais">${badgeFormacao || badgePapel || badgeComportamento ? `<div class="formacao-linha">${badgeFormacao}${badgePapel}${badgeComportamento}</div>` : ""}<div class="combatente-sinais" aria-hidden="true">
         <span class="sinal-combate sinal-turno">▶ TURNO</span>
         <span class="sinal-combate sinal-alvo">◎ ALVO</span>
         <span class="sinal-combate sinal-area">◌ ÁREA</span>
         <span class="sinal-combate sinal-aliado-area">⚠ ALIADO</span>
-      </div>
+      </div></div>
+      ${badgeEscala || badgeFase || badgeMarca ? `<div class="selos-linha">${badgeEscala}${badgeFase}${badgeFuria}${badgeMarca}</div>` : ""}
       <div class="sprite-wrap"><canvas width="192" height="192" class="sprite-canvas"></canvas></div>
       <div class="barra" role="progressbar" aria-label="Pontos de vida de ${String(c.nome).replace(/"/g, "&quot;")}" aria-valuemin="0" aria-valuemax="${c.hpMax}" aria-valuenow="${Math.max(0, c.hp)}" aria-valuetext="${Math.max(0, c.hp)} de ${c.hpMax}"><div class="barra-fill hp" style="width:${Math.max(0, (c.hp / c.hpMax) * 100)}%"></div><div class="barra-fantasma"><div class="fantasma-max"></div><div class="fantasma-esperado"></div><div class="fantasma-min"></div></div></div>
       <div style="font-size:0.7em">${c.hp}/${c.hpMax} HP <span class="previa-hp-rotulo"></span></div>
@@ -1101,16 +1100,51 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // dois saem do mesmo golpe, que é o caso comum.
   const ALTURA_STATUS = -0.74;
 
-  function posicionarFlutuante(el, origemEl, alturaFrac = ALTURA_NUMERO) {
+  // Menor distância, em px, entre o topo do campo e um texto flutuante. Os
+  // textos SOBEM durante a animação (o crítico chega a −14px no pico de
+  // opacidade): com o piso antigo de 4px, "CRÍTICO!" e "ESQUIVOU!" da
+  // fileira de cima saíam cortados pela borda do campo.
+  const TETO_FLUTUANTE = 16;
+  // A maior subida das animações de texto (flutuar-critico: −54px). Texto
+  // que nasce mais perto do topo do que isso ganha a subida curta.
+  const SUBIDA_CHEIA = 54;
+  // Quando a pilha não cabe acima do card, até onde ela pode descer: 35% do
+  // sprite, no máximo — o número continua perto da cabeça, não no meio dele.
+  const LIMITE_NO_SPRITE = 0.35;
+
+  // `pilha` = { topo, base }: as alturas do texto mais alto e do mais baixo do
+  // MESMO golpe (selos → rótulo → número). Com ela, quando falta espaço a
+  // pilha desce inteira, mantendo a ordem; sem ela, o texto é uma pilha só.
+  function posicionarFlutuante(el, origemEl, alturaFrac = ALTURA_NUMERO, pilha = null) {
     if (!origemEl || !fxLayer) return false;
     const arenaRect = arena.getBoundingClientRect();
     const origemRect = origemEl.getBoundingClientRect();
     el.style.left = `${origemRect.left - arenaRect.left + origemRect.width / 2}px`;
-    // Teto: com as alturas negativas acima, um card na primeira fileira pode
-    // empurrar o texto para fora do campo — e um número de dano invisível é
-    // pior que um número mal colocado. 4px do topo é o piso.
-    const topo = origemRect.top - arenaRect.top + origemRect.height * alturaFrac;
-    el.style.top = `${Math.max(4, topo)}px`;
+    const h = origemRect.height;
+    const topoSprite = origemRect.top - arenaRect.top;
+    // A pilha sai acima da PLACA DE NOME, não do sprite: nome e linha de
+    // formação ficam logo acima do sprite, e o número a −0,30 do sprite caía
+    // exatamente em cima deles (visto no herói, que tem campo livre acima).
+    const nome = origemEl.closest && origemEl.closest(".combatente")?.querySelector(".nome-c");
+    const nomeRect = nome ? nome.getBoundingClientRect() : null;
+    const ancora = nomeRect && nomeRect.height ? Math.min(topoSprite, nomeRect.top - arenaRect.top) : topoSprite;
+    const fTopo = Math.min(alturaFrac, pilha ? pilha.topo : alturaFrac);
+    const fBase = Math.max(alturaFrac, pilha ? pilha.base : alturaFrac);
+    let topo = ancora + h * alturaFrac;
+    const yTopo = ancora + h * fTopo;
+    if (yTopo < TETO_FLUTUANTE) {
+      // Fileira de cima: não há espaço acima do nome. A pilha INTEIRA desce
+      // junto até caber (no máximo até LIMITE_NO_SPRITE); se nem assim
+      // couber, os degraus se aproximam. Antes cada texto era preso no teto
+      // separadamente, e o rótulo encavalava no número.
+      const yBase = ancora + h * fBase;
+      const baseFinal = Math.min(yBase + (TETO_FLUTUANTE - yTopo), Math.max(yBase, topoSprite + h * LIMITE_NO_SPRITE));
+      topo = fBase === fTopo
+        ? baseFinal
+        : TETO_FLUTUANTE + ((alturaFrac - fTopo) / (fBase - fTopo)) * (baseFinal - TETO_FLUTUANTE);
+    }
+    el.style.top = `${Math.round(topo)}px`;
+    el.classList.toggle("subida-curta", topo < SUBIDA_CHEIA + TETO_FLUTUANTE);
     fxLayer.appendChild(el);
     return true;
   }
@@ -1147,19 +1181,33 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // Rótulo secundário (CRÍTICO! / VULNERÁVEL! / RESISTIDO) logo abaixo do
     // número, com um leve atraso pra não competir com ele na leitura.
     const textoSecundario = critico && deltaHp < 0 ? "CRÍTICO!" : rotulo ? rotulo.txt : null;
+    // A pilha deste golpe, de baixo para cima: número → rótulo → ruptura →
+    // selos. Os selos começam um degrau acima quando há ruptura (antes os dois
+    // saíam na mesma altura, um em cima do outro).
+    const temRuptura = !!(extras.ruptura && extras.ruptura > 0);
+    const selosDoGolpe = Array.isArray(extras.selos) && deltaHp < 0 ? extras.selos.slice(0, 3) : [];
+    const alturaRuptura = ALTURA_ROTULO + PASSO_SELO;
+    const alturaPrimeiroSelo = temRuptura ? ALTURA_SELO + PASSO_SELO : ALTURA_SELO;
+    const pilha = {
+      base: ALTURA_NUMERO,
+      topo: selosDoGolpe.length ? alturaPrimeiroSelo + (selosDoGolpe.length - 1) * PASSO_SELO
+        : temRuptura ? alturaRuptura
+        : textoSecundario ? ALTURA_ROTULO
+        : ALTURA_NUMERO,
+    };
     if (textoSecundario) {
       const sub = document.createElement("div");
       sub.className = `dano-flutuante sub-rotulo ${critico ? "critico" : rotulo ? rotulo.cls : ""}`;
       sub.textContent = textoSecundario;
-      if (posicionarFlutuante(sub, spriteWrap, ALTURA_ROTULO)) setTimeout(() => sub.remove(), duracaoAnimacao(950));
+      if (posicionarFlutuante(sub, spriteWrap, ALTURA_ROTULO, pilha)) setTimeout(() => sub.remove(), duracaoAnimacao(950));
     }
     // Ruptura acumulada neste golpe (item 16/41), como um terceiro texto
     // curto — só aparece quando houve ganho real de postura.
-    if (extras.ruptura && extras.ruptura > 0) {
+    if (temRuptura) {
       const rup = document.createElement("div");
       rup.className = "dano-flutuante sub-rotulo ruptura";
       rup.textContent = `RUPTURA +${extras.ruptura}`;
-      if (posicionarFlutuante(rup, spriteWrap, ALTURA_ROTULO + PASSO_SELO)) setTimeout(() => rup.remove(), duracaoAnimacao(1000));
+      if (posicionarFlutuante(rup, spriteWrap, alturaRuptura, pilha)) setTimeout(() => rup.remove(), duracaoAnimacao(1000));
     }
     // SELOS DO GOLPE — a explicação do número, colada nele.
     //
@@ -1169,12 +1217,12 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // de texto em cima do inimigo escondem a própria luta — os três primeiros
     // são os de maior impacto, porque `selos` já sai na ordem em que os
     // multiplicadores acontecem (item > traço > marca > ambiente > postura).
-    if (Array.isArray(extras.selos) && extras.selos.length && deltaHp < 0) {
-      extras.selos.slice(0, 3).forEach((selo, i) => {
+    if (selosDoGolpe.length) {
+      selosDoGolpe.forEach((selo, i) => {
         const sel = document.createElement("div");
         sel.className = `dano-flutuante selo-golpe selo-${selo.tom || "bom"}`;
         sel.textContent = selo.rotulo;
-        if (!posicionarFlutuante(sel, spriteWrap, ALTURA_SELO + i * PASSO_SELO)) return;
+        if (!posicionarFlutuante(sel, spriteWrap, alturaPrimeiroSelo + i * PASSO_SELO, pilha)) return;
         sel.style.animationDelay = `${i * 70}ms`;
         setTimeout(() => sel.remove(), duracaoAnimacao(1150 + i * 70));
       });
@@ -1189,7 +1237,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     if (deltaHp < 0 && !animacoesReduzidas()) {
       try { if (vibracaoAtiva() && navigator.vibrate) navigator.vibrate(critico ? [30, 40, 30] : 25); } catch (e) { /* silencioso de propósito */ }
     }
-    if (!posicionarFlutuante(el, spriteWrap)) return;
+    if (!posicionarFlutuante(el, spriteWrap, ALTURA_NUMERO, pilha)) return;
     setTimeout(() => el.remove(), duracaoAnimacao(900));
   }
 

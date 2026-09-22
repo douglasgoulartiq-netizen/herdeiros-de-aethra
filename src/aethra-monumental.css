@@ -168,8 +168,8 @@
 .companhia-identidade h3 { margin:5px 0 2px;font:500 clamp(1.45rem,2.4vw,2.35rem)/1 Georgia,serif;color:#fff0c9; }
 .companhia-identidade p { margin:7px 0 14px;color:#aeb8b8; }
 .companhia-selos { display:flex;flex-wrap:wrap;gap:6px; }
-.companhia-selos span { padding:5px 9px;border:1px solid #3a4b50;border-radius:999px;background:#081216c9;color:#d8e0dd;font-size:.76rem; }
-.companhia-selos span:first-child { border-color:var(--selo-cor);box-shadow:inset 0 -2px color-mix(in srgb,var(--selo-cor) 42%,transparent); }
+.companhia-selos > span { padding:5px 9px;border:1px solid #3a4b50;border-radius:999px;background:#081216c9;color:#d8e0dd;font-size:.76rem; }
+.companhia-selos > span:first-child { border-color:var(--selo-cor);box-shadow:inset 0 -2px color-mix(in srgb,var(--selo-cor) 42%,transparent); }
 .companhia-poder { min-width:0;padding:16px;text-align:right;border-left:1px solid #34454a; }
 .companhia-poder strong { display:block;margin-top:3px;color:#f1c765;font:500 clamp(2rem,4vw,3.3rem)/1 Georgia,serif; }
 .companhia-poder > span { color:#8e999a;font-size:.72rem; }
@@ -303,6 +303,37 @@
   min-height:0;
   overflow:hidden;
 }
+/* O slot corta o que passa dele, então o card tem de CABER nele. Como o card
+   é `position:relative` (batalha-layout.css), a altura vinha do conteúdo: com
+   os sprites maiores desta camada o card do inimigo passava ~17px do slot e
+   perdia o botão "Alvo atual", e o do herói perdia a barra de MP e o ATB.
+   Card limitado ao slot + sprite que só encolhe: quem cede espaço é o
+   sprite (object-fit mantém a proporção), nunca uma barra ou um botão.
+   Inimigo: altura do conteúdo, no máximo a do slot (a moldura de alvo abraça
+   o card, sem um retângulo vazio embaixo). Herói: altura do slot inteira,
+   porque o conteúdo dele assenta no chão (justify-content:flex-end). */
+#screen-batalha.bt-screen .bt-slot .combatente { max-height:100%; }
+#screen-batalha.bt-screen .bt-row-herois .bt-slot .combatente { height:100%; }
+#screen-batalha.bt-screen .bt-slot .combatente .sprite-wrap { flex:0 1 auto; min-height:0; }
+/* O mínimo de 120px de toque (design-polimento.css) fazia o botão passar da
+   largura do card no celular — "elecionar alv", cortado dos dois lados. O
+   card inteiro já seleciona o alvo; o botão só não pode ser maior que ele. */
+#screen-batalha.bt-screen .bt-slot .combatente .btn-alvo { min-width:0; }
+/* Slot baixo — o notebook comum com a barra do navegador (1366x657,
+   1280x633): o card inteiro não cabe e o sprite encolhia até 35–45px num
+   campo quase vazio. Aqui o secundário cede primeiro: a linha de formação
+   sai (a do herói da vez continua no dock) e o número de HP entra na própria
+   barra. O slot vira contêiner de consulta; ele já tem tamanho de fora
+   (fileira + grade), então a contenção de tamanho não muda nada nele. */
+#screen-batalha.bt-screen .bt-slot { container:slot-combate / size; }
+@container slot-combate (max-height:180px) {
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais > .formacao-linha { display:none; }
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais { height:0; align-items:start; }
+  #screen-batalha.bt-screen .bt-slot .combatente .linha-sinais > .combatente-sinais { height:auto; align-items:flex-start; }
+  #screen-batalha.bt-screen .bt-slot .combatente > div[style*="0.7em"] {
+    position:relative; z-index:2; margin-top:-13px; line-height:12px; white-space:nowrap;
+  }
+}
 #screen-batalha.bt-screen .bt-slot .combatente {
   background:transparent;
   border-color:transparent;
@@ -359,7 +390,7 @@
   .companhia-identidade { padding:6px 8px;border-left:0; }
   .companhia-identidade h3 { font-size:1.25rem; }
   .companhia-identidade p { margin:4px 0 8px;font-size:.72rem; }
-  .companhia-selos span { padding:3px 6px;font-size:.65rem; }
+  .companhia-selos > span { padding:3px 6px;font-size:.65rem; }
   .companhia-poder { grid-column:2;padding:5px 8px;border-left:0;text-align:left;display:grid;grid-template-columns:auto auto 1fr;gap:3px 7px;align-items:end; }
   .companhia-poder > small { grid-column:1/-1; }
   .companhia-poder strong { font-size:1.45rem;margin:0; }

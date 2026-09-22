@@ -50,12 +50,18 @@ export const ESTRADAS_PRINCIPAIS = [
   { de: "posto_avancado_da_ordem", para: "cidade_de_aerwind", nome: "Rota do Vento" },
   { de: "cidade_de_aerwind", para: "posto_da_caravana", nome: "Rota Comercial de Arenth" },
   { de: "posto_da_caravana", para: "cidade_das_sombras", nome: "Estrada dos Lamentos" },
-  { de: "porto_de_maris", para: "cidade_de_corallia", nome: "Caminho da Maré" },
   { de: "vila_de_aethra", para: "aldeia_sombria", nome: "Estrada do Lodo" },
   { de: "aldeia_sombria", para: "aldeia_dos_cacadores", nome: "Trilha Larga da Selva" },
   { de: "cidade_flutuante", para: "cidade_das_sombras", nome: "Passagem Suspensa" },
   { de: "fortaleza_de_ignis", para: "fortaleza_do_gelo", nome: "Estrada da Forja" },
   { de: "fortaleza_ignea", para: "cidade_de_aerwind", nome: "Estrada do Ferro Negro" },
+];
+
+// Travessias que substituem estradas impossíveis sobre mar aberto. O primeiro
+// acesso a Corallia parte do porto; depois a cidade pode entrar na rede de
+// retorno rápido como qualquer outro lugar já descoberto.
+export const ROTAS_MARITIMAS = [
+  { id: "maris_corallia", de: "porto_de_maris", para: "cidade_de_corallia", nome: "Travessia do Recife", custo: 25 },
 ];
 
 // Atalhos que atravessam barreira (item 9: passes, gargalos, túneis). São
