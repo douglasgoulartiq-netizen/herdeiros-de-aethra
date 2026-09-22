@@ -6,9 +6,35 @@
     "titulo": "Viajante Perdido",
     "texto": "No meio do caminho, você encontra um viajante confuso, sem saber para onde ir.",
     "opcoes": [
-      { "id": "ajudar", "rotulo": "Ajudar a encontrar o caminho", "textoResultado": "Grato pela ajuda, o viajante compartilha um pouco do que carrega antes de seguir viagem.", "ouro": 12, "reputacaoFaccao": 2 },
-      { "id": "ignorar", "rotulo": "Seguir seu caminho", "textoResultado": "Você segue em frente, deixando o viajante se virar sozinho.", "ouro": 0, "reputacaoFaccao": 0 }
-    ]
+      {
+        "id": "ajudar",
+        "rotulo": "Ajudar a encontrar o caminho",
+        "textoResultado": "Grato pela ajuda, o viajante compartilha um pouco do que carrega antes de seguir viagem.",
+        "ouro": 12,
+        "reputacaoFaccao": 2
+      },
+      {
+        "id": "ignorar",
+        "rotulo": "Seguir seu caminho",
+        "textoResultado": "Você segue em frente, deixando o viajante se virar sozinho.",
+        "ouro": 0,
+        "reputacaoFaccao": 0
+      }
+    ],
+    "opcoesPorTraco": {
+      "cauteloso": {
+        "rotulo": "[Cauteloso] Conferir se não é emboscada antes de ajudar",
+        "textoResultado": "Não era. Você ajuda com calma, e o viajante, aliviado, te dá mais do que pretendia.",
+        "ouro": 16,
+        "reputacaoFaccao": 3
+      },
+      "ganancioso": {
+        "rotulo": "[Ganancioso] Ajudar, mas cobrar pelo serviço",
+        "textoResultado": "Ele paga, a contragosto. A história vai correr pela região — e não do jeito que você gostaria.",
+        "ouro": 28,
+        "reputacaoFaccao": -2
+      }
+    }
   },
   {
     "id": "santuario_esquecido",
@@ -17,9 +43,39 @@
     "titulo": "Santuário Esquecido",
     "texto": "Entre as pedras cobertas de musgo, um pequeno santuário ainda recebe oferendas de quem passa por aqui.",
     "opcoes": [
-      { "id": "doar", "rotulo": "Deixar uma oferenda (10 ouro)", "textoResultado": "Uma sensação de paz toma conta de você. As pessoas da região respeitam quem honra o santuário.", "ouro": -10, "reputacaoFaccao": 3, "custoOuroMinimo": 10 },
-      { "id": "seguir", "rotulo": "Seguir sem parar", "textoResultado": "Você segue em frente sem se demorar.", "ouro": 0, "reputacaoFaccao": 0 }
-    ]
+      {
+        "id": "doar",
+        "rotulo": "Deixar uma oferenda (10 ouro)",
+        "textoResultado": "Uma sensação de paz toma conta de você. As pessoas da região respeitam quem honra o santuário.",
+        "ouro": -10,
+        "reputacaoFaccao": 3,
+        "custoOuroMinimo": 10
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Seguir sem parar",
+        "textoResultado": "Você segue em frente sem se demorar.",
+        "ouro": 0,
+        "reputacaoFaccao": 0
+      }
+    ],
+    "opcoesPorTraco": {
+      "sortudo": {
+        "rotulo": "[Sortudo] Jogar uma moeda para o santuário",
+        "sorte": true,
+        "chanceSucesso": 0.5,
+        "textoSucesso": "A moeda cai de pé na pedra. Quem passa por aqui diz que isso é sinal — e deixa uma oferenda para você.",
+        "ouroSucesso": 30,
+        "textoFalha": "A moeda some numa fresta. O santuário ficou com ela.",
+        "ouroFalha": -1
+      },
+      "resistente": {
+        "rotulo": "[Resistente] Passar a noite em vigília",
+        "textoResultado": "Você vela o santuário até o sol nascer e acorda inteiro. Os moradores reparam em quem fica.",
+        "reputacaoFaccao": 4,
+        "curaTotal": true
+      }
+    }
   },
   {
     "id": "pegadas_estranhas",
@@ -28,9 +84,42 @@
     "titulo": "Pegadas Estranhas",
     "texto": "Um rastro incomum se afasta da trilha principal, sumindo entre a vegetação densa.",
     "opcoes": [
-      { "id": "investigar", "rotulo": "Investigar o rastro", "sorte": true, "textoSucesso": "O rastro leva a um pequeno esconderijo esquecido, com algumas moedas perdidas.", "ouroSucesso": 18, "textoFalha": "O rastro só leva a um espinheiro — você perde um pouco de tempo (e um pouco de ouro num buraco escondido).", "ouroFalha": -6, "chanceSucesso": 0.6 },
-      { "id": "ignorar", "rotulo": "Manter-se na trilha", "textoResultado": "Prudência acima de curiosidade — você segue pela trilha principal.", "ouro": 0, "reputacaoFaccao": 0 }
-    ]
+      {
+        "id": "investigar",
+        "rotulo": "Investigar o rastro",
+        "sorte": true,
+        "textoSucesso": "O rastro leva a um pequeno esconderijo esquecido, com algumas moedas perdidas.",
+        "ouroSucesso": 18,
+        "textoFalha": "O rastro só leva a um espinheiro — você perde um pouco de tempo (e um pouco de ouro num buraco escondido).",
+        "ouroFalha": -6,
+        "chanceSucesso": 0.6
+      },
+      {
+        "id": "ignorar",
+        "rotulo": "Manter-se na trilha",
+        "textoResultado": "Prudência acima de curiosidade — você segue pela trilha principal.",
+        "ouro": 0,
+        "reputacaoFaccao": 0
+      }
+    ],
+    "opcoesPorTraco": {
+      "corajoso": {
+        "rotulo": "[Corajoso] Seguir o rastro de peito aberto",
+        "textoResultado": "O que quer que fosse, fugiu de você. Ficou o esconderijo, com as moedas.",
+        "ouro": 20
+      },
+      "visao_aguçada": {
+        "rotulo": "[Visão Aguçada] Notar o detalhe que ninguém vê",
+        "textoResultado": "Você vê o que passou despercebido: o fundo falso do esconderijo, com um frasco guardado.",
+        "ouro": 18,
+        "itens": [
+          {
+            "id": "pocao_vida_p",
+            "qtd": 1
+          }
+        ]
+      }
+    }
   },
   {
     "id": "bolsa_esquecida",
@@ -40,5 +129,302 @@
     "texto": "Meio enterrada na terra do caminho, uma bolsa esquecida por algum viajante chama sua atenção.",
     "textoResultado": "Dentro dela, algumas moedas — o dono já deve estar longe demais para procurar.",
     "ouro": 15
+  },
+  {
+    "id": "desertor_arrependido",
+    "tipo": "escolha",
+    "origemExclusiva": "soldado",
+    "icone": "🪖",
+    "titulo": "Desertor Arrependido",
+    "texto": "Um jovem de farda rasgada te reconhece pelo jeito de andar: \"Você é do exército. Me diz o que fazer.\"",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Soldado] Dar a ordem que ele precisa ouvir",
+        "textoResultado": "Ele volta para o quartel de cabeça erguida — e te entrega o que levou quando fugiu.",
+        "ouro": 20,
+        "itens": [
+          {
+            "id": "pocao_vida_p",
+            "qtd": 1
+          }
+        ]
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Deixar que ele decida sozinho",
+        "textoResultado": "Você segue. Ele continua sentado na beira da estrada.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "tropa_em_marcha",
+    "tipo": "escolha",
+    "origemExclusiva": "soldado",
+    "icone": "🥁",
+    "titulo": "Tropa em Marcha",
+    "texto": "Uma tropa passa pela estrada. O sargento para quando vê como você carrega a arma.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Soldado] Trocar notícias com o sargento",
+        "textoResultado": "Ele divide a ração e te conta por onde os monstros andam. Na região, a notícia de que você ajudou chega antes de você.",
+        "ouro": 12,
+        "reputacaoFaccao": 3
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Abrir caminho e seguir",
+        "textoResultado": "A tropa passa, e a poeira baixa.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "carruagem_atolada",
+    "tipo": "escolha",
+    "origemExclusiva": "nobre",
+    "icone": "🎩",
+    "titulo": "Carruagem Atolada",
+    "texto": "Uma dama de uma casa conhecida está presa com a carruagem na lama — e reconhece o seu sobrenome.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Nobre] Resolver com as boas maneiras da sua casa",
+        "textoResultado": "Você organiza os lacaios, a carruagem sai, e ela insiste em recompensar alguém \"de boa família\".",
+        "ouro": 35
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Cumprimentar e seguir",
+        "textoResultado": "Ela acena, um pouco ofendida. Os lacaios continuam empurrando.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "testemunha_de_acordo",
+    "tipo": "escolha",
+    "origemExclusiva": "nobre",
+    "icone": "🍷",
+    "titulo": "Testemunha de um Acordo",
+    "texto": "Um mensageiro procura alguém de sangue nobre para testemunhar um acordo entre duas famílias da região.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Nobre] Servir de testemunha",
+        "textoResultado": "Sua assinatura vale ouro — literalmente. E as duas famílias passam a falar bem de você.",
+        "ouro": 30,
+        "reputacaoFaccao": 3
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Recusar com educação",
+        "textoResultado": "O mensageiro agradece e vai procurar outro sobrenome.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "velho_conhecido",
+    "tipo": "escolha",
+    "origemExclusiva": "criminoso",
+    "icone": "🗝️",
+    "titulo": "Velho Conhecido",
+    "texto": "Um antigo parceiro dos becos te reconhece e sussurra: \"Tenho um trabalho fácil. De confiança.\"",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Criminoso] Ouvir e cobrar a sua parte",
+        "textoResultado": "O \"trabalho\" era só buscar uma caixa. Sua parte vem em moedas, e ninguém se machuca.",
+        "ouro": 28
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Dizer que essa vida acabou",
+        "textoResultado": "Ele dá de ombros: \"Todo mundo diz isso uma vez.\"",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "marca_na_porta",
+    "tipo": "escolha",
+    "origemExclusiva": "criminoso",
+    "icone": "✖️",
+    "titulo": "Marca na Porta",
+    "texto": "Você reconhece um sinal de ladrão riscado numa porta: casa vazia, dono viajando.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Criminoso] Apagar a marca e avisar os vizinhos",
+        "textoResultado": "Os vizinhos agradecem com o que podem. Seu antigo ofício não vai achar graça — mas a região acha.",
+        "ouro": 14,
+        "reputacaoFaccao": 4
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Fingir que não viu",
+        "textoResultado": "Você segue. A marca continua lá.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "erva_dos_livros",
+    "tipo": "escolha",
+    "origemExclusiva": "eremita",
+    "icone": "🌸",
+    "titulo": "Flor dos Livros Velhos",
+    "texto": "No meio do mato comum, uma flor que você só viu desenhada nos livros que lia sozinho.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Eremita] Colher do jeito certo, com a raiz",
+        "textoResultado": "Ela sai inteira. Pouca gente saberia que é essa a parte que vale.",
+        "itens": [
+          {
+            "id": "erva_rara",
+            "qtd": 1
+          }
+        ]
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Deixar a flor onde está",
+        "textoResultado": "Ela continua lá, para o próximo que souber o que ela é.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "cabana_abandonada",
+    "tipo": "escolha",
+    "origemExclusiva": "eremita",
+    "icone": "🛖",
+    "titulo": "Cabana Abandonada",
+    "texto": "Uma cabana de eremita, vazia há anos. Você sabe onde um eremita esconde as coisas.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Eremita] Olhar debaixo da terceira tábua",
+        "textoResultado": "Lá estão: um frasco e as economias de uma vida inteira longe de todo mundo.",
+        "ouro": 20,
+        "itens": [
+          {
+            "id": "pocao_vida_p",
+            "qtd": 1
+          }
+        ]
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Respeitar a casa e seguir",
+        "textoResultado": "Você fecha a porta ao sair.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "festa_da_colheita",
+    "tipo": "escolha",
+    "origemExclusiva": "andarilho_do_povo",
+    "icone": "🎉",
+    "titulo": "Festa da Colheita",
+    "texto": "Uma vila pequena comemora a colheita e te chama pelo nome — você já passou por aqui antes.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Andarilho do Povo] Ficar para a festa",
+        "textoResultado": "Comida, música e um farnel para a viagem. Ninguém ali esquece quem volta.",
+        "reputacaoFaccao": 4,
+        "itens": [
+          {
+            "id": "pao",
+            "qtd": 2
+          }
+        ]
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Agradecer e seguir viagem",
+        "textoResultado": "Eles acenam até você sumir na estrada.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "carta_esquecida",
+    "tipo": "escolha",
+    "origemExclusiva": "andarilho_do_povo",
+    "icone": "✉️",
+    "titulo": "Carta Esquecida",
+    "texto": "Uma carta caída na estrada, endereçada a uma família da próxima vila. Você conhece essa família.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Andarilho do Povo] Levar a carta",
+        "textoResultado": "A família chora de alegria com a notícia e te paga com o que tem.",
+        "ouro": 18,
+        "reputacaoFaccao": 3
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Deixar a carta no marco da estrada",
+        "textoResultado": "Alguém há de levar. Talvez.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "inscricao_antiga",
+    "tipo": "escolha",
+    "origemExclusiva": "sabio",
+    "icone": "📜",
+    "titulo": "Inscrição Antiga",
+    "texto": "Uma inscrição num dialeto que quase ninguém lê mais — mas você leu isso na biblioteca.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Sábio] Traduzir a inscrição",
+        "textoResultado": "Ela aponta para um esconderijo de Éter cristalizado, a poucos passos dali.",
+        "fragmentos": 25
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Anotar para depois",
+        "textoResultado": "Você copia a inscrição no caderno e segue.",
+        "ouro": 0
+      }
+    ]
+  },
+  {
+    "id": "aprendiz_enrolado",
+    "tipo": "escolha",
+    "origemExclusiva": "sabio",
+    "icone": "🧙",
+    "titulo": "Aprendiz Enrolado",
+    "texto": "Um aprendiz de mago ficou preso num feitiço simples que ele mesmo fez errado.",
+    "opcoes": [
+      {
+        "id": "origem",
+        "rotulo": "[Sábio] Corrigir o feitiço",
+        "textoResultado": "Ele te dá um pergaminho de agradecimento, meio sem jeito, e jura estudar mais.",
+        "ouro": 10,
+        "itens": [
+          {
+            "id": "pergaminho_arcano",
+            "qtd": 1
+          }
+        ]
+      },
+      {
+        "id": "seguir",
+        "rotulo": "Deixar ele aprender sozinho",
+        "textoResultado": "Uma hora o feitiço acaba. Ou não.",
+        "ouro": 0
+      }
+    ]
   }
 ]

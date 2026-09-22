@@ -534,7 +534,10 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   function desenharFicha() {
     const m = ativo;
     if (!m) { painelFicha.innerHTML = "<p class=\"desc\">Nenhum membro selecionado.</p>"; return; }
-    const elemento = m.elemento || (m.equipamento && m.equipamento.arma && m.equipamento.arma.elemento) || "fisico";
+    // O herói guarda o elemento escolhido na criação em `elementoId`; os
+    // convocados, em `elemento`. Antes a ficha do herói lia só `elemento` e
+    // caía no elemento da arma — mostrava "Físico" para quem escolheu Gelo.
+    const elemento = m.elementoId || m.elemento || (m.equipamento && m.equipamento.arma && m.equipamento.arma.elemento) || "fisico";
     const info = infoElemento(elemento, dados.elements) || { nome: elemento, icone: "◆", cor: "#c9c9c9" };
     const rel = relacoesDoElemento(elemento, dados);
     const nomeEl = (id) => {

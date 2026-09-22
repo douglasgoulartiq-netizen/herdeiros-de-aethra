@@ -37,11 +37,41 @@ import { linhasDaConsequencia } from "../systems/ConsequenciaTexto.js";
 
 const ID_CAMADA = "cutscene-camada";
 
-// {nome}, {raca}, {classe}, {origem} — os únicos campos interpolados. Ver o
-// cabeçalho de cutscenes.js. Os nomes dos campos aqui seguem o objeto criado
-// por CharacterFactory.criarPersonagem: racaNome/classeNome (legíveis) com
-// racaId/classeId como reserva, e antecedenteId para a origem (que não tem
-// forma legível guardada no personagem).
+// {nome}, {raca}, {classe}, {origem}, {marcaRaca} e {marcaMotivacao} — os
+// únicos campos interpolados. Ver o cabeçalho de cutscenes.js. Os nomes dos
+// campos aqui seguem o objeto criado por CharacterFactory.criarPersonagem:
+// racaNome/classeNome (legíveis) com racaId/classeId como reserva, e
+// antecedenteNome para a origem.
+//
+// Uma frase do prólogo por RAÇA e outra por MOTIVAÇÃO (22/09). A cena era
+// igual para todo mundo, e o próprio prólogo diz que "o corpo sabe, a cabeça
+// não" — então é o corpo e o que move o herói que mudam de frase. Herói sem
+// motivação (save antigo) simplesmente não ganha a linha: parágrafo vazio é
+// descartado na renderização.
+const MARCA_DA_RACA = {
+  humano: "O corpo era humano: nada que chamasse atenção numa multidão — e é isso que faz passar por qualquer porta.",
+  elfo: "O corpo era élfico: os olhos achavam no escuro o que os outros só encontram tropeçando.",
+  anao: "O corpo era anão: baixo, firme no chão, feito para aguentar o que vem de cima.",
+  orc: "O corpo era órquico: largo demais para caber em briga pequena.",
+  halfling: "O corpo era halfling: pequeno, rápido, com um jeito de sair ileso que ninguém sabe explicar.",
+  draconato: "O corpo era draconato: escamas mornas, e um fôlego que esquenta antes de você mandar.",
+};
+const MARCA_DA_MOTIVACAO = {
+  descoberta: "E, sem saber por quê, a primeira coisa que você quis foi ver o que tem depois da última curva da estrada.",
+  justica: "E, sem saber por quê, o que te tirou da cama foi a ideia de alguém forte pisando em alguém fraco.",
+  legado: "E, sem saber por quê, o que incomodou não foi o passado perdido: foi a chance de não deixar nada para trás.",
+  liberdade: "E, sem saber por quê, a única coisa que você não aceitou foi o mês de prazo que te deram.",
+  redencao: "E, sem saber por quê, você acordou com a sensação de dever alguma coisa a alguém.",
+  poder: "E, sem saber por quê, o que o Éter fez com você não deu medo: deu vontade de aprender a fazer igual.",
+};
+
+// Saves de antes de `antecedenteNome` existir só guardam o id — e o id
+// "sabio" não tem acento. Esta tabela cobre esses heróis sem migração.
+const NOME_DA_ORIGEM = {
+  soldado: "Soldado", nobre: "Nobre", criminoso: "Criminoso", eremita: "Eremita",
+  andarilho_do_povo: "Andarilho do Povo", sabio: "Sábio",
+};
+
 function interpolar(texto, personagem) {
   if (!texto) return "";
   const p = personagem || {};
@@ -49,9 +79,11 @@ function interpolar(texto, personagem) {
     nome: p.nome || "viajante",
     raca: minusculas(p.racaNome || p.racaId) || "andarilho",
     classe: minusculas(p.classeNome || p.classeId) || "aventureiro",
-    origem: minusculas(p.antecedenteId) || "estrada",
+    origem: minusculas(p.antecedenteNome || NOME_DA_ORIGEM[p.antecedenteId] || p.antecedenteId) || "estrada",
+    marcaRaca: MARCA_DA_RACA[p.racaId] || "O corpo sabia se mover, e por enquanto isso bastava.",
+    marcaMotivacao: MARCA_DA_MOTIVACAO[p.motivacaoId] || "",
   };
-  return String(texto).replace(/\{(nome|raca|classe|origem)\}/g, (_, chave) => mapa[chave]);
+  return String(texto).replace(/\{(nome|raca|classe|origem|marcaRaca|marcaMotivacao)\}/g, (_, chave) => mapa[chave]);
 }
 
 // As cenas usam esses valores no meio de frase ("o jeito de guerreiro de
@@ -238,9 +270,11 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
       elSub.textContent = interpolar(painel.titulo, personagem);
 
       elTexto.innerHTML = "";
-      const paragrafos = (painel.texto || []).map((t) => {
+      // Uma linha que vira texto vazio depois da interpolação (ex.: a frase
+      // de motivação num herói de save antigo) não vira parágrafo em branco.
+      const paragrafos = (painel.texto || []).map((t) => interpolar(t, personagem)).filter((t) => t.trim()).map((t) => {
         const p = document.createElement("p");
-        p.textContent = interpolar(t, personagem);
+        p.textContent = t;
         p.className = "cutscene-p";
         elTexto.appendChild(p);
         return p;

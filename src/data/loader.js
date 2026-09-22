@@ -8,7 +8,9 @@ const ARQUIVOS = [
   "elements", "enemyBehaviors", "skillChecks", "worldStateVariables", "compendium",
   "affinities", "explorationEvents", "travelingMerchant",
   "elementalStates", "elementalReactions",
-  "subclasses", "talentsGuerreiro", "talentsMago", "heritageTree",
+  "subclasses", "talentsGuerreiro", "talentsMago",
+  "talentsLadino", "talentsClerigo", "talentsBarbaro", "talentsPatrulheiro",
+  "heritageTree",
   // Índice id-do-item -> chave do ícone, produzido por gerar-icones.py.
   "itemIcons",
   // Elenco de companheiros de mapa (ver PetSystem.js).
@@ -35,6 +37,10 @@ const FALLBACK = {
   subclasses: { subclasses: [] },
   talentsGuerreiro: { talentos: [] },
   talentsMago: { talentos: [] },
+  talentsLadino: { talentos: [] },
+  talentsClerigo: { talentos: [] },
+  talentsBarbaro: { talentos: [] },
+  talentsPatrulheiro: { talentos: [] },
   heritageTree: { nos: [] },
   itemIcons: {},
   pets: { pets: [] },

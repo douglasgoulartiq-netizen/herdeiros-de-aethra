@@ -117,13 +117,16 @@ export function montarMao(jogador, contexto = {}) {
   });
 
   if (contexto.soproDisponivel) {
+    // O sopro sai no elemento escolhido na criação (fogo para quem não
+    // escolheu) — ver Batalha.elementoDoSopro.
+    const elementoSopro = jogador.elementoAfinidade || "fogo";
     cards.push({
       id: "acao_sopro",
       tipo: "sopro",
       nome: "Sopro Elemental",
-      descricao: "Atinge TODOS os inimigos vivos de uma vez. Uma vez por batalha.",
+      descricao: "Atinge TODOS os inimigos vivos com o seu elemento, com chance de deixar o estado dele. Uma vez por batalha.",
       icone: "💨",
-      elemento: jogador.elemento || "fisico",
+      elemento: elementoSopro,
       custoMP: 0,
       cooldown: 0,
       cooldownAtual: 0,
@@ -398,16 +401,12 @@ function preverOfensivo(card, previsao, estado) {
 
 function preverArea(card, previsao, estado) {
   const { batalha, jogador, inimigosVivos } = estado;
-  // Sopro Elemental (ver usarSoproElemental): INT * 1.6, variância
-  // 0.85..1.15, defesa a 30%, sem d20 (nunca erra) e sem matriz elemental.
+  // Sopro Elemental: a MESMA fórmula do golpe de verdade (Batalha.danoDoSopro)
+  // — INT × 1,6 no elemento do herói, matriz elemental, terreno, clima e
+  // essência, defesa a 30%, sem d20 (nunca erra).
   const alvos = inimigosVivos.map((i) => {
-    const bruto = (v) => {
-      let dano = Math.round((jogador.atributos.INT || 0) * 1.6 * v);
-      dano = Math.max(1, dano - Math.round(batalha.defesaEfetiva(i) * 0.3));
-      if (i.chefe && i.atordoado) dano = Math.round(dano * 1.35);
-      return dano;
-    };
-    return { alvo: i, min: bruto(0.85), max: bruto(1.15), esperado: bruto(1), mata: bruto(0.85) >= i.hp };
+    const e = batalha.estimarSopro(jogador, i);
+    return { alvo: i, min: e.min, max: e.max, esperado: e.esperado, mata: e.min >= i.hp, relacaoElemental: e.relacaoElemental };
   });
   previsao.area = {
     alvos,
@@ -421,7 +420,7 @@ function preverArea(card, previsao, estado) {
     // incluir aliados na lista.
     aliadosNaArea: [],
   };
-  previsao.chances = { acerto: 1, erro: 0, bloqueio: 0, critico: 0, criticoGarantido: false, penalidadeD20: 0, rerolagemSorte: false, limiarBloqueio: null };
+  previsao.chances = { acerto: 1, erro: 0, bloqueio: 0, critico: 0, criticoGarantido: false, penalidadeD20: 0, rerolagemSorte: false, rerolagemSorteMiuda: false, limiarBloqueio: null };
   if (previsao.area.abates > 0) previsao.execucao = "garantida";
   else if (alvos.some((a) => a.max >= a.alvo.hp)) previsao.execucao = "possivel";
   previsao.chanceMatar = previsao.area.abates > 0 ? 1 : 0;
@@ -557,8 +556,11 @@ function preverVantagem(previsao, estado, { magico, elemento }) {
 
   if (ch && ch.criticoGarantido) motivosBons.push("alvo congelado — golpe físico estilhaça (crítico garantido)");
   if (alvo && alvo.chefe && alvo.atordoado) motivosBons.push("alvo atordoado (+35% de dano)");
-  if (ch && ch.rerolagemSorte) motivosBons.push("sorte de Halfling ainda disponível (re-rola falha)");
-  if (jogador.racaId === "orc" && jogador.hp / jogador.hpMax <= 0.3) motivosBons.push("fúria órquica: HP baixo aumenta seu dano");
+  if (ch && ch.rerolagemSorteMiuda) motivosBons.push("Sorte Miúda do halfling ainda disponível (re-rola um 1)");
+  if (ch && ch.rerolagemSorte) motivosBons.push("sorte ainda disponível (re-rola um ataque de 1 a 3)");
+  if (jogador.racaId === "orc" && jogador.hp / jogador.hpMax <= (jogador.limiarFuria || 0.3)) motivosBons.push("fúria órquica: HP baixo aumenta seu dano");
+  if (previsao.dano && jogador.elementoAfinidade && previsao.dano.elemento === jogador.elementoAfinidade) motivosBons.push("essência: golpe do seu elemento (+15%)");
+  if (alvo && alvo.chefe && jogador.motivacaoId === "justica") motivosBons.push("justiça: +10% de dano contra chefes");
   if (previsao.dano && ["vantagem", "vantagem_intensa"].includes(previsao.dano.relacaoElemental)) motivosBons.push("vantagem elemental");
   if (previsao.reacao) motivosBons.push(`reação ${previsao.reacao.nome} pronta`);
   if (previsao.combo) motivosBons.push(`combo de equipe ${previsao.combo.nome}`);

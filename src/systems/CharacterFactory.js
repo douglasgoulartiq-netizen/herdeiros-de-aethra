@@ -1,5 +1,6 @@
 // Cria e evolui personagens jogáveis a partir dos dados de raça/classe/antecedente.
 import { bonusAfinidade } from "./AffinitySystem.js";
+import { aplicarElementoNasHabilidades, reputacaoInicial, idDoEmblema } from "./IdentidadeSystem.js";
 import { bonusVinculo } from "./BondSystem.js";
 import { bonusConjunto } from "./SetBonusSystem.js";
 import { bonusCaminhoHerdeiro } from "./TalentSystem.js";
@@ -54,11 +55,18 @@ export function criarPersonagem({
   let ouro = b.ouroInicial;
   if (traco === "ganancioso") ouro = Math.round(ouro * 0.8);
 
+  // Kit da origem. `itensIniciais` é a forma atual ([{ id, qtd }]); o campo
+  // antigo `itemInicial` (um id só) continua aceito. O kit do Soldado
+  // apontava para um item que não existia e sumia em silêncio — por isso o
+  // teste de criação confere que todo item de kit existe no items.json.
   const inventario = [];
-  if (b.itemInicial) {
-    const item = dados.items.itens.find((i) => i.id === b.itemInicial);
-    if (item) inventario.push({ ...item, uid: cryptoId() });
-  }
+  const kit = Array.isArray(b.itensIniciais) ? b.itensIniciais
+    : b.itemInicial ? [{ id: b.itemInicial, qtd: 1 }] : [];
+  kit.forEach(({ id, qtd = 1 }) => {
+    const item = dados.items.itens.find((i) => i.id === id);
+    if (!item) return;
+    for (let n = 0; n < qtd; n += 1) inventario.push({ ...item, uid: cryptoId() });
+  });
 
   const personagem = {
     nome,
@@ -77,6 +85,9 @@ export function criarPersonagem({
     motivacaoId: motivacao,
     racaNome: r.nome,
     classeNome: c.nome,
+    // Nome legível da origem para as cenas ("os costumes de sábio"). Antes
+    // só o id era guardado e a cena escrevia "sabio", sem acento.
+    antecedenteNome: b.nome,
     classeIcone: c.icone || "", // task #41: classe evidente na HUD
     descricaoTraco: t.descricao,
     nivel: 1,
@@ -104,14 +115,35 @@ export function criarPersonagem({
     // mais). Default false = comportamento idêntico a antes desta opção
     // existir.
     modoHistoria: false,
-    // A facção inicial já nasce conectada ao sistema de reputação e
-    // camaradagem existente (WorldStateSystem), sem conceder reputação grátis.
+    // A facção de origem nasce conectada ao sistema de reputação e
+    // camaradagem (WorldStateSystem): o herói começa Respeitado (+20) pelo
+    // povo de onde veio, mais os extras de combinação (ver
+    // IdentidadeSystem.reputacaoInicial).
     estadoDoMundo: {
-      reputacao: {},
+      reputacao: reputacaoInicial({ raca, elemento, antecedente, faccao }),
       flags: {},
       ...(faccao ? { facaoAfiliada: faccao } : {}),
     },
+    // Marca que as escolhas da criação já foram aplicadas a este herói —
+    // saves anteriores recebem o mesmo pacote uma única vez, ver
+    // IdentidadeSystem.aplicarIdentidadeRetroativa.
+    identidadeV2: true,
   };
+  // Magia de dano da classe no elemento escolhido (Mago, Clérigo).
+  aplicarElementoNasHabilidades(personagem);
+  // Emblema da facção de origem e acessórios do kit já vestidos: slot vazio,
+  // bônus puro — não há escolha a fazer. Arma do kit fica na mochila, porque
+  // pode render menos que o ataque desarmado de algumas classes.
+  const emblema = faccao ? dados.items.itens.find((i) => i.id === idDoEmblema(faccao)) : null;
+  if (emblema) personagem.equipamento.amuleto = { ...emblema, uid: cryptoId() };
+  personagem.inventario = personagem.inventario.filter((item) => {
+    const slot = item.slot;
+    if ((slot === "anel" || slot === "amuleto") && !personagem.equipamento[slot]) {
+      personagem.equipamento[slot] = item;
+      return false;
+    }
+    return true;
+  });
   return personagem;
 }
 

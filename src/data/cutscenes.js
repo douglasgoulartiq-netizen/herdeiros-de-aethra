@@ -30,7 +30,8 @@
 // longas cansam; a regra aqui é que nenhum painel passe de ~60 palavras.
 // `escolha` é opcional e, quando existe, é a última coisa da cena.
 //
-// TEXTO INTERPOLADO: {nome}, {raca}, {classe}, {origem} são trocados em
+// TEXTO INTERPOLADO: {nome}, {raca}, {classe}, {origem}, {marcaRaca} (uma
+// frase por raça) e {marcaMotivacao} (uma frase por motivação) são trocados em
 // runtime por CutsceneUI.js. Nada mais é interpolado — se precisar de outro
 // campo, adicione-o lá e documente aqui.
 
@@ -78,6 +79,7 @@ export const CUTSCENES = [
         texto: [
           "Você acordou entre as colunas, de barriga para cima, olhando um céu que não reconhecia.",
           "Suas mãos sabiam coisas. Sabiam o peso certo de uma arma, o jeito de {classe} de entrar numa sala, os costumes de {origem} que ninguém precisa relembrar. O corpo inteiro sabia quem era.",
+          "{marcaRaca}",
           "A cabeça, não. Nenhum rosto. Nenhuma casa. Nenhuma primeira lembrança — só o lugar onde deveria haver uma.",
         ],
       },
@@ -98,6 +100,7 @@ export const CUTSCENES = [
           "Eles te deram um nome de empréstimo — {nome} — e uma cama nos fundos, e um mês para decidir o que fazer com o resto.",
           "Hedra Raiz-Antiga, que fala pelo Círculo de Elyndor, foi a única que disse em voz alta o que os outros pensavam: uma pessoa sem passado não pode ser lida, não pode ser prevista, e não pode ser confiada.",
           "E uma pessoa que o Éter não fixou pode escrever por cima. É isso que assusta ela. É isso que, daqui a pouco, vai te salvar.",
+          "{marcaMotivacao}",
         ],
       },
     ],

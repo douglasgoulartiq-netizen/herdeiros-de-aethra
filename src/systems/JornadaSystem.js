@@ -1,10 +1,20 @@
 import { progressoDaRegiao, progressoObjetivoRegional, questConcluida } from "./RegionalQuestSystem.js";
 import { estadoGachaInicial, instanciarPersonagemGacha, MAX_CONVOCADOS_GACHA } from "./GachaSystem.js";
 
-export function proximoPassoAltaverde(personagem) {
+// Quando Altaverde acaba, o próximo destino não é genérico: é a terra do
+// POVO DE ORIGEM do herói (a facção escolhida na criação). `dadosWorldState`
+// é opcional — sem ele, o texto volta a ser o antigo.
+function orientacaoDepoisDeAltaverde(personagem, dadosWorldState) {
+  const facoes = (dadosWorldState && dadosWorldState.facoes) || [];
+  const origem = facoes.find((f) => f.id === personagem.faccaoOrigemId);
+  if (!origem) return "A história de Altaverde foi decidida. Explore as outras regiões e suas histórias.";
+  return `A história de Altaverde foi decidida. Seu povo, ${origem.icone || ""} ${origem.nome}, espera notícias suas — as terras deles são o próximo destino natural.`;
+}
+
+export function proximoPassoAltaverde(personagem, dadosWorldState = null) {
   const progresso = progressoDaRegiao(personagem, "altaverde");
   const passo = progresso.passoAtual;
-  if (!passo) return { ...progresso, orientacao: "A história de Altaverde foi decidida. Explore as outras regiões e suas histórias.", passo: null };
+  if (!passo) return { ...progresso, orientacao: orientacaoDepoisDeAltaverde(personagem, dadosWorldState), passo: null };
   const nomes = { npc_cacador: "Elric", npc_mercador: "Baltazar", npc_guarda: "Helena", npc_alt_hedra: "Hedra" };
   const ativa = personagem.questsRegionais[passo.id] === "ativa";
   const objetivo = progressoObjetivoRegional(personagem, passo.id);

@@ -10,11 +10,15 @@ import {
 // mão e passou a ser CONSTRUÍDO a partir dos dados de src/data/world/ — baú,
 // nó, POI, assentamento, boca de masmorra e chefe saem todos daqui, cada um
 // num tile andável da própria zona. Ver src/systems/WorldBuilder.js.
-import { mundoDaSemente } from "./systems/WorldBuilder.js";
+import { mundoDaSemente, bausEscondidosDoMundo } from "./systems/WorldBuilder.js";
+import { aplicarIdentidadeRetroativa, recompensaDescoberta, multOuroBau, multFragmentosExploracao, chanceColheitaExtra, bonusPrioridadeAuto } from "./systems/IdentidadeSystem.js";
+import { ganharXP, aplicarCrescimento } from "./systems/CharacterFactory.js";
+import { verificarDestino, registrarColeta, textoRecompensa, textoObjetivo } from "./systems/DestinoSystem.js";
+import { concederPontosPorNivel } from "./systems/TalentSystem.js";
 import { ROTAS_MARITIMAS } from "./data/world/routes.js";
 import { Renderer } from "./render/Renderer.js";
 import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
-import { montarCriacaoPersonagem } from "./ui/CharacterCreationUI.js";
+import { montarCriacaoPersonagem, MOTIVACOES_CRIACAO } from "./ui/CharacterCreationUI.js";
 import { atualizarHUD, atualizarIndicadorRecomendacaoTime, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao } from "./ui/GameUI.js";
 import { iniciarBatalha } from "./ui/BattleUI.js";
 import { montarGacha } from "./ui/GachaUI.js";
@@ -47,7 +51,7 @@ import { testesDoContexto, realizarTeste } from "./systems/SkillCheckSystem.js";
 import { autoPlayState, zerarResumoAuto, registrarResultadoBatalhaAuto, registrarGanhosAuto, textoResumoAuto } from "./systems/AutoPlayState.js";
 import { autoEquiparSlotsVazios, textoAcoesEquipamento } from "./systems/AutoEquipSystem.js";
 import { decidirPassoExploracao, PRIORIDADE } from "./systems/AutoExploreAI.js";
-import { facaoDaZona, deveEmboscar } from "./systems/WorldStateSystem.js";
+import { facaoDaZona, deveEmboscar, registrarDecisao } from "./systems/WorldStateSystem.js";
 import { marcarZonaVisitada, marcarMacroVisitada, pontoDeChegada, pontosDeViagemDisponiveis } from "./systems/FastTravelSystem.js";
 import {
   NEVOA, garantirNevoa, estadoDaZona, aoEntrarNaZona, verificarLandmarks,
@@ -88,7 +92,7 @@ import { faixaDeNivel, ameacaRelativa, zonaDoMundoPorId } from "./systems/MapaSy
 // Cartões de decisão: o jogo passa a CONTAR o que já sabia (item melhor na
 // mochila, habilidade destravada, material suficiente para forjar). Ver
 // GatilhosCartao.js para a lista do que pode interromper o jogador.
-import { iniciarCartoes, mostrarProximo, registrarAoSubirNivel } from "./ui/CartaoUI.js";
+import { iniciarCartoes, mostrarProximo, registrarAoSubirNivel, celebrarNivel } from "./ui/CartaoUI.js";
 import { enfileirar, tiquear, GANHO_MINIMO_PADRAO } from "./systems/CartaoSystem.js";
 import { gatilhosDoMomento } from "./systems/GatilhosCartao.js";
 import {
@@ -139,6 +143,7 @@ function assinaturaDoTime() {
 
 function atualizarInterfacePrincipal() {
   if (!personagem) return;
+  entregarDestinoPessoal();
   atualizarHUD(personagem);
   const assinatura = assinaturaDoTime();
   if (cacheRecomendacaoTime.assinatura !== assinatura) {
@@ -202,6 +207,10 @@ async function boot() {
       chunksCarregados: mundo.chunksAtivos ? [...mundo.chunksAtivos].join(" ") : "—",
       indice: indice ? estatisticasDoIndice(indice) : null,
       objetosDesenhados: objetosAtivos().length,
+      // Baús do mundo aberto que este herói enxerga — os escondidos só
+      // existem para o Elfo (traço racial "Olhos da Floresta").
+      baus: (mundo.chests || []).length,
+      bausEscondidos: (mundo.chests || []).filter((c) => c.escondido).length,
       // Estado das masmorras: quantos baús faltam, se o chefe está de pé e
       // se o lugar está em espera depois de concluído (ver DungeonSystem.js).
       // Só leitura — é o que permite a um teste afirmar "o automático
@@ -232,13 +241,23 @@ async function boot() {
   window.HDA_GRID = () => gridAtiva();
   window.HDA_PROPS = () => propsAtivos();
   window.HDA_RENDERER = () => renderer;
+  // Gancho só de teste, no mesmo espírito de HDA_TELEPORTE: abre uma batalha
+  // com os monstros pedidos (ids do monsters.json), no lugar onde o herói
+  // está. Sem ele, testar uma regra de batalha no navegador dependia de
+  // andar a esmo até um encontro aleatório. Nunca chamado pelo jogo.
+  window.HDA_BATALHA = (ids = []) => {
+    const defs = ids.map((id) => (dados.monsters || []).find((m) => m.id === id)).filter(Boolean);
+    if (!defs.length || !personagem) return false;
+    dispararBatalha(defs);
+    return true;
+  };
   processarRetornoLogin();
   // Acessibilidade (melhoria pós-backlog, ver AccessibilitySystem.js):
   // aplica a preferência salva (tamanho de fonte/alto contraste) já no
   // carregamento, antes de qualquer tela aparecer — sem isso o jogador
   // veria um "flash" da aparência padrão antes de trocar pra preferida.
   aplicarClassesAcessibilidade();
-  document.getElementById("btn-acessibilidade").onclick = () => montarAcessibilidade();
+  document.getElementById("btn-acessibilidade").onclick = () => montarAcessibilidade(personagem, () => personagem && atualizarHUD(personagem));
   dados = await carregarDados();
   imagens = await carregarTodasImagens(dados);
   renderer = new Renderer(canvas, imagens);
@@ -532,6 +551,19 @@ function iniciarCriacao() {
   montarCriacaoPersonagem(tela, dados, async (p) => {
     personagem = p;
     personagem.gacha = estadoGachaInicial();
+    // Primeira página do Diário de Decisões: de onde o herói vem e o que o
+    // move. É a motivação escolhida na criação, registrada onde o jogador
+    // relê as próprias escolhas.
+    const motivacao = MOTIVACOES_CRIACAO.find((m) => m.id === personagem.motivacaoId);
+    const origem = (dados.backgrounds || []).find((b) => b.id === personagem.antecedenteId);
+    const povo = ((dados.worldStateVariables && dados.worldStateVariables.facoes) || []).find((f) => f.id === personagem.faccaoOrigemId);
+    if (motivacao) {
+      registrarDecisao(personagem, {
+        icone: motivacao.icone,
+        titulo: `O que te move: ${motivacao.nome}`,
+        texto: `${origem ? `${origem.nome}` : "Herdeiro"}${povo ? `, gente de ${povo.nome}` : ""}. "${motivacao.descricao}"`,
+      });
+    }
     tela.classList.add("hidden");
     // O PRÓLOGO roda aqui, entre a criação e o primeiro frame do mundo: é o
     // único momento em que o jogador já tem um personagem (o texto da cena
@@ -625,6 +657,12 @@ function aplicarEstadoSalvo(salvo) {
   if (salvo.mundo && salvo.mundo.mundoRefeito) {
     delete salvo.mundo.mundoRefeito;
     mostrarMensagem("🗺️ Aethra foi remapeada e ficou muito maior. Seu herdeiro voltou à Vila; nível, itens e time continuam intactos.", 7000);
+  }
+  // As escolhas da criação passaram a ter efeito (elemento, facção de
+  // origem). Um herói de antes recebe o pacote uma vez — e fica sabendo.
+  const ganhosIdentidade = aplicarIdentidadeRetroativa(personagem, dados);
+  if (ganhosIdentidade.length) {
+    mostrarMensagem(`✨ Suas escolhas de criação agora pesam no jogo: ${ganhosIdentidade.join(", ")}.`, 6500);
   }
 }
 
@@ -908,6 +946,16 @@ function sementeDaURL() {
   }
 }
 
+// Baús do mundo aberto que ESTE herói enxerga. Os comuns valem para todos;
+// os escondidos só aparecem para o Elfo — é o traço racial "Olhos da
+// Floresta" (ver bausEscondidosDoMundo em WorldBuilder.js). Um save de elfo
+// guarda os escondidos abertos pelo id, igual aos comuns.
+function bausDoMundoParaHeroi() {
+  const comuns = mundo.gerado.baus || [];
+  if (!personagem || personagem.racaId !== "elfo") return comuns;
+  return [...comuns, ...bausEscondidosDoMundo(mundo.gerado, mundo.semente)];
+}
+
 function iniciarMundo(jaCarregado = false) {
   // A semente precisa existir ANTES de construir qualquer grade. Jogo novo
   // sorteia uma (único Math.random() de mundo que sobrou, e ele roda uma vez
@@ -923,7 +971,7 @@ function iniciarMundo(jaCarregado = false) {
     // Objetos persistem pelo id, nunca pela coordenada de uma malha antiga.
     const bausSalvos = new Map((mundo.chests || []).map((c) => [c.id, c]));
     const nosSalvos = new Map((mundo.nodes || []).map((n) => [n.id, n]));
-    mundo.chests = mundo.gerado.baus.map((c) => ({ ...c, aberto: !!bausSalvos.get(c.id)?.aberto }));
+    mundo.chests = bausDoMundoParaHeroi().map((c) => ({ ...c, aberto: !!bausSalvos.get(c.id)?.aberto }));
     mundo.nodes = mundo.gerado.nos.map((n) => ({ ...n, disponivel: nosSalvos.get(n.id)?.disponivel ?? true }));
   }
   // Arte das construções (casa, templo). Vem do mundo gerado, não do save: é
@@ -940,7 +988,7 @@ function iniciarMundo(jaCarregado = false) {
   if (!jaCarregado) {
     mundo.mapaAtual = "overworld";
     mundo.player = { ...mundo.gerado.spawn, dir: "baixo", frame: 0, ultimoMovimento: 0 };
-    mundo.chests = mundo.gerado.baus.map((c) => ({ ...c }));
+    mundo.chests = bausDoMundoParaHeroi().map((c) => ({ ...c }));
     mundo.nodes = mundo.gerado.nos.map((n) => ({ ...n }));
     mundo.zonaAtualId = "vila";
   } else if (mundo.mapaAtual === "masmorra") {
@@ -1702,7 +1750,22 @@ function verificarMudancaDeZona(x, y) {
     ];
     const novidades = visitaveis.filter((l) => Math.max(Math.abs(l.x - x), Math.abs(l.y - y)) <= l.alcanceDescoberta)
       .filter((l) => promoverLocal(personagem, l.id, NEVOA.DESCOBERTO));
-    if (novidades.length) mostrarMensagem(`🧭 Lugar descoberto: ${novidades[0].nome}`, 3000);
+    if (novidades.length) {
+      // Motivação Descoberta: cada lugar novo rende XP e Fragmentos.
+      const premio = recompensaDescoberta(personagem);
+      if (premio) {
+        const xp = premio.xp * novidades.length;
+        const fragmentos = premio.fragmentos * novidades.length;
+        const nivelAntes = personagem.nivel;
+        const { subiuNivel } = ganharXP(personagem, xp);
+        subiuNivel.forEach((novoNivel) => { aplicarCrescimento(personagem, dados); concederPontosPorNivel(personagem, novoNivel); });
+        if (subiuNivel.length) celebrarNivel(subiuNivel[subiuNivel.length - 1], nivelAntes);
+        adicionarFragmentos(personagem, fragmentos);
+        mostrarMensagem(`🧭 Lugar descoberto: ${novidades[0].nome} — 🗺️ Descoberta: +${xp} XP, +${fragmentos} Fragmentos`, 3600);
+      } else {
+        mostrarMensagem(`🧭 Lugar descoberto: ${novidades[0].nome}`, 3000);
+      }
+    }
   }
 }
 
@@ -1825,7 +1888,7 @@ function verificarEncontroAleatorio(grid, x, y) {
   // de monstro acima NÃO disparou neste passo (chance bem menor e
   // independente), pra nunca empilhar duas interrupções no mesmo passo.
   if (deveDispararEventoExploracao()) {
-    const evento = sortearEventoExploracao(dados.explorationEvents, dados.skillChecks);
+    const evento = sortearEventoExploracao(dados.explorationEvents, dados.skillChecks, personagem);
     if (evento) mostrarEventoExploracao(evento, personagem, dados, facaoAtual() || "vila", atualizarInterfacePrincipal);
     return;
   }
@@ -2121,10 +2184,12 @@ function abrirBau(alvo, porQuem = null) {
   const tabela = dados.lootTables[alvo.ref.tier];
   let msgFragmentos = "";
   if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
+  // Interesse Exploração: +10% de Fragmentos de baús e nós.
+  const fragmentosBau = Math.round(FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA * multFragmentosExploracao(personagem));
   if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
     personagem.locaisExplorados.push(alvo.ref.id);
-    adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA);
-    msgFragmentos = ` (+${FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA} Fragmentos de Aethra)`;
+    adicionarFragmentos(personagem, fragmentosBau);
+    msgFragmentos = ` (+${fragmentosBau} Fragmentos de Aethra)`;
   }
   let msgTeste = "";
   if (tabela) {
@@ -2154,15 +2219,18 @@ function abrirBau(alvo, porQuem = null) {
         }
       }
       const ouroBase = { bau_comum: 45, bau_raro: 90, bau_epico: 170, bau_lendario: 300 }[alvo.ref.tier] || 45;
-      const ouroGanho = Math.round(ouroBase * (1 + Math.max(0, (personagem.nivel || 1) - 1) * 0.08) * (abencoado ? 1.35 : 1));
+      // Interesse Tesouros: +10% de ouro em baús.
+      const ouroGanho = Math.round(ouroBase * (1 + Math.max(0, (personagem.nivel || 1) - 1) * 0.08) * (abencoado ? 1.35 : 1) * multOuroBau(personagem));
       personagem.ouro = (personagem.ouro || 0) + ouroGanho;
-      const abertura = porQuem ? `🐾 ${porQuem} abriu um baú e trouxe:` : "Baú aberto! Você encontrou:";
+      const abertura = porQuem ? `🐾 ${porQuem} abriu um baú e trouxe:`
+        : alvo.ref.escondido ? "👁️ Olhos da Floresta: um baú escondido! Você encontrou:"
+        : "Baú aberto! Você encontrou:";
       mostrarMensagem(`${abertura} ${itensGanhos.length} itens e ${ouroGanho} de ouro${msgFragmentos}${msgTeste}`, 3600);
       celebrarRecompensa({
-        titulo: alvo.ref.tier === "bau_lendario" ? "Tesouro lendário!" : "Tesouro conquistado!",
+        titulo: alvo.ref.tier === "bau_lendario" ? "Tesouro lendário!" : alvo.ref.escondido ? "Baú escondido!" : "Tesouro conquistado!",
         itens: itensGanhos,
         ouro: ouroGanho,
-        fragmentos: msgFragmentos ? FRAGMENTOS.EXPLORACAO_BAU_RECOMPENSA : 0,
+        fragmentos: msgFragmentos ? fragmentosBau : 0,
         abencoado,
       });
     }
@@ -2186,7 +2254,13 @@ function coletarNo(alvo, porQuem = null) {
     const r = realizarTeste(personagem, dados, testeNo);
     if (r.sucesso) { quantidade = 2; msgTeste = ` 🎲 ${testeNo.textoSucesso}`; }
   }
+  // Interesse Natureza: 10% de chance de colher 1 a mais.
+  if (itemMaterial && Math.random() < chanceColheitaExtra(personagem)) {
+    quantidade += 1;
+    msgTeste += " 🌿 Olho de quem gosta da natureza: +1.";
+  }
   if (itemMaterial) {
+    registrarColeta(personagem); // contador do destino pessoal (DestinoSystem.js)
     for (let i = 0; i < quantidade; i++) {
       personagem.inventario.push({ ...itemMaterial, uid: "id_" + Math.random().toString(36).slice(2, 10) });
     }
@@ -2197,7 +2271,7 @@ function coletarNo(alvo, porQuem = null) {
   if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
   if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
     personagem.locaisExplorados.push(alvo.ref.id);
-    adicionarFragmentos(personagem, FRAGMENTOS.EXPLORACAO_NO_RECOMPENSA);
+    adicionarFragmentos(personagem, Math.round(FRAGMENTOS.EXPLORACAO_NO_RECOMPENSA * multFragmentosExploracao(personagem)));
   }
   alvo.ref.disponivel = false;
   setTimeout(() => { alvo.ref.disponivel = true; }, 25000);
@@ -2293,7 +2367,7 @@ function onHudAction(action) {
   else if (action === "mapa") abrirMapaMundo();
   else if (action === "estado") abrirPainelEstado();
   else if (action === "auto") alternarModoAutomatico();
-  else if (action === "acessibilidade") montarAcessibilidade();
+  else if (action === "acessibilidade") montarAcessibilidade(personagem, () => atualizarHUD(personagem));
   else if (action === "diario") montarDiarioDeDecisoes(personagem, dados);
   else if (action === "descansar") descansarTime();
   else if (action === "sair_masmorra") sairDaMasmorra();
@@ -2777,6 +2851,25 @@ function masmorraTemAlgoAFazer(id, m) {
   return chefeDaMasmorraDisponivel(m) && !pararAutoAntesDoChefe() && !chefeMortalDemais(m.boss);
 }
 
+// DESTINO PESSOAL (ver DestinoSystem.js): a tarefa do contato de origem e os
+// passos da motivação andam sozinhos com o que o jogador já faz. Conferido a
+// cada atualização da interface — é barato, são só contadores — e entregue
+// aqui porque o XP passa pelo fluxo normal de subir de nível.
+function entregarDestinoPessoal() {
+  const concluidos = verificarDestino(personagem, dados);
+  concluidos.forEach((c) => {
+    if (c.xp) {
+      const nivelAntes = personagem.nivel;
+      const { subiuNivel } = ganharXP(personagem, c.xp);
+      subiuNivel.forEach((novoNivel) => { aplicarCrescimento(personagem, dados); concederPontosPorNivel(personagem, novoNivel); });
+      if (subiuNivel.length) celebrarNivel(subiuNivel[subiuNivel.length - 1], nivelAntes);
+    }
+    const premio = textoRecompensa(c.recompensa, dados);
+    registrarDecisao(personagem, { icone: c.icone, titulo: `Caminho pessoal: ${c.titulo}`, texto: `${textoObjetivo(c.objetivo)} — concluído. ${premio}.` });
+    notificarSucesso(`${c.icone} ${c.titulo} — concluído! ${premio}`, 5200);
+  });
+}
+
 // Quantos níveis acima do herói uma zona pode estar para o automático ir até
 // ela sozinho (ver o filtro no fim da parte do mundo aberto, abaixo).
 const FOLGA_NIVEL_AUTO = 3;
@@ -2858,6 +2951,12 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
       alvos.push({ x: m.exitZone.x0, y: m.exitZone.y0, tipo: "saida", prioridade: PRIORIDADE.saida, exigeMesmoTile: true });
     }
   }
+  // Interesses do herói pesam no que o automático escolhe (ver
+  // IdentidadeSystem.bonusPrioridadeAuto): quem gosta de tesouros puxa para
+  // baú, quem gosta de natureza para nó, quem gosta de histórias para NPC.
+  // Um empurrão de 8 a 12 pontos numa régua em que o descanso vale 140 —
+  // muda a ordem entre alvos parecidos, nunca passa por cima de descanso.
+  alvos.forEach((alvo) => { alvo.prioridade += bonusPrioridadeAuto(personagem, alvo.tipo); });
   return somenteExploracao ? alvos.filter((alvo) => alvo.tipo === "explorar") : alvos;
 }
 

@@ -99,3 +99,14 @@ body:has(#modal-overlay:not(.hidden)) #guia-missao { display:none; }
   .missao-rastreada-acoes { margin-top:8px; }
 }
 @media (prefers-reduced-motion:reduce) { #guia-missao .guia-seta { box-shadow:none; } }
+
+/* Seu caminho (DestinoSystem.js): contato de origem e motivação. */
+.destino-pessoal { display:grid; gap:10px; margin:0 0 18px; padding:14px 16px; border:1px solid rgba(143,214,167,.32); border-radius:14px; background:linear-gradient(130deg,rgba(12,28,26,.92),rgba(16,20,30,.92)); }
+.destino-item { padding:10px 12px; border-left:3px solid rgba(143,214,167,.6); border-radius:8px; background:rgba(255,255,255,.03); }
+.destino-cabecalho { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 10px; }
+.destino-cabecalho b { color:#e9f7ee; font-size:.9rem; }
+.destino-cabecalho small { color:#93b3a4; font-size:.68rem; }
+.destino-recado { margin:6px 0; color:#cfdcd4; font-size:.76rem; font-style:italic; line-height:1.4; }
+.destino-objetivo { display:flex; justify-content:space-between; gap:8px; margin:6px 0 0; color:#e9dfc8; font-size:.78rem; }
+.destino-recompensa { margin:4px 0 0; color:#b8d9c4; font-size:.72rem; }
+.destino-recompensa small { margin-right:4px; color:#8fa99a; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }

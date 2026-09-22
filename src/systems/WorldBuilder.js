@@ -1824,6 +1824,65 @@ export function mundoDaSemente(semente) {
 }
 export function limparCacheMundo() { cacheMundo = null; }
 
+// BAÚS ESCONDIDOS — o que o traço racial do Elfo ("Olhos da Floresta")
+// promete. Ficam FORA de construirMundo de propósito: usam um gerador
+// semeado próprio (`prngDe(semente, "baus-escondidos")`), não tocam no `rnd`
+// do mundo nem na grade, então o mapa de todo mundo continua idêntico — só o
+// elfo recebe estes baús na lista de objetos (ver iniciarMundo em main.js).
+//
+// Regra: metade das zonas que ficaram SEM baú comum ganha um escondido,
+// perto de um nó de recurso da própria zona. O nó já tem acesso garantido
+// pelo gerador; a busca abaixo anda só por tile aberto a partir dele, então o
+// baú escondido também é alcançável — nunca fica atrás de água ou rocha.
+const RAIO_BAU_ESCONDIDO = 6;
+export function bausEscondidosDoMundo(gerado, semente) {
+  if (!gerado || !gerado.grid) return [];
+  if (gerado.bausEscondidos && gerado.bausEscondidos.semente === semente) return gerado.bausEscondidos.lista;
+  const g = gerado.grid;
+  const rnd = prngDe(semente, "baus-escondidos");
+  const ocupados = new Set();
+  const marcar = (p) => { if (p && dentro(p.x, p.y)) ocupados.add(idx(p.x, p.y)); };
+  [...(gerado.baus || []), ...(gerado.nos || []), ...(gerado.chefes || []), ...(gerado.pois || []),
+    ...(gerado.landmarks || []), ...(gerado.vagasNpc || []), ...(gerado.assentamentos || [])].forEach(marcar);
+  (gerado.masmorras || []).forEach((m) => marcar(m.entrada));
+  (gerado.props || []).forEach((p) => tilesDeColisao(p).forEach(marcar));
+  const aberto = (x, y) => dentro(x, y) && !SOLID_TILES.has(g[y][x]) && !TILES_AGUA.has(g[y][x]);
+  const comBau = new Set((gerado.baus || []).map((b) => b.zonaId));
+  const lista = [];
+  for (const z of gerado.zonas || []) {
+    if (comBau.has(z.id) || z.funcao === "inicial") continue;
+    if (rnd() >= 0.5) continue;
+    const no = (gerado.nos || []).find((n) => n.zonaId === z.id);
+    if (!no) continue;
+    // Busca em largura a partir do nó, só por tile aberto, até o raio.
+    const vistos = new Set([idx(no.x, no.y)]);
+    let fronteira = [{ x: no.x, y: no.y }];
+    const candidatos = [];
+    for (let passo = 1; passo <= RAIO_BAU_ESCONDIDO && fronteira.length; passo += 1) {
+      const proxima = [];
+      for (const p of fronteira) {
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const x = p.x + dx; const y = p.y + dy;
+          const k = idx(x, y);
+          if (vistos.has(k) || !aberto(x, y)) continue;
+          vistos.add(k);
+          proxima.push({ x, y });
+          if (passo >= 2 && !ocupados.has(k)) candidatos.push({ x, y });
+        }
+      }
+      fronteira = proxima;
+    }
+    if (!candidatos.length) continue;
+    const pos = candidatos[Math.floor(rnd() * candidatos.length)];
+    ocupados.add(idx(pos.x, pos.y));
+    const perigo = (z.perigo && z.perigo[1]) || 1;
+    const tier = perigo >= 15 ? "bau_lendario" : perigo >= 11 ? "bau_epico" : perigo >= 6 ? "bau_raro" : "bau_comum";
+    lista.push({ id: `bau_oculto_${z.id}`, x: pos.x, y: pos.y, tier, aberto: false, zonaId: z.id, escondido: true });
+  }
+  gerado.bausEscondidos = { semente, lista };
+  return lista;
+}
+
 // Assinatura que o jogo já usava desde a ETAPA 1. Continua devolvendo só a
 // grade — quem quer o mundo inteiro (assentamentos, estradas, POIs) pede
 // `mundoDaSemente()`. Mantida aqui, e não em worldMap.js, porque o gerador

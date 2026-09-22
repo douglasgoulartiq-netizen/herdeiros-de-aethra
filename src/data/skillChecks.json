@@ -85,5 +85,280 @@
     "textoSucesso": "Você segue os sinais até um esconderijo abandonado às pressas, com alguns suprimentos deixados para trás.",
     "textoFalha": "Os sinais somem entre as pedras — o que quer que fosse, já se foi.",
     "recompensaOuroSucesso": 16
+  },
+  {
+    "id": "pedagio_na_ponte",
+    "contexto": "exploracao",
+    "pericia": "Intimidação",
+    "atributo": "FOR",
+    "dificuldade": 12,
+    "icone": "🌉",
+    "titulo": "Pedágio na Ponte",
+    "texto": "Três sujeitos mal-encarados fecharam a ponte com uma corda e cobram \"pedágio\" de quem quer passar.",
+    "textoOferta": "Encará-los até a corda cair sozinha. (Teste de Intimidação)",
+    "textoSucesso": "Um deles engole em seco, afrouxa a corda e ainda devolve o que cobrou do último viajante.",
+    "textoFalha": "Eles riem da sua cara, e você perde a tarde dando a volta pelo vau.",
+    "recompensaOuroSucesso": 22
+  },
+  {
+    "id": "ladrao_de_armadilhas",
+    "contexto": "exploracao",
+    "pericia": "Intimidação",
+    "atributo": "FOR",
+    "dificuldade": 11,
+    "icone": "🪤",
+    "titulo": "Ladrão de Armadilhas",
+    "texto": "Um homem esvazia armadilhas que não são dele. O dono pregou um aviso na árvore ao lado — e ele não leu.",
+    "textoOferta": "Mandar ele largar tudo e sumir. (Teste de Intimidação)",
+    "textoSucesso": "Ele solta o saco e corre. Dentro, peles que valem umas boas moedas.",
+    "textoFalha": "Ele some no mato com o saco — e com a sua paciência.",
+    "recompensaOuroSucesso": 18
+  },
+  {
+    "id": "guarda_sem_brasao",
+    "contexto": "exploracao",
+    "pericia": "Intimidação",
+    "atributo": "FOR",
+    "dificuldade": 13,
+    "icone": "🛡️",
+    "titulo": "Guarda sem Brasão",
+    "texto": "Um \"guarda\" exige taxa de passagem. O brasão arrancado do peito conta o resto da história.",
+    "textoOferta": "Perguntar, bem de perto, de quem ele recebe ordens. (Teste de Intimidação)",
+    "textoSucesso": "Ele gagueja, desiste da taxa e te entrega o que já tinha cobrado dos outros. A região agradece.",
+    "textoFalha": "Ele não se abala. Você paga com tempo o que não pagou com ouro.",
+    "recompensaOuroSucesso": 24,
+    "reputacaoSucesso": 2
+  },
+  {
+    "id": "lobo_faminto",
+    "contexto": "exploracao",
+    "pericia": "Intimidação",
+    "atributo": "FOR",
+    "dificuldade": 10,
+    "icone": "🐺",
+    "titulo": "Lobo Faminto",
+    "texto": "Um lobo magro, sozinho, rosna entre você e a trilha. Não parece querer briga — parece querer comida.",
+    "textoOferta": "Crescer para cima dele e mandá-lo embora sem luta. (Teste de Intimidação)",
+    "textoSucesso": "O lobo recua e some. Onde ele estava, uma bolsa rasgada de algum viajante menos sortudo.",
+    "textoFalha": "O lobo não recua. Você dá a volta longa, sem dar as costas.",
+    "recompensaOuroSucesso": 15
+  },
+  {
+    "id": "mercador_desconfiado",
+    "contexto": "exploracao",
+    "pericia": "Persuasão",
+    "atributo": "INT",
+    "dificuldade": 11,
+    "icone": "🧺",
+    "titulo": "Mercador Desconfiado",
+    "texto": "Um mercador de estrada guarda as melhores mercadorias debaixo do balcão e só mostra a quem ele confia.",
+    "textoOferta": "Conquistar a confiança dele numa boa conversa. (Teste de Persuasão)",
+    "textoSucesso": "Ele ri, puxa uma poção de debaixo do pano e te dá \"de amostra\".",
+    "textoFalha": "Ele sorri, educado, e mantém o balcão fechado.",
+    "recompensaOuroSucesso": 8,
+    "itensSucesso": [
+      {
+        "id": "pocao_vida_p",
+        "qtd": 1
+      }
+    ]
+  },
+  {
+    "id": "caravana_parada",
+    "contexto": "exploracao",
+    "pericia": "Persuasão",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "icone": "🐫",
+    "titulo": "Caravana Parada",
+    "texto": "Uma caravana está parada no meio da estrada: roda quebrada, e os carroceiros discutem se abandonam a carga.",
+    "textoOferta": "Convencê-los a dividir a carga e seguir juntos. (Teste de Persuasão)",
+    "textoSucesso": "Eles topam, e o chefe da caravana te paga pela ideia. A notícia corre pela região.",
+    "textoFalha": "Ninguém te escuta; a discussão continua quando você vai embora.",
+    "recompensaOuroSucesso": 20,
+    "reputacaoSucesso": 2
+  },
+  {
+    "id": "pastor_teimoso",
+    "contexto": "exploracao",
+    "pericia": "Persuasão",
+    "atributo": "INT",
+    "dificuldade": 10,
+    "icone": "🐑",
+    "titulo": "Pastor Teimoso",
+    "texto": "Um pastor e o rebanho inteiro fecham o único atalho seco da região. Ele não tem pressa nenhuma.",
+    "textoOferta": "Convencê-lo a abrir caminho — e talvez a dividir o farnel. (Teste de Persuasão)",
+    "textoSucesso": "Ele abre passagem e insiste que você leve pão e umas moedas \"pela boa prosa\".",
+    "textoFalha": "Ele cruza os braços. Você espera o rebanho inteiro passar.",
+    "recompensaOuroSucesso": 12,
+    "itensSucesso": [
+      {
+        "id": "pao",
+        "qtd": 1
+      }
+    ]
+  },
+  {
+    "id": "crianca_perdida",
+    "contexto": "exploracao",
+    "pericia": "Empatia",
+    "atributo": "INT",
+    "dificuldade": 11,
+    "icone": "🧒",
+    "titulo": "Criança Perdida",
+    "texto": "Uma criança chora sentada numa pedra, sem conseguir dizer de onde veio.",
+    "textoOferta": "Sentar ao lado dela, ouvir e descobrir de onde ela é. (Teste de Empatia)",
+    "textoSucesso": "Pelas palavras dela você acha a família, que te agradece com o pouco que tem.",
+    "textoFalha": "Você a leva até a estrada, onde uma viajante promete cuidar dela.",
+    "recompensaOuroSucesso": 14,
+    "reputacaoSucesso": 3
+  },
+  {
+    "id": "soldado_ferido",
+    "contexto": "exploracao",
+    "pericia": "Empatia",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "icone": "🩹",
+    "titulo": "Soldado Ferido",
+    "texto": "Um soldado de outra bandeira está encostado numa árvore, ferido, desconfiado de qualquer um.",
+    "textoOferta": "Mostrar que você não é inimigo e cuidar do ferimento. (Teste de Empatia)",
+    "textoSucesso": "Ele aceita a ajuda e, antes de ir, desenha para você o caminho até um esconderijo.",
+    "textoFalha": "Ele não aceita ajuda. Você deixa água ao lado dele e segue.",
+    "recompensaOuroSucesso": 22
+  },
+  {
+    "id": "velha_do_poco",
+    "contexto": "exploracao",
+    "pericia": "Empatia",
+    "atributo": "INT",
+    "dificuldade": 10,
+    "icone": "🪣",
+    "titulo": "A Velha do Poço",
+    "texto": "Uma senhora tira água de um poço seco — ou finge tirar. Parece esperar alguém que nunca veio.",
+    "textoOferta": "Perguntar por quem ela espera e ouvir a história inteira. (Teste de Empatia)",
+    "textoSucesso": "Ela conta do filho que partiu e te entrega o cristal de Éter que guardava para ele.",
+    "textoFalha": "Ela sorri e diz que já está acostumada a esperar.",
+    "fragmentosSucesso": 20
+  },
+  {
+    "id": "tempestade_chegando",
+    "contexto": "exploracao",
+    "pericia": "Sobrevivência",
+    "atributo": "CON",
+    "dificuldade": 11,
+    "icone": "⛈️",
+    "titulo": "Tempestade Chegando",
+    "texto": "O céu escurece rápido demais. Em minutos, a trilha vai virar lama.",
+    "textoOferta": "Ler o céu e achar abrigo antes da chuva. (Teste de Sobrevivência)",
+    "textoSucesso": "Você acha uma gruta seca — e nela, suprimentos que outro viajante deixou para trás.",
+    "textoFalha": "A chuva te pega no caminho. Nada perdido além do bom humor.",
+    "recompensaOuroSucesso": 6,
+    "itensSucesso": [
+      {
+        "id": "pocao_vida_p",
+        "qtd": 1
+      }
+    ]
+  },
+  {
+    "id": "agua_parada",
+    "contexto": "exploracao",
+    "pericia": "Sobrevivência",
+    "atributo": "CON",
+    "dificuldade": 10,
+    "icone": "💧",
+    "titulo": "Água Parada",
+    "texto": "O cantil está vazio, e o único riacho à vista tem uma cor que não inspira confiança.",
+    "textoOferta": "Achar uma fonte limpa pelos sinais do terreno. (Teste de Sobrevivência)",
+    "textoSucesso": "Você segue o musgo e as pedras até uma nascente — e colhe as ervas que crescem na margem.",
+    "textoFalha": "Você perde tempo procurando e segue com sede até a próxima vila.",
+    "itensSucesso": [
+      {
+        "id": "erva",
+        "qtd": 2
+      }
+    ]
+  },
+  {
+    "id": "acampamento_saqueadores",
+    "contexto": "exploracao",
+    "pericia": "Furtividade",
+    "atributo": "DES",
+    "dificuldade": 12,
+    "icone": "🏕️",
+    "titulo": "Acampamento de Saqueadores",
+    "texto": "Saqueadores dormem em volta de uma fogueira quase apagada, com o saque empilhado no meio.",
+    "textoOferta": "Chegar, pegar o que der e sair sem acordar ninguém. (Teste de Furtividade)",
+    "textoSucesso": "Você sai com uma bolsa pesada e o coração na boca.",
+    "textoFalha": "Um galho estala. Você sai correndo antes que alguém acorde de verdade.",
+    "recompensaOuroSucesso": 26
+  },
+  {
+    "id": "sentinela_cochilando",
+    "contexto": "exploracao",
+    "pericia": "Furtividade",
+    "atributo": "DES",
+    "dificuldade": 11,
+    "icone": "😴",
+    "titulo": "Sentinela Cochilando",
+    "texto": "Um sentinela cochila na entrada de uma gruta onde bandidos guardam o que roubam.",
+    "textoOferta": "Passar por ele sem acordá-lo. (Teste de Furtividade)",
+    "textoSucesso": "Lá dentro, entre caixotes vazios, um frasco esquecido e algumas moedas.",
+    "textoFalha": "Ele acorda num sobressalto; você finge que só estava de passagem.",
+    "recompensaOuroSucesso": 12,
+    "itensSucesso": [
+      {
+        "id": "pocao_vida_p",
+        "qtd": 1
+      }
+    ]
+  },
+  {
+    "id": "runa_pulsante",
+    "contexto": "exploracao",
+    "pericia": "Conhecimento Arcano",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "icone": "🔷",
+    "titulo": "Runa Pulsante",
+    "texto": "Uma pedra entalhada brilha num ritmo lento, como se respirasse Éter.",
+    "textoOferta": "Ler a runa e descobrir o que ela guarda. (Teste de Conhecimento Arcano)",
+    "textoSucesso": "A runa se apaga e deixa escapar um resto de Éter cristalizado.",
+    "textoFalha": "A runa continua pulsando, indiferente a você.",
+    "fragmentosSucesso": 20
+  },
+  {
+    "id": "circulo_de_pedras",
+    "contexto": "exploracao",
+    "pericia": "Conhecimento Arcano",
+    "atributo": "INT",
+    "dificuldade": 11,
+    "icone": "🗿",
+    "titulo": "Círculo de Pedras",
+    "texto": "Pedras em círculo, alinhadas com alguma coisa no céu.",
+    "textoOferta": "Entender o alinhamento e achar o centro exato do círculo. (Teste de Conhecimento Arcano)",
+    "textoSucesso": "No centro exato, enterrada, uma caixa com oferendas antigas.",
+    "textoFalha": "Você anda em círculos — literalmente — e desiste.",
+    "recompensaOuroSucesso": 24
+  },
+  {
+    "id": "grimorio_rasgado",
+    "contexto": "exploracao",
+    "pericia": "Conhecimento Arcano",
+    "atributo": "INT",
+    "dificuldade": 12,
+    "icone": "📖",
+    "titulo": "Grimório Rasgado",
+    "texto": "Páginas soltas de um grimório voam com o vento, presas nos arbustos.",
+    "textoOferta": "Juntar as páginas certas e decifrar o feitiço. (Teste de Conhecimento Arcano)",
+    "textoSucesso": "Três páginas fazem sentido juntas: um pergaminho que ainda funciona.",
+    "textoFalha": "As páginas não conversam entre si. O vento leva o resto.",
+    "itensSucesso": [
+      {
+        "id": "pergaminho_arcano",
+        "qtd": 1
+      }
+    ]
   }
 ]

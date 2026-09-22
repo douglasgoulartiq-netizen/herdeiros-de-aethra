@@ -1022,6 +1022,160 @@
       "descricao": "Um anel sem encantamento, mas de bom gosto."
     },
     {
+      "id": "anel_de_sinete",
+      "nome": "Anel de Sinete",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "raridade": "incomum",
+      "icone": "anel",
+      "bonusAtributo": {
+        "INT": 1,
+        "CON": 1
+      },
+      "valor": 60,
+      "descricao": "O sinete da sua casa. Abre portas, e dá +1 INT e +1 CON."
+    },
+    {
+      "id": "emblema_guardioes_da_folha",
+      "nome": "Emblema dos Guardiões da Folha Verde",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "guardioes_da_folha",
+      "descricao": "O emblema do povo de onde você veio. +1 de Destreza."
+    },
+    {
+      "id": "emblema_cla_dos_ventos_dourados",
+      "nome": "Emblema do Clã dos Ventos Dourados",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "cla_dos_ventos_dourados",
+      "descricao": "O emblema do povo de onde você veio. +1 de Força."
+    },
+    {
+      "id": "emblema_andarilhos_do_pantano",
+      "nome": "Emblema dos Andarilhos do Pântano",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "andarilhos_do_pantano",
+      "descricao": "O emblema do povo de onde você veio. +1 de Constituição."
+    },
+    {
+      "id": "emblema_confraria_do_farol",
+      "nome": "Emblema da Confraria do Farol",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "confraria_do_farol",
+      "descricao": "O emblema do povo de onde você veio. +1 de Inteligência."
+    },
+    {
+      "id": "emblema_caravana_de_karn",
+      "nome": "Emblema da Caravana de Karn",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "DES": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "caravana_de_karn",
+      "descricao": "O emblema do povo de onde você veio. +1 de Destreza."
+    },
+    {
+      "id": "emblema_forja_dos_anoes_cinzentos",
+      "nome": "Emblema da Forja dos Anões Cinzentos",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "forja_dos_anoes_cinzentos",
+      "descricao": "O emblema do povo de onde você veio. +1 de Constituição."
+    },
+    {
+      "id": "emblema_ordem_dos_arquivistas",
+      "nome": "Emblema da Ordem dos Arquivistas Perdidos",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "ordem_dos_arquivistas",
+      "descricao": "O emblema do povo de onde você veio. +1 de Inteligência."
+    },
+    {
+      "id": "emblema_cavaleiros_do_vento_uivante",
+      "nome": "Emblema dos Cavaleiros do Vento Uivante",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "cavaleiros_do_vento_uivante",
+      "descricao": "O emblema do povo de onde você veio. +1 de Força."
+    },
+    {
+      "id": "emblema_legiao_das_cinzas",
+      "nome": "Emblema da Legião das Cinzas",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "FOR": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "legiao_das_cinzas",
+      "descricao": "O emblema do povo de onde você veio. +1 de Força."
+    },
+    {
+      "id": "emblema_coroa_de_aethra",
+      "nome": "Emblema da Coroa de Aethra",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "incomum",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 1
+      },
+      "valor": 30,
+      "emblemaDeFaccao": "coroa_de_aethra",
+      "descricao": "O emblema do povo de onde você veio. +1 de Constituição."
+    },
+    {
       "id": "amuleto_vida",
       "nome": "Amuleto da Vitalidade",
       "tipo": "acessorio",

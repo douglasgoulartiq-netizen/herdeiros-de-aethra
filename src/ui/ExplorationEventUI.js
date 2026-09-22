@@ -6,7 +6,7 @@
 import { abrirModalBase, fecharModal, mostrarMensagem } from "./GameUI.js";
 import { realizarTeste } from "../systems/SkillCheckSystem.js";
 import { mostrarRolagemD20 } from "./DiceAnimation.js";
-import { opcaoDisponivel, aplicarEscolhaEvento, aplicarAchadoEvento, aplicarResultadoTesteExploracao } from "../systems/ExplorationEventSystem.js";
+import { opcaoDisponivel, aplicarEscolhaEvento, aplicarAchadoEvento, aplicarResultadoTesteExploracao, opcoesDoEvento, opcaoDeOrigem } from "../systems/ExplorationEventSystem.js";
 import { registrarDecisao } from "../systems/WorldStateSystem.js";
 import { marcarInteracaoAutomatica } from "./HdaUI.js";
 
@@ -40,6 +40,25 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
     infoTeste.innerHTML = `<i>🎲 ${evento.pericia} — ${evento.textoOferta}</i>`;
     corpo.appendChild(infoTeste);
 
+    // OPÇÃO DE ORIGEM: quando a perícia do teste é a da origem do herói, ele
+    // resolve sem rolar o dado. É o que a origem dá em troca de não dar
+    // número nenhum em combate — ver opcaoDeOrigem em ExplorationEventSystem.
+    const daOrigem = opcaoDeOrigem(evento, personagem, dados);
+    if (daOrigem) {
+      const btnOrigem = document.createElement("button");
+      btnOrigem.className = "primario btn-evento-origem";
+      btnOrigem.textContent = daOrigem.rotulo;
+      btnOrigem.onclick = () => {
+        btnOrigem.disabled = true;
+        const r = aplicarResultadoTesteExploracao(personagem, evento, { sucesso: true }, { dados, facaoId, dadosWorldState: dados.worldStateVariables });
+        fecharModal();
+        mostrarMensagem(`✅ ${r.texto}${r.ouroDelta ? ` (+${r.ouroDelta} ouro)` : ""}${r.extras && r.extras.length ? ` (${r.extras.join(", ")})` : ""}`, 4200);
+        registrarDecisao(personagem, { icone: evento.icone || "🎲", titulo: evento.titulo, texto: `${daOrigem.origem.nome}: ${r.texto}` });
+        onFim();
+      };
+      corpo.appendChild(btnOrigem);
+    }
+
     const btnTentar = document.createElement("button");
     btnTentar.className = "primario btn-evento-tentar";
     btnTentar.textContent = "Tentar";
@@ -49,7 +68,7 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
       // alterar o jogo, e pular a animação (Acessibilidade → velocidade
       // instantânea) dá exatamente o mesmo desfecho.
       const resultado = realizarTeste(personagem, dados, evento);
-      const r = aplicarResultadoTesteExploracao(personagem, evento, resultado);
+      const r = aplicarResultadoTesteExploracao(personagem, evento, resultado, { dados, facaoId, dadosWorldState: dados.worldStateVariables });
 
       // Trava o botão: sem isto, clicar duas vezes durante o segundo de
       // animação rolaria o teste de novo e aplicaria o efeito duas vezes.
@@ -64,7 +83,7 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
         modificadores: mods,
       });
 
-      mostrarMensagem(`${resultado.sucesso ? "✅" : "❌"} ${r.texto}${r.ouroDelta ? ` (+${r.ouroDelta} ouro)` : ""}`, 4200);
+      mostrarMensagem(`${resultado.sucesso ? "✅" : "❌"} ${r.texto}${r.ouroDelta ? ` (+${r.ouroDelta} ouro)` : ""}${r.extras && r.extras.length ? ` (${r.extras.join(", ")})` : ""}`, 4200);
       registrarDecisao(personagem, { icone: evento.icone || "🎲", titulo: evento.titulo, texto: r.texto });
       onFim();
     };
@@ -83,17 +102,20 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
   // "Tentar" do teste de perícia acima, pro modo automático (ver
   // tickAutoPlay em main.js) sempre ter uma ação preferencial a clicar em
   // vez de simplesmente fechar o modal.
-  (evento.opcoes || []).forEach((opcao, idx) => {
+  // A lista inclui a opção da PERSONALIDADE do herói, quando o evento tem
+  // uma (`opcoesPorTraco`) — ver opcoesDoEvento.
+  opcoesDoEvento(evento, personagem).forEach((opcao, idx) => {
     const disponivel = opcaoDisponivel(opcao, personagem);
     const btn = document.createElement("button");
     if (idx === 0) btn.className = "primario btn-evento-tentar";
+    if (opcao.doTraco) btn.classList.add("btn-evento-traco");
     btn.textContent = opcao.rotulo + (opcao.custoOuroMinimo && !disponivel ? ` (precisa de ${opcao.custoOuroMinimo} ouro)` : "");
     btn.disabled = !disponivel;
     btn.onclick = () => {
-      const r = aplicarEscolhaEvento(personagem, evento, opcao.id, dados.worldStateVariables, facaoId);
+      const r = aplicarEscolhaEvento(personagem, evento, opcao.id, dados.worldStateVariables, facaoId, dados);
       if (!r.ok) return;
       const icone = r.sucesso === false ? "❌" : r.sucesso === true ? "✅" : (evento.icone || "❔");
-      mostrarMensagem(`${icone} ${r.texto}${r.ouroDelta ? ` (${r.ouroDelta > 0 ? "+" : ""}${r.ouroDelta} ouro)` : ""}`, 4200);
+      mostrarMensagem(`${icone} ${r.texto}${r.ouroDelta ? ` (${r.ouroDelta > 0 ? "+" : ""}${r.ouroDelta} ouro)` : ""}${r.extras && r.extras.length ? ` (${r.extras.join(", ")})` : ""}`, 4200);
       registrarDecisao(personagem, { icone: evento.icone || "❔", titulo: evento.titulo, texto: r.texto });
       fecharModal();
       onFim();

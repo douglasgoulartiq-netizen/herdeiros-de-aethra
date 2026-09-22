@@ -1,5 +1,5 @@
 {
-  "_comentario": "Caminhos do Herdeiro: subclasses por família de classe. Escolhida uma vez no nível 10 (ver NIVEL_ESCOLHA_SUBCLASSE em TalentSystem.js) — permanente, não pode trocar depois. Guerreiro (task #93) é a primeira classe com subclasses de verdade; Mago (task #94) vem em seguida. As outras 6 famílias de classe ainda não têm nenhuma subclasse (decisão do usuário: 'profundo em 2 classes primeiro').",
+  "_comentario": "Caminhos do Herdeiro: subclasses por família de classe. Escolhida uma vez no nível 10 (ver NIVEL_ESCOLHA_SUBCLASSE em TalentSystem.js) — permanente, não pode trocar depois. As 6 famílias de classe jogáveis têm 3 subclasses cada: Guerreiro (task #93), Mago (task #94) e, na onda 4 da proposta de criação de personagem, Ladino, Clérigo, Bárbaro e Patrulheiro — para que nenhuma classe escolhida na criação fique sem Caminho do Herdeiro.",
   "subclasses": [
     {
       "id": "guerreiro_devastador",
@@ -48,6 +48,102 @@
       "icone": "🔮",
       "nivelRequerido": 10,
       "descricao": "Manipula o Éter bruto sem filtrar por um elemento só — instável, poderoso, difícil de prever até pra quem o conjura. Prioriza dano puro de pico."
+    },
+    {
+      "id": "ladino_assassino",
+      "classeId": "ladino",
+      "nome": "Assassino",
+      "icone": "🗡️",
+      "nivelRequerido": 10,
+      "descricao": "Um golpe, no lugar certo, antes de o alvo saber que a luta começou. Prioriza crítico e dano que ignora armadura sobre qualquer outra coisa."
+    },
+    {
+      "id": "ladino_trapaceiro",
+      "classeId": "ladino",
+      "nome": "Trapaceiro",
+      "icone": "🎲",
+      "nivelRequerido": 10,
+      "descricao": "Cinza nos olhos, rota de fuga mapeada e nenhum pudor. Prioriza controle sujo e sair vivo sobre dano bruto."
+    },
+    {
+      "id": "ladino_sombra",
+      "classeId": "ladino",
+      "nome": "Andarilho da Sombra",
+      "icone": "🌑",
+      "nivelRequerido": 10,
+      "descricao": "Veste o Umbral como um casaco: corrompe o que toca e corta vários de uma vez. Prioriza dano Sombrio contínuo e alcance sobre o golpe único."
+    },
+    {
+      "id": "clerigo_guardiao_da_luz",
+      "classeId": "clerigo",
+      "nome": "Guardião da Luz",
+      "icone": "☀️",
+      "nivelRequerido": 10,
+      "descricao": "Mantém o time de pé quando nada mais mantém. Prioriza a cura mais forte do jogo sobre qualquer ofensiva."
+    },
+    {
+      "id": "clerigo_inquisidor",
+      "classeId": "clerigo",
+      "nome": "Inquisidor",
+      "icone": "⚖️",
+      "nivelRequerido": 10,
+      "descricao": "A mesma Luz que cura também queima, e ele escolheu o segundo uso. Prioriza dano Radiante e queimadura sobre cura."
+    },
+    {
+      "id": "clerigo_oracular",
+      "classeId": "clerigo",
+      "nome": "Oracular",
+      "icone": "📿",
+      "nivelRequerido": 10,
+      "descricao": "Lê o golpe do inimigo antes de ele decidir dá-lo, e prepara o grupo para isso. Prioriza buffs de time e controle sobre cura direta."
+    },
+    {
+      "id": "barbaro_berserker",
+      "classeId": "barbaro",
+      "nome": "Berserker",
+      "icone": "🩸",
+      "nivelRequerido": 10,
+      "descricao": "A dor virou combustível e não há mais freio. Prioriza dano bruto e área sobre qualquer sobrevivência."
+    },
+    {
+      "id": "barbaro_totemico",
+      "classeId": "barbaro",
+      "nome": "Guardião Totêmico",
+      "icone": "🦬",
+      "nivelRequerido": 10,
+      "descricao": "Luta pelo clã antes de lutar por si. Prioriza vida, defesa e buffs de time sobre dano pessoal."
+    },
+    {
+      "id": "barbaro_quebra_montanhas",
+      "classeId": "barbaro",
+      "nome": "Quebra-Montanhas",
+      "icone": "🗿",
+      "nivelRequerido": 10,
+      "descricao": "O chão cede antes dele. Prioriza defesa própria e golpes de Terra que ignoram armadura sobre velocidade."
+    },
+    {
+      "id": "patrulheiro_atirador",
+      "classeId": "patrulheiro",
+      "nome": "Atirador de Elite",
+      "icone": "🎯",
+      "nivelRequerido": 10,
+      "descricao": "Solta a flecha entre dois batimentos e acerta onde a placa não cobre. Prioriza crítico e dano perfurante sobre controle."
+    },
+    {
+      "id": "patrulheiro_silvestre",
+      "classeId": "patrulheiro",
+      "nome": "Guardião Silvestre",
+      "icone": "🌿",
+      "nivelRequerido": 10,
+      "descricao": "A mata deixa de ser cenário e vira aliada: prende o inimigo e cura o grupo. Prioriza controle de Natureza e cura sobre dano."
+    },
+    {
+      "id": "patrulheiro_cacador_de_feras",
+      "classeId": "patrulheiro",
+      "nome": "Caçador de Feras",
+      "icone": "🐾",
+      "nivelRequerido": 10,
+      "descricao": "Arma o cerco antes de a presa entrar nele. Prioriza armadilhas e lentidão em área sobre o golpe forte."
     }
   ]
 }

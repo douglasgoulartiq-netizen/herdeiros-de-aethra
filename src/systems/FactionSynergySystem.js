@@ -33,11 +33,23 @@ const BONUS_SINERGIA_FACCAO = { FOR: 1, DES: 1, CON: 0, INT: 1, defesaFlat: 1, c
 // só a projeção mínima usada pela prévia da UI de formação) — não são
 // combatentes montados, que não carregam facaoId (ver criarCombatenteJogador
 // em CombatSystem.js).
+// Facção com que um membro conta para a sinergia: o convocado tem a de
+// nascença (`facaoId`); o herói conta pela afiliação que escolheu (ele não
+// tem `facaoId` de propósito — ver CharacterFactory). Antes o herói nunca
+// contava, e um time de três convocados do mesmo povo com o herói afiliado a
+// ele não fechava a sinergia.
+export function facaoParaSinergia(m) {
+  if (!m) return null;
+  if (m.facaoId) return m.facaoId;
+  return (m.estadoDoMundo && m.estadoDoMundo.facaoAfiliada) || null;
+}
+
 export function facaoDominanteDoTime(membros) {
   const contagem = {};
   for (const m of membros || []) {
-    if (!m || !m.facaoId) continue;
-    contagem[m.facaoId] = (contagem[m.facaoId] || 0) + 1;
+    const f = facaoParaSinergia(m);
+    if (!f) continue;
+    contagem[f] = (contagem[f] || 0) + 1;
   }
   let melhorId = null;
   let melhorCount = 0;

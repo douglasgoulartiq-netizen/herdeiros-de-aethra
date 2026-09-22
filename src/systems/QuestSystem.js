@@ -1,4 +1,5 @@
 // Controla o progresso, conclusão e rastreamento de missões.
+import { multOuroMissao, multXpMissao } from "./IdentidadeSystem.js";
 export const VERTENTE_PRINCIPAL = "principal";
 
 export function ehMissaoPrincipal(questDef) {
@@ -99,10 +100,14 @@ export function concluirMissao(personagem, questDef, itemsCatalog) {
   personagem.missoesAtivas.splice(idx, 1);
   personagem.missoesConcluidas.push(questDef.id);
   if (personagem.missaoRastreadaId === questDef.id) personagem.missaoRastreadaId = null;
-  personagem.ouro += questDef.recompensaOuro;
+  // Motivação Legado (+15% de ouro) e interesse Histórias (+10% de XP) —
+  // ver IdentidadeSystem.js. Quem chama usa o `ouro`/`xp` devolvidos.
+  const ouro = Math.round((questDef.recompensaOuro || 0) * multOuroMissao(personagem));
+  const xp = Math.round((questDef.recompensaXP || 0) * multXpMissao(personagem));
+  personagem.ouro += ouro;
   const itemRecompensa = itemsCatalog.find((i) => i.id === questDef.recompensaItemId);
   return {
-    ok: true, ouro: questDef.recompensaOuro, xp: questDef.recompensaXP,
+    ok: true, ouro, xp,
     item: itemRecompensa, fragmentos: questDef.recompensaFragmentos || 0,
   };
 }

@@ -14,6 +14,7 @@
 // reforço de monstro solo (task #46).
 import { contarItem, removerPorId } from "./InventorySystem.js";
 import { ehMarco, candidatosDoMarco, aplicarSubStatus } from "./SubStatusSystem.js";
+import { multCustoForja } from "./IdentidadeSystem.js";
 
 // O teto subiu de +5 para +10 (decisão do jogador). Motivo de design: com
 // sub-status a cada 2 níveis, cinco marcos (+2, +4, +6, +8, +10) dão ao item
@@ -54,16 +55,24 @@ export function nivelAprimoramento(item) {
   return (item && item.aprimoramento) || 0;
 }
 
-// null quando já está no nível máximo (nada mais pra comprar).
-export function custoProximoNivel(item) {
+// null quando já está no nível máximo (nada mais pra comprar). Com
+// `personagem`, o ouro já vem com os descontos da identidade do herói —
+// interesse Artesanato (−10%) e a combinação Sangue da Forja (−15%), ver
+// IdentidadeSystem.multCustoForja. Materiais não têm desconto.
+export function custoProximoNivel(item, personagem = null) {
   const nivel = nivelAprimoramento(item);
   if (nivel >= MAX_NIVEL_APRIMORAMENTO) return null;
-  return CUSTO_POR_NIVEL[nivel];
+  const base = CUSTO_POR_NIVEL[nivel];
+  const mult = personagem ? multCustoForja(personagem) : 1;
+  if (mult === 1) return base;
+  // Arredonda para BAIXO: no nível mais barato (5 de ouro) um arredondamento
+  // comum comeria o desconto inteiro, e o jogador não veria a escolha valer.
+  return { ...base, ouro: Math.max(1, Math.floor(base.ouro * mult)), ouroSemDesconto: base.ouro };
 }
 
 export function podeAprimorar(personagem, item) {
   if (!itemPodeSerAprimorado(item)) return { ok: false, msg: "Este item não pode ser aprimorado." };
-  const custo = custoProximoNivel(item);
+  const custo = custoProximoNivel(item, personagem);
   if (!custo) return { ok: false, msg: "Item já está no nível máximo de aprimoramento (+" + MAX_NIVEL_APRIMORAMENTO + ")." };
   if (personagem.ouro < custo.ouro) return { ok: false, msg: "Ouro insuficiente." };
   const faltando = custo.materiais.filter((m) => contarItem(personagem, m.itemId) < m.quantidade);

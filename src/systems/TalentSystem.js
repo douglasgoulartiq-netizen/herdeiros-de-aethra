@@ -1,14 +1,14 @@
 // Caminhos do Herdeiro — arquitetura genérica (task #92): pontos, árvore de
 // talentos, herança narrativa e presets de build. Este arquivo é o motor;
-// os DADOS (as árvores de verdade do Guerreiro e do Mago) chegam nas tasks
-// #93/#94 em src/data/talentsGuerreiro.json e src/data/talentsMago.json —
-// hoje eles existem só como esqueleto vazio (`{"talentos": []}`), então
-// `talentosDisponiveis()` sempre retorna vazio pra qualquer personagem e
-// nada muda em nenhuma partida existente. Nenhuma classe além de Guerreiro/
-// Mago tem um arquivo de talentos ainda (por decisão do usuário: "profundo
-// em 2 classes primeiro") — pra qualquer outra classe, `arvoreDoPersonagem`
-// retorna [] e o sistema inteiro fica inerte pra ela, exatamente como
-// funcionava antes desta task existir.
+// os DADOS (as árvores de verdade de cada classe) ficam em
+// src/data/talents<Classe>.json — ver ARQUIVO_DE_TALENTOS abaixo. Guerreiro
+// e Mago vieram primeiro (tasks #93/#94, por decisão do usuário: "profundo
+// em 2 classes primeiro"); Ladino, Clérigo, Bárbaro e Patrulheiro vieram na
+// onda 4 da proposta de criação de personagem, justamente porque escolher
+// uma dessas 4 na criação levava a uma tela de Caminhos vazia — a escolha
+// de classe prometia um caminho que não existia. Uma família de classe sem
+// arquivo continua fazendo `arvoreDoPersonagem` retornar [] e o sistema
+// inteiro fica inerte pra ela, sem quebrar nenhuma partida existente.
 //
 // Moedas de ponto (`tipoPonto` de cada nó): "classe" (ganho a cada level up,
 // ver concederPontosPorNivel), "subclasse" (ganho em marcos de nível DEPOIS
@@ -85,11 +85,25 @@ export function talentosAtivos(personagem) {
 // A árvore de talentos "de verdade" do personagem — [] pra qualquer classe
 // sem arquivo ainda (ver comentário do módulo). `dados` é o objeto retornado
 // por carregarDados() (loader.js).
+// Uma entrada por família de classe. Na onda 4 da proposta de criação de
+// personagem as 4 classes que faltavam ganharam árvore, então escolher
+// Ladino/Clérigo/Bárbaro/Patrulheiro na criação não leva mais a uma tela de
+// Caminhos vazia. Classe sem arquivo continua devolvendo [] (o jogo segue
+// jogável), que é o caso de qualquer família nova que venha depois.
+const ARQUIVO_DE_TALENTOS = {
+  guerreiro: "talentsGuerreiro",
+  mago: "talentsMago",
+  ladino: "talentsLadino",
+  clerigo: "talentsClerigo",
+  barbaro: "talentsBarbaro",
+  patrulheiro: "talentsPatrulheiro",
+};
+
 export function arvoreDoPersonagem(personagem, dados) {
-  if (!dados) return [];
-  if (personagem.classeId === "guerreiro") return (dados.talentsGuerreiro && dados.talentsGuerreiro.talentos) || [];
-  if (personagem.classeId === "mago") return (dados.talentsMago && dados.talentsMago.talentos) || [];
-  return [];
+  if (!dados || !personagem) return [];
+  const chave = ARQUIVO_DE_TALENTOS[personagem.classeId];
+  if (!chave) return [];
+  return (dados[chave] && dados[chave].talentos) || [];
 }
 
 export function arvoreHeranca(dados) {
@@ -174,6 +188,9 @@ export function atendeGatilhoHeranca(personagem, node, contexto = {}) {
   if (!g) return true; // nó de herança sem gatilho = sempre disponível (raro, mas válido)
   if (g.tipo === "chefeDerrotado") return !!(contexto.totalAbates && contexto.totalAbates(personagem, g.monstroId) > 0);
   if (g.tipo === "reputacaoFaccao") return !!(contexto.getReputacao && contexto.getReputacao(personagem, g.facaoId) >= g.minimo);
+  // Nó de RAÇA (22/09): a raça escolhida na criação abre um nó próprio ao
+  // chegar no nível pedido — é o destino de longo prazo dessa escolha.
+  if (g.tipo === "racaNivel") return personagem.racaId === g.racaId && (personagem.nivel || 1) >= (g.nivel || 1);
   if (g.tipo === "armaSecretaDespertada") return !!(personagem.caminhoHerdeiro?.registroPontosHeranca || []).some((r) => r.origem && r.origem.tipo === "arma_secreta_despertada" && (!g.rosterId || r.origem.rosterId === g.rosterId));
   return true;
 }

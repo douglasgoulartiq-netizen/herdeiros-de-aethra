@@ -1,0 +1,349 @@
+{
+  "_comentario": "Caminhos do Herdeiro: árvore de talentos do Clérigo — Fé. 7 talentos de classe (qualquer Clérigo, sem subclasse) + 3 subclasses (Guardião da Luz, Inquisidor, Oracular — ver subclasses.json) com 3 talentos cada, restritos por `subclasseId`. Mesmo formato e mesma régua de números do talentsGuerreiro.json/talentsMago.json: só bonusAtributo (entra em bonusTotal/CharacterFactory.js) e concedeHabilidade com tipos que CombatSystem.js já processa — cura, cura_area, buff_time, buff_defesa, dano_magico, dano_area — e `aplicaEstado` só com estados reais de elementalStates.json. A cura escala pelo MAIOR entre INT e CON (ver o case \"cura\" em CombatSystem.js), então os bônus de atributo aqui alimentam a cura de verdade. Conteúdo original de Herdeiros de Aethra.",
+  "talentos": [
+    {
+      "id": "t_clerigo_fe_inabalavel",
+      "nome": "Fé Inabalável",
+      "icone": "🙏",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "A convicção que sustenta cada bênção que você pronuncia. +2 Intelecto permanente (a cura escala por ele).",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 2
+      }
+    },
+    {
+      "id": "t_clerigo_voto_de_vigilia",
+      "nome": "Voto de Vigília",
+      "icone": "🕯️",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "Noites em claro velando feridos ensinaram seu corpo a aguentar mais. +8% de mana máxima permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "mpMaxPercent",
+        "valor": 0.08
+      }
+    },
+    {
+      "id": "t_clerigo_bencao_do_circulo",
+      "nome": "Bênção do Círculo",
+      "icone": "💫",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 2,
+      "nivelMinimo": 3,
+      "requer": [
+        "t_clerigo_fe_inabalavel"
+      ],
+      "descricao": "Concede a habilidade Bênção do Círculo: uma onda de luz que devolve vida ao grupo inteiro de uma vez.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "bencao_do_circulo",
+          "nome": "Bênção do Círculo",
+          "tipo": "cura_area",
+          "multiplicador": 1.1,
+          "custoMP": 14,
+          "cooldown": 3
+        }
+      }
+    },
+    {
+      "id": "t_clerigo_ramo_zelo",
+      "nome": "Ramo: Zelo",
+      "icone": "⚖️",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 5,
+      "grupoExclusivo": "clerigo_ramo_fe",
+      "descricao": "Sua fé é uma sentença antes de ser um consolo. +8% de chance de crítico permanente. Escolher este ramo tranca o ramo Amparo.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "critChance",
+        "valor": 0.08
+      }
+    },
+    {
+      "id": "t_clerigo_ramo_amparo",
+      "nome": "Ramo: Amparo",
+      "icone": "🤲",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 5,
+      "grupoExclusivo": "clerigo_ramo_fe",
+      "descricao": "Sua fé é primeiro um abrigo, e só depois uma arma. +6% de vida máxima permanente. Escolher este ramo tranca o ramo Zelo.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "hpMaxPercent",
+        "valor": 0.06
+      }
+    },
+    {
+      "id": "t_clerigo_egide_da_fe",
+      "nome": "Égide da Fé",
+      "icone": "🛡️",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 2,
+      "nivelMinimo": 7,
+      "requer": [
+        "t_clerigo_voto_de_vigilia"
+      ],
+      "descricao": "Concede a habilidade Égide da Fé: um manto de luz cobre o time inteiro, reduzindo o dano que todos recebem.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "egide_da_fe",
+          "nome": "Égide da Fé",
+          "tipo": "buff_time",
+          "alvoBuff": "defesa",
+          "duracao": 3,
+          "valor": 0.25,
+          "icone": "🛡️",
+          "custoMP": 12,
+          "cooldown": 4
+        }
+      }
+    },
+    {
+      "id": "t_clerigo_julgamento",
+      "nome": "Julgamento",
+      "icone": "☀️",
+      "classeId": "clerigo",
+      "tipoPonto": "classe",
+      "custo": 3,
+      "nivelMinimo": 9,
+      "requer": [
+        "t_clerigo_bencao_do_circulo"
+      ],
+      "descricao": "Concede a habilidade Julgamento: a Luz desce sobre um único alvo com o peso de uma sentença.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "julgamento",
+          "nome": "Julgamento",
+          "tipo": "dano_magico",
+          "multiplicador": 1.9,
+          "custoMP": 14,
+          "cooldown": 4,
+          "elemento": "radiante"
+        }
+      }
+    },
+    {
+      "id": "t_guardiao_luz_mao_firme",
+      "nome": "Mão Firme",
+      "icone": "🤍",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_guardiao_da_luz",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho do Guardião da Luz começa treinando a mão para não tremer com o time caindo em volta. +3 Intelecto permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_guardiao_luz_sopro_da_aurora",
+      "nome": "Sopro da Aurora",
+      "icone": "🌅",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_guardiao_da_luz",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_guardiao_luz_mao_firme"
+      ],
+      "descricao": "Concede a habilidade Sopro da Aurora: a cura mais forte do jogo em um único aliado — você mesmo volta praticamente inteiro.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "sopro_da_aurora",
+          "nome": "Sopro da Aurora",
+          "tipo": "cura",
+          "multiplicador": 3.2,
+          "custoMP": 16,
+          "cooldown": 3
+        }
+      }
+    },
+    {
+      "id": "t_guardiao_luz_coroa_de_alvorada",
+      "nome": "Coroa de Alvorada",
+      "icone": "👑",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_guardiao_da_luz",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_guardiao_luz_sopro_da_aurora"
+      ],
+      "descricao": "Concede a habilidade Coroa de Alvorada: o auge do caminho da Luz — o grupo inteiro é reerguido de uma vez só.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "coroa_de_alvorada",
+          "nome": "Coroa de Alvorada",
+          "tipo": "cura_area",
+          "multiplicador": 2.0,
+          "custoMP": 22,
+          "cooldown": 5
+        }
+      }
+    },
+    {
+      "id": "t_inquisidor_brasao_do_zelo",
+      "nome": "Brasão do Zelo",
+      "icone": "⚖️",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_inquisidor",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho do Inquisidor começa quando a dúvida vira acusação. +3 Intelecto e a convicção de usá-lo.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_inquisidor_marca_do_herege",
+      "nome": "Marca do Herege",
+      "icone": "🔥",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_inquisidor",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_inquisidor_brasao_do_zelo"
+      ],
+      "descricao": "Concede a habilidade Marca do Herege: a Luz queima o alvo por dentro, deixando-o Incendiado (dano por turno e cura reduzida).",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "marca_do_herege",
+          "nome": "Marca do Herege",
+          "tipo": "dano_magico",
+          "multiplicador": 1.5,
+          "custoMP": 12,
+          "cooldown": 3,
+          "elemento": "radiante",
+          "aplicaEstado": "incendiado",
+          "duracaoEstado": 3
+        }
+      }
+    },
+    {
+      "id": "t_inquisidor_veredito",
+      "nome": "Veredito",
+      "icone": "🔔",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_inquisidor",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_inquisidor_marca_do_herege"
+      ],
+      "descricao": "Concede a habilidade Veredito: o auge do caminho Inquisidor — a Luz não escolhe um culpado, alcança todos de uma vez.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "veredito",
+          "nome": "Veredito",
+          "tipo": "dano_area",
+          "multiplicador": 1.4,
+          "custoMP": 20,
+          "cooldown": 5,
+          "elemento": "radiante"
+        }
+      }
+    },
+    {
+      "id": "t_oracular_olho_interior",
+      "nome": "Olho Interior",
+      "icone": "📿",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_oracular",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho Oracular começa ouvindo o que ainda não aconteceu. +3 Intelecto permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_oracular_pressagio",
+      "nome": "Presságio",
+      "icone": "🌟",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_oracular",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_oracular_olho_interior"
+      ],
+      "descricao": "Concede a habilidade Presságio: você antecipa o golpe do inimigo e prepara o time — o grupo inteiro bate mais forte no próximo ataque.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "pressagio",
+          "nome": "Presságio",
+          "tipo": "buff_time",
+          "alvoBuff": "ataque",
+          "duracao": 2,
+          "valor": 0.4,
+          "icone": "🌟",
+          "custoMP": 14,
+          "cooldown": 4
+        }
+      }
+    },
+    {
+      "id": "t_oracular_hora_marcada",
+      "nome": "Hora Marcada",
+      "icone": "⏳",
+      "classeId": "clerigo",
+      "subclasseId": "clerigo_oracular",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_oracular_pressagio"
+      ],
+      "descricao": "Concede a habilidade Hora Marcada: o auge do caminho Oracular — você lê a linha do tempo de todos os inimigos e os atrasa de uma vez.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "hora_marcada",
+          "nome": "Hora Marcada",
+          "tipo": "debuff_area",
+          "duracao": 3,
+          "valor": 0.4,
+          "custoMP": 18,
+          "cooldown": 5
+        }
+      }
+    }
+  ]
+}

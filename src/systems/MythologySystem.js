@@ -4,14 +4,20 @@
 // partir de campos que o personagem já tem — nível, exploração, missões,
 // abates, facção). Isso evita qualquer risco de quebrar saves antigos.
 import { MYTHOLOGY_CHAPTERS } from "../data/mythologyCodex.js";
+import { temCombinacao } from "./IdentidadeSystem.js";
 
 export function capitulosParaCompendio(personagem) {
+  // Combinação Leitor do Arquivo (Sábio + Ordem dos Arquivistas): as
+  // entradas que pedem nível abrem 3 níveis mais cedo. As outras condições
+  // (lugares, missões, facção) não mudam.
+  const leitor = temCombinacao(personagem, "leitor_do_arquivo");
+  const quemLe = leitor ? { ...personagem, nivel: (personagem.nivel || 1) + 3 } : personagem;
   return MYTHOLOGY_CHAPTERS.map((cap) => ({
     id: cap.id,
     titulo: cap.titulo,
     epigrafe: cap.epigrafe || null,
     paragrafos: cap.paragrafos,
-    desbloqueado: !!cap.condicao(personagem),
+    desbloqueado: !!cap.condicao(quemLe),
     condicaoDescricao: cap.condicaoDescricao,
   }));
 }

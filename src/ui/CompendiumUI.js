@@ -7,6 +7,7 @@ import {
 } from "../systems/CompendiumSystem.js";
 import { RARITY_COLORS, RARITY_LABEL } from "../systems/InventorySystem.js";
 import { getReputacao, tierDaReputacao, facaoAfiliada, afiliarFaccao, registrarDecisao } from "../systems/WorldStateSystem.js";
+import { CUSTO_TROCA_AFILIACAO } from "../systems/IdentidadeSystem.js";
 import { infoElemento } from "../systems/ElementSystem.js";
 import { capitulosParaCompendio, progressoMitologia } from "../systems/MythologySystem.js";
 
@@ -246,8 +247,13 @@ function renderFaccoes(corpo, personagem, dados) {
   const facoes = (dados.worldStateVariables.facoes || []).filter((f) => f.id !== "vila");
   const afiliacaoAtual = facaoAfiliada(personagem);
 
+  const origem = facoes.find((f) => f.id === personagem.faccaoOrigemId);
+  const custoTroca = afiliacaoAtual ? CUSTO_TROCA_AFILIACAO : 0;
+  const nomeAtual = (facoes.find((f) => f.id === afiliacaoAtual) || {}).nome || "";
   corpo.innerHTML = `
-    <p>Cada região do mundo tem seu próprio povo. Afilie-se a uma facção — convocados do gacha originários dela lutam com mais força ao seu lado (camaradagem regional). Derrotar chefes no território de uma facção sobe sua reputação com ela.</p>
+    <p>Cada região do mundo tem seu próprio povo. Afilie-se a uma facção — convocados do gacha originários dela lutam com mais força ao seu lado (camaradagem regional), e com três ou mais do mesmo povo no time, você incluído, vale a sinergia de facção. Derrotar chefes no território de uma facção sobe sua reputação com ela.</p>
+    ${origem ? `<p class="desc">Sua origem: <b>${origem.icone || ""} ${origem.nome}</b> — não muda nunca, mesmo se você se afiliar a outro povo.</p>` : ""}
+    ${custoTroca ? `<p class="desc">Trocar de afiliação custa ${custoTroca} de reputação com ${nomeAtual}.</p>` : ""}
     <div style="display:flex;flex-wrap:wrap;gap:8px;"></div>
   `;
   const grid = corpo.lastElementChild;
@@ -262,11 +268,14 @@ function renderFaccoes(corpo, personagem, dados) {
       <div class="nome">${f.icone || ""} ${f.nome}${afiliado ? " ⭐ Afiliado" : ""}</div>
       <div class="desc" style="margin-top:4px;">${f.descricao}</div>
       <div class="desc" style="margin-top:6px;">Reputação: ${rep}${tier ? ` (${tier.nome})` : ""}</div>
-      <button class="btn-afiliar" style="margin-top:8px;" ${afiliado ? "disabled" : ""}>${afiliado ? "Facção atual" : "Afiliar-se"}</button>
+      <button class="btn-afiliar" style="margin-top:8px;" ${afiliado ? "disabled" : ""}>${afiliado ? "Facção atual" : custoTroca ? `Afiliar-se (−${custoTroca} com ${nomeAtual})` : "Afiliar-se"}</button>
     `;
     div.querySelector(".btn-afiliar").onclick = () => {
-      afiliarFaccao(personagem, f.id);
-      registrarDecisao(personagem, { icone: f.icone || "🤝", titulo: `Afiliação: ${f.nome}`, texto: `Você declarou lealdade a ${f.nome}.` });
+      const custo = afiliarFaccao(personagem, f.id, dados.worldStateVariables);
+      registrarDecisao(personagem, {
+        icone: f.icone || "🤝", titulo: `Afiliação: ${f.nome}`,
+        texto: `Você declarou lealdade a ${f.nome}.${custo ? ` Deixar ${nomeAtual} custou ${custo} de reputação com eles.` : ""}`,
+      });
       montarCompendio(personagem, dados, "faccoes");
     };
     grid.appendChild(div);

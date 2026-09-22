@@ -58,7 +58,12 @@ export function aplicarClassesAcessibilidade() {
   if (config.modoEconomico) document.body.classList.add("modo-economico");
 }
 
-export function montarAcessibilidade() {
+// `personagem` (opcional): com um herói em jogo, o painel também mostra o
+// Modo História DELE — escolhido na criação e agora trocável aqui (decisão
+// do Douglas, 22/09). Fica fora da config do aparelho porque é do herói, não
+// do dispositivo: vai no save junto com ele. `aoMudar` atualiza o HUD (o selo
+// 📖 aparece e some na hora).
+export function montarAcessibilidade(personagem = null, aoMudar = null) {
   const corpo = abrirModalBase("Acessibilidade");
   const config = carregarConfigAcessibilidade();
   const abrirPrimeira = !(typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
@@ -102,6 +107,7 @@ export function montarAcessibilidade() {
         </select>
       </label>
       <label><input type="checkbox" id="acc-vibracao" ${config.vibracao ? "checked" : ""}/> Vibração curta em golpes importantes</label>
+      ${personagem ? `<label class="acc-modo-historia"><input type="checkbox" id="acc-modo-historia" ${personagem.modoHistoria ? "checked" : ""}/> 📖 Modo História para ${personagem.nome}: monstros 30% mais fracos, XP e ouro normais. Vale para este herói e fica no save dele.</label>` : ""}
       </div></details>
       <details class="acc-secao"><summary>▶️ Exploração automática</summary><div class="acc-secao-corpo">
       <label style="width:100%;">Velocidade do automático fora de combate (andar/interagir)
@@ -148,6 +154,13 @@ export function montarAcessibilidade() {
   corpo.querySelector("#acc-dificuldade").onchange = (e) => { atualizarConfigAcessibilidade({ dificuldade: e.target.value }); };
   corpo.querySelector("#acc-volume-efeitos").onchange = (e) => { atualizarConfigAcessibilidade({ volumeEfeitos: e.target.value }); };
   corpo.querySelector("#acc-vibracao").onchange = (e) => { atualizarConfigAcessibilidade({ vibracao: e.target.checked }); };
+  const modoHistoria = corpo.querySelector("#acc-modo-historia");
+  if (modoHistoria) {
+    modoHistoria.onchange = (e) => {
+      personagem.modoHistoria = e.target.checked;
+      if (typeof aoMudar === "function") aoMudar();
+    };
+  }
   corpo.querySelector("#acc-velocidade-auto").onchange = (e) => { atualizarConfigAcessibilidade({ velocidadeAutoExploracao: e.target.value }); };
   corpo.querySelector("#acc-controles-tamanho").onchange = (e) => { atualizarConfigAcessibilidade({ tamanhoControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
   corpo.querySelector("#acc-controles-opacidade").onchange = (e) => { atualizarConfigAcessibilidade({ opacidadeControlesToque: e.target.value }); aplicarClassesAcessibilidade(); };
@@ -157,7 +170,7 @@ export function montarAcessibilidade() {
   corpo.querySelector("#acc-restaurar").onclick = () => {
     salvarConfigAcessibilidade(null);
     aplicarClassesAcessibilidade();
-    montarAcessibilidade();
+    montarAcessibilidade(personagem, aoMudar);
   };
   // Tela cheia NÃO é preferência salva: quem manda é o navegador, e ele pode
   // sair dela sozinho (Esc, troca de app, uma chamada chegando). Guardar

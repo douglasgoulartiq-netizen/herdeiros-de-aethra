@@ -4,7 +4,12 @@
     "nome": "Soldado",
     "pericia": "Intimidação",
     "descricao": "Serviu nas tropas do reino antes de se tornar aventureiro.",
-    "itemInicial": "pocao_vida_inicial",
+    "itensIniciais": [
+      {
+        "id": "pocao_vida_p",
+        "qtd": 2
+      }
+    ],
     "ouroInicial": 15
   },
   {
@@ -12,7 +17,12 @@
     "nome": "Nobre",
     "pericia": "Persuasão",
     "descricao": "Cresceu entre riquezas, mas busca glória própria.",
-    "itemInicial": "anel_simples",
+    "itensIniciais": [
+      {
+        "id": "anel_de_sinete",
+        "qtd": 1
+      }
+    ],
     "ouroInicial": 60
   },
   {
@@ -20,7 +30,12 @@
     "nome": "Criminoso",
     "pericia": "Furtividade",
     "descricao": "Conhece os becos escuros e a arte de passar despercebido.",
-    "itemInicial": "adaga_enferrujada",
+    "itensIniciais": [
+      {
+        "id": "adaga_enferrujada",
+        "qtd": 1
+      }
+    ],
     "ouroInicial": 20
   },
   {
@@ -28,7 +43,16 @@
     "nome": "Eremita",
     "pericia": "Sobrevivência",
     "descricao": "Viveu anos isolado, estudando ervas e a natureza.",
-    "itemInicial": "erva",
+    "itensIniciais": [
+      {
+        "id": "antidoto",
+        "qtd": 1
+      },
+      {
+        "id": "erva",
+        "qtd": 2
+      }
+    ],
     "ouroInicial": 10
   },
   {
@@ -36,7 +60,12 @@
     "nome": "Andarilho do Povo",
     "pericia": "Empatia",
     "descricao": "Viajou de vila em vila, sempre disposto a ajudar.",
-    "itemInicial": "pao",
+    "itensIniciais": [
+      {
+        "id": "pao",
+        "qtd": 2
+      }
+    ],
     "ouroInicial": 25
   },
   {
@@ -44,7 +73,12 @@
     "nome": "Sábio",
     "pericia": "Conhecimento Arcano",
     "descricao": "Dedicou a vida ao estudo de textos antigos e magia.",
-    "itemInicial": "pergaminho_arcano",
+    "itensIniciais": [
+      {
+        "id": "pergaminho_arcano",
+        "qtd": 1
+      }
+    ],
     "ouroInicial": 20
   }
 ]

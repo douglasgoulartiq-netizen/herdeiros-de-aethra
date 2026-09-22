@@ -29,6 +29,10 @@ import {
   buscarReacaoAplicavel,
 } from "./ElementalReactionSystem.js";
 import { multiplicadorDificuldade } from "./AccessibilitySystem.js";
+import {
+  multiplicadorIdentidade, ambienteAfim, custoMPComInteresse, multCuraRecebida, bonusChanceFuga,
+  limiarFuriaOrc, temCombinacao, CHANCE_ESTADO_SOPRO,
+} from "./IdentidadeSystem.js";
 
 // Task #43 (formação): só estes arquétipos são "bloqueados" pela frente do
 // time — os demais (à distância, mágicos ou furtivos) alcançam a retaguarda
@@ -81,17 +85,27 @@ export function criarCombatenteJogador(personagem, dados, posicao = "frente") {
     // texto não caber. `habilidadesEquipadas` devolve as 4 escolhidas fora
     // da batalha — e, para um save antigo sem escolha feita, as 4 primeiras,
     // que é exatamente o que aparecia antes.
-    habilidades: habilidadesEquipadas(personagem).map((h) => ({ ...h, cooldownAtual: 0 })),
+    // Interesse "Magia": −10% no custo de MP. Aplicado na cópia de combate
+    // da habilidade, e não na hora do gasto, para o card, a IA e o desconto
+    // do MP lerem o mesmo número.
+    habilidades: habilidadesEquipadas(personagem).map((h) => ({ ...h, cooldownAtual: 0, custoMP: custoMPComInteresse(personagem, h.custoMP) })),
     tracoId: personagem.tracoId,
     racaId: personagem.racaId,
     classeId: personagem.classeId,
     sorteUsada: false,
+    sorteMiudaUsada: false,
+    // IDENTIDADE DO HERÓI (ver IdentidadeSystem.js). Só o protagonista tem
+    // elemento de afinidade e motivação — convocados ficam com null e nada
+    // disso vale para eles.
+    elementoAfinidade: personagem.elementoId || null,
+    motivacaoId: personagem.motivacaoId || null,
+    limiarFuria: limiarFuriaOrc(personagem),
+    soproIncendiario: temCombinacao(personagem, "sopro_incendiario"),
     primeiroTurno: true,
-    // TRAÇO DO ELFO ("Visão aguçada: +2 de iniciativa em batalha"). Estava em
-    // races.json desde sempre e não existia no código. Iniciativa aqui é a
-    // barra de ATB: o inimigo nasce com `Math.random() * 40`, então 20 de
-    // adiantamento é meia largura desse sorteio — o elfo costuma agir antes,
-    // sem nunca ser garantido.
+    // PERSONALIDADE "Visão Aguçada": começa com 20 de ATB. O inimigo nasce
+    // com `Math.random() * 40`, então 20 de adiantamento é meia largura desse
+    // sorteio — costuma agir antes, sem nunca ser garantido. (O +2 de
+    // velocidade do ELFO é outra coisa e mora em velocidadeTotal.)
     atb: personagem.tracoId === "visao_aguçada" ? 20 : 0,
     atbMax: 100,
     // O óleo pode ter sido usado no MAPA, antes da luta. Ele entra aqui como
@@ -363,6 +377,12 @@ export class Batalha {
       }
       if (m.velocidade !== 1) c.velocidade = Math.max(1, Math.round(c.velocidade * m.velocidade));
     }
+    // AMBIENTE AFIM (ver IdentidadeSystem.js): lutar num terreno ou clima do
+    // próprio elemento dá defesa e Éter por turno. Decidido uma vez, aqui —
+    // terreno e clima não mudam no meio da luta.
+    for (const c of time || []) {
+      c.ambienteAfim = FLAGS.terreno ? ambienteAfim(c.elementoAfinidade, this.terrenoElemento, this.climaElemento) : null;
+    }
     this.log = [];
     this.terminada = false;
     this.resultado = null; // 'vitoria' | 'derrota' | 'fuga'
@@ -442,19 +462,31 @@ export class Batalha {
         this.registrar(`${s.def.icone || ""} ${c.nome} sofre ${dano} de dano por estar ${s.def.nome}!`);
         anunciar(EVENTO.DANO_PERIODICO, { combatente: c, dano, icone: s.def.icone || "🔥", nome: s.def.nome });
       }
-      // TRAÇO DO ANÃO ("Resistente: efeitos negativos duram 1 turno a menos").
-      // Estava escrito em races.json desde sempre e não existia em lugar
-      // nenhum do código. Desconta 2 em vez de 1, e só no que é RUIM — senão
-      // o anão perderia os próprios buffs na metade do tempo.
+      // PERSONALIDADE "Resistente": efeitos negativos perdem 2 turnos por
+      // vez, em vez de 1 — e só o que é RUIM, senão o herói perderia os
+      // próprios buffs na metade do tempo.
       const ruim = ESTADOS_RUINS.has(s.tipo)
         || (s.tipo === "estado_elemental" && s.def && s.def.beneficio !== true);
-      const passo = (ruim && c.isPlayer && c.tracoId === "resistente") ? 2 : 1;
+      let passo = (ruim && c.isPlayer && c.tracoId === "resistente") ? 2 : 1;
+      // RAÇA — Anão, "Pele de Pedra": todo efeito negativo dura 1 turno a
+      // menos. Cobra o turno extra uma vez só por efeito, na primeira
+      // contagem; vale venha o efeito de onde vier (golpe, habilidade,
+      // estado elemental). Antes este comentário dizia "traço do anão", mas o
+      // código testava a PERSONALIDADE Resistente — o anão não ganhava nada.
+      if (ruim && c.isPlayer && c.racaId === "anao" && !s.peleDePedra) {
+        s.peleDePedra = true;
+        passo += 1;
+      }
       s.duracao -= passo;
       return s.duracao > 0 && c.vivo;
     });
     // O óleo troca o elemento dos golpes enquanto vale. Como o relógio acima
     // pode tê-lo acabado de derrubar, a sincronia vem DEPOIS do filtro.
     sincronizarElemento(c);
+    // Ambiente afim (terreno/clima do elemento do herói): Éter por turno.
+    if (c.ambienteAfim && c.ambienteAfim.mp && c.vivo && c.mp < c.mpMax) {
+      c.mp = Math.min(c.mpMax, c.mp + c.ambienteAfim.mp);
+    }
   }
 
   modificadorVelocidade(c) {
@@ -497,6 +529,7 @@ export class Batalha {
     const furiaDebuff = c.statusEffects.find((s) => s.tipo === "furia_debuff");
     if (furiaDebuff) def = Math.round(def * (1 - furiaDebuff.valor));
     if (FLAGS.reacoesElementais) def = Math.round(def * modificadorDefesaEstado(c));
+    if (c.ambienteAfim && c.ambienteAfim.defesa) def = Math.round(def * (1 + c.ambienteAfim.defesa));
     return def;
   }
 
@@ -568,10 +601,19 @@ export class Batalha {
 
   resolverAcaoD20(atacante, alvo) {
     let d = d20();
+    // RAÇA — Halfling, "Sorte Miúda": o primeiro 1 da batalha é re-rolado.
+    // Vem antes da personalidade Sortudo de propósito: um halfling sortudo
+    // gasta primeiro a sorte da raça e guarda a da personalidade.
+    if (d === 1 && atacante.isPlayer && atacante.racaId === "halfling" && !atacante.sorteMiudaUsada) {
+      atacante.sorteMiudaUsada = true;
+      d = d20();
+      this.registrar(`${atacante.nome} tem a Sorte Miúda do halfling e re-rola o 1!`);
+    }
+    // PERSONALIDADE — Sortudo: uma rolagem de 1 a 3 é refeita, uma vez.
     if (d < 4 && atacante.isPlayer && atacante.tracoId === "sortudo" && !atacante.sorteUsada) {
       atacante.sorteUsada = true;
       d = d20();
-      this.registrar(`${atacante.nome} usa a sorte de Halfling e re-rola o dado!`);
+      this.registrar(`${atacante.nome} conta com a sorte e re-rola o dado!`);
     }
     let bloqueado = false;
     // `limiarBloqueio` (melhoria de jogabilidade: "motivo" da esquiva/bloqueio
@@ -696,7 +738,8 @@ export class Batalha {
     if (relacao === "imune") return { min: 0, max: 0, esperado: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null, reacao: null, elemento: elemResolvido };
     const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
     let baseComMultiplicadores = base * multElemental * this.multiplicadorTerreno(elemResolvido, alvo) * this.multiplicadorClima(elemResolvido, alvo) * combo.multiplicador;
-    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= 0.3) baseComMultiplicadores *= 1.3;
+    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= (atacante.limiarFuria || 0.3)) baseComMultiplicadores *= 1.3;
+    baseComMultiplicadores *= multiplicadorIdentidade(atacante, alvo, elemResolvido, this.dadosElementos, { fisico: true }).mult;
     // Prévia (só-leitura) do bônus de reação elemental — ver peekReacaoElemental
     // em ElementalReactionSystem.js. Nunca consome o estado do alvo.
     let ignoraDefesaExtraPreview = 0;
@@ -760,6 +803,7 @@ export class Batalha {
     const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
     let base = (atacante.atributos.INT || 0) * multiplicador;
     base *= multElemental * this.multiplicadorTerreno(elemResolvido, alvo) * this.multiplicadorClima(elemResolvido, alvo) * combo.multiplicador;
+    base *= multiplicadorIdentidade(atacante, alvo, elemResolvido, this.dadosElementos).mult;
     let reacaoPrevista = null;
     if (FLAGS.reacoesElementais) {
       base *= modificadorDanoRecebidoEstado(alvo, elemResolvido);
@@ -811,21 +855,29 @@ export class Batalha {
   chancesD20(atacante, alvo, { tipoFisico = true, elemento = null } = {}) {
     const penalidade = this.penalidadeDeAcerto(atacante);
     const rerolagem = !!(atacante.isPlayer && atacante.tracoId === "sortudo" && !atacante.sorteUsada);
+    const rerolagemRaca = !!(atacante.isPlayer && atacante.racaId === "halfling" && !atacante.sorteMiudaUsada);
     const limiarErro = Math.min(20, Math.max(0, 4 + penalidade)); // erro se d < limiarErro
     const faces = 20;
-    const pMenorQue = (t) => Math.min(faces, Math.max(0, t - 1)) / faces;
-    let pErro;
-    let pCriticoNatural;
-    if (rerolagem) {
-      // 1ª rolagem só é re-rolada quando d < 4 (independente da penalidade).
-      const pRerola = 3 / faces;
-      const pErroSemRerolagem = Math.max(0, Math.min(faces, limiarErro - 1) - 3) / faces;
-      pErro = pErroSemRerolagem + pRerola * pMenorQue(limiarErro);
-      pCriticoNatural = 4 / faces + pRerola * (4 / faces);
-    } else {
-      pErro = pMenorQue(limiarErro);
-      pCriticoNatural = 4 / faces;
-    }
+    // Distribuição do d20 FINAL, depois das re-rolagens, na mesma ordem de
+    // resolverAcaoD20: primeiro a Sorte Miúda (só o 1), depois a Sortudo (1 a
+    // 3). Cada re-rolagem pega a massa das faces que ela refaz e espalha
+    // igualmente pelas 20 faces.
+    const dist = new Array(faces + 1).fill(1 / faces);
+    dist[0] = 0;
+    const rerolar = (ate) => {
+      let massa = 0;
+      for (let f = 1; f <= ate; f += 1) { massa += dist[f]; dist[f] = 0; }
+      for (let f = 1; f <= faces; f += 1) dist[f] += massa / faces;
+    };
+    if (rerolagemRaca) rerolar(1);
+    if (rerolagem) rerolar(3);
+    const pMenorQue = (t) => {
+      let p = 0;
+      for (let f = 1; f < Math.min(faces + 1, t); f += 1) p += dist[f];
+      return p;
+    };
+    const pErro = pMenorQue(limiarErro);
+    const pCriticoNatural = 1 - pMenorQue(17);
     const pAcerto = Math.max(0, 1 - pErro);
     // Bônus de crítico da árvore/talentos: só é testado quando a rolagem não
     // foi crítico natural nem erro total (mesma condição de rolarAtaque).
@@ -857,6 +909,7 @@ export class Batalha {
       criticoGarantido,
       penalidadeD20: penalidade,
       rerolagemSorte: rerolagem,
+      rerolagemSorteMiuda: rerolagemRaca,
       limiarBloqueio,
     };
   }
@@ -956,7 +1009,7 @@ export class Batalha {
     const variancia = 0.85 + Math.random() * 0.3;
     let dano = base * variancia;
     if (critico) dano *= 2;
-    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= 0.3) { dano *= 1.3; selar("FÚRIA ORC", "bom", 1.3); }
+    if (atacante.racaId === "orc" && atacante.hp / atacante.hpMax <= (atacante.limiarFuria || 0.3)) { dano *= 1.3; selar("FÚRIA ORC", "bom", 1.3); }
     // EFEITOS DE ITEM LENDÁRIO (ver ItemEffectSystem.js). Só o time do jogador
     // carrega equipamento, então para inimigos isto devolve valores neutros e
     // não custa nada.
@@ -1048,6 +1101,12 @@ export class Batalha {
     // certo e no lugar errado, e ela nunca aparecia no momento do golpe.
     selar("TERRENO", "ambiente", multTerreno);
     selar("CLIMA", "ambiente", multClima);
+    // IDENTIDADE (ver IdentidadeSystem.js): essência do elemento de quem
+    // bate e de quem apanha, sintonia do golpe físico com a fraqueza do alvo,
+    // motivação Justiça contra chefe. Cada uma com o seu selo.
+    const identidade = multiplicadorIdentidade(atacante, alvo, elemResolvido, this.dadosElementos, { fisico: true });
+    dano *= identidade.mult;
+    identidade.selos.forEach(([texto, tom, mult]) => selar(texto, tom, mult));
     const combo = this.verificarComboElemental(atacante, alvo, elemResolvido);
     dano *= combo.multiplicador;
     if (combo.combo) {
@@ -1421,6 +1480,18 @@ export class Batalha {
           }
           dano *= this.multiplicadorTerreno(elemAtqMagico, alvoOuAlvos);
           dano *= this.multiplicadorClima(elemAtqMagico, alvoOuAlvos);
+          // Identidade do herói (essência/Justiça). O ramo mágico não tinha
+          // selos; ganha os da identidade, gravados no mesmo `seq` da rolagem
+          // para a tela colar no número como faz com o golpe físico.
+          const identidadeMagica = multiplicadorIdentidade(atacante, alvoOuAlvos, elemAtqMagico, this.dadosElementos);
+          dano *= identidadeMagica.mult;
+          this.ultimosSelos = {
+            seq: this.rolagemSeq,
+            selos: identidadeMagica.selos.map(([texto, tom, mult]) => {
+              const pct = Math.round((mult - 1) * 100);
+              return { texto, tom, pct, rotulo: `${texto} ${pct > 0 ? "+" : ""}${pct}%` };
+            }),
+          };
           const combo = this.verificarComboElemental(atacante, alvoOuAlvos, elemAtqMagico);
           dano *= combo.multiplicador;
           // Estados e reações elementais (Caminhos do Herdeiro, task #91) —
@@ -1458,6 +1529,7 @@ export class Batalha {
         cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
         cura = Math.round(cura * modificadorDe(this.passivas, atacante).cura_recebida);
         if (FLAGS.reacoesElementais) cura = Math.round(cura * modificadorCuraRecebidaEstado(atacante));
+        cura = Math.round(cura * multCuraRecebida(atacante)); // motivação Redenção
         atacante.hp = Math.min(atacante.hpMax, atacante.hp + cura);
         this.registrar(`${atacante.nome} usa ${habilidade.nome} e recupera ${cura} de HP.`);
         eventos.push({ tipo: "cura", alvo: atacante.id, valor: cura });
@@ -1520,6 +1592,7 @@ export class Batalha {
           cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
           cura = Math.round(cura * modificadorDe(this.passivas, a).cura_recebida);
           if (FLAGS.reacoesElementais) cura = Math.round(cura * modificadorCuraRecebidaEstado(a));
+          cura = Math.round(cura * multCuraRecebida(a)); // motivação Redenção de quem recebe
           const antes = a.hp;
           a.hp = Math.min(a.hpMax, a.hp + cura);
           total += a.hp - antes;
@@ -1568,26 +1641,67 @@ export class Batalha {
     return { ok: true, eventos };
   }
 
+  // SOPRO ELEMENTAL do Draconato. Até aqui era dano neutro — o nome dizia
+  // "elemental" e o golpe ignorava o elemento. Agora sopra o elemento que o
+  // herói escolheu na criação (fogo para quem não tem nenhum): passa pela
+  // matriz elemental, terreno, clima e essência, enche a postura do chefe
+  // conforme a relação e tem chance de deixar o estado do elemento. A
+  // combinação Draconato + Fogo ("Sopro Incendiário") incendeia sempre.
+  elementoDoSopro(atacante) {
+    return atacante.elementoAfinidade || "fogo";
+  }
+
+  // Fórmula única do sopro, usada pelo golpe de verdade e pela prévia do card.
+  // `variancia` é o multiplicador de 0.85..1.15 (a prévia passa os extremos).
+  danoDoSopro(atacante, alvo, variancia) {
+    const elemento = this.elementoDoSopro(atacante);
+    let relacao = "neutro";
+    let dano = (atacante.atributos.INT || 0) * 1.6 * variancia;
+    if (FLAGS.elementos && this.dadosElementos) {
+      relacao = relacaoElemental(elemento, alvo.elemento || "fisico", this.dadosElementos);
+      dano *= multiplicadorElemental(elemento, alvo.elemento || "fisico", this.dadosElementos);
+    }
+    if (relacao === "imune") return { dano: 0, relacao, elemento };
+    dano *= this.multiplicadorTerreno(elemento, alvo) * this.multiplicadorClima(elemento, alvo);
+    dano *= multiplicadorIdentidade(atacante, alvo, elemento, this.dadosElementos).mult;
+    dano = Math.max(1, Math.round(dano - this.defesaEfetiva(alvo) * 0.3));
+    if (alvo.chefe && alvo.atordoado) dano = Math.round(dano * BONUS_DANO_ATORDOADO);
+    return { dano, relacao, elemento };
+  }
+
+  estimarSopro(atacante, alvo) {
+    const min = this.danoDoSopro(atacante, alvo, 0.85);
+    const max = this.danoDoSopro(atacante, alvo, 1.15);
+    const esperado = this.danoDoSopro(atacante, alvo, 1);
+    return { min: min.dano, max: max.dano, esperado: esperado.dano, relacaoElemental: esperado.relacao, elemento: esperado.elemento };
+  }
+
   usarSoproElemental(atacante) {
     if (atacante.sopro_usado || atacante.racaId !== "draconato") return { ok: false };
     atacante.sopro_usado = true;
     let total = 0;
+    const elemento = this.elementoDoSopro(atacante);
+    const estado = this.estadoDoElemento(elemento);
     for (const inimigo of this.inimigosVivos()) {
-      let dano = Math.round(atacante.atributos.INT * 1.6 * (0.85 + Math.random() * 0.3));
-      dano = Math.max(1, dano - Math.round(this.defesaEfetiva(inimigo) * 0.3));
-      if (inimigo.chefe && inimigo.atordoado) dano = Math.round(dano * BONUS_DANO_ATORDOADO);
-      this.aplicarDano(inimigo, dano);
-      this.acumularQuebra(atacante, inimigo, "neutro");
-      total += dano;
+      const r = this.danoDoSopro(atacante, inimigo, 0.85 + Math.random() * 0.3);
+      this.aplicarDano(inimigo, r.dano);
+      this.acumularQuebra(atacante, inimigo, r.relacao);
+      total += r.dano;
+      const incendeia = atacante.soproIncendiario && elemento === "fogo";
+      if (estado && inimigo.vivo && r.relacao !== "imune" && (incendeia || Math.random() < CHANCE_ESTADO_SOPRO)) {
+        this.aplicarEstadoDeHabilidade({ aplicaEstado: estado }, inimigo);
+      }
     }
-    this.registrar(`${atacante.nome} solta um Sopro Elemental, causando dano em todos os inimigos!`);
+    const nomeElemento = (this.dadosElementos && (this.dadosElementos.elementos || []).find((e) => e.id === elemento)) || null;
+    this.registrar(`${atacante.nome} solta um Sopro de ${nomeElemento ? nomeElemento.nome : elemento}, causando dano em todos os inimigos!`);
     atacante.primeiroTurno = false;
     atacante.atb = 0;
-    return { ok: true, totalDano: total };
+    return { ok: true, totalDano: total, elemento };
   }
 
   fugir(iniciador) {
-    const chance = 0.5 + iniciador.velocidade * 0.02;
+    // Motivação Liberdade: +15% de chance de fugir.
+    const chance = 0.5 + iniciador.velocidade * 0.02 + bonusChanceFuga(iniciador);
     if (Math.random() < chance) {
       this.resultado = "fuga";
       this.terminada = true;
@@ -1913,6 +2027,10 @@ export class Batalha {
       this.aplicarDano(alvo, r.dano);
       this.registrar(`${atacante.nome} conjura uma magia em ${alvo.nome}, causando ${r.dano} de dano${r.critico ? " (CRÍTICO!)" : ""}!`);
       this.registrarReacaoElemental(r.relacaoElemental);
+    } else {
+      // Sem esta linha o turno do Conjurador some do log quando ele erra: o
+      // jogador via o inimigo "pular a vez" sem entender o porquê.
+      this.registrar(`${atacante.nome} conjura uma magia em ${alvo.nome}, mas o feitiço se perde!`);
     }
     atacante.primeiroTurno = false;
     atacante.atb = 0;

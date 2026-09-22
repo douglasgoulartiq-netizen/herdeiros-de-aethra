@@ -1,0 +1,348 @@
+{
+  "_comentario": "Caminhos do Herdeiro: árvore de talentos do Bárbaro — Fúria. 7 talentos de classe (qualquer Bárbaro, sem subclasse) + 3 subclasses (Berserker, Guardião Totêmico, Quebra-Montanhas — ver subclasses.json) com 3 talentos cada, restritos por `subclasseId`. Mesmo formato e mesma régua de números do talentsGuerreiro.json/talentsMago.json: só bonusAtributo (entra em bonusTotal/CharacterFactory.js) e concedeHabilidade com tipos que CombatSystem.js já processa — dano_fisico, dano_ignora_defesa, dano_area, buff_ataque, buff_defesa, buff_time, cura — e `aplicaEstado` só com estados reais de elementalStates.json. O Bárbaro tem manaBase 4, então quase toda habilidade daqui custa 0 MP e se paga com cooldown, como a Fúria e a Investida da classe. A cura de \"Segundo Fôlego\" escala por CON (ver o case \"cura\" em CombatSystem.js, que usa o MAIOR entre INT e CON). Conteúdo original de Herdeiros de Aethra.",
+  "talentos": [
+    {
+      "id": "t_barbaro_musculo_de_pedra",
+      "nome": "Músculo de Pedra",
+      "icone": "💪",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "Você carrega machado desde antes de saber por quê. +2 Força permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "FOR",
+        "valor": 2
+      }
+    },
+    {
+      "id": "t_barbaro_couro_grosso",
+      "nome": "Couro Grosso",
+      "icone": "🐗",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "Cicatriz sobre cicatriz vira armadura. +6% de vida máxima permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "hpMaxPercent",
+        "valor": 0.06
+      }
+    },
+    {
+      "id": "t_barbaro_segundo_folego",
+      "nome": "Segundo Fôlego",
+      "icone": "🫁",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 2,
+      "nivelMinimo": 3,
+      "requer": [
+        "t_barbaro_couro_grosso"
+      ],
+      "descricao": "Concede a habilidade Segundo Fôlego: você recusa cair e volta à luta por pura teimosia. Recupera HP escalando por Constituição, sem gastar mana.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "segundo_folego",
+          "nome": "Segundo Fôlego",
+          "tipo": "cura",
+          "multiplicador": 1.6,
+          "custoMP": 0,
+          "cooldown": 4
+        }
+      }
+    },
+    {
+      "id": "t_barbaro_ramo_sangue",
+      "nome": "Ramo: Sangue",
+      "icone": "🩸",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 5,
+      "grupoExclusivo": "barbaro_ramo_furia",
+      "descricao": "Você troca segurança por golpe. +8% de chance de crítico permanente. Escolher este ramo tranca o ramo Osso.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "critChance",
+        "valor": 0.08
+      }
+    },
+    {
+      "id": "t_barbaro_ramo_osso",
+      "nome": "Ramo: Osso",
+      "icone": "🦴",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 5,
+      "grupoExclusivo": "barbaro_ramo_furia",
+      "descricao": "Você aguenta até o outro cansar. +2 de defesa permanente. Escolher este ramo tranca o ramo Sangue.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "defesaFlat",
+        "valor": 2
+      }
+    },
+    {
+      "id": "t_barbaro_grito_rachador",
+      "nome": "Grito Rachador",
+      "icone": "📢",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 2,
+      "nivelMinimo": 7,
+      "requer": [
+        "t_barbaro_musculo_de_pedra"
+      ],
+      "descricao": "Concede a habilidade Grito Rachador: um berro que abala a guarda do inimigo e o deixa Exposto — vulnerável a Ruptura no próximo golpe físico que receber.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "grito_rachador",
+          "nome": "Grito Rachador",
+          "tipo": "dano_fisico",
+          "multiplicador": 1.1,
+          "custoMP": 0,
+          "cooldown": 3,
+          "aplicaEstado": "exposto",
+          "duracaoEstado": 2
+        }
+      }
+    },
+    {
+      "id": "t_barbaro_machado_sem_freio",
+      "nome": "Machado sem Freio",
+      "icone": "🪓",
+      "classeId": "barbaro",
+      "tipoPonto": "classe",
+      "custo": 3,
+      "nivelMinimo": 9,
+      "requer": [
+        "t_barbaro_grito_rachador"
+      ],
+      "descricao": "Concede a habilidade Machado sem Freio: você larga a guarda de vez e desce o machado onde nenhuma armadura ajuda.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "machado_sem_freio",
+          "nome": "Machado sem Freio",
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 1.9,
+          "custoMP": 0,
+          "cooldown": 4
+        }
+      }
+    },
+    {
+      "id": "t_berserker_sede_de_sangue",
+      "nome": "Sede de Sangue",
+      "icone": "🩸",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_berserker",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho do Berserker começa quando a dor deixa de ser um aviso e vira combustível. +3 Força permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "FOR",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_berserker_frenesi",
+      "nome": "Frenesi",
+      "icone": "😤",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_berserker",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_berserker_sede_de_sangue"
+      ],
+      "descricao": "Concede a habilidade Frenesi: uma fúria mais funda que a da classe — o próximo golpe sai muito mais forte, ao custo da sua defesa.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "frenesi",
+          "nome": "Frenesi",
+          "tipo": "buff_ataque",
+          "duracao": 2,
+          "valor": 1.5,
+          "custoMP": 0,
+          "cooldown": 4
+        }
+      }
+    },
+    {
+      "id": "t_berserker_carnificina",
+      "nome": "Carnificina",
+      "icone": "💀",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_berserker",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_berserker_frenesi"
+      ],
+      "descricao": "Concede a habilidade Carnificina: o auge do caminho Berserker — você gira o machado até não sobrar ninguém de pé em volta.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "carnificina",
+          "nome": "Carnificina",
+          "tipo": "dano_area",
+          "multiplicador": 1.5,
+          "custoMP": 0,
+          "cooldown": 5
+        }
+      }
+    },
+    {
+      "id": "t_totemico_marca_ancestral",
+      "nome": "Marca Ancestral",
+      "icone": "🦬",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_totemico",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho do Guardião Totêmico começa quando você para de lutar só por você. +3 Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_totemico_couro_do_cla",
+      "nome": "Couro do Clã",
+      "icone": "🛡️",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_totemico",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_totemico_marca_ancestral"
+      ],
+      "descricao": "Concede a habilidade Couro do Clã: você planta os pés na frente do grupo e o time inteiro passa a apanhar menos.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "couro_do_cla",
+          "nome": "Couro do Clã",
+          "tipo": "buff_time",
+          "alvoBuff": "defesa",
+          "duracao": 3,
+          "valor": 0.3,
+          "icone": "🦬",
+          "custoMP": 0,
+          "cooldown": 5
+        }
+      }
+    },
+    {
+      "id": "t_totemico_rugido_do_ancestral",
+      "nome": "Rugido do Ancestral",
+      "icone": "🐃",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_totemico",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_totemico_couro_do_cla"
+      ],
+      "descricao": "Concede a habilidade Rugido do Ancestral: o auge do caminho Totêmico — o clã inteiro ruge com você e o grupo bate muito mais forte.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "rugido_do_ancestral",
+          "nome": "Rugido do Ancestral",
+          "tipo": "buff_time",
+          "alvoBuff": "ataque",
+          "duracao": 2,
+          "valor": 0.5,
+          "icone": "🐃",
+          "custoMP": 0,
+          "cooldown": 5
+        }
+      }
+    },
+    {
+      "id": "t_quebra_montanhas_punho_de_granito",
+      "nome": "Punho de Granito",
+      "icone": "🗿",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_quebra_montanhas",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "O caminho do Quebra-Montanhas começa quando você aprende a receber o golpe como a montanha recebe o vento. +3 de defesa permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "defesaFlat",
+        "valor": 3
+      }
+    },
+    {
+      "id": "t_quebra_montanhas_racha_chao",
+      "nome": "Racha-Chão",
+      "icone": "🌋",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_quebra_montanhas",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 12,
+      "requer": [
+        "t_quebra_montanhas_punho_de_granito"
+      ],
+      "descricao": "Concede a habilidade Racha-Chão: o machado desce no solo e a onda de pedra alcança todos os inimigos de uma vez.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "racha_chao",
+          "nome": "Racha-Chão",
+          "tipo": "dano_area",
+          "multiplicador": 1.2,
+          "custoMP": 0,
+          "cooldown": 4,
+          "elemento": "terra"
+        }
+      }
+    },
+    {
+      "id": "t_quebra_montanhas_falha_geologica",
+      "nome": "Falha Geológica",
+      "icone": "🏔️",
+      "classeId": "barbaro",
+      "subclasseId": "barbaro_quebra_montanhas",
+      "tipoPonto": "subclasse",
+      "custo": 2,
+      "nivelMinimo": 15,
+      "requer": [
+        "t_quebra_montanhas_racha_chao"
+      ],
+      "descricao": "Concede a habilidade Falha Geológica: o auge do caminho Quebra-Montanhas — o chão se abre sob um só alvo e nenhuma armadura o segura.",
+      "efeito": {
+        "tipo": "concedeHabilidade",
+        "habilidade": {
+          "id": "falha_geologica",
+          "nome": "Falha Geológica",
+          "tipo": "dano_ignora_defesa",
+          "multiplicador": 2.3,
+          "custoMP": 0,
+          "cooldown": 5,
+          "elemento": "terra"
+        }
+      }
+    }
+  ]
+}

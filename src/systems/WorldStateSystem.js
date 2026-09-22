@@ -11,6 +11,7 @@
 // `dadosWorldState`/`dados.worldState`, carregados pelo loader.js — igual a
 // todo outro dado do jogo (nunca import direto de JSON, pra manter o padrão
 // "sem build step" do projeto, servido por fetch()).
+import { ajustarGanhoReputacao, CUSTO_TROCA_AFILIACAO } from "./IdentidadeSystem.js";
 
 export function estadoDoMundoInicial() {
   return { reputacao: {}, flags: {} };
@@ -31,6 +32,9 @@ export function getReputacao(personagem, facaoId) {
 // definidos em worldStateVariables.json (sem eles, usa -100/100). Retorna o
 // novo valor.
 export function alterarReputacao(personagem, facaoId, delta, dadosWorldState) {
+  // Interesse Diplomacia: +10% em toda reputação GANHA, arredondado para
+  // cima. Perda não muda.
+  delta = ajustarGanhoReputacao(personagem, delta);
   const estado = garantirEstadoDoMundo(personagem);
   const facao = ((dadosWorldState && dadosWorldState.facoes) || []).find((f) => f.id === facaoId);
   const min = facao ? facao.min : -100;
@@ -161,10 +165,22 @@ export function facaoInfo(facaoId, dadosWorldState) {
 // Afiliação é uma escolha pessoal do personagem (guardada em
 // estadoDoMundo, então persiste no save automaticamente igual ao resto do
 // mundo reativo) — diferente de reputação, que é numérica e sobe/desce.
-// Pode ser trocada livremente (não é uma escolha permanente tipo árvore de
-// habilidades): afiliação é sobre identidade/alianças atuais, não histórico.
-export function afiliarFaccao(personagem, facaoId) {
-  garantirEstadoDoMundo(personagem).facaoAfiliada = facaoId;
+// Pode ser trocada, mas não de graça: deixar uma facção custa
+// CUSTO_TROCA_AFILIACAO de reputação com ela (decisão do Douglas, 22/09 —
+// a escolha precisa ter peso). A facção de ORIGEM é outra coisa: fica em
+// `personagem.faccaoOrigemId` para sempre e não muda com a afiliação.
+// Devolve quanto de reputação a troca custou (0 quando não havia afiliação).
+export function afiliarFaccao(personagem, facaoId, dadosWorldState = null) {
+  const estado = garantirEstadoDoMundo(personagem);
+  const anterior = estado.facaoAfiliada || null;
+  if (anterior === facaoId) return 0;
+  let custo = 0;
+  if (anterior) {
+    custo = CUSTO_TROCA_AFILIACAO;
+    alterarReputacao(personagem, anterior, -custo, dadosWorldState);
+  }
+  estado.facaoAfiliada = facaoId;
+  return custo;
 }
 
 export function facaoAfiliada(personagem) {

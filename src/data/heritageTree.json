@@ -1,55 +1,349 @@
 {
-  "_comentario": "Caminhos do Herdeiro (task #92): Árvore de Herança. Por decisão explícita do usuário, usa o ELENCO E OS EVENTOS REAIS do jogo (chefes de src/data/monsters.json, facções de src/data/worldStateVariables.json, Despertar de Arma Secreta de src/systems/AwakeningSystem.js) em vez de personagens fictícios novos. Cada nó só fica disponível depois que o evento narrativo dele realmente aconteceu na partida (ver atendeGatilhoHeranca em TalentSystem.js) — e, ao contrário de talento de classe/subclasse, uma escolha de herança nunca pode ser desfeita (resetarTalentos nunca mexe em `heranca`). Esta é uma lista inicial pequena e real, prova de que o motor funciona ponta a ponta com conteúdo de verdade — mais nós (ligados às árvores de Guerreiro/Mago e a outros chefes/facções/marcos do Bestiário) são esperados nas próximas fases, não só nesta.",
+  "_comentario": "Caminhos do Herdeiro (task #92): Árvore de Herança. Por decisão explícita do usuário, usa o ELENCO E OS EVENTOS REAIS do jogo (chefes de src/data/monsters.json, facções de src/data/worldStateVariables.json, Despertar de Arma Secreta de src/systems/AwakeningSystem.js) em vez de personagens fictícios novos. Cada nó só fica disponível depois que o evento narrativo dele realmente aconteceu na partida (ver atendeGatilhoHeranca em TalentSystem.js) — e, ao contrário de talento de classe/subclasse, uma escolha de herança nunca pode ser desfeita (resetarTalentos nunca mexe em `heranca`). Esta é uma lista inicial pequena e real, prova de que o motor funciona ponta a ponta com conteúdo de verdade — mais nós (ligados às árvores de Guerreiro/Mago e a outros chefes/facções/marcos do Bestiário) são esperados nas próximas fases, não só nesta. 22/09: a lista cresceu com um nó por FACÇÃO (reputação 60 com cada uma das dez) e um por RAÇA (nível 8 com aquela raça, gatilho `racaNivel`), para a facção de origem e a raça escolhidas na criação terem um destino de longo prazo.",
   "nos": [
     {
       "id": "heranca_folego_do_dragao_jovem",
       "nome": "Fôlego do Dragão Jovem",
       "icone": "🐲",
       "descricao": "Você derrotou o Dragão Jovem que ameaçava a masmorra — parte daquele fogo antigo ficou com você. +3 INT permanente.",
-      "gatilho": { "tipo": "chefeDerrotado", "monstroId": "dragao_jovem" },
+      "gatilho": {
+        "tipo": "chefeDerrotado",
+        "monstroId": "dragao_jovem"
+      },
       "tipoPonto": "heranca",
       "custo": 1,
-      "efeito": { "tipo": "bonusAtributo", "atributo": "INT", "valor": 3 }
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 3
+      }
     },
     {
       "id": "heranca_raizes_que_resistem",
       "nome": "Raízes que Resistem",
       "icone": "🌳",
       "descricao": "Sobreviver ao Guardião das Raízes Antigas ensinou seu corpo a aguentar o que viria depois. +3 de defesa permanente.",
-      "gatilho": { "tipo": "chefeDerrotado", "monstroId": "guardiao_das_raizes" },
+      "gatilho": {
+        "tipo": "chefeDerrotado",
+        "monstroId": "guardiao_das_raizes"
+      },
       "tipoPonto": "heranca",
       "custo": 1,
-      "efeito": { "tipo": "bonusAtributo", "atributo": "defesaFlat", "valor": 3 }
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "defesaFlat",
+        "valor": 3
+      }
     },
     {
       "id": "heranca_favor_da_folha_verde",
       "nome": "Favor dos Guardiões da Folha Verde",
       "icone": "🌿",
       "descricao": "A confiança dos Guardiões da Folha Verde te fortalece — eles compartilham parte de sua resistência natural. +2 CON permanente.",
-      "gatilho": { "tipo": "reputacaoFaccao", "facaoId": "guardioes_da_folha", "minimo": 60 },
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "guardioes_da_folha",
+        "minimo": 60
+      },
       "tipoPonto": "heranca",
       "custo": 1,
-      "efeito": { "tipo": "bonusAtributo", "atributo": "CON", "valor": 2 }
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 2
+      }
     },
     {
       "id": "heranca_orgulho_dos_ventos_dourados",
       "nome": "Orgulho do Clã dos Ventos Dourados",
       "icone": "🌾",
       "descricao": "Provar valor em combate junto ao Clã dos Ventos Dourados deixou você mais forte nos golpes. +2 FOR permanente.",
-      "gatilho": { "tipo": "reputacaoFaccao", "facaoId": "cla_dos_ventos_dourados", "minimo": 60 },
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "cla_dos_ventos_dourados",
+        "minimo": 60
+      },
       "tipoPonto": "heranca",
       "custo": 1,
-      "efeito": { "tipo": "bonusAtributo", "atributo": "FOR", "valor": 2 }
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "FOR",
+        "valor": 2
+      }
     },
     {
       "id": "heranca_eco_de_arma_secreta",
       "nome": "Eco de uma Arma Secreta",
       "icone": "✨",
       "descricao": "Ver um dos seus convocados despertar a própria Arma Secreta deixou um eco de poder em você também. +2 DES permanente.",
-      "gatilho": { "tipo": "armaSecretaDespertada" },
+      "gatilho": {
+        "tipo": "armaSecretaDespertada"
+      },
       "tipoPonto": "heranca",
       "custo": 1,
-      "efeito": { "tipo": "bonusAtributo", "atributo": "DES", "valor": 2 }
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "DES",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_andarilhos_do_pantano",
+      "nome": "Fôlego do Pântano",
+      "icone": "🐸",
+      "descricao": "Os Andarilhos do Pântano te ensinaram a respirar onde o ar é pesado. +2 CON permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "andarilhos_do_pantano",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_confraria_do_farol",
+      "nome": "Luz da Confraria",
+      "icone": "⚓",
+      "descricao": "A Confraria do Farol confia a você o que se aprende olhando o mar por muito tempo. +2 INT permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "confraria_do_farol",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_caravana_de_karn",
+      "nome": "Passo de Karn",
+      "icone": "🐪",
+      "descricao": "Atravessar o deserto com a Caravana de Karn deixou seu passo leve e certo. +2 DES permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "caravana_de_karn",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "DES",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_forja_dos_anoes_cinzentos",
+      "nome": "Têmpera dos Cinzentos",
+      "icone": "⛏️",
+      "descricao": "A Forja dos Anões Cinzentos temperou sua armadura — e você junto. +3 de defesa permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "forja_dos_anoes_cinzentos",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "defesaFlat",
+        "valor": 3
+      }
+    },
+    {
+      "id": "heranca_ordem_dos_arquivistas",
+      "nome": "Chave dos Arquivistas",
+      "icone": "📜",
+      "descricao": "A Ordem dos Arquivistas Perdidos abriu para você as estantes que ninguém lê. +2 INT permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "ordem_dos_arquivistas",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_cavaleiros_do_vento_uivante",
+      "nome": "Juramento do Vento Uivante",
+      "icone": "🦅",
+      "descricao": "Os Cavaleiros do Vento Uivante aceitaram seu juramento. +2 FOR permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "cavaleiros_do_vento_uivante",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "FOR",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_legiao_das_cinzas",
+      "nome": "Marca das Cinzas",
+      "icone": "🔥",
+      "descricao": "A Legião das Cinzas marca quem aguenta o calor dela. +5% de HP máximo permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "legiao_das_cinzas",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "hpMaxPercent",
+        "valor": 0.05
+      }
+    },
+    {
+      "id": "heranca_coroa_de_aethra",
+      "nome": "Selo da Coroa",
+      "icone": "👑",
+      "descricao": "A Coroa de Aethra reconhece o seu nome. +4% de chance de crítico permanente.",
+      "gatilho": {
+        "tipo": "reputacaoFaccao",
+        "facaoId": "coroa_de_aethra",
+        "minimo": 60
+      },
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "critChance",
+        "valor": 0.04
+      }
+    },
+    {
+      "id": "heranca_raca_humano",
+      "nome": "Instinto Adaptável",
+      "icone": "🧭",
+      "descricao": "Vinte gerações de gente que se vira em qualquer lugar — e agora você também. +3% de chance de crítico permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "humano",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "critChance",
+        "valor": 0.03
+      }
+    },
+    {
+      "id": "heranca_raca_elfo",
+      "nome": "Herança Élfica",
+      "icone": "🍃",
+      "descricao": "O tempo que os elfos têm de sobra vira precisão nas suas mãos. +2 DES permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "elfo",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "DES",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_raca_anao",
+      "nome": "Pedra Antiga",
+      "icone": "🗿",
+      "descricao": "O que os anões chamam de teimosia, o corpo chama de couraça. +2 de defesa permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "anao",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "defesaFlat",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_raca_orc",
+      "nome": "Sangue de Guerra",
+      "icone": "🪓",
+      "descricao": "O sangue órquico ferve mais fundo a cada luta que você sobrevive. +2 FOR permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "orc",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "FOR",
+        "valor": 2
+      }
+    },
+    {
+      "id": "heranca_raca_halfling",
+      "nome": "Sorte Herdada",
+      "icone": "🍀",
+      "descricao": "A sorte dos halflings não é acaso: é hábito de família. +4% de chance de crítico permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "halfling",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "critChance",
+        "valor": 0.04
+      }
+    },
+    {
+      "id": "heranca_raca_draconato",
+      "nome": "Chama Ancestral",
+      "icone": "🐲",
+      "descricao": "O fogo que dorme no sangue draconato acorda de vez. +2 INT permanente.",
+      "gatilho": {
+        "tipo": "racaNivel",
+        "racaId": "draconato",
+        "nivel": 8
+      },
+      "nivelMinimo": 8,
+      "tipoPonto": "heranca",
+      "custo": 1,
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 2
+      }
     }
   ]
 }

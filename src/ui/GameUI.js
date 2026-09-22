@@ -37,6 +37,8 @@ import { textoSubStatus, GRAU_ROTULO, GRAU_COR, MARCOS, NIVEL_MAXIMO as SUB_NIVE
 import { celebrarNivel } from "./CartaoUI.js";
 import { cenaDeAbertura, cenaDaMissao, jaViu } from "../systems/CutsceneSystem.js";
 import { proximoPassoAltaverde, podeRecrutarAshryn, recrutarAshryn } from "../systems/JornadaSystem.js";
+import { destinoAtual, textoObjetivo, textoRecompensa } from "../systems/DestinoSystem.js";
+import { opcaoDeOrigem } from "../systems/ExplorationEventSystem.js";
 import { somConfirmar, somCancelar, somBloqueioOuErro } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
@@ -950,11 +952,11 @@ export function montarMissoes(personagem, dados) {
         <button type="button" class="missao-ver-mapa primario">🗺️ Ver no mapa</button>
         <button type="button" class="missao-parar-rastro">Parar de rastrear</button>
       </div>`;
-  } else if (proximoPassoAltaverde(personagem).passo) {
+  } else if (proximoPassoAltaverde(personagem, dados.worldStateVariables).passo) {
     // Sem missão rastreada, mas com a Jornada de Altaverde em andamento. O
     // cabeçalho dizia "Sem objetivo rastreado" com o próximo passo da Jornada
     // escrito logo abaixo — quem está começando o jogo tem, sim, um objetivo.
-    const jornadaAtual = proximoPassoAltaverde(personagem);
+    const jornadaAtual = proximoPassoAltaverde(personagem, dados.worldStateVariables);
     resumo.className = "missao-rastreada-resumo ativa";
     resumo.innerHTML = `
       <span class="missao-rastreada-selo">✦ PRÓXIMO PASSO DA JORNADA</span>
@@ -967,6 +969,27 @@ export function montarMissoes(personagem, dados) {
       <p>${personagem.missoesAtivas.length ? "Use “Rastrear no mapa” em uma missão ativa." : "Converse com personagens marcados por ! para descobrir novas histórias."}</p>`;
   }
   corpo.appendChild(resumo);
+  // SEU CAMINHO (ver DestinoSystem.js): o recado do contato de origem e o
+  // passo atual da motivação escolhida na criação, com o progresso de cada
+  // um. Andam sozinhos com o que o jogador já faz; a recompensa cai quando a
+  // meta é alcançada.
+  const caminho = destinoAtual(personagem, dados);
+  if (caminho.length) {
+    const secao = document.createElement("section");
+    secao.className = "destino-pessoal";
+    secao.setAttribute("aria-label", "Seu caminho");
+    secao.innerHTML = `<span class="missao-rastreada-selo">✦ SEU CAMINHO</span>` + caminho.map((c) => {
+      const pct = Math.round((c.progresso.atual / Math.max(1, c.progresso.meta)) * 100);
+      return `<article class="destino-item">
+        <div class="destino-cabecalho"><b>${c.icone} ${c.titulo}</b><small>${c.subtitulo}</small></div>
+        ${c.texto ? `<p class="destino-recado">${c.texto}</p>` : ""}
+        <p class="destino-objetivo">◎ ${textoObjetivo(c.objetivo)} <b>${c.progresso.atual}/${c.progresso.meta}</b></p>
+        <div class="missao-progresso" role="progressbar" aria-label="Progresso de ${c.titulo}" aria-valuemin="0" aria-valuemax="${c.progresso.meta}" aria-valuenow="${c.progresso.atual}"><i style="width:${pct}%"></i></div>
+        <p class="destino-recompensa"><small>Recompensa</small> ${textoRecompensa(c.recompensa, dados)}</p>
+      </article>`;
+    }).join("");
+    corpo.appendChild(secao);
+  }
   resumo.querySelector(".missao-ver-mapa")?.addEventListener("click", () => {
     fecharModal();
     document.dispatchEvent(new CustomEvent("hda:abrir-mapa-missao"));
@@ -1002,7 +1025,7 @@ export function montarMissoes(personagem, dados) {
   grupoConcluidas.setAttribute("role", "tabpanel");
   grupoConcluidas.dataset.missaoGrupo = "concluidas";
   corpo.append(grupoAtivas, grupoDiarias, grupoConcluidas);
-  const jornada = proximoPassoAltaverde(personagem);
+  const jornada = proximoPassoAltaverde(personagem, dados.worldStateVariables);
   const painelJornada = document.createElement("section");
   painelJornada.className = "card";
   const tituloJornada = document.createElement("h3");
@@ -1118,7 +1141,10 @@ function custoTextoAprimoramento(custo, dados) {
     const item = dados.items.itens.find((x) => x.id === m.itemId);
     return `${item ? item.nome : m.itemId} x${m.quantidade}`;
   }).join(", ");
-  return `${custo.ouro}o + ${materiaisTxt}`;
+  // Com desconto de identidade (Artesanato / Sangue da Forja), mostra o
+  // preço cheio riscado — o jogador vê que a escolha dele está valendo.
+  const ouroTxt = custo.ouroSemDesconto ? `<s>${custo.ouroSemDesconto}o</s> ${custo.ouro}o` : `${custo.ouro}o`;
+  return `${ouroTxt} + ${materiaisTxt}`;
 }
 
 
@@ -1200,7 +1226,7 @@ function montarAprimoramento(corpo, personagem, dados, onMudar, tela, redesenhar
   corpo.appendChild(grade);
   itens.forEach((item) => {
     const nivel = nivelAprimoramento(item);
-    const custo = custoProximoNivel(item);
+    const custo = custoProximoNivel(item, personagem);
     const check = podeAprimorar(personagem, item);
     const cor = RARITY_COLORS[item.raridade] || "#888";
     const el = document.createElement("div");
@@ -1652,11 +1678,28 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   const testes = testesDoContexto(dados.skillChecks, "npc", { npcId: npc.id })
     .filter((t) => !t.unicoPorPersonagem || !testeJaFeito(personagem, t.id));
   testes.forEach((teste) => {
+    // Opção de ORIGEM: quem tem a perícia pela origem resolve sem dado (ver
+    // opcaoDeOrigem em ExplorationEventSystem.js) — a mesma regra dos
+    // eventos de exploração, aqui na conversa com o NPC.
+    const daOrigem = opcaoDeOrigem(teste, personagem, dados);
     const div = document.createElement("div");
     div.className = "card";
     div.innerHTML = `<div class="info"><div class="nome">🎲 ${teste.pericia}</div><div class="desc">${teste.textoOferta}</div></div>
-      <div><button class="btn-teste-pericia" data-id="${teste.id}">Tentar</button></div>`;
+      <div>${daOrigem ? `<button class="btn-teste-origem" data-id="${teste.id}">${daOrigem.origem.nome}: sem dado</button>` : ""}<button class="btn-teste-pericia" data-id="${teste.id}">Tentar</button></div>`;
     corpo.appendChild(div);
+  });
+  corpo.querySelectorAll(".btn-teste-origem").forEach((b) => b.onclick = () => {
+    const teste = testes.find((t) => t.id === b.dataset.id);
+    const daOrigem = opcaoDeOrigem(teste, personagem, dados);
+    if (!teste || !daOrigem) return;
+    b.disabled = true;
+    if (teste.unicoPorPersonagem) marcarTesteFeito(personagem, teste.id);
+    if (teste.recompensaOuroSucesso) personagem.ouro += teste.recompensaOuroSucesso;
+    alterarReputacao(personagem, "vila", REPUTACAO_POR_TESTE_SUCESSO, dados.worldStateVariables);
+    mostrarMensagem(`✅ ${daOrigem.origem.nome}: ${teste.textoSucesso}${teste.recompensaOuroSucesso ? ` (+${teste.recompensaOuroSucesso} ouro)` : ""} (+${REPUTACAO_POR_TESTE_SUCESSO} reputação)`, 4200);
+    registrarDecisao(personagem, { icone: "🎲", titulo: `Conversa com ${npc.nome}`, texto: `${daOrigem.origem.nome}: ${teste.textoSucesso}` });
+    onMudar();
+    montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
   corpo.querySelectorAll(".btn-teste-pericia").forEach((b) => b.onclick = async () => {
     const teste = testes.find((t) => t.id === b.dataset.id);

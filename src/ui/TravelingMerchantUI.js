@@ -8,13 +8,16 @@ import { mostrarMensagem } from "./GameUI.js";
 import { abrirTela, LARGURA, criarGrade, abrirSheet, fecharSheet } from "./HdaUI.js";
 import { comprarItem } from "../systems/InventorySystem.js";
 import { multiplicadorPrecoLoja, tierDaReputacao, getReputacao } from "../systems/WorldStateSystem.js";
+import { temCombinacao } from "../systems/IdentidadeSystem.js";
 
 // `onMudar` é chamado a cada compra (não ao fechar) — o chamador (main.js)
 // usa isso pra atualizar o HUD (ouro gasto), igual ao onMudar de
 // montarLoja/montarInventario. O modal continua aberto pra comprar mais de
 // um item na mesma aparição, fechando só pelo botão "Fechar (Esc)" padrão.
 export function mostrarMercadorItinerante(estoque, personagem, dados, facaoId, onMudar) {
-  const multPreco = multiplicadorPrecoLoja(personagem, dados.worldStateVariables, facaoId);
+  // Combinação Mascate de Karn (Halfling + Caravana de Karn): −10% nos
+  // preços do mercador itinerante, somado ao desconto de reputação.
+  const multPreco = multiplicadorPrecoLoja(personagem, dados.worldStateVariables, facaoId) * (temCombinacao(personagem, "mascate_de_karn") ? 0.9 : 1);
   const tierAtual = tierDaReputacao(getReputacao(personagem, facaoId), dados.worldStateVariables);
   const facaoInfo = ((dados.worldStateVariables && dados.worldStateVariables.facoes) || []).find((f) => f.id === facaoId);
   const nomeFaccao = facaoInfo ? facaoInfo.nome : facaoId;

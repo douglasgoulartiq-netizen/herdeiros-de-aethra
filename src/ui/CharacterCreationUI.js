@@ -1,6 +1,10 @@
 // Criação de personagem em etapas, com identidade narrativa persistente.
-import { criarPersonagem } from "../systems/CharacterFactory.js";
-import { infoAfinidade } from "../systems/AffinitySystem.js";
+import { criarPersonagem, atributosEfetivos } from "../systems/CharacterFactory.js";
+import { infoAfinidade, descreverBonus } from "../systems/AffinitySystem.js";
+import {
+  MOTIVACOES, INTERESSES, COMBINACOES, combinacoesDe, relacoesParaCard, habilidadeNoElemento,
+  REPUTACAO_ORIGEM, ATRIBUTO_DO_EMBLEMA, SINTONIA_UNIVERSAL, CUSTO_TROCA_AFILIACAO,
+} from "../systems/IdentidadeSystem.js";
 
 export const ETAPAS_CRIACAO = ["nome", "raca", "classe", "elemento", "antecedente", "traco", "faccao", "preferencias", "resumo"];
 
@@ -97,14 +101,95 @@ export function aplicarCriacaoAleatoriaComTravas(estado, dados, random = Math.ra
   return estado;
 }
 
-function criarCard({ titulo, descricao = "", meta = "", selecionada, onClick, classe = "" }) {
+// `efeitos`: [[ícone, texto], ...] — o que a escolha FAZ no jogo, com o
+// selo de onde ela pesa (ver LEGENDA_ONDE_PESA). Spans e não lista: o card é
+// um <button>, que só aceita conteúdo de frase.
+function criarCard({ titulo, descricao = "", meta = "", efeitos = [], selecionada, onClick, classe = "" }) {
   const card = document.createElement("button");
   card.type = "button";
   card.className = `opcao-card ${classe}${selecionada ? " selecionada" : ""}`.trim();
   card.setAttribute("aria-pressed", selecionada ? "true" : "false");
-  card.innerHTML = `<h3>${titulo}</h3>${descricao ? `<p>${descricao}</p>` : ""}${meta ? `<p class="opcao-meta">${meta}</p>` : ""}`;
+  const linhas = efeitos.filter(([, texto]) => texto)
+    .map(([icone, texto]) => `<span class="opcao-efeito"><i aria-hidden="true">${icone}</i>${texto}</span>`).join("");
+  card.innerHTML = `<h3>${titulo}</h3>${descricao ? `<p>${descricao}</p>` : ""}${meta ? `<p class="opcao-meta">${meta}</p>` : ""}${linhas ? `<span class="opcao-efeitos">${linhas}</span>` : ""}`;
   card.onclick = onClick;
   return card;
+}
+
+// Onde cada escolha pesa, com o mesmo ícone em todos os cards.
+const LEGENDA_ONDE_PESA = "Onde pesa: ⚔️ batalha · 🗺️ exploração · 💬 conversas · 📈 progresso · 🤝 facções";
+const ONDE_PESA_TRACO_RACIAL = {
+  adaptavel: "📈", olhos_da_floresta: "⚔️🗺️", pele_de_pedra: "⚔️", furia_orc: "⚔️", sorte_miuda: "⚔️", sopro_elemental: "⚔️",
+};
+const ICONE_MOTIVACAO = { descoberta: "🗺️", justica: "⚔️", legado: "📈", liberdade: "⚔️", redencao: "⚔️", poder: "📈" };
+const ICONE_INTERESSE = {
+  exploracao: "🗺️", combate: "📈", magia: "⚔️", natureza: "🗺️", tesouros: "🗺️", historias: "📈", artesanato: "📈", diplomacia: "🤝",
+};
+const NOME_ATRIBUTO = { FOR: "Força", DES: "Destreza", CON: "Constituição", INT: "Inteligência" };
+const listaHumana = (itens) => itens.length <= 1 ? (itens[0] || "") : `${itens.slice(0, -1).join(", ")} e ${itens[itens.length - 1]}`;
+
+// Classes com quem a raça tem afinidade, por nome.
+function classesAfinsDaRaca(racaId, dados) {
+  const entrada = dados.affinities && dados.affinities[racaId];
+  if (!entrada || !Array.isArray(entrada.classesAfins)) return [];
+  if (entrada.classesAfins.length >= (dados.classes || []).length) return ["todas as classes"];
+  return entrada.classesAfins.map((id) => (dados.classes.find((c) => c.id === id) || { nome: id }).nome);
+}
+
+// O kit da origem, por extenso: "2× Poção de Vida Pequena".
+function kitDaOrigem(b, dados) {
+  const kit = Array.isArray(b.itensIniciais) ? b.itensIniciais : b.itemInicial ? [{ id: b.itemInicial, qtd: 1 }] : [];
+  return kit.map(({ id, qtd = 1 }) => {
+    const item = (dados.items?.itens || []).find((i) => i.id === id);
+    return item ? `${qtd > 1 ? `${qtd}× ` : ""}${item.nome}` : null;
+  }).filter(Boolean);
+}
+
+// Quantos testes do mundo usam a perícia — dá a medida de quanto ela aparece.
+const testesDaPericia = (pericia, dados) => (dados.skillChecks || []).filter((t) => t.pericia === pericia).length;
+
+// Tudo que as escolhas atuais fazem, para a revisão ("Onde suas escolhas
+// aparecem"). Cada linha: [ícone, título, texto].
+function efeitosDaIdentidade(estado, dados) {
+  const achar = (lista, id) => (lista || []).find((x) => x.id === id);
+  const linhas = [];
+  const raca = achar(dados.races, estado.raca);
+  const classe = achar(dados.classes, estado.classe);
+  if (raca) linhas.push([ONDE_PESA_TRACO_RACIAL[raca.traco] || "⚔️", `Raça — ${raca.nome}`, raca.descricaoTraco]);
+  const afinidade = raca && classe ? infoAfinidade(raca.id, classe.id, dados.affinities) : null;
+  if (afinidade) linhas.push(["🔗", "Afinidade de raça e classe", `${afinidade.resumo} (${afinidade.texto.split(":")[0]}).`]);
+  if (classe) {
+    const habilidades = classe.habilidades.map((h) => habilidadeNoElemento(h, estado.elemento).nome);
+    linhas.push(["⚔️", `Classe — ${classe.nome}`, `Começa com ${listaHumana(habilidades)}.`]);
+  }
+  const elemento = achar(dados.elements?.elementos, estado.elemento);
+  if (elemento) {
+    const r = relacoesParaCard(elemento.id, dados.elements, dados.monsters);
+    const sintonia = SINTONIA_UNIVERSAL[elemento.id]
+      ? "golpes físicos +8% contra qualquer alvo"
+      : `golpes físicos +15% a +25% contra ${r.criaturasFracas} tipos de criatura fracos a ${elemento.nome.toLowerCase()}`;
+    linhas.push(["⚔️", `Elemento — ${elemento.nome}`, `Golpes de ${elemento.nome.toLowerCase()} +15%, dano recebido dele −15%; ${sintonia}; terreno e clima de ${elemento.nome.toLowerCase()} dão defesa e MP.`]);
+    if (raca && raca.id === "draconato") linhas.push(["🔥", "Sopro Elemental", `Sai em ${elemento.nome.toLowerCase()}, com chance de deixar o estado dele.`]);
+  }
+  const origem = achar(dados.backgrounds, estado.antecedente);
+  if (origem) {
+    const kit = kitDaOrigem(origem, dados);
+    linhas.push(["💬", `Origem — ${origem.nome}`, `Perícia ${origem.pericia} (${testesDaPericia(origem.pericia, dados)} testes no mundo), ${origem.ouroInicial} de ouro${kit.length ? ` e ${listaHumana(kit)}` : ""}.`]);
+  }
+  const traco = achar(dados.traits, estado.traco);
+  if (traco) linhas.push(["⚔️", `Personalidade — ${traco.nome}`, traco.descricao]);
+  const faccao = achar(dados.worldStateVariables?.facoes, estado.faccao);
+  if (faccao) {
+    const atr = ATRIBUTO_DO_EMBLEMA[faccao.id];
+    linhas.push(["🤝", `Facção — ${faccao.nome}`, `Começa Respeitado (+${REPUTACAO_ORIGEM})${atr ? ` e com o emblema do seu povo (+1 ${atr})` : ""}. A origem é para sempre; trocar de afiliação custa ${CUSTO_TROCA_AFILIACAO} de reputação.`]);
+  }
+  const motivacao = MOTIVACOES_CRIACAO.find((m) => m.id === estado.motivacao);
+  if (motivacao) linhas.push([ICONE_MOTIVACAO[motivacao.id] || "📈", `Motivação — ${motivacao.nome}`, MOTIVACOES[motivacao.id]?.efeito || ""]);
+  (estado.preferencias || []).forEach((id) => {
+    const p = PREFERENCIAS_CRIACAO.find((x) => x.id === id);
+    if (p) linhas.push([ICONE_INTERESSE[id] || "📈", `Interesse — ${p.nome}`, INTERESSES[id]?.efeito || ""]);
+  });
+  return linhas;
 }
 
 export function montarCriacaoPersonagem(container, dados, onFinalizar) {
@@ -188,29 +273,103 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
       painel.append(input, botao("Definir nome e continuar →", avancar, "primario criacao-inicio")); setTimeout(() => input.focus(), 0); return;
     }
     if (etapa === "raca") {
-      titulo.textContent = "Escolha sua raça"; const grid = lista(painel);
-      dados.races.forEach((r) => grid.appendChild(criarCard({ titulo: r.nome, descricao: r.descricao, meta: `${Object.entries(r.bonus).map(([k, v]) => `+${v} ${k}`).join(" · ")} — ${r.descricaoTraco}`, selecionada: estado.raca === r.id, onClick: () => { estado.raca = r.id; render(); } }))); navegacao(painel, () => estado.raca);
+      titulo.textContent = "Escolha sua raça"; textoApoio(painel, LEGENDA_ONDE_PESA); const grid = lista(painel);
+      dados.races.forEach((r) => grid.appendChild(criarCard({
+        titulo: r.nome, descricao: r.descricao, meta: Object.entries(r.bonus).map(([k, v]) => `+${v} ${k}`).join(" · "),
+        efeitos: [[ONDE_PESA_TRACO_RACIAL[r.traco] || "⚔️", r.descricaoTraco], ["🔗", `Afinidade com ${listaHumana(classesAfinsDaRaca(r.id, dados))}.`]],
+        selecionada: estado.raca === r.id, onClick: () => { estado.raca = r.id; render(); },
+      }))); navegacao(painel, () => estado.raca);
     } else if (etapa === "classe") {
       titulo.textContent = "Escolha sua classe"; const grid = lista(painel);
-      dados.classes.forEach((c) => { const afinidade = infoAfinidade(estado.raca, c.id, dados.affinities); const card = criarCard({ titulo: `${c.icone || ""} ${c.nome}`, descricao: c.descricao || "", meta: `HP ${c.vidaBase} · MP ${c.manaBase}${afinidade ? " · 🔗 Afinidade racial" : ""}`, selecionada: estado.classe === c.id, onClick: () => { estado.classe = c.id; render(); } }); const sprite = document.createElement("span"); sprite.className = "criacao-sprite"; sprite.style.backgroundImage = `url('assets/sprites/pc_${estado.raca}_${c.id}.png')`; card.prepend(sprite); grid.appendChild(card); }); navegacao(painel, () => estado.classe);
+      dados.classes.forEach((c) => {
+        const afinidade = infoAfinidade(estado.raca, c.id, dados.affinities);
+        const subclasses = ((dados.subclasses && dados.subclasses.subclasses) || []).filter((sc) => sc.classeId === c.id).length;
+        const a = c.atributosBase || {};
+        const card = criarCard({
+          titulo: `${c.icone || ""} ${c.nome}`, descricao: c.descricao || "",
+          meta: `HP ${c.vidaBase} · MP ${c.manaBase} · FOR ${a.FOR} DES ${a.DES} CON ${a.CON} INT ${a.INT}`,
+          efeitos: [
+            ["⚔️", `Começa com ${listaHumana(c.habilidades.map((h) => h.nome))}.`],
+            afinidade ? ["🔗", `Afinidade com a sua raça: ${afinidade.resumo}.`] : ["", ""],
+            subclasses ? ["📈", `No nível 10, escolhe entre ${subclasses} subclasses.`] : ["", ""],
+          ],
+          selecionada: estado.classe === c.id, onClick: () => { estado.classe = c.id; render(); },
+        });
+        const sprite = document.createElement("span"); sprite.className = "criacao-sprite"; sprite.style.backgroundImage = `url('assets/sprites/pc_${estado.raca}_${c.id}.png')`; card.prepend(sprite); grid.appendChild(card);
+      }); navegacao(painel, () => estado.classe);
     } else if (etapa === "elemento") {
-      titulo.textContent = "Escolha sua afinidade elemental"; textoApoio(painel, "A energia com que seu herói mais se identifica."); const grid = lista(painel, "grid-elementos");
-      elementosDisponiveis(dados).forEach((e) => grid.appendChild(criarCard({ titulo: `${e.icone || "✦"} ${e.nome}`, descricao: `Sintonia com a essência de ${e.nome.toLowerCase()}.`, selecionada: estado.elemento === e.id, classe: "elemento-card", onClick: () => { estado.elemento = e.id; render(); } }))); navegacao(painel, () => estado.elemento);
+      titulo.textContent = "Escolha sua afinidade elemental";
+      textoApoio(painel, "⚔️ O elemento vale em toda batalha: golpes dele +15% e dano dele contra você −15% (essência); seus golpes físicos acertam mais forte as criaturas fracas a ele (sintonia); e lutar em terreno ou clima dele dá defesa e MP a cada turno.");
+      const grid = lista(painel, "grid-elementos");
+      const classeAtual = dados.classes.find((c) => c.id === estado.classe);
+      elementosDisponiveis(dados).forEach((e) => {
+        const r = relacoesParaCard(e.id, dados.elements, dados.monsters);
+        const forcaFraqueza = SINTONIA_UNIVERSAL[e.id]
+          ? "Ninguém resiste a ele: sintonia +8% contra qualquer alvo."
+          : `Forte contra ${listaHumana(r.forte) || "—"}${r.fraco.length ? ` · fraco contra ${listaHumana(r.fraco)}` : ""}.`;
+        const magia = (classeAtual?.habilidades || []).map((h) => habilidadeNoElemento(h, e.id)).find((h) => h.elemento === e.id);
+        grid.appendChild(criarCard({
+          titulo: `${e.icone || "✦"} ${e.nome}`, descricao: forcaFraqueza,
+          efeitos: [
+            magia ? ["✨", `Sua magia inicial: ${magia.nome}.`] : ["", ""],
+            estado.raca === "draconato" ? ["🔥", `Seu Sopro sai em ${e.nome.toLowerCase()}.`] : ["", ""],
+          ],
+          selecionada: estado.elemento === e.id, classe: "elemento-card", onClick: () => { estado.elemento = e.id; render(); },
+        }));
+      }); navegacao(painel, () => estado.elemento);
     } else if (etapa === "antecedente") {
-      titulo.textContent = "Escolha seu antecedente"; const grid = lista(painel); dados.backgrounds.forEach((b) => grid.appendChild(criarCard({ titulo: b.nome, descricao: b.descricao, meta: `${b.pericia} · ${b.ouroInicial} ouro`, selecionada: estado.antecedente === b.id, onClick: () => { estado.antecedente = b.id; render(); } }))); navegacao(painel, () => estado.antecedente);
+      titulo.textContent = "Escolha seu antecedente";
+      textoApoio(painel, "💬 A perícia da origem soma bônus nos testes de conversa e exploração que pedem por ela.");
+      const grid = lista(painel);
+      dados.backgrounds.forEach((b) => {
+        const kit = kitDaOrigem(b, dados);
+        grid.appendChild(criarCard({
+          titulo: b.nome, descricao: b.descricao, meta: `${b.pericia} · ${b.ouroInicial} ouro`,
+          efeitos: [
+            kit.length ? ["🎒", `Começa com ${listaHumana(kit)}.`] : ["", ""],
+            ["💬", `${b.pericia}: ${testesDaPericia(b.pericia, dados)} testes no mundo usam esta perícia.`],
+          ],
+          selecionada: estado.antecedente === b.id, onClick: () => { estado.antecedente = b.id; render(); },
+        }));
+      }); navegacao(painel, () => estado.antecedente);
     } else if (etapa === "traco") {
-      titulo.textContent = "Defina sua personalidade"; textoApoio(painel, "O traço também altera seu desempenho em momentos decisivos."); const grid = lista(painel); dados.traits.forEach((t) => grid.appendChild(criarCard({ titulo: t.nome, descricao: t.descricao, selecionada: estado.traco === t.id, onClick: () => { estado.traco = t.id; render(); } }))); navegacao(painel, () => estado.traco);
+      titulo.textContent = "Defina sua personalidade"; textoApoio(painel, "⚔️ A personalidade entra em toda batalha — o card diz exatamente como."); const grid = lista(painel); dados.traits.forEach((t) => grid.appendChild(criarCard({ titulo: t.nome, descricao: t.descricao, selecionada: estado.traco === t.id, onClick: () => { estado.traco = t.id; render(); } }))); navegacao(painel, () => estado.traco);
     } else if (etapa === "faccao") {
-      titulo.textContent = "Escolha sua facção de origem"; textoApoio(painel, "Você começa afiliado a esse povo, mas sua reputação ainda será conquistada por suas ações."); const grid = lista(painel); (dados.worldStateVariables.facoes || []).filter((f) => f.id !== "vila").forEach((f) => grid.appendChild(criarCard({ titulo: `${f.icone || "◆"} ${f.nome}`, descricao: f.descricao, selecionada: estado.faccao === f.id, onClick: () => { estado.faccao = f.id; render(); } }))); navegacao(painel, () => estado.faccao);
+      titulo.textContent = "Escolha sua facção de origem";
+      textoApoio(painel, `🤝 Você começa Respeitado (+${REPUTACAO_ORIGEM}) pelo povo de onde veio, com o emblema dele no pescoço. A origem não muda nunca; a afiliação pode mudar depois, mas deixar uma facção custa ${CUSTO_TROCA_AFILIACAO} de reputação com ela.`);
+      const grid = lista(painel);
+      (dados.worldStateVariables.facoes || []).filter((f) => f.id !== "vila").forEach((f) => {
+        const atr = ATRIBUTO_DO_EMBLEMA[f.id];
+        const combo = COMBINACOES.find((c) => c.quando.faccao === f.id && Object.entries(c.quando).every(([k, v]) => k === "faccao" || estado[k] === v));
+        grid.appendChild(criarCard({
+          titulo: `${f.icone || "◆"} ${f.nome}`, descricao: f.descricao,
+          efeitos: [
+            atr ? ["📿", `Emblema: +1 de ${NOME_ATRIBUTO[atr]}.`] : ["", ""],
+            combo ? ["✨", `Combinação com as suas escolhas: ${combo.nome}.`] : ["", ""],
+          ],
+          selecionada: estado.faccao === f.id, onClick: () => { estado.faccao = f.id; render(); },
+        }));
+      }); navegacao(painel, () => estado.faccao);
     } else if (etapa === "preferencias") {
       titulo.textContent = "O que move seu herói?"; textoApoio(painel, "Escolha uma motivação e até três interesses para esta jornada."); tituloSecao(painel, "Motivação principal"); const gm = lista(painel, "grid-compacto");
-      MOTIVACOES_CRIACAO.forEach((m) => gm.appendChild(criarCard({ titulo: `${m.icone} ${m.nome}`, descricao: m.descricao, selecionada: estado.motivacao === m.id, onClick: () => { estado.motivacao = m.id; render(); } }))); tituloSecao(painel, `Interesses (${estado.preferencias.length}/3)`); const gp = lista(painel, "grid-compacto");
-      PREFERENCIAS_CRIACAO.forEach((p) => { const ativa = estado.preferencias.includes(p.id); gp.appendChild(criarCard({ titulo: `${p.icone} ${p.nome}`, descricao: p.descricao, selecionada: ativa, onClick: () => { if (ativa) estado.preferencias = estado.preferencias.filter((id) => id !== p.id); else if (estado.preferencias.length < 3) estado.preferencias = [...estado.preferencias, p.id]; render(); } })); }); navegacao(painel, () => estado.motivacao && estado.preferencias.length);
+      MOTIVACOES_CRIACAO.forEach((m) => gm.appendChild(criarCard({ titulo: `${m.icone} ${m.nome}`, descricao: m.descricao, efeitos: [[ICONE_MOTIVACAO[m.id] || "📈", MOTIVACOES[m.id]?.efeito || ""]], selecionada: estado.motivacao === m.id, onClick: () => { estado.motivacao = m.id; render(); } }))); tituloSecao(painel, `Interesses (${estado.preferencias.length}/3)`); const gp = lista(painel, "grid-compacto");
+      PREFERENCIAS_CRIACAO.forEach((p) => { const ativa = estado.preferencias.includes(p.id); gp.appendChild(criarCard({ titulo: `${p.icone} ${p.nome}`, descricao: p.descricao, efeitos: [[ICONE_INTERESSE[p.id] || "📈", INTERESSES[p.id]?.efeito || ""]], selecionada: ativa, onClick: () => { if (ativa) estado.preferencias = estado.preferencias.filter((id) => id !== p.id); else if (estado.preferencias.length < 3) estado.preferencias = [...estado.preferencias, p.id]; render(); } })); }); navegacao(painel, () => estado.motivacao && estado.preferencias.length);
     } else if (etapa === "resumo") {
       titulo.textContent = `A jornada de ${estado.nome}`; const personagem = criarPersonagem(estado, dados); personagem.modoHistoria = estado.modoHistoria;
       const encontrar = (listaDados, id) => listaDados.find((x) => x.id === id); const raca = encontrar(dados.races, estado.raca); const classe = encontrar(dados.classes, estado.classe); const antecedente = encontrar(dados.backgrounds, estado.antecedente); const traco = encontrar(dados.traits, estado.traco); const elemento = encontrar(elementosDisponiveis(dados), estado.elemento); const faccao = encontrar(dados.worldStateVariables.facoes, estado.faccao); const motivacao = encontrar(MOTIVACOES_CRIACAO, estado.motivacao); const gostos = estado.preferencias.map((id) => encontrar(PREFERENCIAS_CRIACAO, id)).filter(Boolean);
-      const resumo = document.createElement("div"); resumo.className = "criacao-resumo"; resumo.innerHTML = `<div class="criacao-heroi-resumo" style="background-image:url('assets/sprites/pc_${estado.raca}_${estado.classe}.png')"></div><div class="resumo-identidade"><h3>${classe.icone || ""} ${raca.nome} ${classe.nome}</h3><p>${elemento.icone} <b>${elemento.nome}</b> · ${faccao.icone || "◆"} <b>${faccao.nome}</b></p><p>${motivacao.icone} <b>${motivacao.nome}</b> · ${antecedente.nome} · ${traco.nome}</p><div class="resumo-gostos">${gostos.map((g) => `<span>${g.icone} ${g.nome}</span>`).join("")}</div></div><div class="resumo-atributos">${[["FOR", "Força"], ["DES", "Destreza"], ["CON", "Constituição"], ["INT", "Inteligência"]].map(([id, nome]) => `<div class="stat-row"><span>${nome}</span><b>${personagem.atributos[id]}</b></div>`).join("")}<div class="stat-row"><span>HP / MP</span><b>${personagem.hpMax} / ${personagem.mpMax}</b></div><div class="stat-row"><span>Ouro</span><b>${personagem.ouro}</b></div></div>`; painel.appendChild(resumo);
-      const modo = document.createElement("label"); modo.className = "modo-historia-card"; const check = document.createElement("input"); check.type = "checkbox"; check.checked = estado.modoHistoria; check.onchange = () => { estado.modoHistoria = check.checked; personagem.modoHistoria = estado.modoHistoria; }; modo.append(check, document.createTextNode(" 📖 Modo História — inimigos mais leves, sem reduzir XP ou recompensas.")); painel.appendChild(modo);
+      // Atributos com afinidade e o que já vem vestido (anel do Nobre,
+      // emblema da facção) — os números com que o herói entra em Aethra.
+      const efetivos = atributosEfetivos(personagem, dados);
+      const resumo = document.createElement("div"); resumo.className = "criacao-resumo"; resumo.innerHTML = `<div class="criacao-heroi-resumo" style="background-image:url('assets/sprites/pc_${estado.raca}_${estado.classe}.png')"></div><div class="resumo-identidade"><h3>${classe.icone || ""} ${raca.nome} ${classe.nome}</h3><p>${elemento.icone} <b>${elemento.nome}</b> · ${faccao.icone || "◆"} <b>${faccao.nome}</b></p><p>${motivacao.icone} <b>${motivacao.nome}</b> · ${antecedente.nome} · ${traco.nome}</p><div class="resumo-gostos">${gostos.map((g) => `<span>${g.icone} ${g.nome}</span>`).join("")}</div></div><div class="resumo-atributos">${[["FOR", "Força"], ["DES", "Destreza"], ["CON", "Constituição"], ["INT", "Inteligência"]].map(([id, nome]) => `<div class="stat-row"><span>${nome}</span><b>${efetivos[id]}</b></div>`).join("")}<div class="stat-row"><span>HP / MP</span><b>${personagem.hpMax} / ${personagem.mpMax}</b></div><div class="stat-row"><span>Ouro</span><b>${personagem.ouro}</b></div></div>`; painel.appendChild(resumo);
+      // ONDE SUAS ESCOLHAS APARECEM: cada escolha com o que ela faz no jogo,
+      // e as combinações que as escolhas atuais fecham.
+      const efeitos = document.createElement("section"); efeitos.className = "criacao-efeitos-resumo"; efeitos.setAttribute("aria-label", "Onde suas escolhas aparecem");
+      const combos = combinacoesDe(estado);
+      efeitos.innerHTML = `<h4>Onde suas escolhas aparecem</h4><p class="criacao-legenda">${LEGENDA_ONDE_PESA}</p>`
+        + `<div class="criacao-efeitos-lista">${efeitosDaIdentidade(estado, dados).map(([icone, rotulo, texto]) => `<div class="criacao-efeito-linha"><i aria-hidden="true">${icone}</i><div><b>${rotulo}</b><span>${texto}</span></div></div>`).join("")}</div>`
+        + (combos.length ? `<div class="criacao-combinacoes">${combos.map((c) => `<div class="criacao-combinacao"><b>✨ Combinação: ${c.icone} ${c.nome}</b><span>${c.efeito}</span></div>`).join("")}</div>` : "");
+      painel.appendChild(efeitos);
+      const modo = document.createElement("label"); modo.className = "modo-historia-card"; const check = document.createElement("input"); check.type = "checkbox"; check.checked = estado.modoHistoria; check.onchange = () => { estado.modoHistoria = check.checked; personagem.modoHistoria = estado.modoHistoria; }; modo.append(check, document.createTextNode(" 📖 Modo História — inimigos 30% mais fracos, XP e ouro normais. Dá para ligar e desligar depois, em Acessibilidade.")); painel.appendChild(modo);
       const acoes = document.createElement("div"); acoes.className = "criacao-navegacao"; const pronto = document.createElement("span"); pronto.className = "criacao-navegacao-status"; pronto.textContent = "Tudo pronto para entrar em Aethra"; acoes.append(pronto, botao("← Voltar", () => { estado.etapaIdx--; render(); }, "criacao-voltar"), botao("Começar aventura →", () => onFinalizar(personagem), "primario criacao-continuar")); painel.appendChild(acoes);
     }
   }

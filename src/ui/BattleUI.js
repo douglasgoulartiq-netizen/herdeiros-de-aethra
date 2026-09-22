@@ -57,6 +57,12 @@ import { ouvir, EVENTO } from "../systems/EventosVisuais.js";
 // chamava: o chefe mudava de fase e o card continuava idêntico.
 import { nomeDaFase } from "../systems/BossPhaseSystem.js";
 
+import { multXpBatalha, xpExtraPoder } from "../systems/IdentidadeSystem.js";
+import { registrarVitoria } from "../systems/DestinoSystem.js";
+
+// Personalidade Ganancioso (ver traits.json): chance de saque extra por inimigo.
+export const CHANCE_ITEM_EXTRA_GANANCIOSO = 0.25;
+
 // Tela de configuração da IA de auto-batalha (task #96) — reusa o mesmo
 // #modal-overlay/#modal-conteudo de GameUI.js/SkillTreeUI.js/TalentTreeUI.js,
 // mas fica funcional mesmo com a tela de batalha aberta (o overlay é um
@@ -225,6 +231,12 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   const batalha = new Batalha(combatentesTime, inimigos, dados.elements, terrenoElemento, levasExtras || [], ngPlus, climaElemento, modoHistoria, dados.elementalStates, dados.elementalReactions);
   const ROTULO_CATEGORIA_SINERGIA = { faccao: "de facção", rivalidade: "de rivalidade", amizade: "de amizade" };
   sinergiasAtivas.forEach((s) => batalha.registrar(`${s.icone} Sinergia ${ROTULO_CATEGORIA_SINERGIA[s.categoria] || "de formação"} ativa: ${s.nome}! ${s.descricao}`));
+  // Ambiente afim (IdentidadeSystem): terreno/clima do elemento do herói.
+  combatentesTime.forEach((c) => {
+    if (!c.ambienteAfim) return;
+    const onde = c.ambienteAfim.fontes.map((f) => (f === "terreno" ? "o terreno" : "o clima")).join(" e ");
+    batalha.registrar(`◆ Ambiente afim: ${onde} favorece ${c.nome} — +${Math.round(c.ambienteAfim.defesa * 100)}% de defesa e +${c.ambienteAfim.mp} MP por turno.`);
+  });
 
   let pausado = false;
   let intervalId = null;
@@ -2306,7 +2318,10 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         const tabela = dados.lootTables[i.monstroId];
         // `rolarQuedas` já testa a chance E respeita `quedas` (chefe cai 2x).
         itensGanhos.push(...rolarQuedas(tabela, dados.items.itens));
-        if (personagem.tracoId === "ganancioso" && tabela && Math.random() < 0.5) {
+        // Ganancioso: 25% de chance de um item extra por inimigo. Era 50%,
+        // enquanto o card prometia "+10% de raro" — o efeito e o texto agora
+        // dizem a mesma coisa.
+        if (personagem.tracoId === "ganancioso" && tabela && Math.random() < CHANCE_ITEM_EXTRA_GANANCIOSO) {
           const item2 = sortearLoot(tabela.pool, dados.items.itens);
           if (item2) itensGanhos.push(item2);
         }
@@ -2314,6 +2329,9 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       personagem.ouro += totalOuro;
       itensGanhos.forEach((item) => personagem.inventario.push({ ...item, uid: cryptoId() }));
       registrarProgressoDiario(personagem, "vitoria", 1);
+      // Contadores do destino pessoal (vitórias, vitórias contra quem está
+      // acima do nível) — ver DestinoSystem.js.
+      registrarVitoria(personagem, batalha.historicoInimigos);
       // Equipamento automático (pedido do jogador): loot de batalha é a
       // principal fonte de peça nova, então é aqui que preencher slot
       // vazio mais rende. Só mexe em slot `null` — nunca troca o que o
@@ -2321,9 +2339,14 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       // logo abaixo, em vez de virar mais uma mensagem solta na tela.
       const equipadasAuto = autoEquiparSlotsVazios(personagem, time, dados);
 
+      // XP extra que só o HERÓI recebe, pela identidade dele: interesse
+      // Combate (+10% do XP da luta) e motivação Poder (+15% do XP de cada
+      // inimigo de nível acima do dele). Ver IdentidadeSystem.js.
+      const xpExtraHeroi = Math.round(totalXP * (multXpBatalha(personagem) - 1))
+        + xpExtraPoder(personagem, batalha.historicoInimigos);
       time.forEach((membro) => {
         const nivelAntes = membro.nivel;
-        const { ganho, subiuNivel } = ganharXP(membro, totalXP);
+        const { ganho, subiuNivel } = ganharXP(membro, membro === personagem ? totalXP + xpExtraHeroi : totalXP);
         subiuNivel.forEach((novoNivel) => { aplicarCrescimento(membro, dados); concederPontosPorNivel(membro, novoNivel); });
         // A celebração é SÓ do personagem principal e SÓ do último nível
         // alcançado: um convocado do gacha subindo não merece parar a tela, e
@@ -2372,7 +2395,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       }
 
       acoesEl.innerHTML = "";
-      logEl.innerHTML += `<div><b>VITÓRIA!</b> +${totalXP} XP (todo o time), +${totalOuro} ouro${totalFragmentos ? `, +${totalFragmentos} Fragmentos de Aethra` : ""}${itensGanhos.length ? `, itens: ${itensGanhos.map((i) => i.nome).join(", ")}` : ""}${msgReputacao}</div>`;
+      logEl.innerHTML += `<div><b>VITÓRIA!</b> +${totalXP} XP (todo o time)${xpExtraHeroi ? `, +${xpExtraHeroi} XP para ${personagem.nome} (${[multXpBatalha(personagem) > 1 ? "Combate" : "", xpExtraPoder(personagem, batalha.historicoInimigos) ? "Poder" : ""].filter(Boolean).join(" e ")})` : ""}, +${totalOuro} ouro${totalFragmentos ? `, +${totalFragmentos} Fragmentos de Aethra` : ""}${itensGanhos.length ? `, itens: ${itensGanhos.map((i) => i.nome).join(", ")}` : ""}${msgReputacao}</div>`;
       if (equipadasAuto.length) {
         logEl.innerHTML += `<div>🎽 Equipado automaticamente: ${textoAcoesEquipamento(equipadasAuto, personagem)}</div>`;
       }

@@ -11,6 +11,41 @@
 // disparam no mesmo passo, pra não empilhar interrupções uma em cima da
 // outra.
 import { alterarReputacao } from "./WorldStateSystem.js";
+import { adicionarFragmentos } from "./GachaSystem.js";
+
+// Frase que a opção de origem usa quando a perícia do teste é a da origem
+// do herói (ver opcaoDeOrigem): ele resolve sem rolar o dado.
+const FRASE_DA_ORIGEM = {
+  soldado: "Você já fez isso no exército",
+  nobre: "Uma conversa de salão resolve isso",
+  criminoso: "Coisa de quem cresceu nos becos",
+  eremita: "Anos sozinho no mato ensinam isso",
+  andarilho_do_povo: "Você já viveu mil histórias assim",
+  sabio: "Você leu sobre isso na biblioteca",
+};
+
+const uidNovo = () => "id_" + Math.random().toString(36).slice(2, 10);
+
+// Recompensas extras que eventos e testes podem declarar, além de ouro e
+// reputação: itens (`itens`/`itensSucesso`), Fragmentos de Aethra e
+// descanso completo (`curaTotal`). Devolve os textos para a mensagem.
+function aplicarExtras(personagem, { itens = [], fragmentos = 0, curaTotal = false } = {}, dados = null) {
+  const notas = [];
+  const catalogo = (dados && dados.items && dados.items.itens) || [];
+  itens.forEach(({ id, qtd = 1 }) => {
+    const item = catalogo.find((i) => i.id === id);
+    if (!item) return;
+    for (let n = 0; n < qtd; n += 1) personagem.inventario.push({ ...item, uid: uidNovo() });
+    notas.push(`${qtd > 1 ? `${qtd}× ` : ""}${item.nome}`);
+  });
+  if (fragmentos) { adicionarFragmentos(personagem, fragmentos); notas.push(`${fragmentos} Fragmentos`); }
+  if (curaTotal) {
+    personagem.hp = personagem.hpMax;
+    personagem.mp = personagem.mpMax;
+    notas.push("HP e MP cheios");
+  }
+  return notas;
+}
 
 export function deveDispararEventoExploracao(chancePorPasso = 0.018) {
   return Math.random() < chancePorPasso;
@@ -21,11 +56,15 @@ export function deveDispararEventoExploracao(chancePorPasso = 0.018) {
 // sorteio, pra quem chama não precisar saber de onde cada evento veio, só o
 // `tipo` já resolvido no objeto sorteado ("escolha" | "achado" |
 // "teste_pericia").
-export function sortearEventoExploracao(dadosEventos, dadosSkillChecks) {
+export function sortearEventoExploracao(dadosEventos, dadosSkillChecks, personagem = null) {
   const testes = (dadosSkillChecks || [])
     .filter((sc) => sc.contexto === "exploracao")
     .map((sc) => ({ ...sc, tipo: "teste_pericia" }));
-  const pool = [...(dadosEventos || []), ...testes];
+  // Eventos de ORIGEM (`origemExclusiva`) só aparecem para quem veio dela —
+  // é o Soldado que o desertor reconhece, o Sábio que lê a inscrição.
+  const origem = personagem && personagem.antecedenteId;
+  const eventos = (dadosEventos || []).filter((ev) => !ev.origemExclusiva || ev.origemExclusiva === origem);
+  const pool = [...eventos, ...testes];
   if (!pool.length) return null;
   return pool[Math.floor(Math.random() * pool.length)];
 }
@@ -33,6 +72,23 @@ export function sortearEventoExploracao(dadosEventos, dadosSkillChecks) {
 // Algumas opções de evento (ex.: doar ouro num santuário) exigem um valor
 // mínimo em caixa — a UI usa isto pra decidir se mostra o botão habilitado,
 // ANTES do jogador clicar (nunca deixa clicar e falhar silenciosamente).
+// As opções de um evento de escolha para ESTE herói: as do evento e, se o
+// evento declarar, a da personalidade dele (`opcoesPorTraco`, marcada com o
+// nome do traço no rótulo). Quem desenha e quem aplica usam esta lista.
+export function opcoesDoEvento(evento, personagem) {
+  const base = evento.opcoes || [];
+  const doTraco = personagem && evento.opcoesPorTraco && evento.opcoesPorTraco[personagem.tracoId];
+  return doTraco ? [...base, { ...doTraco, id: `traco_${personagem.tracoId}`, doTraco: true }] : base;
+}
+
+// A opção de ORIGEM num teste de perícia: quem tem a perícia pela origem
+// resolve sem rolar o dado. null quando a perícia não é a da origem.
+export function opcaoDeOrigem(teste, personagem, dados) {
+  const bg = ((dados && dados.backgrounds) || []).find((b) => b.id === (personagem && personagem.antecedenteId));
+  if (!bg || !teste || bg.pericia !== teste.pericia) return null;
+  return { rotulo: `[${bg.nome}] ${FRASE_DA_ORIGEM[bg.id] || "Sua origem resolve isso"} — sem dado.`, origem: bg };
+}
+
 export function opcaoDisponivel(opcao, personagem) {
   if (opcao.custoOuroMinimo && personagem.ouro < opcao.custoOuroMinimo) return false;
   return true;
@@ -44,8 +100,8 @@ export function opcaoDisponivel(opcao, personagem) {
 // delta de ouro aplicado, pra UI mostrar como mensagem. `ok:false` sem
 // mutar nada quando a opção não existe ou não está disponível (custo
 // mínimo não atingido — ver opcaoDisponivel).
-export function aplicarEscolhaEvento(personagem, evento, opcaoId, dadosWorldState, facaoId = "vila") {
-  const opcao = (evento.opcoes || []).find((o) => o.id === opcaoId);
+export function aplicarEscolhaEvento(personagem, evento, opcaoId, dadosWorldState, facaoId = "vila", dados = null) {
+  const opcao = opcoesDoEvento(evento, personagem).find((o) => o.id === opcaoId);
   if (!opcao) return { ok: false };
   if (!opcaoDisponivel(opcao, personagem)) return { ok: false };
   // Opção "sorte" (ex.: "Pegadas Estranhas"/investigar): risco leve
@@ -61,7 +117,8 @@ export function aplicarEscolhaEvento(personagem, evento, opcaoId, dadosWorldStat
   const ouroDelta = opcao.ouro || 0;
   personagem.ouro = Math.max(0, personagem.ouro + ouroDelta);
   if (opcao.reputacaoFaccao) alterarReputacao(personagem, facaoId, opcao.reputacaoFaccao, dadosWorldState);
-  return { ok: true, texto: opcao.textoResultado, ouroDelta };
+  const extras = aplicarExtras(personagem, { itens: opcao.itens, fragmentos: opcao.fragmentos, curaTotal: opcao.curaTotal }, dados);
+  return { ok: true, texto: opcao.textoResultado, ouroDelta, extras };
 }
 
 // Aplica um evento tipo "achado" (ver explorationEvents.json): recompensa
@@ -77,11 +134,18 @@ export function aplicarAchadoEvento(personagem, evento) {
 // função, não aqui, pra este módulo não duplicar a lógica de d20). Só
 // concede recompensa em caso de sucesso, igual ao padrão já usado pelos
 // testes de NPC/baú/coleta.
-export function aplicarResultadoTesteExploracao(personagem, teste, resultado) {
+// `ctx` (opcional): { dados, facaoId, dadosWorldState } — necessário para os
+// extras (itens, Fragmentos) e para a reputação regional do sucesso.
+export function aplicarResultadoTesteExploracao(personagem, teste, resultado, ctx = {}) {
   let ouroDelta = 0;
-  if (resultado.sucesso && teste.recompensaOuroSucesso) {
-    ouroDelta = teste.recompensaOuroSucesso;
-    personagem.ouro += ouroDelta;
+  let extras = [];
+  if (resultado.sucesso) {
+    if (teste.recompensaOuroSucesso) {
+      ouroDelta = teste.recompensaOuroSucesso;
+      personagem.ouro += ouroDelta;
+    }
+    if (teste.reputacaoSucesso && ctx.facaoId) alterarReputacao(personagem, ctx.facaoId, teste.reputacaoSucesso, ctx.dadosWorldState || (ctx.dados && ctx.dados.worldStateVariables));
+    extras = aplicarExtras(personagem, { itens: teste.itensSucesso, fragmentos: teste.fragmentosSucesso }, ctx.dados);
   }
-  return { texto: resultado.sucesso ? teste.textoSucesso : teste.textoFalha, ouroDelta };
+  return { texto: resultado.sucesso ? teste.textoSucesso : teste.textoFalha, ouroDelta, extras };
 }

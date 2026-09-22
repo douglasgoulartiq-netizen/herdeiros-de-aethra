@@ -1,4 +1,5 @@
 // Gerencia inventário, equipamento e comércio.
+import { multCuraRecebida } from "./IdentidadeSystem.js";
 import { ehOleo, aplicarOleo } from "./WeaponOilSystem.js";
 import { cryptoId } from "./CharacterFactory.js";
 
@@ -103,8 +104,11 @@ export function usarConsumivel(personagem, uid, alvo = personagem) {
   const emOutroAlvo = alvo !== personagem;
   let msg = "";
   if (item.curaHP) {
-    alvo.hp = Math.min(alvo.hpMax, alvo.hp + item.curaHP);
-    msg = emOutroAlvo ? `${alvo.nome} recuperou ${item.curaHP} de HP.` : `Recuperou ${item.curaHP} de HP.`;
+    // Motivação Redenção (+15% de cura recebida) — vale para o herói, que é
+    // quem tem motivação; convocados curam o valor do item.
+    const cura = Math.round(item.curaHP * multCuraRecebida(alvo));
+    alvo.hp = Math.min(alvo.hpMax, alvo.hp + cura);
+    msg = emOutroAlvo ? `${alvo.nome} recuperou ${cura} de HP.` : `Recuperou ${cura} de HP.`;
   }
   if (item.curaMP) {
     alvo.mp = Math.min(alvo.mpMax, alvo.mp + item.curaMP);

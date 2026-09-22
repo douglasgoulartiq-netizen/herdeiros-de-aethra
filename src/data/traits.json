@@ -2,7 +2,7 @@
   {
     "id": "corajoso",
     "nome": "Corajoso",
-    "descricao": "+3 de iniciativa em batalha quando o HP está em 30% ou menos."
+    "descricao": "+3 de velocidade em batalha quando o HP está em 30% ou menos."
   },
   {
     "id": "cauteloso",
@@ -12,21 +12,21 @@
   {
     "id": "ganancioso",
     "nome": "Ganancioso",
-    "descricao": "+10% de chance de item raro ou melhor em drops, mas começa com 20% menos ouro."
+    "descricao": "25% de chance de um item extra a cada inimigo derrotado, mas começa com 20% menos ouro."
   },
   {
     "id": "sortudo",
     "nome": "Sortudo",
-    "descricao": "Uma vez por batalha, pode refazer automaticamente uma rolagem de ataque muito ruim."
+    "descricao": "Uma vez por batalha, refaz automaticamente um ataque que caiu em 1, 2 ou 3 no d20."
   },
   {
     "id": "resistente",
     "nome": "Resistente",
-    "descricao": "Condições negativas perdem duração mais rápido durante o combate."
+    "descricao": "Efeitos negativos perdem 2 turnos de duração por vez, em vez de 1."
   },
   {
     "id": "visao_aguçada",
     "nome": "Visão Aguçada",
-    "descricao": "Começa cada batalha com vantagem na barra de iniciativa."
+    "descricao": "Começa cada batalha com 20% da barra de iniciativa já cheia."
   }
 ]
