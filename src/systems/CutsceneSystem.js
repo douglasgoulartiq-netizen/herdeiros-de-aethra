@@ -89,9 +89,22 @@ export function cenaDaMissao(questDef, etapa = "aceita") {
 // diário — e é de propósito: é a primeira lição de gramática do jogo, a de
 // que uma resposta dada em voz alta fica registrada. Devolve o texto de
 // resultado para a UI encenar.
+// As opções que ESTE personagem vê numa cena: as de todo mundo, mais a da
+// própria origem quando a cena tem uma (ver `opcoesPorOrigem` no prólogo, em
+// cutscenes.js). Mesmo desenho de opcoesDoEvento em ExplorationEventSystem.js:
+// a opção extra entra na MESMA lista e é resolvida pelo mesmo motor, com um id
+// derivado (`origem_<antecedente>`), em vez de virar um caminho paralelo.
+export function opcoesDaCena(cena, personagem) {
+  const escolha = (cena && cena.escolha) || {};
+  const base = escolha.opcoes || [];
+  const id = personagem && personagem.antecedenteId;
+  const daOrigem = id && escolha.opcoesPorOrigem && escolha.opcoesPorOrigem[id];
+  return daOrigem ? [...base, { ...daOrigem, id: `origem_${id}`, daOrigem: true }] : base;
+}
+
 export function aplicarEscolhaCena(personagem, cena, opcaoId, dadosWorldState) {
   const escolha = cena && cena.escolha;
-  const opcao = escolha && (escolha.opcoes || []).find((o) => o.id === opcaoId);
+  const opcao = escolha && opcoesDaCena(cena, personagem).find((o) => o.id === opcaoId);
   if (!opcao) return { ok: false };
 
   if (opcao.flag) definirFlag(personagem, opcao.flag);

@@ -32,7 +32,7 @@
 //   o mesmo multiplicador do dado e do combate, e por efeitosReduzidos().
 import { duracaoAnimacao, sleep } from "./DiceAnimation.js";
 import { efeitosReduzidos } from "../systems/AccessibilitySystem.js";
-import { aplicarEscolhaCena, marcarVista } from "../systems/CutsceneSystem.js";
+import { aplicarEscolhaCena, opcoesDaCena, marcarVista } from "../systems/CutsceneSystem.js";
 import { linhasDaConsequencia } from "../systems/ConsequenciaTexto.js";
 
 const ID_CAMADA = "cutscene-camada";
@@ -334,11 +334,22 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
 
       const lista = document.createElement("div");
       lista.className = "cutscene-opcoes";
-      (escolha.opcoes || []).forEach((opcao) => {
+      // A opção da própria origem vem junto e MARCADA — se ela parecesse igual
+      // às outras, o jogador nunca saberia que a escolha de criação dele
+      // acabou de abrir uma resposta que ninguém mais tem.
+      opcoesDaCena(cena, personagem).forEach((opcao) => {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "cutscene-opcao";
-        btn.textContent = interpolar(opcao.rotulo, personagem);
+        btn.className = opcao.daOrigem ? "cutscene-opcao da-origem" : "cutscene-opcao";
+        if (opcao.daOrigem) {
+          const selo = document.createElement("span");
+          selo.className = "cutscene-opcao-selo";
+          selo.textContent = personagem.antecedenteNome || "Sua origem";
+          btn.appendChild(selo);
+          btn.appendChild(document.createTextNode(interpolar(opcao.rotulo, personagem)));
+        } else {
+          btn.textContent = interpolar(opcao.rotulo, personagem);
+        }
         btn.onclick = () => resolverEscolha(opcao.id);
         lista.appendChild(btn);
       });

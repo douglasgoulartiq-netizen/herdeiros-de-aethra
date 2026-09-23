@@ -77,8 +77,18 @@ export function sortearEventoExploracao(dadosEventos, dadosSkillChecks, personag
 // nome do traço no rótulo). Quem desenha e quem aplica usam esta lista.
 export function opcoesDoEvento(evento, personagem) {
   const base = evento.opcoes || [];
+  const lista = [...base];
+  // A AÇÃO DE MUNDO DA CLASSE. A classe era a escolha mais forte da criação e
+  // mesmo assim só existia dentro da batalha: fora dela, um Bárbaro e um Mago
+  // andavam pelo mundo exatamente iguais. Aqui cada classe tem uma coisa que
+  // só ela sabe fazer quando o mundo pede — arrombar, derrubar, ler runa,
+  // intimidar, abençoar, rastrear. Entra na MESMA lista das outras opções e
+  // é resolvida pelo mesmo motor, como a opção de personalidade.
+  const daClasse = personagem && evento.opcoesPorClasse && evento.opcoesPorClasse[personagem.classeId];
+  if (daClasse) lista.push({ ...daClasse, id: `classe_${personagem.classeId}`, daClasse: true });
   const doTraco = personagem && evento.opcoesPorTraco && evento.opcoesPorTraco[personagem.tracoId];
-  return doTraco ? [...base, { ...doTraco, id: `traco_${personagem.tracoId}`, doTraco: true }] : base;
+  if (doTraco) lista.push({ ...doTraco, id: `traco_${personagem.tracoId}`, doTraco: true });
+  return lista;
 }
 
 // A opção de ORIGEM num teste de perícia: quem tem a perícia pela origem

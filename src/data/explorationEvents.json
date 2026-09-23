@@ -34,6 +34,14 @@
         "ouro": 28,
         "reputacaoFaccao": -2
       }
+    },
+    "opcoesPorClasse": {
+      "clerigo": {
+        "rotulo": "[Clérigo] Cuidar dele antes de apontar o caminho",
+        "textoResultado": "Ele estava pior do que admitia. Você trata o pé ferido e só então explica a estrada. Ele chega vivo, e a história de quem parou para cuidar corre mais longe que a de quem apontou o dedo.",
+        "ouro": 14,
+        "reputacaoFaccao": 5
+      }
     }
   },
   {
@@ -74,6 +82,15 @@
         "textoResultado": "Você vela o santuário até o sol nascer e acorda inteiro. Os moradores reparam em quem fica.",
         "reputacaoFaccao": 4,
         "curaTotal": true
+      }
+    },
+    "opcoesPorClasse": {
+      "clerigo": {
+        "rotulo": "[Clérigo] Rezar o rito certo e reabrir o santuário",
+        "textoResultado": "Você reconhece a invocação pela forma da pedra e a completa em voz alta. A luz volta devagar, como quem acorda. Quem cuidava deste lugar deixou a oferenda dentro da bacia — ela ainda estava lá, esperando alguém que soubesse o nome certo.",
+        "ouro": 30,
+        "reputacaoFaccao": 4,
+        "fragmentos": 10
       }
     }
   },
@@ -116,6 +133,19 @@
           {
             "id": "pocao_vida_p",
             "qtd": 1
+          }
+        ]
+      }
+    },
+    "opcoesPorClasse": {
+      "patrulheiro": {
+        "rotulo": "[Patrulheiro] Ler o rastro até o fim",
+        "textoResultado": "Profundidade, distância entre as marcas, o galho quebrado na altura errada: não é uma criatura, são três, e elas não estavam caçando — estavam fugindo. Você segue o rastro ao contrário e encontra o que elas deixaram para trás.",
+        "ouro": 22,
+        "itens": [
+          {
+            "id": "erva_rara",
+            "qtd": 2
           }
         ]
       }
@@ -426,5 +456,169 @@
         "ouro": 0
       }
     ]
+  },
+  {
+    "id": "bau_trancado",
+    "tipo": "escolha",
+    "icone": "🔒",
+    "titulo": "Baú Trancado",
+    "texto": "Meio enterrado sob raízes, um baú de viagem com a fechadura intacta. Quem o deixou aqui não voltou para buscá-lo.",
+    "opcoes": [
+      {
+        "id": "arrombar_na_forca",
+        "rotulo": "Quebrar a tampa na força bruta",
+        "textoResultado": "A tampa cede, e boa parte do que estava dentro cede junto. Sobra o que era de metal.",
+        "ouro": 18
+      },
+      {
+        "id": "deixar",
+        "rotulo": "Deixar onde está",
+        "textoResultado": "Você recoloca as raízes por cima. Quem deixou pode voltar, e você não precisa disso hoje.",
+        "ouro": 0
+      }
+    ],
+    "opcoesPorClasse": {
+      "ladino": {
+        "rotulo": "[Ladino] Abrir a fechadura sem arranhar a tampa",
+        "textoResultado": "Duas voltas e meia e um clique que só você ouviu. Tudo lá dentro intacto — inclusive a bolsa de moedas que não teria sobrevivido a uma pancada.",
+        "ouro": 65,
+        "itens": [
+          {
+            "id": "pocao_vida_p",
+            "qtd": 2
+          }
+        ]
+      },
+      "barbaro": {
+        "rotulo": "[Bárbaro] Arrancar a dobradiça inteira",
+        "textoResultado": "Você não mexe na fechadura: arranca a dobradiça e abre o baú pelo lado errado. Funciona, e sobra bem mais do que quebrando a tampa.",
+        "ouro": 40
+      }
+    },
+    "opcoesPorTraco": {
+      "sortudo": {
+        "rotulo": "[Sortudo] Chutar a tampa uma vez e ver o que acontece",
+        "textoResultado": "A tampa abre no primeiro chute. Não deveria. Você não vai contar isso para ninguém.",
+        "ouro": 55
+      }
+    }
+  },
+  {
+    "id": "passagem_bloqueada",
+    "tipo": "escolha",
+    "icone": "🪨",
+    "titulo": "Passagem Bloqueada",
+    "texto": "Um desmoronamento fechou a trilha. Dá para ouvir água correndo do outro lado — e a volta custa meio dia.",
+    "opcoes": [
+      {
+        "id": "dar_a_volta",
+        "rotulo": "Dar a volta pelo caminho longo",
+        "textoResultado": "Meio dia a mais nas pernas, e nada de novo no caminho. Pelo menos ninguém se machucou.",
+        "ouro": 0
+      },
+      {
+        "id": "escalar",
+        "rotulo": "Escalar por cima do entulho",
+        "textoResultado": "Você passa, com um corte no antebraço e uma pedra a menos segurando o resto. Não recomendaria para quem vier depois.",
+        "ouro": 8
+      }
+    ],
+    "opcoesPorClasse": {
+      "barbaro": {
+        "rotulo": "[Bárbaro] Derrubar o bloco que segura o resto",
+        "textoResultado": "Você encontra a pedra que está segurando as outras e a tira do caminho com o ombro. O desmoronamento desce de uma vez e a trilha reabre — com o que o barranco estava escondendo à mostra.",
+        "ouro": 35,
+        "itens": [
+          {
+            "id": "minerio_raro",
+            "qtd": 2
+          }
+        ],
+        "reputacaoFaccao": 3
+      },
+      "guerreiro": {
+        "rotulo": "[Guerreiro] Abrir caminho com alavanca e paciência",
+        "textoResultado": "Uma viga de galho, um ponto de apoio e as pedras saindo uma a uma, na ordem certa. Demora, mas a trilha fica utilizável para quem vier depois — e alguém vai reparar nisso.",
+        "ouro": 20,
+        "reputacaoFaccao": 5
+      }
+    }
+  },
+  {
+    "id": "pedra_runica",
+    "tipo": "escolha",
+    "icone": "🪧",
+    "titulo": "Pedra Rúnica",
+    "texto": "Uma laje de pé, coberta de símbolos gastos. O Éter em volta dela está mais denso do que deveria — dá para sentir na nuca.",
+    "opcoes": [
+      {
+        "id": "copiar",
+        "rotulo": "Copiar os símbolos para mostrar depois",
+        "textoResultado": "Você desenha o que consegue. Um arquivista pagaria por isso — se o desenho estiver certo, o que você não tem como saber.",
+        "ouro": 15
+      },
+      {
+        "id": "nao_mexer",
+        "rotulo": "Não mexer",
+        "textoResultado": "Você dá a volta e segue. A nuca só para de formigar uns cem passos depois.",
+        "ouro": 0
+      }
+    ],
+    "opcoesPorClasse": {
+      "mago": {
+        "rotulo": "[Mago] Ler a runa em voz alta",
+        "textoResultado": "É um selo de contenção, e está mal escrito — quem o gravou tinha pressa. Você o lê inteiro, corrige a última linha e o Éter preso ali há séculos se solta de uma vez, na sua direção, sem machucar ninguém.",
+        "ouro": 25,
+        "fragmentos": 25
+      },
+      "clerigo": {
+        "rotulo": "[Clérigo] Reconhecer o nome gravado embaixo",
+        "textoResultado": "Os símbolos você não lê, mas o nome no pé da laje você conhece de cor: é de quem foi enterrado aqui. Você diz a bênção devida, e a pedra para de zumbir.",
+        "ouro": 18,
+        "fragmentos": 12,
+        "reputacaoFaccao": 3
+      }
+    }
+  },
+  {
+    "id": "cobradores_na_estrada",
+    "tipo": "escolha",
+    "icone": "🛡️",
+    "titulo": "Pedágio na Estrada",
+    "texto": "Três homens armados atravessaram um tronco na estrada e chamam aquilo de pedágio. Não são soldados de ninguém.",
+    "opcoes": [
+      {
+        "id": "pagar",
+        "rotulo": "Pagar e seguir em frente",
+        "textoResultado": "Você paga. Eles abrem o tronco com uma cortesia que torna tudo pior.",
+        "ouro": -25
+      },
+      {
+        "id": "contornar",
+        "rotulo": "Voltar e contornar pelo mato",
+        "textoResultado": "Duas horas de mato fechado, e eles nem souberam que você passou. É uma vitória, de um jeito pouco satisfatório.",
+        "ouro": 0
+      }
+    ],
+    "opcoesPorClasse": {
+      "guerreiro": {
+        "rotulo": "[Guerreiro] Encarar o da frente e mandar tirar o tronco",
+        "textoResultado": "Você não saca nada. Só fica parado na frente do maior deles e diz, na altura certa, o que vai acontecer se o tronco continuar ali. Eles tiram o tronco. Um deles devolve o que cobrou do último viajante.",
+        "ouro": 30,
+        "reputacaoFaccao": 4
+      },
+      "ladino": {
+        "rotulo": "[Ladino] Pagar — e recuperar a bolsa antes de sair",
+        "textoResultado": "Você paga sem discutir, agradece, e sai com a bolsa deles junto com a sua. Vão perceber ao anoitecer, e não vão saber quem.",
+        "ouro": 45,
+        "reputacaoFaccao": -2
+      },
+      "patrulheiro": {
+        "rotulo": "[Patrulheiro] Uma flecha no tronco, à queima-roupa de ninguém",
+        "textoResultado": "A flecha crava no tronco entre os três, de uma distância que eles não conseguem estimar. Ninguém se fere, ninguém discute, e o tronco sai do caminho sozinho.",
+        "ouro": 20,
+        "reputacaoFaccao": 3
+      }
+    }
   }
 ]

@@ -220,6 +220,45 @@ export function recompensaDescoberta(p) {
   return { xp: 5 + 3 * (p.nivel || 1), fragmentos: MOTIVACOES.descoberta.valor };
 }
 
+// --- Origem: a loja onde você é de casa ---------------------------------------
+//
+// A origem dizia quanto ouro você começa e qual perícia você tem; fora isso,
+// comprar num lugar era igual a comprar em qualquer outro. Cada origem passa a
+// ter UMA loja onde é reconhecida e paga menos — o Nobre na corte, o Andarilho
+// entre o próprio povo, e assim por diante. É um desconto pequeno e permanente,
+// que se soma ao da reputação (multiplicando, com o mesmo piso de 50% que
+// multiplicadorPrecoLoja já aplicava) e vale tanto na loja fixa da vila quanto
+// no mercador itinerante, porque os dois passam pela mesma função.
+export const DESCONTO_LOJA_ORIGEM = 0.1;
+
+export const LOJA_DA_ORIGEM = {
+  soldado: { faccaoId: "legiao_das_cinzas", motivo: "a quartelagem reconhece um dos seus" },
+  nobre: { faccaoId: "coroa_de_aethra", motivo: "seu nome ainda vale alguma coisa na corte" },
+  criminoso: { faccaoId: "caravana_de_karn", motivo: "você conhece quem pesa a balança" },
+  eremita: { faccaoId: "guardioes_da_folha", motivo: "quem vive da mata cobra menos de quem também vive" },
+  andarilho_do_povo: { faccaoId: "vila", motivo: "o povo cobra o preço do povo" },
+  sabio: { faccaoId: "ordem_dos_arquivistas", motivo: "um leitor não paga preço de turista" },
+};
+
+export function lojaDaOrigem(p) {
+  const { antecedente } = normalizarEscolhas(p);
+  return LOJA_DA_ORIGEM[antecedente] || null;
+}
+
+// Multiplicador da origem para uma loja de uma facção. 1 fora da loja de casa.
+export function multPrecoLojaOrigem(p, facaoId) {
+  const loja = lojaDaOrigem(p);
+  return loja && loja.faccaoId === facaoId ? 1 - DESCONTO_LOJA_ORIGEM : 1;
+}
+
+// Texto curto para a UI da loja dizer POR QUE o preço caiu — sem isso o
+// desconto vira um número que aparece do nada.
+export function textoDescontoOrigem(p, facaoId, nomeAntecedente) {
+  const loja = lojaDaOrigem(p);
+  if (!loja || loja.faccaoId !== facaoId) return "";
+  return `−${Math.round(DESCONTO_LOJA_ORIGEM * 100)}% de ${nomeAntecedente || "origem"}: ${loja.motivo}`;
+}
+
 // --- Facção de origem --------------------------------------------------------
 
 export const REPUTACAO_ORIGEM = 20;

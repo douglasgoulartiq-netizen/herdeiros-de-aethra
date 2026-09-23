@@ -11,7 +11,7 @@
 // `dadosWorldState`/`dados.worldState`, carregados pelo loader.js — igual a
 // todo outro dado do jogo (nunca import direto de JSON, pra manter o padrão
 // "sem build step" do projeto, servido por fetch()).
-import { ajustarGanhoReputacao, CUSTO_TROCA_AFILIACAO } from "./IdentidadeSystem.js";
+import { ajustarGanhoReputacao, CUSTO_TROCA_AFILIACAO, multPrecoLojaOrigem } from "./IdentidadeSystem.js";
 
 export function estadoDoMundoInicial() {
   return { reputacao: {}, flags: {} };
@@ -120,7 +120,10 @@ export function multiplicadorPrecoLoja(personagem, dadosWorldState, facaoId = "v
   const rep = getReputacao(personagem, facaoId);
   const tier = tierDaReputacao(rep, dadosWorldState);
   const desconto = tier ? tier.descontoLoja || 0 : 0;
-  return Math.max(0.5, 1 - desconto);
+  // A origem escolhida na criação desconta na SUA loja (ver LOJA_DA_ORIGEM em
+  // IdentidadeSystem.js). Multiplica em cima do tier em vez de somar, para os
+  // dois efeitos ficarem independentes, e continua respeitando o piso de 50%.
+  return Math.max(0.5, (1 - desconto) * multPrecoLojaOrigem(personagem, facaoId));
 }
 
 // Emboscada regional (melhoria de jogabilidade pós-backlog original):

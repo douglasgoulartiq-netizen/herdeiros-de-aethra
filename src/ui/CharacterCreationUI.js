@@ -4,6 +4,7 @@ import { infoAfinidade, descreverBonus } from "../systems/AffinitySystem.js";
 import {
   MOTIVACOES, INTERESSES, COMBINACOES, combinacoesDe, relacoesParaCard, habilidadeNoElemento,
   REPUTACAO_ORIGEM, ATRIBUTO_DO_EMBLEMA, SINTONIA_UNIVERSAL, CUSTO_TROCA_AFILIACAO,
+  LOJA_DA_ORIGEM, DESCONTO_LOJA_ORIGEM,
 } from "../systems/IdentidadeSystem.js";
 
 export const ETAPAS_CRIACAO = ["nome", "raca", "classe", "elemento", "antecedente", "traco", "faccao", "preferencias", "resumo"];
@@ -147,6 +148,16 @@ function kitDaOrigem(b, dados) {
 
 // Quantos testes do mundo usam a perícia — dá a medida de quanto ela aparece.
 const testesDaPericia = (pericia, dados) => (dados.skillChecks || []).filter((t) => t.pericia === pericia).length;
+
+// A loja onde a origem é de casa (ver LOJA_DA_ORIGEM em IdentidadeSystem.js),
+// escrita com o nome da facção e não com o id.
+function lojaDeCasa(antecedenteId, dados) {
+  const loja = LOJA_DA_ORIGEM[antecedenteId];
+  if (!loja) return "";
+  const facoes = (dados.worldStateVariables && dados.worldStateVariables.facoes) || [];
+  const nome = (facoes.find((f) => f.id === loja.faccaoId) || {}).nome || loja.faccaoId;
+  return `−${Math.round(DESCONTO_LOJA_ORIGEM * 100)}% de preço nas lojas de ${nome}: ${loja.motivo}.`;
+}
 
 // Tudo que as escolhas atuais fazem, para a revisão ("Onde suas escolhas
 // aparecem"). Cada linha: [ícone, título, texto].
@@ -328,6 +339,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
           efeitos: [
             kit.length ? ["🎒", `Começa com ${listaHumana(kit)}.`] : ["", ""],
             ["💬", `${b.pericia}: ${testesDaPericia(b.pericia, dados)} testes no mundo usam esta perícia.`],
+            ["🗺️", lojaDeCasa(b.id, dados)],
           ],
           selecionada: estado.antecedente === b.id, onClick: () => { estado.antecedente = b.id; render(); },
         }));

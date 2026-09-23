@@ -28,7 +28,7 @@ import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { personagemTemCaminhoHerdeiro } from "./TalentTreeUI.js";
 import { planejarEquipamento, aplicarPlanoEquipamento, autoEquiparSlotsVazios, garantirPrefAutoEquipar } from "../systems/AutoEquipSystem.js";
 import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, marcarNavbarAtiva, marcarInteracaoAutomatica } from "./HdaUI.js";
-import { falaAtual, reacaoPorReputacao, registrarConversa } from "../systems/NpcSystem.js";
+import { falaAtual, reacaoPorReputacao, reacaoARaca, registrarConversa } from "../systems/NpcSystem.js";
 import { questsOferecidasPor, aceitarQuestRegional, concluirQuestRegional, progressoObjetivoRegional } from "../systems/RegionalQuestSystem.js";
 import { questRegionalPorId, PASSOS_INICIAIS } from "../data/world/regionalQuests.js";
 import { linhasDaConsequencia, resumoDaConsequencia } from "../systems/ConsequenciaTexto.js";
@@ -39,6 +39,7 @@ import { cenaDeAbertura, cenaDaMissao, jaViu } from "../systems/CutsceneSystem.j
 import { proximoPassoAltaverde, podeRecrutarAshryn, recrutarAshryn } from "../systems/JornadaSystem.js";
 import { destinoAtual, textoObjetivo, textoRecompensa } from "../systems/DestinoSystem.js";
 import { opcaoDeOrigem } from "../systems/ExplorationEventSystem.js";
+import { textoDescontoOrigem } from "../systems/IdentidadeSystem.js";
 import { somConfirmar, somCancelar, somBloqueioOuErro } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
@@ -1436,14 +1437,23 @@ const PACOTES_FORJA = [
 export function montarLoja(personagem, dados, onMudar, contexto = {}) {
   const multPreco = multiplicadorPrecoLoja(personagem, dados.worldStateVariables);
   const tierAtual = tierDaReputacao(getReputacao(personagem, "vila"), dados.worldStateVariables);
-  const tituloDesconto = multPreco !== 1 ? ` (${multPreco < 1 ? "-" : "+"}${Math.abs(Math.round((1 - multPreco) * 100))}% por reputação: ${tierAtual ? tierAtual.nome : ""})` : "";
+  // Cada motivo se explica sozinho: reputação e origem mexem no preço por
+  // caminhos diferentes (ver multiplicadorPrecoLoja/LOJA_DA_ORIGEM), e creditar
+  // tudo à reputação escondia o efeito da escolha de criação.
+  const motivos = [];
+  if (tierAtual && (tierAtual.descontoLoja || 0) !== 0) {
+    const pct = Math.abs(Math.round(tierAtual.descontoLoja * 100));
+    motivos.push(`${tierAtual.descontoLoja > 0 ? "−" : "+"}${pct}% por reputação com a vila (${tierAtual.nome})`);
+  }
+  const daOrigem = textoDescontoOrigem(personagem, "vila", personagem.antecedenteNome);
+  if (daOrigem) motivos.push(daOrigem);
   const tela = abrirTela({ titulo: "Mercador & Suprimentos", subtitulo: `🪙 ${personagem.ouro}`, largura: LARGURA.larga, classe: "tela-loja" });
   const corpo = tela.corpo;
 
-  if (tituloDesconto) {
+  if (motivos.length) {
     const p = document.createElement("p");
     p.className = "desc";
-    p.textContent = `Preços ajustados pela sua reputação${tituloDesconto}.`;
+    p.textContent = `Preços ajustados: ${motivos.join(" · ")}.`;
     corpo.appendChild(p);
   }
 
@@ -1560,6 +1570,18 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
     saud.style.cssText = "opacity:0.85;font-style:italic;";
     saud.textContent = `"${textoReacao}"${tierRep ? ` (Reputação: ${tierRep.nome})` : ""}`;
     corpo.appendChild(saud);
+  }
+
+  // O povo da região repara na raça de quem chegou (ver racialReactions.js).
+  // Vem por último entre as falas porque é o comentário menos importante: a
+  // reputação é o que você fez, a raça é só o que você é. Na maioria dos
+  // encontros não existe e nada aparece.
+  const daRaca = reacaoARaca(npc, personagem);
+  if (daRaca) {
+    const linha = document.createElement("p");
+    linha.style.cssText = "opacity:0.85;font-style:italic;";
+    linha.textContent = `"${daRaca}"${personagem.racaNome ? ` (${personagem.racaNome})` : ""}`;
+    corpo.appendChild(linha);
   }
 
   // Passos de questline regional oferecidos por este NPC (itens 16 a 19).

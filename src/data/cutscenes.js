@@ -136,6 +136,59 @@ export const CUTSCENES = [
           diario: { icone: "🤐", titulo: "O que você respondeu a Doran", texto: "Você não respondeu. A vila tirou suas próprias conclusões." },
         },
       ],
+      // UMA QUARTA RESPOSTA, só para quem tem a origem certa. As três acima
+      // qualquer herdeiro pode dar; esta o personagem só consegue dar porque
+      // veio de onde veio — e é a primeira vez no jogo que a origem escolhida
+      // na criação aparece como uma FALA, não como um número de ficha. Vale a
+      // mesma reputação com a vila das outras respostas, mais um laço com o
+      // povo de onde a origem vem: a resposta abre uma porta que as outras não
+      // abrem, em vez de ser simplesmente melhor. Ver opcoesDaCena em
+      // CutsceneSystem.js — a opção entra na lista e é resolvida pelo mesmo
+      // motor das outras, sem caminho paralelo.
+      opcoesPorOrigem: {
+        soldado: {
+          rotulo: "\"Me deem uma arma e um posto. Quem eu era decide depois.\"",
+          resultado: "Doran olha para as suas mãos antes de olhar para o seu rosto — elas já estavam na posição de quem espera ordem. Um veterano da Legião das Cinzas que passava a semana na vila ouve a resposta e anota seu nome de empréstimo num caderno gasto. Hedra não diz nada, o que, vindo dela, é quase aprovação.",
+          flag: "prologo_origem_soldado",
+          reputacao: { vila: 5, legiao_das_cinzas: 6 },
+          diario: { icone: "🎖️", titulo: "O que você respondeu a Doran", texto: "Você se ofereceu como soldado antes de se oferecer como pessoa — e a Legião das Cinzas anotou seu nome." },
+        },
+        nobre: {
+          rotulo: "\"Mandem um corvo a Aethra. Alguém na corte reconhece este rosto.\"",
+          resultado: "Ninguém na vila esperava que a pessoa sem passado desse uma ordem. O corvo parte no mesmo dia. A resposta da Coroa demora três semanas e não confirma nada — mas também não nega, e vem com o selo certo, o que em Aethra já é meio caminho.",
+          flag: "prologo_origem_nobre",
+          reputacao: { vila: 2, coroa_de_aethra: 6 },
+          diario: { icone: "👑", titulo: "O que você respondeu a Doran", texto: "Você mandou um corvo à Coroa de Aethra. Ela não confirmou quem você é — e não negou." },
+        },
+        criminoso: {
+          rotulo: "\"Não perguntem o que eu fazia. Perguntem o que eu sei fazer.\"",
+          resultado: "Metade da vila entende exatamente o que isso quer dizer. Um tratador da Caravana de Karn, encostado no portão, ri sozinho e depois te procura à noite — tem carga que precisa de alguém que não faça perguntas, e o serviço paga. Hedra passa a contar as ferramentas do galpão duas vezes por semana.",
+          flag: "prologo_origem_criminoso",
+          reputacao: { vila: -1, caravana_de_karn: 7 },
+          diario: { icone: "🎭", titulo: "O que você respondeu a Doran", texto: "Você não explicou seu passado, e a Caravana de Karn gostou justamente disso." },
+        },
+        eremita: {
+          rotulo: "\"Vou voltar para a mata. É onde o mundo fala mais alto.\"",
+          resultado: "Doran para de ouvir a vila e passa a ouvir você. Foi exatamente assim que ele encontrou a memória do incêndio de quatrocentos anos atrás — com a mão na terra e a boca fechada. Uma batedora dos Guardiões da Folha Verde te alcança na saída e diz onde acampar sem ser incomodado.",
+          flag: "prologo_origem_eremita",
+          reputacao: { vila: 1, guardioes_da_folha: 7 },
+          diario: { icone: "🌲", titulo: "O que você respondeu a Doran", texto: "Você escolheu a mata em vez da praça, e os Guardiões da Folha Verde entenderam o recado." },
+        },
+        andarilho_do_povo: {
+          rotulo: "\"Já fui de todo lugar e de lugar nenhum. Esta vila serve.\"",
+          resultado: "A frase corre a vila antes do fim da tarde, com a precisão de quem sabe repetir uma boa frase. Você não prometeu nada e, mesmo assim, foi a resposta que mais gente gostou — porque não soou como favor nem como fuga, soou como alguém puxando um banco na mesa.",
+          flag: "prologo_origem_andarilho",
+          reputacao: { vila: 9 },
+          diario: { icone: "🥾", titulo: "O que você respondeu a Doran", texto: "Você disse que esta vila serve, e Altaverde te tratou como gente da casa desde então." },
+        },
+        sabio: {
+          rotulo: "\"Se o mundo não me registrou, há um registro errado em algum lugar.\"",
+          resultado: "Doran demora a responder porque nunca tinha pensado o problema desse jeito: se a Memória do Mundo não te tem, então ela tem uma lacuna — e lacuna é um erro de arquivo, não um milagre. Uma carta da Ordem dos Arquivistas Perdidos chega antes do fim do mês, endereçada ao \"leitor da vila\".",
+          flag: "prologo_origem_sabio",
+          reputacao: { vila: 2, ordem_dos_arquivistas: 7 },
+          diario: { icone: "📜", titulo: "O que você respondeu a Doran", texto: "Você tratou seu próprio apagamento como um erro de arquivo — e a Ordem dos Arquivistas Perdidos escreveu de volta." },
+        },
+      },
     },
   },
 

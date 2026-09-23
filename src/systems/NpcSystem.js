@@ -25,6 +25,7 @@
 import { NPCS_REGIONAIS, npcPorId, npcsDaRegiao, NPCS_RECORRENTES } from "../data/world/npcs/index.js";
 import { horaDoDiaAtual, climaAtualDaZona } from "./WeatherSystem.js";
 import { getReputacao, tierDaReputacao, temFlag } from "./WorldStateSystem.js";
+import { reconhecimentoRacial } from "../data/world/racialReactions.js";
 
 export const ORDEM_TIERS = ["hostil", "malvisto", "neutro", "respeitado", "heroi"];
 
@@ -117,6 +118,16 @@ export function reacaoPorReputacao(npc, personagem, dadosWorldState, faccaoId) {
   if (id === "heroi" || id === "respeitado") return r.heroi || r.neutro || null;
   if (id === "hostil" || id === "malvisto") return r.hostil || r.neutro || null;
   return r.neutro || null;
+}
+
+// Reação à RAÇA do herdeiro. O povo de uma região repara em quem é de casa e
+// em quem claramente não é (ver racialReactions.js). Vem depois da reação por
+// reputação porque é o comentário menos importante dos dois: reputação é o que
+// você fez, raça é só o que você é. Devolve null na maioria dos encontros — a
+// tabela é esparsa de propósito, e um NPC sem região nunca reage.
+export function reacaoARaca(npc, personagem) {
+  if (!npc || !personagem) return null;
+  return reconhecimentoRacial(npc.regiaoId, personagem.racaId);
 }
 
 // --- rotina (item 9) -------------------------------------------------------

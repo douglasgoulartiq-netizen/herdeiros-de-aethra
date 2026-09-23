@@ -110,3 +110,16 @@ body:has(#modal-overlay:not(.hidden)) #guia-missao { display:none; }
 .destino-objetivo { display:flex; justify-content:space-between; gap:8px; margin:6px 0 0; color:#e9dfc8; font-size:.78rem; }
 .destino-recompensa { margin:4px 0 0; color:#b8d9c4; font-size:.72rem; }
 .destino-recompensa small { margin-right:4px; color:#8fa99a; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+
+/* --- Eventos de exploração: a opção que a SUA escolha de criação abriu ---
+   A classe e a personalidade rendem uma resposta que os outros heróis não
+   têm. O rótulo já diz "[Ladino]"/"[Cauteloso]", mas sem destaque o botão
+   se perde no meio dos outros e o jogador não repara que a escolha da
+   criação acabou de mudar o que ele pode fazer. */
+.btn-evento-classe, .btn-evento-traco {
+  border-color: rgba(245, 165, 36, .55);
+  box-shadow: inset 3px 0 0 rgba(245, 165, 36, .8);
+}
+.btn-evento-classe:hover:not([disabled]), .btn-evento-traco:hover:not([disabled]) {
+  border-color: rgba(245, 165, 36, .9);
+}

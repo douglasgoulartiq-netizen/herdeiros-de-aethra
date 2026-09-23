@@ -272,6 +272,21 @@ body.com-cutscene { overscroll-behavior: none; touch-action: manipulation; }
   background: rgba(58, 44, 26, 0.85);
   transform: translateX(3px);
 }
+/* A resposta que só a sua origem permite: dourada e com o nome da origem em
+   cima, para o jogador ver que a escolha da criação abriu esta linha. */
+.cutscene-opcao.da-origem {
+  border-color: rgba(245, 165, 36, 0.55);
+  background: rgba(58, 44, 26, 0.62);
+}
+.cutscene-opcao.da-origem:hover { background: rgba(72, 54, 30, 0.9); }
+.cutscene-opcao-selo {
+  display: block;
+  font-size: 0.72em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hda-gold, #f5a524);
+  margin-bottom: 4px;
+}
 
 /* --- Rodapé ------------------------------------------------------------- */
 .cutscene-rodape {

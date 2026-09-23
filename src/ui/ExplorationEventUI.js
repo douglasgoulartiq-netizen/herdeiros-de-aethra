@@ -102,12 +102,16 @@ export function mostrarEventoExploracao(evento, personagem, dados, facaoId, onFi
   // "Tentar" do teste de perícia acima, pro modo automático (ver
   // tickAutoPlay em main.js) sempre ter uma ação preferencial a clicar em
   // vez de simplesmente fechar o modal.
-  // A lista inclui a opção da PERSONALIDADE do herói, quando o evento tem
-  // uma (`opcoesPorTraco`) — ver opcoesDoEvento.
+  // A lista inclui a opção da CLASSE (`opcoesPorClasse`) e a da PERSONALIDADE
+  // (`opcoesPorTraco`) do herói, quando o evento tem — ver opcoesDoEvento.
+  // As duas vêm marcadas com classe própria: se parecessem iguais às outras, o
+  // jogador não saberia que foi a escolha de criação dele que abriu aquela
+  // linha.
   opcoesDoEvento(evento, personagem).forEach((opcao, idx) => {
     const disponivel = opcaoDisponivel(opcao, personagem);
     const btn = document.createElement("button");
     if (idx === 0) btn.className = "primario btn-evento-tentar";
+    if (opcao.daClasse) btn.classList.add("btn-evento-classe");
     if (opcao.doTraco) btn.classList.add("btn-evento-traco");
     btn.textContent = opcao.rotulo + (opcao.custoOuroMinimo && !disponivel ? ` (precisa de ${opcao.custoOuroMinimo} ouro)` : "");
     btn.disabled = !disponivel;

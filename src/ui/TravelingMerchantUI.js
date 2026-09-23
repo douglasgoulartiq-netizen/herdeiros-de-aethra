@@ -8,7 +8,7 @@ import { mostrarMensagem } from "./GameUI.js";
 import { abrirTela, LARGURA, criarGrade, abrirSheet, fecharSheet } from "./HdaUI.js";
 import { comprarItem } from "../systems/InventorySystem.js";
 import { multiplicadorPrecoLoja, tierDaReputacao, getReputacao } from "../systems/WorldStateSystem.js";
-import { temCombinacao } from "../systems/IdentidadeSystem.js";
+import { temCombinacao, textoDescontoOrigem } from "../systems/IdentidadeSystem.js";
 
 // `onMudar` é chamado a cada compra (não ao fechar) — o chamador (main.js)
 // usa isso pra atualizar o HUD (ouro gasto), igual ao onMudar de
@@ -21,7 +21,19 @@ export function mostrarMercadorItinerante(estoque, personagem, dados, facaoId, o
   const tierAtual = tierDaReputacao(getReputacao(personagem, facaoId), dados.worldStateVariables);
   const facaoInfo = ((dados.worldStateVariables && dados.worldStateVariables.facoes) || []).find((f) => f.id === facaoId);
   const nomeFaccao = facaoInfo ? facaoInfo.nome : facaoId;
-  const tituloDesconto = multPreco !== 1 ? `${multPreco < 1 ? "-" : "+"}${Math.abs(Math.round((1 - multPreco) * 100))}% por reputação com ${nomeFaccao}${tierAtual ? ` (${tierAtual.nome})` : ""}` : "";
+  // O preço pode cair (ou subir) por três motivos independentes, e antes todos
+  // apareciam creditados à reputação. Cada um se explica sozinho: o jogador
+  // precisa saber qual ESCOLHA dele está pagando menos.
+  const nomeAntecedente = personagem.antecedenteNome || (dados.backgrounds || []).find((b) => b.id === personagem.antecedenteId)?.nome || "";
+  const motivos = [];
+  if (tierAtual && (tierAtual.descontoLoja || 0) !== 0) {
+    const pct = Math.abs(Math.round(tierAtual.descontoLoja * 100));
+    motivos.push(`${tierAtual.descontoLoja > 0 ? "−" : "+"}${pct}% por reputação com ${nomeFaccao} (${tierAtual.nome})`);
+  }
+  const daOrigem = textoDescontoOrigem(personagem, facaoId, nomeAntecedente);
+  if (daOrigem) motivos.push(daOrigem);
+  if (temCombinacao(personagem, "mascate_de_karn")) motivos.push("−10% da combinação Mascate de Karn");
+  const tituloDesconto = motivos.join(" · ");
 
   const tela = abrirTela({ titulo: "🧳 Mercador Itinerante", subtitulo: `🪙 ${personagem.ouro}`, largura: LARGURA.media });
   const corpo = tela.corpo;
