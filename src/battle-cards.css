@@ -51,6 +51,9 @@
   width: 100%;
   max-width: 980px;
 }
+.mao-instrucoes { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; width:100%; padding:4px 8px; color:#b7c9c9; background:#0b171b; border:1px solid #2d454c; border-radius:5px; font-size:.72rem; }
+.mao-instrucoes span:not(:last-child)::after { content:" ·"; color:#6d8d93; margin-left:8px; }
+@media (max-width:600px) { .mao-instrucoes { justify-content:space-between; font-size:.66rem; } .mao-instrucoes span:last-child { width:100%; color:#f0c46a; } }
 
 /* =========================================================================
    2. FAIXA DE CONTEXTO

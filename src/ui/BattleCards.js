@@ -787,6 +787,7 @@ export function criarPainelDeCards(opcoes) {
         <span class="mao-deslize" id="mao-deslize" aria-hidden="true">↔ deslize</span>
         <button type="button" class="mao-btn-config" id="btn-cards-config" title="Configurações de leitura da batalha">⚙️</button>
       </div>
+      <div class="mao-instrucoes" role="note"><span>1 toque: prever</span><span>2 toques: confirmar</span><span>Alvo: ${estado.alvo?.nome || "selecione um inimigo"}</span></div>
       ${montarConfiguracoes()}
       <div class="mao-cards" id="mao-cards"></div>
       ${totalPaginas > 1 ? `<div class="mao-paginacao"><button type="button" id="pg-ant" ${pagina === 0 ? "disabled" : ""}>‹</button><span>${pagina + 1}/${totalPaginas}</span><button type="button" id="pg-prox" ${pagina >= totalPaginas - 1 ? "disabled" : ""}>›</button></div>` : ""}

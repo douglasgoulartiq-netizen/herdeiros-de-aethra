@@ -226,6 +226,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         ${ativo.faccaoNome || ativo.faccaoId ? `<span>⚑ ${ativo.faccaoNome || ativo.faccaoId}</span>` : ""}
         ${ativo.personalidadeNome || ativo.personalidade ? `<span>✦ ${ativo.personalidadeNome || ativo.personalidade}</span>` : ""}
       </div>
+      <div class="companhia-equip-slots" aria-label="Equipamento de ${ativo.nome}">
+        ${SLOTS_EQUIPAMENTO.map((sl) => {
+          const it = ativo.equipamento && ativo.equipamento[sl.slot];
+          return `<button type="button" class="companhia-equip-slot${it ? " preenchido" : ""}" data-slot-vitrine="${sl.slot}" aria-label="${sl.label}: ${it ? it.nome : "vazio"}" title="${it ? it.nome : `Equipar ${sl.label}`}" >${sl.icone}<small>${it ? it.nome : sl.label}</small></button>`;
+        }).join("")}
+      </div>
     </div>
     <div class="companhia-poder">
       <small>PODER INDIVIDUAL</small><strong>${poderAtivo}</strong><span>de 250</span>
@@ -236,6 +242,13 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   corpo.appendChild(palcoCompanhia);
   ligarCadeias(fileira);
   ligarCadeias(vitrineCompanhia);
+  vitrineCompanhia.querySelectorAll("[data-slot-vitrine]").forEach((botao) => {
+    botao.onclick = () => {
+      estado.aba = "mochila";
+      estado.filtro = botao.dataset.slotVitrine === "arma" ? "arma" : botao.dataset.slotVitrine === "peito" || botao.dataset.slotVitrine === "cabeca" || botao.dataset.slotVitrine === "pes" ? "armadura" : "acessorio";
+      redesenhar();
+    };
+  });
 
   fileira.querySelectorAll(".party-card").forEach((el) => {
     const escolher = () => { estado.membroIdx = Number(el.dataset.membro); redesenhar(); };
