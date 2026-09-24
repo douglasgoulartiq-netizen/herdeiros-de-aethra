@@ -34,6 +34,7 @@
 // Nada aqui conhece regra de combate — o palco só oferece lugares. Quem
 // preenche é a BattleUI.
 import { TILE_SIZE } from "../data/worldMap.js";
+import { carregarFundoBatalha, desenharFundoIlustrado } from './BattleBackgrounds.js';
 
 // Quantos lugares existem em cada fileira. Os números vêm do jogo: o time
 // ativo é o principal + até 3 convocados (MAX_CONVOCADOS_GACHA), e o maior
@@ -72,13 +73,17 @@ const comAlpha = (cor, alpha) => {
 // Agora quem monta o palco mede onde os sprites realmente estão e passa o
 // valor — o cenário se adapta ao layout, e não o contrário. O layout tem
 // restrições de legibilidade que o desenho de fundo não tem.
-export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42) {
+export function desenharCena(canvas, cenario, imagens, fracHorizonte = 0.42, fundo = null) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const L = canvas.width;
   const A = canvas.height;
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, L, A);
+  if (fundo) {
+    desenharFundoIlustrado(ctx, fundo, L, A, fracHorizonte);
+    return;
+  }
 
   const id = String(cenario.id || "campo").toLowerCase();
   const [ceuTopo, ceuBase] = cenario.ceu || ["#161a22", "#343642"];
@@ -332,6 +337,8 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
   };
 
   let ultimoTamanho = "";
+  let fundoIlustrado = null;
+  let destruido = false;
   const redesenharCena = (forcar = false) => {
     const r = campoEl.getBoundingClientRect();
     const L = Math.max(1, Math.round(r.width));
@@ -348,11 +355,16 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
     // Publicada para o CSS: a sombra de chão e o degradê de profundidade das
     // fileiras se ancoram nela (ver batalha-layout.css).
     campoEl.style.setProperty("--horizonte", `${Math.round(A * frac)}px`);
-    if (cenario) desenharCena(cenaCanvas, cenario, imagens, frac);
+    if (cenario) desenharCena(cenaCanvas, cenario, imagens, frac, fundoIlustrado);
   };
   const observador = typeof ResizeObserver !== "undefined" ? new ResizeObserver(redesenharCena) : null;
   if (observador) observador.observe(campoEl);
   redesenharCena();
+  carregarFundoBatalha(cenario?.id).then(img => {
+    if (destruido || !img) return;
+    fundoIlustrado = img;
+    redesenharCena(true);
+  });
 
   // Log: o painel é ABSOLUTO, ancorado acima da barra. Abrir e fechar nunca
   // muda a altura de nada — era exatamente o que o <details> antigo fazia.
@@ -390,6 +402,8 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
     alternarLog,
     logEstaAberto: () => logAberto,
     destruir() {
+      destruido = true;
+      fundoIlustrado = null;
       if (observador) observador.disconnect();
     },
   };

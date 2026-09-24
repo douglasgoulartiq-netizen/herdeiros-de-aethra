@@ -1,0 +1,71 @@
+{
+  "tool": "image_gen (built-in)",
+  "composition": "Fine pixel art JRPG scenery, rich perimeter and distant detail, elevated camera, quiet continuous ground, no characters or text.",
+  "scenes": [
+    {
+      "id": "floresta",
+      "file": "floresta-v1.webp",
+      "scene": "ancient lush forest clearing, mossy trees, layered woodland"
+    },
+    {
+      "id": "pantano",
+      "file": "pantano-v1.webp",
+      "scene": "misty ancient swamp, twisted willow trunks, hanging moss, still pools at edges, broad firm dark mud clearing"
+    },
+    {
+      "id": "deserto",
+      "file": "deserto-v1.webp",
+      "scene": "golden desert, layered dunes, wind-sculpted sandstone cliffs and small distant ruin, broad compact sand floor"
+    },
+    {
+      "id": "montanha",
+      "file": "montanha-v1.webp",
+      "scene": "high mountain stone terrace, immense layered rocky peaks, distant waterfall and pine silhouettes, broad slate rocky floor"
+    },
+    {
+      "id": "costa",
+      "file": "costa-v1.webp",
+      "scene": "ocean beach, turquoise surf in distance, sculpted coastal cliffs, shells and driftwood confined to edges, broad smooth wet sand floor"
+    },
+    {
+      "id": "ruinas",
+      "file": "ruinas-v1.webp",
+      "scene": "ancient lost civilization ruins, ornate broken columns, ivy and weathered arches at edges, broad worn stone courtyard"
+    },
+    {
+      "id": "masmorra",
+      "file": "masmorra-v1.webp",
+      "scene": "underground vaulted crypt, detailed weathered masonry, tall shadowed arches and warm torch niches, broad stone floor"
+    },
+    {
+      "id": "vila",
+      "file": "vila-v1.webp",
+      "scene": "rich medieval fantasy town square, timber framed houses and tiled roofs, distant fountain and banners, broad empty cobbled floor"
+    },
+    {
+      "id": "campo",
+      "file": "campo-v1.webp",
+      "scene": "rolling green meadow, layered hills and distant ruined watchtower, wildflowers at borders, broad short grass floor"
+    },
+    {
+      "id": "neve",
+      "file": "neve-v1.webp",
+      "scene": "snowy alpine pass, majestic snowy mountains, icy cliffs and fir trees at borders, broad packed blue white snow floor"
+    },
+    {
+      "id": "vulcao",
+      "file": "vulcao-v1.webp",
+      "scene": "volcanic basalt plateau, distant smoking volcano and lava streams confined to extreme edges, broad safe dark basalt floor"
+    },
+    {
+      "id": "cristal",
+      "file": "cristal-v1.webp",
+      "scene": "arcane cavern, luminous amethyst and teal crystal clusters confined to outer edges, ruined arcane pillars, broad muted violet stone floor"
+    },
+    {
+      "id": "agua",
+      "file": "agua-v1.webp",
+      "scene": "shallow coastal lagoon, distant reefs and calm turquoise sea, rocky banks at extreme edges, broad ankle deep sandy water floor"
+    }
+  ]
+}

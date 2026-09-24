@@ -29,6 +29,30 @@ import {
 // `ceu` é o gradiente do fundo, em pixel-art escuro pra HUD ficar legível
 // por cima. `particula` liga o efeito ambiental discreto.
 const CENARIOS = {
+  neve: {
+    nome: 'Passo Nevado', chao: TILE.SNOW, detalhe: TILE.ICE, decor: [],
+    ceu: ['#17283e', '#90acbe'], particula: null,
+    paleta: { piso: ['#718b9c', '#35465d'], neblina: '#daeefa', silhueta: ['#485e74', '#25374b'] },
+    descricao: 'Neve compacta e encostas geladas nas grandes altitudes.',
+  },
+  vulcao: {
+    nome: 'Terras Vulcânicas', chao: TILE.ASH, detalhe: TILE.ASH, decor: [],
+    ceu: ['#271c26', '#6d403c'], particula: 'poeira',
+    paleta: { piso: ['#494047', '#211e2a'], neblina: '#c99478', silhueta: ['#543b40', '#231d27'] },
+    descricao: 'Basalto sob os pés e rios de lava nas encostas distantes.',
+  },
+  cristal: {
+    nome: 'Santuário de Cristais', chao: TILE.DUNGEON_FLOOR, detalhe: TILE.PATH, decor: [],
+    ceu: ['#1c1937', '#524668'], particula: null,
+    paleta: { piso: ['#514b65', '#262336'], neblina: '#b8a4dc', silhueta: ['#433855', '#211c31'] },
+    descricao: 'Cristais de Éter iluminam a pedra antiga.',
+  },
+  agua: {
+    nome: 'Águas Rasas', chao: TILE.WATER, detalhe: TILE.SAND, decor: [],
+    ceu: ['#193c51', '#739ba6'], particula: 'respingo',
+    paleta: { piso: ['#4c858a', '#244957'], neblina: '#b1e2de', silhueta: ['#3e6b76', '#23434f'] },
+    descricao: 'Uma lâmina de água clara cobre a areia firme.',
+  },
   floresta: {
     nome: "Floresta", chao: TILE.GRASS, detalhe: TILE.TALL_GRASS, decor: [TILE.TREE, TILE.BUSH],
     ceu: ["#16241c", "#25402c"], particula: "folhas",
@@ -90,6 +114,9 @@ const CENARIOS = {
 // mais honesto do que manter uma segunda tabela de id→bioma que alguém vai
 // esquecer de atualizar ao criar a zona 23.
 const PISTAS = [
+  [/neve|nevado|gelad|glacial|gelo|morranvell/i, 'neve'],
+  [/vulc|vulkor|lava|cinzas|chamas|obsidiana/i, 'vulcao'],
+  [/cristal|prismatic|prismátic/i, 'cristal'],
   [/pantano|pântano|charco|brum/i, "pantano"],
   [/deserto|karn|dun|areia/i, "deserto"],
   [/montanha|vale|pedra|falesia|falésia|colina/i, "montanha"],
@@ -124,9 +151,16 @@ export const CENARIO_PADRAO = "campo";
 // sabe, assume "Campo Aberto", que é o cenário neutro.
 export function resolverCenarioId({ mapaAtual, zonaNome, zonaId, tile } = {}) {
   if (mapaAtual && mapaAtual !== "overworld") {
-    if (/dungeon2|cinza|covil/i.test(mapaAtual)) return "masmorra";
+    if (/dungeon2|cinza|vulc/i.test(mapaAtual)) return "vulcao";
     return "masmorra";
   }
+  // Superfícies especiais têm precedência sobre nomes genéricos de região.
+  if (tile === TILE.SNOW || tile === TILE.ICE) return 'neve';
+  if (tile === TILE.LAVA || tile === TILE.ASH) return 'vulcao';
+  if (tile === TILE.CRYSTAL) return 'cristal';
+  if (tile === TILE.MARSH) return 'pantano';
+  if (tile === TILE.COBBLE || tile === TILE.VILLAGE_FLOOR) return 'vila';
+  if (tile === TILE.WATER || tile === TILE.DEEP_WATER) return 'agua';
   const texto = `${zonaNome || ""} ${zonaId || ""}`;
   for (const [regex, id] of PISTAS) if (regex.test(texto)) return id;
   if (typeof tile === "number" && POR_TILE[tile]) return POR_TILE[tile];

@@ -21,6 +21,7 @@ import { mostrarMensagem } from "./GameUI.js";
 // e não em main.js, porque main importa esta tela — o contrário seria um ciclo.
 import { celebrarNivel, pausarCartoes, retomarCartoes } from "./CartaoUI.js";
 import { autoPlayState, registrarGanhosAuto } from "../systems/AutoPlayState.js";
+import { monstroHumanoide, imagemOficialMonstro } from "../systems/MonsterVisualSystem.js";
 import { garantirConfigAutoBatalha, escolherAcaoAutomatica, MODOS_AUTO_BATALHA, LABEL_MODO } from "../systems/AutoBattleAI.js";
 import { autoEquiparSlotsVazios, textoAcoesEquipamento } from "../systems/AutoEquipSystem.js";
 import { montarPalco, pintarCabecalho, MAX_SLOTS_INIMIGO, MAX_SLOTS_HEROI } from "./BattleStage.js";
@@ -695,7 +696,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       const batalha = imagens[`pcb_${c.racaId}_${c.classeId}`];
       if (batalha && batalha.width >= 96) return batalha;
     }
-    return imagens[`mb_${c.spriteKey}`] || imagens[c.spriteKey];
+    return imagemOficialMonstro(imagens, c.spriteKey);
   }
 
   // Prévia elemental: mostra o ícone do elemento do combatente e, para
@@ -889,7 +890,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const porte = (() => {
       if (c.isPlayer) return 1;
       let p = 1;
-      if (c.chefe) p = 1.55;
+      if (c.chefe) p = monstroHumanoide(c) ? 1.18 : 1.55;
       else if (c.solo) p = 1.18;
       else {
         // Reforço da região: um lobo de zona avançada é visivelmente maior

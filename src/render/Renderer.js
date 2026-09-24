@@ -27,6 +27,7 @@
 import { TILE, TILE_SIZE, TILES_BASE, TILE_FALLBACK } from "../data/worldMap.js";
 import { PROPS, propsVisiveis, caixaDoProp } from "../data/propRegistry.js";
 import { MisturaDeTerreno } from "./TerrainBlend.js";
+import { escalaChefeMapa, imagemOficialMonstro } from "../systems/MonsterVisualSystem.js";
 
 const TILE_ORDER = [
   "grass", "grass_detail", "path", "water", "tree", "wall_stone",
@@ -590,14 +591,16 @@ export class Renderer {
       this.desenharChefeRecuperando(o, dx, dy);
       return;
     }
-    const img = this.imagens[o.imgKey];
+    const img = ehChefe ? imagemOficialMonstro(this.imagens, o.imgKey) : this.imagens[o.imgKey];
     if (!img) return;
     if (!ehChefe) {
       ctx.drawImage(img, dx, dy, T, T);
       return;
     }
 
-    const tam = T * 4.32; // civil importante = 1,08 tile; chefe = 4x isso
+    const escala = escalaChefeMapa(o.ref);
+    const tam = T * escala;
+    const escalaSombra = escala / 4.32;
     const px = dx + T / 2 - tam / 2;
     const py = dy + T - tam;
     ctx.save();
@@ -605,16 +608,18 @@ export class Renderer {
     // para cima e para os lados, mantendo os pés no ponto do encontro.
     ctx.fillStyle = "rgba(12,7,13,.58)";
     ctx.beginPath();
-    ctx.ellipse(dx + T / 2, dy + T * .9, T * 1.02, T * .27, 0, 0, Math.PI * 2);
+    ctx.ellipse(dx + T / 2, dy + T * .9, T * 1.02 * escalaSombra, T * .27 * escalaSombra, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "rgba(245,165,36,.82)";
     ctx.lineWidth = Math.max(2, Math.round(this.escala * 2));
     ctx.beginPath();
-    ctx.ellipse(dx + T / 2, dy + T * .88, T * .82, T * .21, 0, 0, Math.PI * 2);
+    ctx.ellipse(dx + T / 2, dy + T * .88, T * .82 * escalaSombra, T * .21 * escalaSombra, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.imageSmoothingEnabled = false;
     ctx.filter = "drop-shadow(0 7px 5px rgba(0,0,0,.72)) drop-shadow(0 0 7px rgba(245,165,36,.34))";
-    ctx.drawImage(img, px, py, tam, tam);
+    // Mesmo recorte quadrado da batalha; o fallback pode ser uma spritesheet.
+    const lado = Math.min(img.width, img.height);
+    ctx.drawImage(img, 0, 0, lado, lado, px, py, tam, tam);
     ctx.filter = "none";
     ctx.fillStyle = "#ffd46a";
     ctx.strokeStyle = "rgba(28,14,8,.9)";
