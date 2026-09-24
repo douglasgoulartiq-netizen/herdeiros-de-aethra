@@ -360,14 +360,6 @@
         "peso": 16
       },
       {
-        "itemId": "presas_da_devoradora",
-        "peso": 16
-      },
-      {
-        "itemId": "cajado_do_lodo_eterno",
-        "peso": 16
-      },
-      {
         "itemId": "machado_lendario",
         "peso": 10
       },
@@ -540,10 +532,6 @@
         "peso": 24
       },
       {
-        "itemId": "martelo_do_sol_poente",
-        "peso": 4
-      },
-      {
         "itemId": "pocao_vida_m",
         "peso": 30
       },
@@ -585,10 +573,6 @@
         "peso": 24
       },
       {
-        "itemId": "cajado_do_lodo_eterno",
-        "peso": 4
-      },
-      {
         "itemId": "ger_pocao_dupla_s",
         "peso": 30
       },
@@ -624,10 +608,6 @@
       {
         "itemId": "anel_destreza",
         "peso": 24
-      },
-      {
-        "itemId": "presas_da_devoradora",
-        "peso": 4
       },
       {
         "itemId": "ger_oleo_gelo",
@@ -749,10 +729,6 @@
         "peso": 24
       },
       {
-        "itemId": "presas_da_devoradora",
-        "peso": 4
-      },
-      {
         "itemId": "ger_oleo_gelo",
         "peso": 30
       },
@@ -833,10 +809,6 @@
       {
         "itemId": "ger_elmo_aetherium",
         "peso": 17
-      },
-      {
-        "itemId": "cetro_do_imperador_arcano",
-        "peso": 1
       },
       {
         "itemId": "ger_pocao_eter_g",
@@ -1203,10 +1175,6 @@
         "peso": 15
       },
       {
-        "itemId": "anel_da_bruma_eterna",
-        "peso": 15
-      },
-      {
         "itemId": "armadura_lendario",
         "peso": 5
       },
@@ -1237,10 +1205,6 @@
         "peso": 16
       },
       {
-        "itemId": "couraca_do_rei_petrificado",
-        "peso": 16
-      },
-      {
         "itemId": "ger_arco_adamante_alt_gelo",
         "peso": 16
       },
@@ -1254,10 +1218,6 @@
       },
       {
         "itemId": "amuleto_vida",
-        "peso": 5
-      },
-      {
-        "itemId": "arco_do_grifo_alfa",
         "peso": 5
       },
       {
@@ -1462,10 +1422,6 @@
         "peso": 24
       },
       {
-        "itemId": "presas_da_devoradora",
-        "peso": 4
-      },
-      {
         "itemId": "pao",
         "peso": 30
       },
@@ -1626,10 +1582,6 @@
         "peso": 19
       },
       {
-        "itemId": "presas_da_devoradora",
-        "peso": 17
-      },
-      {
         "itemId": "espada_lendario",
         "peso": 1
       },
@@ -1769,10 +1721,6 @@
         "peso": 19
       },
       {
-        "itemId": "presas_da_devoradora",
-        "peso": 17
-      },
-      {
         "itemId": "elmo_lendario",
         "peso": 1
       },
@@ -1863,10 +1811,6 @@
         "peso": 17
       },
       {
-        "itemId": "cajado_da_tempestade_eterna",
-        "peso": 1
-      },
-      {
         "itemId": "ger_pocao_eter_g",
         "peso": 30
       },
@@ -1945,10 +1889,6 @@
         "peso": 19
       },
       {
-        "itemId": "cajado_da_tempestade_eterna",
-        "peso": 10
-      },
-      {
         "itemId": "pocao_mana_m",
         "peso": 30
       },
@@ -1962,6 +1902,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "coracao_de_carvalho",
+        "peso": 70
+      },
       {
         "itemId": "ger_maca_ferro",
         "peso": 6
@@ -2005,6 +1949,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "presas_da_devoradora",
+        "peso": 70
+      },
+      {
         "itemId": "ger_amuleto_des_ferro",
         "peso": 6
       },
@@ -2025,14 +1973,6 @@
         "peso": 16
       },
       {
-        "itemId": "cajado_do_lodo_eterno",
-        "peso": 16
-      },
-      {
-        "itemId": "arco_da_matriarca_wyvern",
-        "peso": 10
-      },
-      {
         "itemId": "pocao_vida_p",
         "peso": 12
       },
@@ -2046,6 +1986,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "martelo_do_sol_poente",
+        "peso": 70
+      },
       {
         "itemId": "ger_amuleto_for_ferro",
         "peso": 6
@@ -2071,10 +2015,6 @@
         "peso": 16
       },
       {
-        "itemId": "cajado_da_tempestade_eterna",
-        "peso": 10
-      },
-      {
         "itemId": "ger_pocao_dupla_s",
         "peso": 12
       },
@@ -2088,6 +2028,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "cajado_do_lodo_eterno",
+        "peso": 70
+      },
       {
         "itemId": "ger_lanca_ferro_arcano",
         "peso": 6
@@ -2113,10 +2057,6 @@
         "peso": 16
       },
       {
-        "itemId": "cajado_da_tempestade_eterna",
-        "peso": 10
-      },
-      {
         "itemId": "ger_pocao_vida_s",
         "peso": 12
       },
@@ -2138,6 +2078,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "adaga_da_mare_negra",
+        "peso": 70
+      },
       {
         "itemId": "ger_martelo_ferro_arcano",
         "peso": 6
@@ -2173,10 +2117,6 @@
       {
         "itemId": "ger_oleo_fogo",
         "peso": 12
-      },
-      {
-        "itemId": "coracao_de_carvalho",
-        "peso": 5
       }
     ]
   },
@@ -2184,6 +2124,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "viscera_toxica",
+        "peso": 70
+      },
       {
         "itemId": "ger_machado_ferro_das_mares",
         "peso": 6
@@ -2227,6 +2171,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "nucleo_do_colosso",
+        "peso": 70
+      },
+      {
         "itemId": "ger_botas_leves_ferro",
         "peso": 6
       },
@@ -2247,10 +2195,6 @@
         "peso": 16
       },
       {
-        "itemId": "cajado_do_lodo_eterno",
-        "peso": 16
-      },
-      {
         "itemId": "elmo_lendario",
         "peso": 10
       },
@@ -2268,6 +2212,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "garras_da_matriarca",
+        "peso": 70
+      },
       {
         "itemId": "ger_amuleto_for_ferro",
         "peso": 6
@@ -2303,10 +2251,6 @@
       {
         "itemId": "ger_oleo_agua",
         "peso": 12
-      },
-      {
-        "itemId": "viscera_toxica",
-        "peso": 5
       }
     ]
   },
@@ -2314,6 +2258,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "arco_do_grifo_alfa",
+        "peso": 70
+      },
       {
         "itemId": "ger_lanca_ferro_arcano",
         "peso": 6
@@ -2335,24 +2283,12 @@
         "peso": 16
       },
       {
-        "itemId": "martelo_do_sol_poente",
-        "peso": 16
-      },
-      {
-        "itemId": "amuleto_do_guardiao_arcano",
-        "peso": 10
-      },
-      {
         "itemId": "ger_oleo_raio",
         "peso": 12
       },
       {
         "itemId": "ger_oleo_agua",
         "peso": 12
-      },
-      {
-        "itemId": "nucleo_do_colosso",
-        "peso": 5
       }
     ]
   },
@@ -2360,6 +2296,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "ferrao_da_rainha_de_karn",
+        "peso": 70
+      },
       {
         "itemId": "ger_botas_leves_bronze",
         "peso": 6
@@ -2395,10 +2335,6 @@
       {
         "itemId": "ger_pocao_eter_s",
         "peso": 12
-      },
-      {
-        "itemId": "pele_regenerativa",
-        "peso": 5
       }
     ]
   },
@@ -2406,6 +2342,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "cajado_da_tempestade_eterna",
+        "peso": 70
+      },
       {
         "itemId": "ger_martelo_ferro_arcano",
         "peso": 6
@@ -2424,10 +2364,6 @@
       },
       {
         "itemId": "ger_espada_aetherium_alt_agua",
-        "peso": 16
-      },
-      {
-        "itemId": "lamina_do_cavaleiro_caido",
         "peso": 16
       },
       {
@@ -2465,6 +2401,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "lamina_do_cavaleiro_caido",
+        "peso": 70
+      },
+      {
         "itemId": "ger_amuleto_con_ferro",
         "peso": 6
       },
@@ -2478,10 +2418,6 @@
       },
       {
         "itemId": "ger_lanca_mithril",
-        "peso": 16
-      },
-      {
-        "itemId": "cajado_do_lodo_eterno",
         "peso": 16
       },
       {
@@ -2511,6 +2447,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "pele_regenerativa",
+        "peso": 70
+      },
+      {
         "itemId": "ger_machado_ferro_das_mares",
         "peso": 6
       },
@@ -2535,10 +2475,6 @@
         "peso": 16
       },
       {
-        "itemId": "espada_do_senhor_sombrio",
-        "peso": 10
-      },
-      {
         "itemId": "ger_pocao_dupla_m",
         "peso": 12
       },
@@ -2557,6 +2493,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "amuleto_do_guardiao_arcano",
+        "peso": 70
+      },
+      {
         "itemId": "ger_lanca_ferro_arcano",
         "peso": 6
       },
@@ -2573,24 +2513,12 @@
         "peso": 16
       },
       {
-        "itemId": "ferrao_da_rainha_de_karn",
-        "peso": 16
-      },
-      {
         "itemId": "ger_maca_aetherium_alt_fogo",
         "peso": 16
       },
       {
-        "itemId": "amuleto_do_guardiao_arcano",
-        "peso": 10
-      },
-      {
         "itemId": "ger_pocao_vida_s",
         "peso": 12
-      },
-      {
-        "itemId": "adaga_da_mare_negra",
-        "peso": 5
       },
       {
         "itemId": "ger_machado_adamante_tempestuoso",
@@ -2610,6 +2538,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "couraca_do_rei_petrificado",
+        "peso": 70
+      },
       {
         "itemId": "ger_espada_ferro",
         "peso": 6
@@ -2633,10 +2565,6 @@
       {
         "itemId": "ger_espada_adamante_alt_gelo",
         "peso": 16
-      },
-      {
-        "itemId": "amuleto_do_guardiao_arcano",
-        "peso": 10
       },
       {
         "itemId": "ger_pocao_eter_s",
@@ -2665,6 +2593,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "machado_das_chamas_errantes",
+        "peso": 70
+      },
+      {
         "itemId": "ger_amuleto_con_ferro",
         "peso": 6
       },
@@ -2682,10 +2614,6 @@
       },
       {
         "itemId": "ger_maca_adamante_umbral",
-        "peso": 16
-      },
-      {
-        "itemId": "garras_da_matriarca",
         "peso": 16
       },
       {
@@ -2719,6 +2647,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "arco_da_matriarca_wyvern",
+        "peso": 70
+      },
+      {
         "itemId": "ger_amuleto_des_ferro",
         "peso": 6
       },
@@ -2737,14 +2669,6 @@
       {
         "itemId": "ger_espada_adamante_alt_gelo",
         "peso": 16
-      },
-      {
-        "itemId": "ferrao_da_rainha_de_karn",
-        "peso": 16
-      },
-      {
-        "itemId": "amuleto_do_guardiao_arcano",
-        "peso": 10
       },
       {
         "itemId": "ger_pocao_vida_s",
@@ -2773,6 +2697,10 @@
     "quedas": 2,
     "pool": [
       {
+        "itemId": "anel_da_bruma_eterna",
+        "peso": 70
+      },
+      {
         "itemId": "ger_botas_leves_ferro",
         "peso": 6
       },
@@ -2795,10 +2723,6 @@
       {
         "itemId": "ger_grimorio_adamante_glacial",
         "peso": 16
-      },
-      {
-        "itemId": "espada_do_senhor_sombrio",
-        "peso": 10
       },
       {
         "itemId": "ger_pocao_vida_s",
@@ -2826,6 +2750,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "espada_do_senhor_sombrio",
+        "peso": 70
+      },
       {
         "itemId": "ger_botas_leves_ferro",
         "peso": 6
@@ -2863,10 +2791,6 @@
         "peso": 12
       },
       {
-        "itemId": "machado_das_chamas_errantes",
-        "peso": 2
-      },
-      {
         "itemId": "ger_amuleto_des_aetherium",
         "peso": 5
       }
@@ -2876,6 +2800,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "escama_do_dragao_anciao",
+        "peso": 70
+      },
       {
         "itemId": "ger_amuleto_con_ferro",
         "peso": 6
@@ -2913,10 +2841,6 @@
         "peso": 12
       },
       {
-        "itemId": "escama_do_dragao_anciao",
-        "peso": 2
-      },
-      {
         "itemId": "ger_anel_con_aetherium",
         "peso": 5
       }
@@ -2926,6 +2850,10 @@
     "chanceDrop": 1,
     "quedas": 2,
     "pool": [
+      {
+        "itemId": "cetro_do_imperador_arcano",
+        "peso": 70
+      },
       {
         "itemId": "ger_amuleto_con_ferro",
         "peso": 6
@@ -2949,10 +2877,6 @@
       {
         "itemId": "ger_machado_aetherium_radiante",
         "peso": 16
-      },
-      {
-        "itemId": "amuleto_do_guardiao_arcano",
-        "peso": 10
       },
       {
         "itemId": "ger_pocao_eter_p",
@@ -3035,10 +2959,6 @@
       {
         "itemId": "escudo_epico",
         "peso": 17
-      },
-      {
-        "itemId": "arco_da_matriarca_wyvern",
-        "peso": 1
       },
       {
         "itemId": "ger_pocao_vida_s",
@@ -3133,6 +3053,448 @@
       {
         "itemId": "ger_pocao_dupla_s",
         "peso": 12
+      }
+    ]
+  },
+  "primeira_voz": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "amuleto_da_primeira_voz",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "touro_da_colheita": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "chifre_da_colheita",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "alcateia_branca": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "presas_da_alcateia",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "primeira_brasa": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cajado_da_primeira_brasa",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "capataz_de_pedra": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "nucleo_carmesim",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "reflexo_afogado": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "anel_do_reflexo",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "porteiro_de_casca": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "couraca_de_casca",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "cortador_de_cordas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "foice_do_cortador",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "engrenagem_mestra": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "dente_da_engrenagem",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "veia_negra": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "machado_de_ferro_negro",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "dona_do_poco": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "anel_da_dona_do_poco",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "rei_sob_a_areia": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cetro_soterrado",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "vigia_do_penhasco": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "arco_da_vigia",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "jardineira_de_perola": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "escudo_de_perola",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "ancora_viva": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "elo_da_ancora_viva",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "eco_de_seis_cores": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "prisma_de_seis_cores",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "sentinela_das_seis_correntes": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "lamina_prismatica",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "tecela_do_brejo": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "cajado_de_esporos",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "oficiante_do_oco": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "maca_do_oficiante",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "ultimo_sacerdote": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "relicario_dos_titas",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "campea_invicta": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "machado_da_campea",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "coracao_que_bate": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "placa_do_coracao",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "coro_dos_lamentos": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "adaga_do_coro",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "wyvern_de_obsidiana": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "arco_de_obsidiana",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "guardia_das_ilhas": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "pena_das_ilhas_altas",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
+      }
+    ]
+  },
+  "o_que_olha_de_volta": {
+    "chanceDrop": 1.0,
+    "pool": [
+      {
+        "itemId": "grimorio_do_abismo",
+        "peso": 70
+      },
+      {
+        "itemId": "gema_rara",
+        "peso": 15
+      },
+      {
+        "itemId": "pocao_vida_g",
+        "peso": 15
       }
     ]
   }

@@ -460,5 +460,187 @@
     "chefe": true,
     "teaser": "No topo do Trono de Cinzas, uma figura coroada de energia arcana observa sua chegada sem se mover.",
     "lore": "O que resta do último imperador de Aethra Antiga, transformado em algo mais que humano pela mesma magia que destruiu seu próprio reino. Governa os Confins como governou a cidade — sozinho, e para sempre."
+  },
+  {
+    "id": "primeira_voz",
+    "nome": "A Primeira Voz",
+    "chefe": true,
+    "teaser": "As luzes do bosque param de vagar e se juntam numa só, na altura de um rosto.",
+    "lore": "O Bosque das Vozes guarda cada palavra dita sob suas raízes, e a Primeira Voz é a mais antiga delas — uma promessa quebrada há tanto tempo que virou luz, e que cobra de todo viajante a mesma pergunta que ninguém soube responder."
+  },
+  {
+    "id": "touro_da_colheita",
+    "nome": "O Touro da Colheita",
+    "chefe": true,
+    "teaser": "A plantação se abre numa linha reta, e o barulho vem antes do bicho.",
+    "lore": "Os lavradores de Elyndor não matam o Touro da Colheita: a cada ano eles deixam uma faixa de campo sem colher e rezam pra que baste. Nos anos em que não basta, a colheita inteira vira poeira em uma noite."
+  },
+  {
+    "id": "alcateia_branca",
+    "nome": "A Alcateia Branca",
+    "chefe": true,
+    "teaser": "Um uivo responde a outro, e depois a outro, até você perder a conta de quantas direções.",
+    "lore": "No Vale das Geleiras a alcateia não tem um líder: tem uma vontade só, e ela escolhe qual lobo vai à frente. Matar o da frente não encerra nada — só decide qual dos outros ocupa o lugar."
+  },
+  {
+    "id": "primeira_brasa",
+    "nome": "A Primeira Brasa",
+    "chefe": true,
+    "teaser": "No fundo da caldeira, um ponto de luz que nunca apagou começa a subir.",
+    "lore": "A Cratera do Primeiro Fogo é onde, segundo Vulkor, o fogo aconteceu pela primeira vez — e a Primeira Brasa é o que sobrou daquele instante, ainda aceso, ainda sem entender por que o resto do mundo esfriou."
+  },
+  {
+    "id": "capataz_de_pedra",
+    "nome": "O Capataz de Pedra",
+    "chefe": true,
+    "teaser": "As picaretas abandonadas na galeria começam a bater sozinhas, todas no mesmo compasso.",
+    "lore": "Erguido pelos capatazes da Mina Carmesim pra manter o ritmo da escavação, o Capataz de Pedra continuou cobrando produção muito depois do último mineiro ter ido embora — e trata quem entra na mina como mão de obra atrasada."
+  },
+  {
+    "id": "reflexo_afogado",
+    "nome": "O Reflexo Afogado",
+    "chefe": true,
+    "teaser": "Seu reflexo no lago demora um instante a mais do que devia pra imitar você.",
+    "lore": "O Lago dos Reflexos devolve a imagem de quem se debruça — e uma vez, há muito tempo, devolveu uma que não voltou pra dentro. O Reflexo Afogado foge quando ferido, e sempre volta parecido com quem o feriu."
+  },
+  {
+    "id": "porteiro_de_casca",
+    "nome": "O Porteiro de Casca",
+    "chefe": true,
+    "teaser": "As duas árvores que formam o portão se fecham um palmo, e o que estava entre elas se levanta.",
+    "lore": "O Portão Verde é a única passagem larga pro coração do Bosque Eterno, e o Porteiro de Casca é a condição: ele não caça e não persegue ninguém: só cobra que se atravesse por cima dele."
+  },
+  {
+    "id": "cortador_de_cordas",
+    "nome": "O Cortador de Cordas",
+    "chefe": true,
+    "teaser": "Uma das cordas da ponte arrebenta sozinha, e o assobio vem de cima.",
+    "lore": "Nenhum corpo caído das Pontes Suspensas foi achado com marca de garra — todos caíram por conta da corda. O Cortador de Cordas aprendeu que o cânion faz o trabalho melhor do que ele, e que basta esperar embaixo."
+  },
+  {
+    "id": "engrenagem_mestra",
+    "nome": "A Engrenagem Mestra",
+    "chefe": true,
+    "teaser": "O corredor inteiro se desloca um quarto de volta, e a saída não está mais onde estava.",
+    "lore": "O Labirinto Mecânico não tem guarda porque o labirinto É o guarda: a Engrenagem Mestra é o eixo que reordena os corredores, e trata invasores como sujeira num mecanismo que precisa continuar rodando."
+  },
+  {
+    "id": "veia_negra",
+    "nome": "A Veia Negra",
+    "chefe": true,
+    "teaser": "A parede de ferro negro do fundo da galeria respira uma vez, devagar.",
+    "lore": "Os mineiros do Ferro Negro juram que o minério puxa: quanto mais se cava, mais vontade dá de cavar. A Veia Negra é onde essa vontade mora, e ela come quem chega até ela pela própria vontade."
+  },
+  {
+    "id": "dona_do_poco",
+    "nome": "A Dona do Poço",
+    "chefe": true,
+    "teaser": "As sete sombras das palmeiras se mexem, e uma delas não tem palmeira.",
+    "lore": "O Oásis das Sete Sombras é o único ponto de água em três dias de caminhada, e a Dona do Poço sabe disso melhor que ninguém. Ela nunca envenenou a água: o preço dela é cobrado depois de a pessoa beber."
+  },
+  {
+    "id": "rei_sob_a_areia",
+    "nome": "O Rei Sob a Areia",
+    "chefe": true,
+    "teaser": "Torres começam a aparecer na areia ao seu redor — subindo, não desenterradas.",
+    "lore": "A cidade que as Areias Soterradas engoliram tinha um rei, e ele se recusou a sair. Séculos depois ele ainda convoca a corte, ainda dá ordens, e ainda considera qualquer visitante um súdito que chegou atrasado ao funeral errado."
+  },
+  {
+    "id": "vigia_do_penhasco",
+    "nome": "A Vigia do Penhasco",
+    "chefe": true,
+    "teaser": "Um grito de ave ecoa da borda da falésia, e ele está claramente avisando alguém.",
+    "lore": "Antes do farol existir, os pescadores da Costa da Maré liam a Vigia do Penhasco pra saber se dava pra sair: quando ela subia, era tempestade. Ela continua subindo — só parou de avisar a quem."
+  },
+  {
+    "id": "jardineira_de_perola",
+    "nome": "A Jardineira de Pérola",
+    "chefe": true,
+    "teaser": "O banco de coral se fecha atrás de você, uma haste de cada vez.",
+    "lore": "Os Jardins de Pérola não cresceram sozinhos: alguém os plantou, haste por haste, ao longo de um século. A Jardineira não ataca quem colhe pouco — ataca quem arranca."
+  },
+  {
+    "id": "ancora_viva",
+    "nome": "A Âncora Viva",
+    "chefe": true,
+    "teaser": "A plataforma submersa está cheia de âncoras, e uma delas se enrola sozinha.",
+    "lore": "O Abismo Raso é o cemitério de âncoras de toda a Costa: rasa o bastante pra parecer seguro, funda o bastante pra prender. A Âncora Viva é o que cresceu em volta da primeira delas, e ela puxa como se ainda fosse ferro."
+  },
+  {
+    "id": "eco_de_seis_cores",
+    "nome": "O Eco de Seis Cores",
+    "chefe": true,
+    "teaser": "A margem do lago muda de cor seis vezes em seis segundos, e para na sua.",
+    "lore": "Onde as seis correntes elementais do Lago Prismático se encontram, nenhuma vence — elas se cancelam, e o que resta do atrito toma forma. O Eco de Seis Cores luta com o elemento de quem o ataca, porque nunca teve um próprio."
+  },
+  {
+    "id": "sentinela_das_seis_correntes",
+    "nome": "A Sentinela das Seis Correntes",
+    "chefe": true,
+    "teaser": "As seis águas em volta da ilha param de se mexer ao mesmo tempo.",
+    "lore": "A Ilha do Prisma é o ponto exato onde as seis correntes elementais se tocam, e a Sentinela existe pra que continue sendo exato. Ela não tem opinião sobre quem chega — só sobre o que a chegada desloca."
+  },
+  {
+    "id": "tecela_do_brejo",
+    "nome": "A Tecelã do Brejo",
+    "chefe": true,
+    "teaser": "Os cogumelos soltam esporos em sequência, marcando um caminho até você.",
+    "lore": "O Jardim Fúngico não é jardim de ninguém: é despensa. A Tecelã do Brejo cultivou os fungos pra avisarem onde a presa pisa, e há anos não precisa perseguir nada."
+  },
+  {
+    "id": "oficiante_do_oco",
+    "nome": "O Oficiante do Oco",
+    "chefe": true,
+    "teaser": "Velas acesas em círculo dentro do tronco oco, e nenhuma pegada na terra em volta.",
+    "lore": "A Árvore Oca serve de templo há gerações pra um rito que ninguém de fora sabe nomear. O Oficiante não interrompe a cerimônia pra lutar — ele luta como parte da cerimônia, e trata cada ferida como etapa cumprida."
+  },
+  {
+    "id": "ultimo_sacerdote",
+    "nome": "O Último Sacerdote",
+    "chefe": true,
+    "teaser": "Uma voz recita algo no planalto, e o eco responde em muitas vozes de uma vez.",
+    "lore": "Quando o último Titã caiu, o culto que o servia se dissolveu em uma geração — menos um. O Último Sacerdote continua celebrando sozinho num templo do tamanho de uma cidade, e cura os próprios ossos como quem não admite fim de expediente."
+  },
+  {
+    "id": "campea_invicta",
+    "nome": "A Campeã Invicta",
+    "chefe": true,
+    "teaser": "A areia da arena está marcada por milhares de pegadas, e todas saem pelo mesmo lado.",
+    "lore": "A Arena Óssea foi arena de verdade antes de virar ruína, e a Campeã Invicta é quem nunca precisou sair dela. Ela não guarda nada e não protege nada — só continua ganhando, porque é a única coisa que sobrou pra fazer."
+  },
+  {
+    "id": "coracao_que_bate",
+    "nome": "O Coração Que Bate",
+    "chefe": true,
+    "teaser": "O monumento de pedra no centro do vale pulsa uma vez, e o chão pulsa junto.",
+    "lore": "O Coração Petrificado não é monumento: é órgão. Pertenceu ao maior dos Titãs, e não parou de bater quando o resto dele virou paisagem — só desacelerou a ponto de um batimento levar um dia inteiro."
+  },
+  {
+    "id": "coro_dos_lamentos",
+    "nome": "O Coro dos Lamentos",
+    "chefe": true,
+    "teaser": "O vão fraturado devolve o som do seu passo como se fosse choro, e em número.",
+    "lore": "Nada foi enterrado no Vale dos Lamentos — tudo que morreu ali continua ali, e com o tempo as vozes desistiram de ser separadas. O Coro chama mais de si mesmo quando ferido, porque perder uma voz nunca significou nada pra ele."
+  },
+  {
+    "id": "wyvern_de_obsidiana",
+    "nome": "A Wyvern de Obsidiana",
+    "chefe": true,
+    "teaser": "Uma sombra passa por cima do pico e não volta a aparecer do outro lado.",
+    "lore": "A Montanha Sombria é alta demais pra ser patrulhada a pé, e a Wyvern de Obsidiana resolveu isso da forma óbvia. Ela caça de cima, em mergulho, e nunca precisou descer até o chão pra vencer nada."
+  },
+  {
+    "id": "guardia_das_ilhas",
+    "nome": "A Guardiã das Ilhas Altas",
+    "chefe": true,
+    "teaser": "Os grifos do arquipélago param de circular e se alinham todos na mesma direção.",
+    "lore": "O Arquipélago de Nuvens não tem chão contínuo, e por isso nunca teve dono a pé. A Guardiã das Ilhas Altas comanda cada bando de grifo entre uma ilha e outra, e considera toda ave que voa ali parte da própria guarda."
+  },
+  {
+    "id": "o_que_olha_de_volta",
+    "nome": "O Que Olha de Volta",
+    "chefe": true,
+    "teaser": "O vórtice para de girar. Por um instante, ele está inteiramente voltado pra você.",
+    "lore": "O Olho do Abismo é a coisa mais funda de Nazthal, e a única que a cartografia de Maris se recusa a desenhar. Quem vai até a borda relata a mesma sensação — a de ser lido — e O Que Olha de Volta é o nome que deram pro que faz a leitura."
   }
 ]

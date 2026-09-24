@@ -4640,6 +4640,342 @@
       "requisito": {
         "DES": 17
       }
+    },
+    {
+      "id": "amuleto_da_primeira_voz",
+      "nome": "Amuleto da Primeira Voz",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "icone": "amuleto",
+      "raridade": "raro",
+      "bonusAtributo": {
+        "INT": 2
+      },
+      "valor": 130,
+      "descricao": "+2 de Inteligência. Enquanto pendurado no peito, sussurra em resposta."
+    },
+    {
+      "id": "chifre_da_colheita",
+      "nome": "Chifre da Colheita",
+      "tipo": "material",
+      "subtipo": "coleta",
+      "icone": "madeira",
+      "raridade": "raro",
+      "valor": 80,
+      "descricao": "Chifre da Colheita, arrancado só do touro de Elyndor. Usado em receitas de forja raras."
+    },
+    {
+      "id": "presas_da_alcateia",
+      "nome": "Presas da Alcateia Branca",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "icone": "adaga",
+      "raridade": "epico",
+      "dano": 28,
+      "atributo": "DES",
+      "valor": 235,
+      "elemento": "gelo",
+      "descricao": "Um par de presas do vale glacial. Dano baseado em DES."
+    },
+    {
+      "id": "cajado_da_primeira_brasa",
+      "nome": "Cajado da Primeira Brasa",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "icone": "cajado",
+      "raridade": "lendario",
+      "dano": 36,
+      "atributo": "INT",
+      "valor": 400,
+      "elemento": "fogo",
+      "descricao": "Um cajado aceso desde a primeira fagulha. Dano baseado em INT."
+    },
+    {
+      "id": "nucleo_carmesim",
+      "nome": "Núcleo Carmesim",
+      "tipo": "material",
+      "subtipo": "coleta",
+      "icone": "minerio",
+      "raridade": "epico",
+      "valor": 190,
+      "descricao": "Núcleo Carmesim, arrancado só do Capataz de Pedra. Usado em receitas de forja raras."
+    },
+    {
+      "id": "anel_do_reflexo",
+      "nome": "Anel do Reflexo",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "icone": "anel",
+      "raridade": "raro",
+      "bonusAtributo": {
+        "DES": 3
+      },
+      "valor": 170,
+      "descricao": "+3 de Destreza. Na água, não aparece na sua mão."
+    },
+    {
+      "id": "couraca_de_casca",
+      "nome": "Couraça de Casca Viva",
+      "tipo": "armadura",
+      "subtipo": "armadura",
+      "slot": "peito",
+      "icone": "armadura",
+      "raridade": "epico",
+      "defesa": 15,
+      "valor": 165,
+      "descricao": "Couraça de Casca Viva, oferece 15 de defesa. Fecha sozinha sobre os cortes."
+    },
+    {
+      "id": "foice_do_cortador",
+      "nome": "Foice do Cortador de Cordas",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "icone": "adaga",
+      "raridade": "epico",
+      "dano": 26,
+      "atributo": "DES",
+      "valor": 215,
+      "elemento": "vento",
+      "descricao": "Uma lâmina curva de quem corta apoio, não carne. Dano baseado em DES."
+    },
+    {
+      "id": "dente_da_engrenagem",
+      "nome": "Dente da Engrenagem Mestra",
+      "tipo": "material",
+      "subtipo": "coleta",
+      "icone": "minerio",
+      "raridade": "epico",
+      "valor": 215,
+      "descricao": "Dente da Engrenagem Mestra, arrancado só do eixo do labirinto. Usado em receitas de forja raras."
+    },
+    {
+      "id": "machado_de_ferro_negro",
+      "nome": "Machado de Ferro Negro",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "icone": "machado",
+      "raridade": "epico",
+      "dano": 31,
+      "atributo": "FOR",
+      "valor": 250,
+      "elemento": "terra",
+      "descricao": "Um machado de minério que puxa a mão. Dano baseado em FOR."
+    },
+    {
+      "id": "anel_da_dona_do_poco",
+      "nome": "Anel da Dona do Poço",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "icone": "anel",
+      "raridade": "epico",
+      "bonusAtributo": {
+        "INT": 3
+      },
+      "valor": 195,
+      "descricao": "+3 de Inteligência. Quem o usa nunca fecha um mau negócio de boa fé."
+    },
+    {
+      "id": "cetro_soterrado",
+      "nome": "Cetro Soterrado",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "icone": "cajado",
+      "raridade": "epico",
+      "dano": 29,
+      "atributo": "INT",
+      "valor": 245,
+      "elemento": "arcano",
+      "descricao": "Um cetro que governa uma cidade que não existe mais. Dano baseado em INT."
+    },
+    {
+      "id": "arco_da_vigia",
+      "nome": "Arco da Vigia",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "icone": "arco",
+      "raridade": "epico",
+      "dano": 27,
+      "atributo": "DES",
+      "valor": 220,
+      "elemento": "vento",
+      "descricao": "Um arco de quem enxerga a tempestade primeiro. Dano baseado em DES."
+    },
+    {
+      "id": "escudo_de_perola",
+      "nome": "Escudo de Pérola",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "icone": "escudo",
+      "raridade": "epico",
+      "defesa": 13,
+      "valor": 190,
+      "descricao": "Escudo de Pérola, oferece 13 de defesa. Cresceu curvo de propósito."
+    },
+    {
+      "id": "elo_da_ancora_viva",
+      "nome": "Elo da Âncora Viva",
+      "tipo": "material",
+      "subtipo": "coleta",
+      "icone": "minerio",
+      "raridade": "epico",
+      "valor": 205,
+      "descricao": "Elo da Âncora Viva, arrancado só do fundo do Abismo Raso. Usado em receitas de forja raras."
+    },
+    {
+      "id": "prisma_de_seis_cores",
+      "nome": "Prisma de Seis Cores",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "icone": "amuleto",
+      "raridade": "raro",
+      "bonusAtributo": {
+        "CON": 3
+      },
+      "valor": 175,
+      "descricao": "+3 de Constituição. Muda de cor conforme quem o segura."
+    },
+    {
+      "id": "lamina_prismatica",
+      "nome": "Lâmina Prismática",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "icone": "espada",
+      "raridade": "epico",
+      "dano": 26,
+      "atributo": "FOR",
+      "valor": 225,
+      "elemento": "arcano",
+      "descricao": "Uma lâmina que reparte a luz em seis. Dano baseado em FOR."
+    },
+    {
+      "id": "cajado_de_esporos",
+      "nome": "Cajado de Esporos",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "icone": "cajado",
+      "raridade": "epico",
+      "dano": 23,
+      "atributo": "INT",
+      "valor": 185,
+      "elemento": "veneno",
+      "descricao": "Um cajado que solta esporos a cada golpe. Dano baseado em INT."
+    },
+    {
+      "id": "maca_do_oficiante",
+      "nome": "Maça do Oficiante",
+      "tipo": "arma",
+      "subtipo": "maca",
+      "classeRecomendada": "clerigo",
+      "icone": "maca",
+      "raridade": "epico",
+      "dano": 24,
+      "atributo": "CON",
+      "valor": 195,
+      "elemento": "sombrio",
+      "descricao": "Uma maça de cerimônia que nunca foi cerimonial. Dano baseado em CON."
+    },
+    {
+      "id": "relicario_dos_titas",
+      "nome": "Relicário dos Titãs",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "icone": "amuleto",
+      "raridade": "epico",
+      "bonusAtributo": {
+        "CON": 3
+      },
+      "valor": 230,
+      "descricao": "+3 de Constituição. Pesa como se ainda guardasse algo."
+    },
+    {
+      "id": "machado_da_campea",
+      "nome": "Machado da Campeã Invicta",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "icone": "machado",
+      "raridade": "epico",
+      "dano": 32,
+      "atributo": "FOR",
+      "valor": 260,
+      "elemento": "terra",
+      "descricao": "Um machado que nunca perdeu uma luta. Dano baseado em FOR."
+    },
+    {
+      "id": "placa_do_coracao",
+      "nome": "Placa do Coração Titânico",
+      "tipo": "armadura",
+      "subtipo": "armadura",
+      "slot": "peito",
+      "icone": "armadura",
+      "raridade": "lendario",
+      "defesa": 23,
+      "valor": 290,
+      "descricao": "Placa do Coração Titânico, oferece 23 de defesa. Pulsa uma vez por dia."
+    },
+    {
+      "id": "adaga_do_coro",
+      "nome": "Adaga do Coro",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "icone": "adaga",
+      "raridade": "lendario",
+      "dano": 33,
+      "atributo": "DES",
+      "valor": 300,
+      "elemento": "sombrio",
+      "descricao": "Uma adaga que chora ao sair da bainha. Dano baseado em DES."
+    },
+    {
+      "id": "arco_de_obsidiana",
+      "nome": "Arco de Obsidiana",
+      "tipo": "arma",
+      "subtipo": "arco",
+      "classeRecomendada": "patrulheiro",
+      "icone": "arco",
+      "raridade": "epico",
+      "dano": 31,
+      "atributo": "DES",
+      "valor": 275,
+      "elemento": "sombrio",
+      "descricao": "Um arco de osso e obsidiana. Dano baseado em DES."
+    },
+    {
+      "id": "pena_das_ilhas_altas",
+      "nome": "Pena das Ilhas Altas",
+      "tipo": "acessorio",
+      "slot": "anel",
+      "icone": "anel",
+      "raridade": "epico",
+      "bonusAtributo": {
+        "DES": 3
+      },
+      "valor": 265,
+      "descricao": "+3 de Destreza. Quem a carrega cai mais devagar do que devia."
+    },
+    {
+      "id": "grimorio_do_abismo",
+      "nome": "Grimório do Abismo",
+      "tipo": "arma",
+      "subtipo": "cajado",
+      "classeRecomendada": "mago",
+      "icone": "cajado",
+      "raridade": "lendario",
+      "dano": 40,
+      "atributo": "INT",
+      "valor": 460,
+      "elemento": "arcano",
+      "descricao": "Um grimório que lê quem o abre. Dano baseado em INT."
     }
   ]
 }

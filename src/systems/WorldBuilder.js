@@ -222,13 +222,70 @@ function pintarTerreno(g, semente, posse, zonas) {
 
       // Forma da zona: a diferença entre um cânion e uma planície de mesma
       // cor. Cada caso mexe no relevo ou na água, nunca só na paleta (item 33).
-      tile = aplicarForma(tile, z, ident, x, y, ruido, semente, amostras);
+      tile = aplicarForma(tile, z, ident, x, y, ruido, semente, amostras, naOrlaDaZona(posse, zi, x, y));
       g[y][x] = tile;
     }
   }
 }
 
-function aplicarForma(tile, z, ident, x, y, ruido, semente, amostras = null) {
+// Copa padrão de uma zona de forma "floresta" que não declara a sua.
+const DENSIDADE_MATA_PADRAO = 0.58;
+// Copa máxima de uma zona de passagem — árvore o bastante pra ser mata, rala
+// o bastante pra que sempre sobre linha andável de um lado ao outro.
+const TETO_MATA_TRAVESSIA = 0.34;
+// A ORLA DA ZONA: onde duas matas se encontram, a copa afina.
+//
+// Duas zonas arborizadas vizinhas fechavam a fronteira entre elas mesmo com
+// copa modesta dos dois lados — bastava a faixa de contato ser estreita pra
+// virar parede de TREE, e o mundo ganhava um muro onde a hierarquia do mapa
+// prometia passagem. Afinar a copa perto da divisa resolve a classe inteira
+// do problema em vez de cada par de zonas na mão, e é o que uma mata faz de
+// verdade: fecha no miolo, abre na borda.
+const ORLA_TILES = 4;            // largura da faixa de encontro
+const FATOR_COPA_NA_ORLA = 0.45; // quanto da copa do miolo sobra nela
+function naOrlaDaZona(posse, zi, x, y) {
+  for (let d = 1; d <= ORLA_TILES; d += 1) {
+    if ((x - d >= 0 && posse[idx(x - d, y)] !== zi)
+      || (x + d < W && posse[idx(x + d, y)] !== zi)
+      || (y - d >= 0 && posse[idx(x, y - d)] !== zi)
+      || (y + d < H && posse[idx(x, y + d)] !== zi)) return true;
+  }
+  return false;
+}
+
+// A mata de uma zona, em dois níveis: o miolo fecha em árvore e a orla vira
+// sub-bosque. Separada de `aplicarForma` porque agora não é só a forma
+// "floresta" que arboriza — um lago de mata fechada e uma clareira murada por
+// árvores também têm copa, e a forma deles (delta, vale) é outra coisa.
+// Nunca arboriza água nem rocha: a copa entra por cima do terreno que a forma
+// já decidiu, ela não redesenha o terreno.
+function copaDaZona(tile, z, n, n2, semente, amostras, densidade, naOrla = false) {
+  // ZONA DE PASSAGEM NÃO FECHA.
+  //
+  // Copa densa é feita de TREE, e TREE é sólido. Numa zona cuja `funcao` é
+  // "travessia" isso não é atmosfera, é um muro no lugar exato onde o mundo
+  // prometeu caminho: o Portão Verde é a única entrada larga do Bosque
+  // Eterno, e uma copa de 0,58 fechou a fronteira dele com a Floresta
+  // Ancestral e com o Lago dos Reflexos de uma vez. O teto abaixo é a regra
+  // escrita em vez de um número bem escolhido — quem editar a densidade
+  // depois não consegue selar a passagem sem antes mudar a função da zona.
+  if (z.funcao === "travessia") densidade = Math.min(densidade, TETO_MATA_TRAVESSIA);
+  if (naOrla) densidade *= FATOR_COPA_NA_ORLA;
+  if (!(densidade > 0)) return tile;
+  if (SOLID_TILES.has(tile) || tile === TILE.WATER || tile === TILE.DEEP_WATER) return tile;
+  const campoMata = (px, py) => n2("mata", px, py, 5);
+  const chaveMata = `${semente}:${z.id}:mata`;
+  const fechada = limiarDeDensidade(chaveMata, campoMata, densidade, amostras);
+  // A orla ocupa metade do que sobra até o campo aberto — mata densa tem orla
+  // estreita, bosque claro tem orla larga, e nos dois casos ela existe.
+  const orla = limiarDeDensidade(chaveMata, campoMata, densidade + (1 - densidade) * 0.48, amostras);
+  const v = n("mata", 5);
+  if (v < fechada) return TILE.TREE;
+  if (v < orla) return n("sub", 4) > 0 ? TILE.BUSH : TILE.TALL_GRASS;
+  return tile;
+}
+
+function aplicarForma(tile, z, ident, x, y, ruido, semente, amostras = null, naOrla = false) {
   const dx = x - z.centro.x * W / 224;
   const dy = y - z.centro.y * H / 176;
   const dist = Math.hypot(dx, dy);
@@ -237,6 +294,17 @@ function aplicarForma(tile, z, ident, x, y, ruido, semente, amostras = null) {
   // calibragem de densidade precisa (ela varre o mapa, não só este tile).
   const n2 = (v, px, py, escala) => ruido(z.id, v, px, py, escala);
 
+  const doTerreno = formaDoTerreno(tile, z, ident, dist, n, n2, semente, amostras, naOrla);
+  // A forma desenha o TERRENO (rocha, água, areia, lava). A copa vem depois,
+  // por cima do chão que sobrou — é o que permite um lago cercado de mata ou
+  // uma clareira murada por árvores terem árvores sem que a forma deles
+  // precise virar "floresta". A forma "floresta" já resolveu a própria copa
+  // lá dentro, então não passa duas vezes por aqui.
+  if (z.forma === "floresta" || !z.densidadeMata) return doTerreno;
+  return copaDaZona(doTerreno, z, n, n2, semente, amostras, z.densidadeMata, naOrla);
+}
+
+function formaDoTerreno(tile, z, ident, dist, n, n2, semente, amostras, naOrla) {
   switch (z.forma) {
     case "cordilheira": {
       // Barreira de verdade (item 9): a espinha é sólida, e o que abre passe
@@ -316,14 +384,23 @@ function aplicarForma(tile, z, ident, x, y, ruido, semente, amostras = null) {
       // árvore e a orla vira sub-bosque de arbusto. Os dois usam limiar
       // calibrado, então "60% de copa" quer dizer 60%.
       // A calibragem amostra os tiles REAIS da zona (ver limiarDeDensidade).
-      const campoMata = (px, py) => n2("mata", px, py, 5);
-      const chaveMata = `${semente}:${z.id}:mata`;
-      const fechada = limiarDeDensidade(chaveMata, campoMata, 0.58, amostras);
-      const orla = limiarDeDensidade(chaveMata, campoMata, 0.78, amostras);
-      const v = n("mata", 5);
-      if (v < fechada) return TILE.TREE;
-      if (v < orla) return n("sub", 4) > 0 ? TILE.BUSH : TILE.TALL_GRASS;
-      return tile;
+      //
+      // E A DENSIDADE ERA A MESMA PRA TODA MATA DO JOGO.
+      //
+      // Com 0,58 fixo aqui, a Floresta Sussurrante ("bosque claro", zona de
+      // nível 1) fechava exatamente tanto quanto a Floresta Ancestral ("mata
+      // primordial", nível 10). O efeito colateral era o Bosque Eterno — a
+      // região que o atlas chama de mata fechada — ficar MENOS arborizado que
+      // Altaverde, porque Altaverde tem duas zonas de forma "floresta" e o
+      // Bosque Eterno só uma (as outras duas são lago e vale, que não passam
+      // por aqui). Duas regiões de floresta que o jogador não consegue
+      // distinguir sem ler o nome.
+      //
+      // Agora a copa é da ZONA, não da forma: `densidadeMata` (ver zones.js)
+      // diz quanto daquele território fecha em árvore, e cada zona declara o
+      // número que combina com o bioma que ela já anunciava. Quem não declara
+      // continua em 0,58 — nenhuma mata existente muda sem pedir.
+      return copaDaZona(tile, z, n, n2, semente, amostras, z.densidadeMata ?? DENSIDADE_MATA_PADRAO, naOrla);
     }
     case "urbana": {
       // ESTE CASO APAGAVA A MATA DA ZONA ONDE O JOGO COMEÇA.
@@ -1467,6 +1544,42 @@ function ornamentarEstradas(g, props, tracados, pegadaDeCidade, assentamentos) {
 // ---------------------------------------------------------------------------
 // 7. OBJETOS — um tile andável dentro da própria zona
 // ---------------------------------------------------------------------------
+// Quantas cópias do conteúdo de uma zona o território dela comporta. O
+// divisor é a área de um disco de raio 55 (~9.500 tiles): é a distância em
+// que o teste de ritmo (item 22) considera que o jogador está longe demais de
+// tudo, com uma folga pra sobreposição — duas zonas vizinhas cobrem a
+// fronteira uma da outra. Teto de 5 pra que a zona enorme não vire um
+// tabuleiro de ícones e reprove o outro lado do mesmo teste ("não amontoar").
+const TILES_POR_COPIA = 9500;
+function copiasPorArea(area) {
+  return Math.max(1, Math.min(5, Math.round((area || 0) / TILES_POR_COPIA)));
+}
+
+// `n` pontos espalhados pelo território da zona, pra servirem de âncora a
+// `tileAndavelNaZona` (que busca em anel a partir do ponto dado, então tudo
+// que usar o centro de massa sai amontoado no meio). O primeiro é sempre o
+// centro de massa — assim, com n=1, nada muda em relação ao comportamento
+// anterior. Os demais saem de uma grade jittered sobre a bounding box; o
+// jitter vem do `rnd` da semente do mundo, então continua determinístico.
+function ancorasDaZona(z, n, rnd) {
+  const centro = z.centroReal;
+  if (n <= 1) return [centro];
+  const pontos = [centro];
+  const colunas = Math.ceil(Math.sqrt(n));
+  const linhas = Math.ceil(n / colunas);
+  const largura = (z.x1 - z.x0 + 1) / colunas;
+  const altura = (z.y1 - z.y0 + 1) / linhas;
+  for (let i = 1; i < n; i += 1) {
+    const cx = i % colunas;
+    const cy = Math.floor(i / colunas) % linhas;
+    pontos.push({
+      x: Math.round(z.x0 + (cx + 0.15 + rnd() * 0.7) * largura),
+      y: Math.round(z.y0 + (cy + 0.15 + rnd() * 0.7) * altura),
+    });
+  }
+  return pontos;
+}
+
 function tileAndavelNaZona(g, posse, zonaIndice, alvo, rnd, ocupados) {
   for (let raio = 0; raio < 30; raio += 1) {
     const candidatos = [];
@@ -1740,6 +1853,22 @@ export function construirMundo(semente) {
   // demais regiões apenas parte delas recebe baú (determinístico pela semente).
   // A recompensa maior vive em abrirBau(), portanto menos ícones no mapa não
   // significa menos progresso — significa exploração com momentos marcantes.
+  //
+  // …E ERAM UM POR ZONA, NUMA MALHA ONDE ZONA NÃO QUER DIZER TAMANHO.
+  //
+  // Na ETAPA 1 as 22 zonas tinham áreas parecidas, então "um baú por zona"
+  // distribuía bem. No mundo 4x isso deixou de valer: o Abismo Raso ocupa
+  // 281x227 tiles e a Árvore Oca uns 110x120, e as duas recebiam exatamente
+  // um baú, um nó por recurso e um chefe — todos sorteados num raio de 30
+  // tiles do centro de massa. O canto sudoeste do Abismo Raso ficava a 140
+  // tiles do conteúdo mais próximo: dois minutos e meio de caminhada olhando
+  // pra nada, que é exatamente o que o item 22 ("não criar 15 minutos de
+  // vazio") existe pra impedir.
+  //
+  // Agora a conta é por ÁREA, não por zona, e as cópias extras não nascem
+  // todas no mesmo lugar: cada uma recebe uma âncora própria espalhada pelo
+  // território (ver ancorasDaZona). Zona pequena continua com exatamente o
+  // que tinha — o piso é o comportamento antigo.
   const baus = [];
   const nos = [];
   const chefes = [];
@@ -1748,13 +1877,17 @@ export function construirMundo(semente) {
     const perigo = (z.perigo && z.perigo[1]) || 1;
     const quantosBaus = z.funcao === "inicial" || perigo >= 11 || rnd() < 0.42 ? 1 : 0;
     const tier = perigo >= 15 ? "bau_lendario" : perigo >= 11 ? "bau_epico" : perigo >= 6 ? "bau_raro" : "bau_comum";
-    for (let i = 0; i < quantosBaus; i += 1) {
-      const pos = tileAndavelNaZona(g, posse, zi, z.centroReal, rnd, ocupados);
+    const copias = copiasPorArea(z.area);
+    const ancoras = ancorasDaZona(z, copias, rnd);
+    for (let i = 0; i < quantosBaus * copias; i += 1) {
+      const pos = tileAndavelNaZona(g, posse, zi, ancoras[i % copias], rnd, ocupados);
       if (pos) baus.push({ id: `bau_${z.id}_${i + 1}`, x: pos.x, y: pos.y, tier, aberto: false, zonaId: z.id });
     }
-    (z.recursos || []).forEach((tipo, i) => {
-      const pos = tileAndavelNaZona(g, posse, zi, z.centroReal, rnd, ocupados);
-      if (pos) nos.push({ id: `no_${z.id}_${tipo}`, x: pos.x, y: pos.y, tipo, disponivel: true, zonaId: z.id });
+    (z.recursos || []).forEach((tipo) => {
+      for (let i = 0; i < copias; i += 1) {
+        const pos = tileAndavelNaZona(g, posse, zi, ancoras[i], rnd, ocupados);
+        if (pos) nos.push({ id: `no_${z.id}_${tipo}${i ? `_${i + 1}` : ""}`, x: pos.x, y: pos.y, tipo, disponivel: true, zonaId: z.id });
+      }
     });
     if (z.chefe) {
       const pos = tileAndavelNaZona(g, posse, zi, z.centroReal, rnd, ocupados);
@@ -1791,12 +1924,24 @@ export function construirMundo(semente) {
   ];
   const ehDoRecife = (alvo) => ZONAS_MUNDO[posse[idx(alvo.x, alvo.y)]]?.regiaoId === "recife_coralino";
   garantirAcesso(g, alvosDeAcesso.filter((alvo) => !ehDoRecife(alvo)), spawn);
+  // A garantia de acesso pode abrir uma trilha de terra sobre uma faixa de
+  // água para conectar outro objetivo. Reafirmar o canal impede que isso vire
+  // uma ponte acidental até a ilha.
+  isolarArquipelagoCoral(g, posse);
+  // O RECIFE SÓ DEPOIS DO CANAL.
+  //
+  // Esta chamada ficava ANTES de isolarArquipelagoCoral, e o canal reaberto
+  // em seguida podia cortar justamente o corredor que ela tinha acabado de
+  // abrir — deixando conteúdo de ilhota sem ligação nenhuma com Corallia. Não
+  // aparecia porque cada zona do recife tinha um único baú e um único nó,
+  // sempre sorteados perto do centro de massa, que é a parte grande da ilha;
+  // com as cópias por área espalhadas pelo território, as ilhotas passaram a
+  // receber conteúdo e o furo apareceu. Rodando depois do canal, a inundação
+  // parte de Corallia sobre o terreno FINAL, e como o canal é água (sólida) o
+  // corredor nunca sai do arquipélago — que é o que a ordem antiga queria
+  // garantir.
   const corallia = assentamentoPorIdMapa.get("cidade_de_corallia");
   if (corallia) garantirAcesso(g, alvosDeAcesso.filter(ehDoRecife), corallia);
-  // A garantia de acesso pode abrir uma trilha de terra sobre uma faixa de
-  // água para conectar outro objetivo. Reafirmar o canal no fim impede que
-  // isso vire uma ponte acidental até a ilha.
-  isolarArquipelagoCoral(g, posse);
 
   const alturas = gerarMapaDeAlturas(g, posse, ZONAS_MUNDO, semente, assentamentos, tracados);
 

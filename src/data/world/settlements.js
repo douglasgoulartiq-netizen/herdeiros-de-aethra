@@ -42,11 +42,11 @@
 // planta de ruas e quarteirões precisa para render as dezenas de prédios que
 // o briefing cobra.
 export const CATEGORIAS = {
-  CAPITAL: { raio: 22, minDistritos: 4, rotulo: "Capital" },
-  CIDADE: { raio: 16, minDistritos: 2, rotulo: "Cidade" },
-  VILA: { raio: 11, minDistritos: 0, rotulo: "Vila" },
-  ASSENTAMENTO: { raio: 7, minDistritos: 0, rotulo: "Assentamento" },
-  ACAMPAMENTO: { raio: 5, minDistritos: 0, rotulo: "Acampamento" },
+  CAPITAL: { raio: 38, minDistritos: 4, rotulo: "Capital" },
+  CIDADE: { raio: 26, minDistritos: 2, rotulo: "Cidade" },
+  VILA: { raio: 14, minDistritos: 0, rotulo: "Vila" },
+  ASSENTAMENTO: { raio: 9, minDistritos: 0, rotulo: "Assentamento" },
+  ACAMPAMENTO: { raio: 6, minDistritos: 0, rotulo: "Acampamento" },
 };
 
 // `zonaId` diz em que zona o assentamento nasce; a posição exata é escolhida
@@ -200,29 +200,29 @@ export const POIS = [
 // "estou a leste do vulcão" sem abrir mapa nenhum. Por isso cada um declara
 // `visivelDeLonge` e a distância em tiles a partir da qual aparece.
 export const LANDMARKS = [
-  { id: "lm_arvore_mae", nome: "Árvore-Mãe", zonaId: "bosque_das_vozes", tipo: "arvore_monumental", alcance: 40 },
-  { id: "lm_trono_congelado", nome: "Trono Congelado", zonaId: "trono_congelado", tipo: "esqueleto_de_tita", alcance: 55 },
-  { id: "lm_cratera", nome: "Cratera do Primeiro Fogo", zonaId: "cratera_primeiro_fogo", tipo: "vulcao", alcance: 60 },
-  { id: "lm_torre_conhecimento", nome: "Torre do Conhecimento", zonaId: "ruinas_aethra", tipo: "torre", alcance: 45 },
-  { id: "lm_farol", nome: "Farol das Correntes", zonaId: "costa_aurora", tipo: "farol", alcance: 42 },
-  { id: "lm_torre_silencio", nome: "Torre do Silêncio", zonaId: "terras_esquecidas", tipo: "torre", alcance: 45 },
-  { id: "lm_coracao", nome: "Coração Petrificado", zonaId: "coracao_petrificado", tipo: "esqueleto_de_tita", alcance: 50 },
-  { id: "lm_prisma", nome: "Ilha do Prisma", zonaId: "ilha_do_prisma", tipo: "cristal", alcance: 48 },
-  { id: "lm_portao_verde", nome: "Portão Verde", zonaId: "portao_verde", tipo: "ruina", alcance: 35 },
-  { id: "lm_ponte_colossal", nome: "Ponte Colossal de Aethra", zonaId: "campos_de_elyndor", tipo: "ponte_colossal", alcance: 38 },
-  { id: "lm_arvore_oca", nome: "Árvore Oca", zonaId: "arvore_oca", tipo: "arvore_monumental", alcance: 36 },
-  { id: "lm_olho", nome: "Olho do Abismo", zonaId: "olho_do_abismo", tipo: "anomalia", alcance: 52 },
+  { id: "lm_arvore_mae", nome: "Árvore-Mãe", zonaId: "bosque_das_vozes", tipo: "arvore_monumental", alcance: 160 },
+  { id: "lm_trono_congelado", nome: "Trono Congelado", zonaId: "trono_congelado", tipo: "esqueleto_de_tita", alcance: 220 },
+  { id: "lm_cratera", nome: "Cratera do Primeiro Fogo", zonaId: "cratera_primeiro_fogo", tipo: "vulcao", alcance: 240 },
+  { id: "lm_torre_conhecimento", nome: "Torre do Conhecimento", zonaId: "ruinas_aethra", tipo: "torre", alcance: 180 },
+  { id: "lm_farol", nome: "Farol das Correntes", zonaId: "costa_aurora", tipo: "farol", alcance: 168 },
+  { id: "lm_torre_silencio", nome: "Torre do Silêncio", zonaId: "terras_esquecidas", tipo: "torre", alcance: 180 },
+  { id: "lm_coracao", nome: "Coração Petrificado", zonaId: "coracao_petrificado", tipo: "esqueleto_de_tita", alcance: 200 },
+  { id: "lm_prisma", nome: "Ilha do Prisma", zonaId: "ilha_do_prisma", tipo: "cristal", alcance: 192 },
+  { id: "lm_portao_verde", nome: "Portão Verde", zonaId: "portao_verde", tipo: "ruina", alcance: 140 },
+  { id: "lm_ponte_colossal", nome: "Ponte Colossal de Aethra", zonaId: "campos_de_elyndor", tipo: "ponte_colossal", alcance: 152 },
+  { id: "lm_arvore_oca", nome: "Árvore Oca", zonaId: "arvore_oca", tipo: "arvore_monumental", alcance: 144 },
+  { id: "lm_olho", nome: "Olho do Abismo", zonaId: "olho_do_abismo", tipo: "anomalia", alcance: 208 },
   // Os cinco abaixo entraram depois de MEDIR a cobertura: com os doze
   // primeiros, um quarto do mapa não tinha nenhum marco à vista, e o teste de
   // orientação (item 31) reprovava com 74%. As lacunas eram o Abismo Raso, a
   // Planície Ventosa, o Templo dos Titãs, o Deserto de Karn e a Caverna do
   // Eco — todas regiões abertas, justamente onde um ponto de referência mais
   // faz falta. Os nomes continuam vindo do `locaisLendarios` do atlas.
-  { id: "lm_torre_ventos", nome: "Torre dos Ventos", zonaId: "planicie_ventosa", tipo: "torre", alcance: 50 },
-  { id: "lm_templo_titas", nome: "Templo dos Titãs", zonaId: "templo_dos_titas", tipo: "ruina", alcance: 48 },
-  { id: "lm_fenda_azul", nome: "Fenda Azul", zonaId: "abismo_raso", tipo: "anomalia", alcance: 50 },
-  { id: "lm_biblioteca", nome: "Biblioteca de Areia", zonaId: "deserto_karn", tipo: "ruina", alcance: 44 },
-  { id: "lm_fortaleza_gelo", nome: "Fortaleza do Gelo", zonaId: "vale_das_geleiras", tipo: "torre", alcance: 46 },
+  { id: "lm_torre_ventos", nome: "Torre dos Ventos", zonaId: "planicie_ventosa", tipo: "torre", alcance: 200 },
+  { id: "lm_templo_titas", nome: "Templo dos Titãs", zonaId: "templo_dos_titas", tipo: "ruina", alcance: 192 },
+  { id: "lm_fenda_azul", nome: "Fenda Azul", zonaId: "abismo_raso", tipo: "anomalia", alcance: 200 },
+  { id: "lm_biblioteca", nome: "Biblioteca de Areia", zonaId: "deserto_karn", tipo: "ruina", alcance: 176 },
+  { id: "lm_fortaleza_gelo", nome: "Fortaleza do Gelo", zonaId: "vale_das_geleiras", tipo: "torre", alcance: 184 },
 ];
 
 // --- MASMORRAS (item 19) --------------------------------------------------

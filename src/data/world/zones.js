@@ -28,6 +28,12 @@
 //   centro: { x, y }    — em tiles do mapa
 //   peso                — tamanho relativo na disputa por território
 //   elementoDominante   — bônus de terreno em combate (sistema já existente)
+//   densidadeMata       — quanto do território fecha em copa (0 a 1). Opcional:
+//                         zona de forma "floresta" que não declara fica em
+//                         0,58. Existe porque a copa é da ZONA e não da forma —
+//                         um "bosque claro" de nível 1 e uma "mata primordial"
+//                         de nível 10 não podem fechar igual, e um lago cercado
+//                         de mata precisa de árvore sem virar forma "floresta".
 //   monstros            — pool de encontro (ids reais de monsters.json)
 //   recursos            — o que se colhe aqui
 //   clima               — usado pelo WeatherSystem e pela identidade visual
@@ -61,6 +67,7 @@ export const ZONAS_MUNDO = [
     id: "floresta", nome: "Floresta Sussurrante", regiaoId: "altaverde",
     bioma: "bosque claro", funcao: "aprendizado",
     perigo: [1, 3], forma: "floresta", centro: { x: 68, y: 44 }, peso: 1.05,
+    densidadeMata: 0.3, // bosque claro: copa rala, dá pra ver o céu e o caminho
     elementoDominante: "natureza",
     monstros: ["slime", "morcego", "lobo", "goblin", "rato_gigante", "abelha_titan"],
     recursos: ["erva", "madeira"], clima: "temperado",
@@ -71,9 +78,11 @@ export const ZONAS_MUNDO = [
     id: "bosque_das_vozes", nome: "Bosque das Vozes", regiaoId: "altaverde",
     bioma: "mata de raízes antigas", funcao: "santuario",
     perigo: [3, 5], forma: "floresta", centro: { x: 62, y: 62 }, peso: 0.95,
+    densidadeMata: 0.44, // mata de raízes antigas: fecha mais que a Sussurrante, ainda não é parede
     elementoDominante: "natureza",
     monstros: ["lobo", "corvo_ceifador", "abelha_titan", "javali", "wisp_radiante"],
     recursos: ["madeira", "erva"], clima: "temperado",
+    chefe: { monstroId: "primeira_voz" },
     descricao: "As raízes da Árvore-Mãe afloram aqui, e quem mente em voz alta atrai companhia.",
   },
   {
@@ -87,6 +96,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "natureza",
     monstros: ["goblin", "bandido", "javali", "lobo", "touro_selvagem"],
     recursos: ["erva"], clima: "temperado",
+    chefe: { monstroId: "touro_da_colheita" },
     descricao: "Planície aberta ligando a vila ao resto do reino — a estrada principal passa por aqui.",
   },
 
@@ -110,6 +120,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "gelo",
     monstros: ["lobo_gelido", "bruxa_da_bruma", "harpia", "troll_das_cavernas"],
     recursos: ["minerio"], clima: "nevado",
+    chefe: { monstroId: "alcateia_branca" },
     descricao: "Um corredor de gelo entre paredes de rocha — a única entrada praticável em Morranvell.",
   },
   {
@@ -133,6 +144,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "fogo",
     monstros: ["senhor_da_cinza", "gargula", "golem_de_pedra", "carrasco_de_cinzas"],
     recursos: ["minerio"], clima: "vulcanico",
+    chefe: { monstroId: "primeira_brasa" },
     descricao: "O anel de crateras onde, dizem, o primeiro fogo do mundo foi aceso.",
   },
   {
@@ -142,6 +154,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "fogo",
     monstros: ["golem_de_pedra", "troll_das_cavernas", "gargula", "orc_selvagem"],
     recursos: ["minerio"], clima: "vulcanico",
+    chefe: { monstroId: "capataz_de_pedra" },
     descricao: "Galerias abertas na rocha viva; a lava cristaliza aqui em metal que muda de forma.",
   },
   {
@@ -162,6 +175,7 @@ export const ZONAS_MUNDO = [
     id: "floresta_ancestral", nome: "Floresta Ancestral", regiaoId: "bosque_eterno",
     bioma: "mata primordial", funcao: "profunda",
     perigo: [6, 9], forma: "floresta", centro: { x: 136, y: 20 }, peso: 1.15,
+    densidadeMata: 0.78, // mata primordial: o chão do Bosque Eterno quase não vê sol
     elementoDominante: "natureza",
     monstros: ["urso_ancestral", "orc_selvagem", "druida_corrompido", "lobo_sombrio"],
     recursos: ["madeira", "erva"], clima: "umido",
@@ -172,18 +186,22 @@ export const ZONAS_MUNDO = [
     id: "lago_dos_reflexos", nome: "Lago dos Reflexos", regiaoId: "bosque_eterno",
     bioma: "lago de mata fechada", funcao: "santuario",
     perigo: [5, 8], forma: "delta", centro: { x: 152, y: 32 }, peso: 0.95,
+    densidadeMata: 0.42, // lago de mata fechada: a água é da forma "delta", a mata em volta é daqui
     elementoDominante: "agua",
     monstros: ["sapo_venenoso", "lodo_negro", "druida_corrompido", "abelha_titan"],
     recursos: ["erva", "madeira"], clima: "umido",
+    chefe: { monstroId: "reflexo_afogado" },
     descricao: "A água devolve o rosto de quem se aproxima — nem sempre o rosto certo.",
   },
   {
     id: "portao_verde", nome: "Portão Verde", regiaoId: "bosque_eterno",
     bioma: "clareira murada por árvores", funcao: "travessia",
     perigo: [4, 7], forma: "vale", centro: { x: 120, y: 26 }, peso: 0.85,
+    densidadeMata: 0.58, // clareira murada por árvores: o vale abre o fundo, a copa fecha as paredes
     elementoDominante: "natureza",
     monstros: ["lobo", "javali", "corvo_ceifador", "urso_ancestral"],
     recursos: ["madeira"], clima: "umido",
+    chefe: { monstroId: "porteiro_de_casca" },
     descricao: "A única fenda praticável na muralha viva do Bosque Eterno.",
   },
 
@@ -207,6 +225,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "vento",
     monstros: ["harpia", "grifo_jovem", "gralha_tempestuosa", "bandido"],
     recursos: ["madeira", "minerio"], clima: "ventoso",
+    chefe: { monstroId: "cortador_de_cordas" },
     descricao: "Cânions cruzados por passarelas que balançam o dia inteiro.",
   },
 
@@ -230,6 +249,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "arcano",
     monstros: ["construto_arcano", "sentinela_arcana", "gargula", "espectro_arcano"],
     recursos: ["minerio"], clima: "arcano",
+    chefe: { monstroId: "engrenagem_mestra" },
     descricao: "Corredores que se reorganizam quando ninguém está olhando.",
   },
   {
@@ -263,6 +283,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "fogo",
     monstros: ["golem_de_pedra", "orc_selvagem", "troll_das_cavernas", "gargula"],
     recursos: ["minerio"], clima: "vulcanico",
+    chefe: { monstroId: "veia_negra" },
     descricao: "A fenda de onde sai o metal que a Ordem da Chama Rubra transforma.",
   },
   {
@@ -296,6 +317,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "agua",
     monstros: ["bandido", "escorpiao_gigante", "harpia"],
     recursos: ["erva"], clima: "arido",
+    chefe: { monstroId: "dona_do_poco" },
     descricao: "Sete palmeiras, uma nascente e a única sombra confiável de Arenth.",
   },
   {
@@ -305,6 +327,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "arcano",
     monstros: ["necromante_errante", "esqueleto", "verme_das_dunas", "espectro_arcano"],
     recursos: ["minerio"], clima: "arido",
+    chefe: { monstroId: "rei_sob_a_areia" },
     descricao: "A tempestade abre construções por poucas horas antes de enterrá-las de novo.",
   },
 
@@ -328,6 +351,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "agua",
     monstros: ["harpia", "pirata_naufrago", "serpente_marinha", "gralha_tempestuosa"],
     recursos: ["minerio"], clima: "costeiro",
+    chefe: { monstroId: "vigia_do_penhasco" },
     descricao: "Paredões sobre o mar; o farol daqui decide quem chega vivo ao porto.",
   },
 
@@ -351,6 +375,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "agua",
     monstros: ["caranguejo_gigante", "enguia_eletrica", "arraia_relampago"],
     recursos: ["minerio", "erva"], clima: "costeiro",
+    chefe: { monstroId: "jardineira_de_perola" },
     descricao: "Na maré baixa, o coral vira estrada; na alta, vira teto.",
   },
 
@@ -364,7 +389,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "arcano",
     monstros: ["cristal_ecoante", "wisp_radiante", "espectro_arcano", "sentinela_arcana"],
     recursos: ["minerio", "erva"], clima: "temperado",
-    chefe: { monstroId: "serpente_da_tempestade_eterna" },
+    chefe: { monstroId: "sentinela_das_seis_correntes" },
     descricao: "Seis correntes elementais se encontram aqui, e a água muda de cor conforme quem ganha.",
   },
   {
@@ -374,6 +399,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "agua",
     monstros: ["sapo_venenoso", "lodo_negro", "cristal_ecoante", "harpia"],
     recursos: ["erva"], clima: "temperado",
+    chefe: { monstroId: "eco_de_seis_cores" },
     descricao: "Junco, cristal e o caminho de água que liga o norte ao sul do continente.",
   },
 
@@ -397,6 +423,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "veneno",
     monstros: ["lodo_negro", "aranha_gigante", "druida_corrompido", "sapo_venenoso"],
     recursos: ["erva"], clima: "umido",
+    chefe: { monstroId: "tecela_do_brejo" },
     descricao: "Cogumelos da altura de um homem; plantas crescem sobre armaduras em horas.",
   },
   {
@@ -417,6 +444,7 @@ export const ZONAS_MUNDO = [
     id: "bosque_sombrio", nome: "Bosque Sombrio", regiaoId: "selva_umbriaca",
     bioma: "selva escura", funcao: "profunda",
     perigo: [3, 5], forma: "floresta", centro: { x: 112, y: 120 }, peso: 1.10,
+    densidadeMata: 0.68, // selva escura
     elementoDominante: "sombrio",
     monstros: ["lobo", "goblin", "bandido", "lobo_sombrio", "aranha_gigante", "corvo_ceifador"],
     recursos: ["madeira", "erva"], clima: "umido",
@@ -427,9 +455,11 @@ export const ZONAS_MUNDO = [
     id: "arvore_oca", nome: "Árvore Oca", regiaoId: "selva_umbriaca",
     bioma: "clareira ritual", funcao: "santuario",
     perigo: [6, 9], forma: "floresta", centro: { x: 128, y: 132 }, peso: 0.85,
+    densidadeMata: 0.34, // clareira ritual: é clareira, tem que abrir
     elementoDominante: "sombrio",
     monstros: ["lobo_sombrio", "druida_corrompido", "corvo_ceifador", "espectro_arcano"],
     recursos: ["madeira"], clima: "umido",
+    chefe: { monstroId: "oficiante_do_oco" },
     descricao: "Um tronco vazio do tamanho de uma torre, onde as tribos negociam com as sombras.",
   },
 
@@ -453,6 +483,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "terra",
     monstros: ["golem_de_pedra", "esqueleto", "troll_das_cavernas", "carrasco_de_cinzas"],
     recursos: ["minerio"], clima: "temperado",
+    chefe: { monstroId: "campea_invicta" },
     descricao: "Uma caixa torácica do tamanho de um bairro, virada rinha por quem sobrou.",
   },
   {
@@ -462,6 +493,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "terra",
     monstros: ["golem_de_pedra", "construto_arcano", "gargula", "carrasco_de_cinzas"],
     recursos: ["minerio"], clima: "temperado",
+    chefe: { monstroId: "coracao_que_bate" },
     descricao: "Ainda bate, muito devagar. Perto dele o Éter fica pesado.",
   },
   {
@@ -495,6 +527,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "sombrio",
     monstros: ["espectro_arcano", "gargula", "carrasco_de_cinzas", "necromante_errante"],
     recursos: ["minerio"], clima: "sombrio",
+    chefe: { monstroId: "coro_dos_lamentos" },
     descricao: "O chão aqui está rachado até onde a vista alcança, e o vão não tem fundo visível.",
   },
   {
@@ -504,6 +537,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "sombrio",
     monstros: ["wyvern", "golem_de_pedra", "troll_das_cavernas"],
     recursos: ["minerio"], clima: "sombrio",
+    chefe: { monstroId: "wyvern_de_obsidiana" },
     descricao: "Picos escuros habitados por golens e trolls de caverna.",
   },
 
@@ -527,6 +561,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "vento",
     monstros: ["grifo_jovem", "gralha_tempestuosa", "harpia", "wisp_radiante"],
     recursos: ["erva"], clima: "ventoso",
+    chefe: { monstroId: "guardia_das_ilhas" },
     descricao: "Ilhas que migram durante o ano; aqui território se mede em tempo, não em fronteira.",
   },
 
@@ -540,6 +575,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "arcano",
     monstros: ["serpente_marinha", "espectro_arcano", "construto_arcano", "arraia_relampago"],
     recursos: ["minerio"], clima: "sombrio",
+    chefe: { monstroId: "o_que_olha_de_volta" },
     descricao: "O vórtice não leva ao fundo do mar: leva a uma dobra do Véu.",
   },
   {
@@ -559,6 +595,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "agua",
     monstros: ["serpente_marinha", "enguia_eletrica", "arraia_relampago", "pirata_naufrago"],
     recursos: ["minerio"], clima: "costeiro",
+    chefe: { monstroId: "ancora_viva" },
     descricao: "Onde o recife cede e o fundo some — raso só no nome.",
   },
   {
@@ -568,6 +605,7 @@ export const ZONAS_MUNDO = [
     elementoDominante: "terra",
     monstros: ["golem_de_pedra", "esqueleto", "cristal_ecoante", "troll_das_cavernas"],
     recursos: ["minerio", "erva"], clima: "temperado",
+    chefe: { monstroId: "ultimo_sacerdote" },
     descricao: "Construído entre duas costelas de Titã, e menor que qualquer uma delas.",
   },
 ];
