@@ -127,7 +127,10 @@ function barra(atual, max, classe) {
 
 // ---------------------------------------------------------------------------
 
+import { membrosDoTime } from "../systems/GachaSystem.js";
+
 export function montarParty(personagem, time, dados, onMudar, estadoAnterior = null) {
+  if (personagem.gacha) time = membrosDoTime(personagem);
   const membros = [personagem, ...(time || []), ...(estadoAnterior?.aba === "ficha" ? personagem.gacha?.personagensObtidos || [] : [])]
     .filter((m, i, todos) => m && todos.findIndex((outro) => outro === m || (m.uid && outro?.uid === m.uid)) === i);
   const interfaceToque = ehMobile() || (typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
@@ -141,7 +144,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   if (!estado.aba) estado.aba = "mochila";
   if (!estado.limiteItens) estado.limiteItens = interfaceToque ? 6 : 18;
   if (estado.membroIdx >= membros.length) estado.membroIdx = 0;
+  if (estado.membroUid) {
+    const indice = membros.findIndex((m) => (m.uid || (m === personagem ? 'protagonista' : null)) === estado.membroUid);
+    estado.membroIdx = indice >= 0 ? indice : 0;
+  }
   const ativo = membros[estado.membroIdx];
+  estado.membroUid = ativo.uid || 'protagonista';
 
   const tela = abrirTela({
     titulo: "Companhia",
@@ -251,7 +259,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   });
 
   fileira.querySelectorAll(".party-card").forEach((el) => {
-    const escolher = () => { estado.membroIdx = Number(el.dataset.membro); redesenhar(); };
+    const escolher = () => { estado.membroIdx = Number(el.dataset.membro); estado.membroUid = membros[estado.membroIdx].uid || 'protagonista'; redesenhar(); };
     el.onclick = (ev) => { if (!ev.target.closest(".party-slot")) escolher(); };
     el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); escolher(); } };
   });

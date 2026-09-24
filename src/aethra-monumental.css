@@ -485,6 +485,37 @@
 }
 .hda-ladrilho:hover, .card:hover, .ficha-slot:hover, .companhia-equip-slot:hover { border-color:var(--am-focus); }
 .hda-icone { filter:drop-shadow(0 1px 1px #000); }
+
+/* Companhia: superfícies discretas e informação com mais espaço útil. */
+.tela-party .companhia-corpo { background:#0c161b; overflow-x:hidden; scrollbar-width:none; }
+.tela-party .companhia-corpo::-webkit-scrollbar,
+.tela-party .companhia-trilho .party-fileira::-webkit-scrollbar { display:none; }
+.tela-party .companhia-trilho .party-fileira { scrollbar-width:none; }
+.tela-party .companhia-palco { background:#101d23; box-shadow:none; border:0; border-radius:8px; min-height:0; }
+.tela-party .companhia-palco::after { display:none; }
+.tela-party .companhia-arte::before { border:0; box-shadow:none; background:radial-gradient(ellipse,#0006,transparent 70%); }
+.tela-party .companhia-sprite { filter:drop-shadow(0 5px 4px #0005); }
+.tela-party .companhia-identidade h3 { line-height:1.15; overflow-wrap:anywhere; }
+.tela-party .companhia-painel { background:#0e191e; box-shadow:none; border:0; border-top:1px solid #293a40; }
+.tela-party .companhia-equip-slot,
+.tela-party .companhia-equip-slot.preenchido { background:#14252c; border-color:#34474e; box-shadow:none; }
+.tela-party .companhia-equip-slot.preenchido { border-bottom-color:#baa374; }
+.tela-party .companhia-equip-slot small { white-space:normal; overflow-wrap:anywhere; font-size:.7rem; line-height:1.3; }
+.tela-party .ficha-acoes { padding:0; border:0; background:none; gap:8px; }
+.tela-party .ficha-acoes button,
+.tela-party .companhia-ferramentas button { box-shadow:none; background:#18303a; min-height:44px; }
+.tela-party .companhia-trilho .party-card { border-color:transparent; background:transparent; box-shadow:none; }
+.tela-party .companhia-trilho .party-card.ativo { border-color:#8baeb9; background:#213740; box-shadow:inset 3px 0 #d0b47e; }
+.tela-party .companhia-trilho .party-card:hover,
+.tela-party .companhia-equip-slot:hover { transform:none; background:#243d47; }
+@media(min-width:900px) {
+  .tela-party .companhia-vitrine { grid-template-columns:minmax(140px,.65fr) minmax(260px,1.5fr) minmax(105px,.45fr); padding:12px 18px; }
+  .tela-party .companhia-arte { min-height:180px; }
+  .tela-party .companhia-sprite { max-height:220px; width:min(100%,210px); }
+  .tela-party .companhia-identidade h3 { font-size:clamp(1.3rem,2vw,1.85rem); }
+  .tela-party .companhia-trilho .party-fileira { max-height:240px; }
+  .tela-party .companhia-poder strong { font-size:2.4rem; }
+}
 .hda-botao-icone { border:1px solid #476169; border-radius:6px; background:#0d2026; }
 button:focus-visible, [tabindex]:focus-visible { outline:2px solid var(--am-focus); outline-offset:3px; }
 
