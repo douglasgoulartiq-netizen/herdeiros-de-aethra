@@ -12,7 +12,7 @@ globalThis.localStorage = (() => {
   };
 })();
 
-const { migrarSave, SAVE_VERSION, salvarJogo, carregarJogo, existeSave, apagarSave } = await import("../src/systems/SaveSystem.js");
+const { migrarSave, SAVE_VERSION, LAYOUT_MUNDO, salvarJogo, carregarJogo, existeSave, apagarSave } = await import("../src/systems/SaveSystem.js");
 import { arvoreDoPersonagem } from "../src/systems/TalentSystem.js";
 
 function check(label, cond) {
@@ -64,8 +64,24 @@ function saveAntigoV0() {
   check("habilidade antiga preservada (não sumiu nem duplicou)", migrado.personagem.habilidades.length === 1 && migrado.personagem.habilidades[0].id === "golpe_velho");
   check("inventário preservado", migrado.personagem.inventario.length === 1 && migrado.personagem.inventario[0].uid === "item1");
   check("ouro/xp preservados", migrado.personagem.ouro === 500 && migrado.personagem.xp === 100);
-  check("posição no mundo preservada", migrado.mundo.player.x === 10 && migrado.mundo.player.y === 12);
-  check("baús e nós preservados", migrado.mundo.chests.length === 1 && migrado.mundo.nodes.length === 1);
+  // POSIÇÃO E OBJETOS DO MUNDO NÃO SÃO PRESERVADOS — e não devem ser.
+  //
+  // Este bloco exigia que x/y, baús e nós sobrevivessem à migração. Isso valia
+  // enquanto o mapa tinha um formato só. Com o mundo 4x (LAYOUT_MUNDO 4, malha
+  // 896x704) a coordenada 10,12 de um save antigo cai dentro de pedra, e os
+  // baús/nós antigos apontam para lugares que não existem mais. A migração
+  // marca `mundoRefeito` e devolve o herói ao ponto de partida da vila, com o
+  // mundo regerado — que é a única saída que não produz um save quebrado.
+  //
+  // O contrato de verdade é: o PERSONAGEM atravessa inteiro (nível, atributos,
+  // itens, ouro — conferidos acima) e o MUNDO volta a um estado válido.
+  check("mundo de layout antigo é regerado, não remendado", migrado.mundo.mundoRefeito === true);
+  check("layout do mundo é atualizado para o atual", migrado.mundo.layoutMundo === LAYOUT_MUNDO);
+  check("herói volta para um ponto válido da vila", migrado.mundo.zonaAtualId === "vila"
+    && Number.isFinite(migrado.mundo.player.x) && Number.isFinite(migrado.mundo.player.y));
+  check("baús e nós do mapa antigo não vazam para o mapa novo",
+    migrado.mundo.chests.length === 0 && migrado.mundo.nodes.length === 0);
+  check("o mundo novo ganha semente própria", Number.isFinite(migrado.mundo.semente));
 }
 
 // --- migrarSave: preenche os campos que faltavam --------------------------
@@ -81,7 +97,10 @@ function saveAntigoV0() {
   check("caminhoHerdeiro vem com os 3 presets vazios (nenhum talento inventado)", p.caminhoHerdeiro.presets.length === 3 && p.caminhoHerdeiro.presets.every((pr) => pr.talentosEscolhidos.length === 0));
   check("caminhoHerdeiro vem sem subclasse escolhida (decisão do jogador, não pode ser assumida)", p.caminhoHerdeiro.subclasseId === null);
   check("ganha .autoBatalhaConfig (task #96) com os padrões corretos", !!p.autoBatalhaConfig && p.autoBatalhaConfig.modo === "equilibrado");
-  check("mundo.mapaAtual 'masmorra' (formato antigo) vira 'dungeon1'", migrado.mundo.mapaAtual === "dungeon1");
+  // Idem: o save antigo estava DENTRO da masmorra única de então. Como o mundo
+  // é regerado, quem estava lá reaparece no mapa aberto, na vila — e não no
+  // meio de uma masmorra que foi redesenhada por baixo dele.
+  check("quem estava na 'masmorra' antiga reaparece no mapa aberto", migrado.mundo.mapaAtual === "overworld");
   check("com caminhoHerdeiro migrado, a árvore real do Guerreiro já é enxergada corretamente (sem crash)", arvoreDoPersonagem(p, { talentsGuerreiro: { talentos: [{ id: "x" }] } }).length === 1);
 }
 

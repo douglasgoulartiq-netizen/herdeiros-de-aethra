@@ -66,10 +66,29 @@ for (const id of NOVOS) {
   check("bruxa_da_bruma (invocador) tem campo invocacao com stats", !!bruxa.invocacao && bruxa.invocacao.hp > 0);
 }
 
-// --- worldMap.js: cada monstro novo foi posicionado em pelo menos 1 zona ---
+// --- cada monstro novo aparece de verdade em algum lugar do mundo ---
+//
+// Este bloco procurava o id como TEXTO dentro de worldMap.js. Com o mundo 4x
+// as zonas mudaram para src/data/world/zones.js e as masmorras para
+// settlements.js, então a busca parou de achar qualquer coisa e o teste
+// acusava 16 monstros "não posicionados" que estavam todos em jogo. Agora lê
+// os dados de verdade, e conta as três formas de um monstro existir no mundo:
+// spawn de zona, chefe de zona e chefe de masmorra.
 {
-  const naoPosicionados = NOVOS.filter((id) => !worldMapSrc.includes(`"${id}"`));
-  check(`todo monstro novo aparece em ao menos uma zona de worldMap.js (faltando: ${naoPosicionados.join(", ") || "nenhum"})`, naoPosicionados.length === 0);
+  const { ZONAS } = await import("../src/data/worldMap.js");
+  const { MASMORRAS_MUNDO } = await import("../src/data/world/settlements.js");
+  const noMundo = new Set([
+    ...ZONAS.flatMap((z) => z.monstros || []),
+    ...ZONAS.filter((z) => z.chefe).map((z) => z.chefe.monstroId),
+    ...MASMORRAS_MUNDO.flatMap((d) => [...(d.monstros || []), d.chefe]),
+  ].filter(Boolean));
+  const naoPosicionados = NOVOS.filter((id) => !noMundo.has(id));
+  check(`todo monstro novo aparece em ao menos uma zona ou masmorra (faltando: ${naoPosicionados.join(", ") || "nenhum"})`, naoPosicionados.length === 0);
+
+  // A recíproca, que nunca foi testada: monstro com ficha e arte que o jogador
+  // não tem como encontrar em lugar nenhum é conteúdo pago e invisível.
+  const semLugar = monstros.map((m) => m.id).filter((id) => !noMundo.has(id));
+  check(`nenhum monstro do jogo fica fora do mundo (fora: ${semLugar.join(", ") || "nenhum"})`, semLugar.length === 0);
 }
 
 console.log(process.exitCode ? "=== FALHAS ENCONTRADAS ===" : "=== todos os testes passaram ===");

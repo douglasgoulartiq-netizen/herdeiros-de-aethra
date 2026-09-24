@@ -62,13 +62,35 @@ function personagemFake(overrides = {}) {
   check("ordem da lista disponível segue a ordem de ZONAS (vila antes de floresta)", idxVila < idxFloresta);
 }
 
-// --- pontoDeChegada: usa o marco quando existe ---
+// --- pontoDeChegada: o marco tem prioridade quando a zona declara um ---
+//
+// A pré-condição deste bloco era "existe pelo menos uma zona com marco nos
+// dados reais". Desde o mundo 4x nenhuma tem: as zonas passaram a ser
+// orgânicas e o ponto de chegada bom virou o CENTRO DE MASSA (`centroReal`),
+// calculado pelo gerador, em vez de uma coordenada escolhida à mão. O caminho
+// do marco continua no código para quem quiser fixar um ponto, então o que se
+// testa agora é a REGRA de prioridade, com uma zona montada aqui — e não a
+// presença de um dado que o mundo deixou de usar.
 {
-  const zonaComMarco = ZONAS.find((z) => (z.pontosDeInteresse || []).some((p) => p.tipo === "marco"));
-  check("existe pelo menos uma zona com marco nos dados reais (pré-condição do teste)", !!zonaComMarco);
-  const marco = zonaComMarco.pontosDeInteresse.find((p) => p.tipo === "marco");
-  const chegada = pontoDeChegada(zonaComMarco);
-  check(`pontoDeChegada usa o marco de "${zonaComMarco.id}" quando existe`, chegada.x === marco.x && chegada.y === marco.y);
+  const comMarco = {
+    id: "teste_com_marco", x0: 0, y0: 0, x1: 100, y1: 100,
+    centroReal: { x: 50, y: 50 },
+    pontosDeInteresse: [{ tipo: "recurso", x: 7, y: 7 }, { tipo: "marco", x: 12, y: 34 }],
+  };
+  const chegada = pontoDeChegada(comMarco);
+  check("pontoDeChegada usa o marco quando a zona declara um", chegada.x === 12 && chegada.y === 34);
+  check("o marco vence o centro de massa", chegada.x !== comMarco.centroReal.x);
+}
+
+// --- pontoDeChegada: sem marco, o centro de MASSA vence a caixa ---
+// É isto que todas as zonas do jogo usam hoje; a caixa delimitadora só entra
+// quando nem centro de massa existe (zona retangular antiga ou de teste).
+{
+  const organica = { id: "teste_organica", x0: 0, y0: 0, x1: 100, y1: 100, centroReal: { x: 18, y: 72 }, pontosDeInteresse: [] };
+  const chegada = pontoDeChegada(organica);
+  check("sem marco, usa o centro de massa da zona", chegada.x === 18 && chegada.y === 72);
+  const zonasReais = ZONAS.filter((z) => z.centroReal);
+  check(`as zonas do mundo têm centro de massa (${zonasReais.length}/${ZONAS.length})`, zonasReais.length === ZONAS.length);
 }
 
 // --- pontoDeChegada: cai pro centro da bbox quando não há marco ---

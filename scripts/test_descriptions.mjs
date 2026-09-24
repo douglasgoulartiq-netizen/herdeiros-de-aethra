@@ -62,8 +62,11 @@ function textoValido(s) {
 // --- árvore de habilidades: todo nó e toda habilidade concedida tem descrição ---
 {
   let semDescricao = [];
-  Object.entries(skillTrees).forEach(([classeId, nodes]) => {
-    nodes.forEach((n) => {
+  // skillTrees.json passou a ser { [classe]: { ramos, nos } } — antes a classe
+  // mapeava direto para o array de nós, e este teste parou de rodar (estourava
+  // em nodes.forEach) sem ninguém notar.
+  Object.entries(skillTrees).forEach(([classeId, arvore]) => {
+    (arvore.nos || []).forEach((n) => {
       if (!textoValido(n.descricao)) semDescricao.push(`${classeId}/${n.id}`);
       if (n.habilidade && !textoValido(n.habilidade.descricao)) semDescricao.push(`${classeId}/${n.id}/habilidade`);
     });
