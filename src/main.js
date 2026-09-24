@@ -75,6 +75,7 @@ import {
   garantirQuestsRegionais, questsRegionaisParaSave, carregarQuestsRegionaisDoSave,
   podeInvestigarElric, investigarElric,
   registrarConversaAltaverde, podeExaminarPortaAltaverde, examinarPortaAltaverde,
+  questsOferecidasPor, progressoObjetivoRegional,
 } from "./systems/RegionalQuestSystem.js";
 // Cenas: o prólogo (uma vez, em jogo novo) e as aberturas de questline
 // regional (disparadas de dentro do diálogo do NPC, em GameUI.js).
@@ -112,7 +113,7 @@ import { deveAparecerMercador, sortearEstoqueMercador } from "./systems/Travelin
 import { mostrarMercadorItinerante } from "./ui/TravelingMerchantUI.js";
 import { ligarCursorTeclado } from "./ui/CursorTeclado.js";
 import { montarParty } from "./ui/PartyUI.js";
-import { missaoRastreada, progressoDaMissao, textoObjetivoMissao } from "./systems/QuestSystem.js";
+import { missaoRastreada, progressoDaMissao, textoObjetivoMissao, ehMissaoPrincipal } from "./systems/QuestSystem.js";
 
 // Libera o sintetizador no primeiro gesto em qualquer tela. O evento é
 // único e passivo: não interfere em botões, movimento ou rolagem.
@@ -2751,10 +2752,27 @@ function tickAutoPlay() {
     // Caixas narrativas ficam legíveis por quatro segundos. Durante esse
     // período nenhum outro clique automático, evento ou desafio as substitui.
     if (!interacaoAutomaticaPronta()) return;
-    const aceitar = document.querySelector(".btn-aceitar");
-    if (aceitar) { aceitar.click(); autoSalvarSeAutomatico(); return; }
-    const entregar = document.querySelector(".btn-entregar:not([disabled])");
+    const modalRaiz = document.getElementById("modal-conteudo") || document;
+    // Entrega vem antes de aceitar outra missão no mesmo NPC. Assim uma
+    // recompensa pronta nunca fica escondida atrás de uma nova oferta.
+    const entregarRegional = modalRaiz.querySelector(".btn-qr-concluir:not([disabled]):not(.primario)");
+    if (entregarRegional) { entregarRegional.click(); autoSalvarSeAutomatico(); return; }
+    const entregar = modalRaiz.querySelector(".btn-entregar:not([disabled])");
     if (entregar) { entregar.click(); autoSalvarSeAutomatico(); return; }
+
+    // Decisões com duas consequências não devem ser escolhidas às cegas. O
+    // automático para exatamente neste ponto e deixa o jogador selecionar o
+    // desfecho; aceitar e concluir todos os passos sem decisão continua
+    // automático depois que a escolha for feita.
+    const decisaoRegional = modalRaiz.querySelector(".btn-qr-concluir.primario:not([disabled])");
+    if (decisaoRegional) {
+      alternarModoAutomatico();
+      mostrarMensagem("⏸ Automático pausado: esta missão pede uma escolha narrativa.", 5200);
+      return;
+    }
+
+    const aceitar = modalRaiz.querySelector(".btn-aceitar, .btn-qr-aceitar");
+    if (aceitar) { aceitar.click(); autoSalvarSeAutomatico(); return; }
     const escolha = document.querySelector(".btn-escolha-habilidade");
     if (escolha) { escolha.click(); autoSalvarSeAutomatico(); return; }
     // Evento aleatório de exploração (melhoria pós-backlog): o modo
@@ -2840,13 +2858,23 @@ function tickAutoPlay() {
     // com o mesmo NPC em vez de seguir explorando. Só conversa de novo depois
     // de se afastar (o alvo deixa de ser encontrado e a trava é liberada).
     if (alvo.tipo === "npc") {
-      if (alvo.ref.id === ultimoNpcInteragido || npcConversadoHaPouco(alvo.ref.id)) { autoAndar(); return; }
+      const eMissao = npcEObjetivoDeMissao(alvo.ref.id);
+      if (!eMissao && (alvo.ref.id === ultimoNpcInteragido || npcConversadoHaPouco(alvo.ref.id))) { autoAndar(); return; }
       ultimoNpcInteragido = alvo.ref.id;
       npcsConversadosAuto.set(alvo.ref.id, Date.now());
     } else {
       ultimoNpcInteragido = null;
     }
     tentarInteragir();
+    return;
+  }
+  // Alguns objetivos regionais são pontos de investigação sem um sprite
+  // interagível. Quando o caminho já trouxe o herói até a área, a IA usa a
+  // mesma tecla E do jogador em vez de simplesmente andar de novo.
+  const localAuto = localDaInvestigacao();
+  if (podeInvestigarElric(personagem, localAuto) || podeExaminarPortaAltaverde(personagem, localAuto)) {
+    tentarInteragir();
+    autoSalvarSeAutomatico();
     return;
   }
   ultimoNpcInteragido = null;
@@ -2898,8 +2926,69 @@ function entregarDestinoPessoal() {
 // ela sozinho (ver o filtro no fim da parte do mundo aberto, abaixo).
 const FOLGA_NIVEL_AUTO = 3;
 
+// Missões são o plano de navegação mais importante do automático. Antes a
+// IA só recebia baús, nós e NPCs genéricos; por isso ela podia aceitar uma
+// missão e depois passar minutos explorando sem voltar ao objetivo ou ao
+// responsável. Estes pequenos adaptadores transformam o estado narrativo em
+// pontos de interesse, sem colocar regra de missão dentro do pathfinding.
+function prioridadeMissaoNoNpc(npcId) {
+  if (!personagem || !dados) return 0;
+  let prioridade = 0;
+
+  // Missões comuns: história principal e entrega pronta têm precedência.
+  dados.quests.filter((q) => q.npcId === npcId).forEach((q) => {
+    const ativa = personagem.missoesAtivas?.find((m) => m.id === q.id);
+    const concluida = personagem.missoesConcluidas?.includes(q.id);
+    if (concluida) return;
+    if (ativa) {
+      const pronto = progressoDaMissao(personagem, q).pronto;
+      prioridade = Math.max(prioridade, pronto ? PRIORIDADE.missaoEntrega : 0);
+      return;
+    }
+    prioridade = Math.max(prioridade, ehMissaoPrincipal(q) ? PRIORIDADE.missaoOferta + 14 : PRIORIDADE.missaoOferta);
+  });
+
+  // Questlines regionais usam outro estado, mas a intenção é a mesma:
+  // aceitar um passo disponível e entregar um passo pronto no NPC correto.
+  questsOferecidasPor(personagem, npcId).forEach(({ quest, estado }) => {
+    if (estado === "ativa") {
+      const pronta = progressoObjetivoRegional(personagem, quest.id).pronto;
+      // Decisões narrativas não são escolhidas pela IA. O NPC ainda recebe
+      // foco para que o automático pare no ponto certo e peça a decisão.
+      prioridade = Math.max(prioridade, pronta ? PRIORIDADE.missaoEntrega : 0);
+    } else if (estado === "disponivel") {
+      prioridade = Math.max(prioridade, PRIORIDADE.missaoOferta);
+    }
+  });
+  return prioridade;
+}
+
+function npcEObjetivoDeMissao(npcId) {
+  // Só oferta ou entrega libera uma nova conversa imediata.
+  return prioridadeMissaoNoNpc(npcId) > PRIORIDADE.npc;
+}
+
+function alvoDaMissaoAutomatica() {
+  const destino = destinoDaMissaoRastreada();
+  if (!destino || destino.mapa !== mundo.mapaAtual) return null;
+  const def = dados?.quests?.find((q) => q.id === destino.id);
+  return {
+    x: destino.x,
+    y: destino.y,
+    tipo: "missao",
+    prioridade: destino.pronto ? PRIORIDADE.missaoEntrega : PRIORIDADE.missaoObjetivo,
+    pesoDistancia: destino.pronto ? 0.65 : 0.8,
+    // Entradas de masmorra são transições por pisar no tile; chefes, baús e
+    // NPCs continuam sendo interagidos quando chegamos a uma casa de distância.
+    exigeMesmoTile: !destino.pronto && def?.mapaAlvo && def.mapaAlvo !== "overworld" && mundo.mapaAtual === "overworld",
+    missaoId: destino.id,
+  };
+}
+
 function alvosAutoExploracao({ somenteExploracao = false } = {}) {
   const alvos = [];
+  const alvoMissao = alvoDaMissaoAutomatica();
+  if (alvoMissao) alvos.push(alvoMissao);
   // Ferido e sem poção: a fogueira entra na lista com a maior prioridade de
   // todas. Fora desse caso ela nem aparece — não faz sentido o automático
   // ir descansar de HP cheio.
@@ -2946,10 +3035,22 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
     // tickAutoPlay() usa pra não ficar preso num diálogo em looping. As
     // posições vêm das vagas que o gerador abriu na praça da vila.
     const vagasAuto = (mundo.gerado && mundo.gerado.vagasNpc) || [];
+    const npcsMapa = npcsPosicionados();
     dados.npcs.forEach((n, i) => {
-      if (n.id === ultimoNpcInteragido || npcConversadoHaPouco(n.id)) return;
-      const pos = vagasAuto[i % Math.max(1, vagasAuto.length)];
-      if (pos) alvos.push({ x: pos.x, y: pos.y, tipo: "npc", prioridade: PRIORIDADE.npc });
+      const prioridadeMissao = prioridadeMissaoNoNpc(n.id);
+      // Um NPC com missão pode voltar a ser procurado mesmo que tenha sido
+      // visitado há pouco: a conversa pode ter acabado de abrir a entrega ou
+      // o próximo passo da linha narrativa.
+      if (!prioridadeMissao && (n.id === ultimoNpcInteragido || npcConversadoHaPouco(n.id))) return;
+      const pos = npcsMapa.find((p) => p.id === n.id) || vagasAuto[i % Math.max(1, vagasAuto.length)];
+      if (pos) alvos.push({
+        x: pos.x,
+        y: pos.y,
+        tipo: "npc",
+        prioridade: prioridadeMissao || PRIORIDADE.npc,
+        pesoDistancia: prioridadeMissao ? 0.72 : undefined,
+        missaoNpc: !!prioridadeMissao,
+      });
     });
     // O automático não leva o time para zona muito acima do nível dele. Sem
     // este filtro, um herói nível 1 ia em ~2 minutos atrás de baú e de lugar

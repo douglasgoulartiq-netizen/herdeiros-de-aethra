@@ -192,6 +192,12 @@ export function decidirPassoExploracao({ origem, alvos, largura, altura, bloquea
 //              na frente de tudo: sobreviver vem antes de recompensa.
 export const PRIORIDADE = {
   descanso: 140,
+  // Missão ativa é intenção explícita do jogador: ela deve vencer uma
+  // coleta repetitiva e uma descoberta aleatória, mas ainda perde para o
+  // descanso quando o grupo está em risco.
+  missaoEntrega: 178,
+  missaoObjetivo: 132,
+  missaoOferta: 116,
   bau: 100,
   no: 72,
   entrada: 90,
