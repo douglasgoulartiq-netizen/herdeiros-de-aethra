@@ -16,7 +16,10 @@
 import { ZONAS_MUNDO } from "../data/world/zones.js";
 
 export const DURACAO_CLIMA_MS = 5 * 60 * 1000; // cada "rodada" de clima dura 5 minutos reais
-export const DURACAO_HORA_DIA_MS = 4 * 60 * 1000; // manhã/tarde/noite, 4 min reais cada — ciclo completo de 12 min
+// Um ciclo completo dura 24 minutos reais: cada minuto representa uma hora
+// de Aethra. Isso torna o relógio legível e garante uma noite perceptível em
+// qualquer sessão normal de exploração.
+export const DURACAO_HORA_DIA_MS = 60 * 1000;
 
 export const TIPOS_CLIMA = [
   { id: "limpo", nome: "Céu Limpo", icone: "☀️", elementoBonus: null, peso: 40 },
@@ -72,6 +75,17 @@ export function climaAtualDaZona(zonaId, agora, altitude = 0) {
 }
 
 export function horaDoDiaAtual(agora) {
-  const periodo = Math.floor(agora / DURACAO_HORA_DIA_MS) % HORAS_DIA.length;
-  return HORAS_DIA[periodo];
+  const horaDecimal = ((agora / DURACAO_HORA_DIA_MS) % 24 + 24) % 24;
+  const hora = Math.floor(horaDecimal);
+  const minuto = Math.floor((horaDecimal - hora) * 60);
+  const suavizar = (v) => { const t = Math.max(0, Math.min(1, v)); return t * t * (3 - 2 * t); };
+  const escuridao = horaDecimal < 7 ? 1 - suavizar((horaDecimal - 5) / 2) : suavizar((horaDecimal - 18) / 2);
+  // Mantém os ids legados para agendas de NPC e eventos existentes.
+  const id = hora >= 6 && hora < 12 ? "manha" : hora >= 12 && hora < 20 ? "tarde" : "noite";
+  const base = HORAS_DIA.find((item) => item.id === id) || HORAS_DIA[0];
+  return { ...base, hora, horaDecimal, escuridao, rotulo: `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`, ehNoite: id === "noite" };
+}
+
+export function ehNoite(agora) {
+  return horaDoDiaAtual(agora).ehNoite;
 }

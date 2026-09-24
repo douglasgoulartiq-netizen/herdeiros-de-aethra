@@ -59,10 +59,12 @@ const dadosElementos = JSON.parse(fs.readFileSync(new URL("../src/data/elements.
 {
   const h0 = horaDoDiaAtual(0);
   check("hora do dia é sempre uma das 3 conhecidas", HORAS_DIA.some((h) => h.id === h0.id));
-  const umCicloDepois = horaDoDiaAtual(DURACAO_HORA_DIA_MS * HORAS_DIA.length);
+  const umCicloDepois = horaDoDiaAtual(DURACAO_HORA_DIA_MS * 24);
   check("um ciclo completo depois, volta pra mesma hora do dia", umCicloDepois.id === h0.id);
   const proximaHora = horaDoDiaAtual(DURACAO_HORA_DIA_MS);
-  check("um período adiante já é uma hora do dia diferente", proximaHora.id !== h0.id);
+  check("uma hora avança sem exigir mudança de período", proximaHora.hora === 1 && proximaHora.id === "noite");
+  check("amanhecer e anoitecer são graduais", horaDoDiaAtual(6 * DURACAO_HORA_DIA_MS).escuridao === .5 && horaDoDiaAtual(19 * DURACAO_HORA_DIA_MS).escuridao === .5);
+  check("meio-dia tem luz plena", horaDoDiaAtual(12 * DURACAO_HORA_DIA_MS).escuridao === 0);
 }
 
 // --- TIPOS_CLIMA: "limpo" não tem bônus elemental (é o clima neutro/padrão) ---

@@ -50,6 +50,20 @@ export function reforcarEmboscada(monstroDef) {
   };
 }
 
+// A noite torna predadores mais ousados. É um clone temporário, então o
+// bestiário e os números diurnos permanecem intactos.
+export function reforcarAgressaoNoturna(monstroDef) {
+  return {
+    ...monstroDef,
+    atk: Math.ceil(monstroDef.atk * 1.12),
+    vel: Math.ceil((monstroDef.vel || 1) * 1.08),
+    xp: Math.ceil(monstroDef.xp * 1.1),
+    ouroMin: Math.ceil(monstroDef.ouroMin * 1.15),
+    ouroMax: Math.ceil(monstroDef.ouroMax * 1.15),
+    agressivoNoturno: true,
+  };
+}
+
 // Decide encontros aleatórios ao caminhar em terreno selvagem, e sorteia loot.
 // O tamanho do grupo era fixo: 70% de chance de UM inimigo só, sempre, do
 // nível 1 ao 20. Contra um time de quatro isso é 4 contra 1 — o inimigo

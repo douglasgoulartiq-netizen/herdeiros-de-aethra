@@ -890,7 +890,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const porte = (() => {
       if (c.isPlayer) return 1;
       let p = 1;
-      if (c.chefe) p = monstroHumanoide(c) ? 1.18 : 1.55;
+      if (c.chefe) p = monstroHumanoide(c) ? 1.3 : 1.75;
       else if (c.solo) p = 1.18;
       else {
         // Reforço da região: um lobo de zona avançada é visivelmente maior
@@ -898,7 +898,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
         const e = c.escalaNivel;
         if (e && e.hp) p = 1 + Math.min(0.22, (e.hp - 1) * 0.35);
       }
-      return Math.max(0.82, Math.min(1.55, p));
+      return Math.max(0.82, Math.min(1.75, p));
     })();
 
     if (porte !== 1) div.style.setProperty("--porte", String(porte));
@@ -909,6 +909,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const porteGrande = porte >= 1.25;
     div.className = "combatente" + (porteGrande ? " porte-grande" : "") + auraDoCard(c) + (c.defendendo ? " em-guarda" : "") + (!c.vivo ? " morto" : "") + (c.atb >= c.atbMax && c.vivo ? " pronto" : "") + (ehAtivo ? " ativo" : "") + (ehTelegrafado ? " telegrafando" + (telegrafo.inimigo.chefe ? " telegrafo-chefe" : "") : "") + (deltaHp < 0 && !flashDesligado ? " hit-flash" : "") + (deltaHp < 0 && critico && !flashDesligado ? " hit-flash-critico" : "") + (c.atordoado ? " atordoado" : "") + entrando;
     div.dataset.cid = c.id;
+    div.classList.toggle('chefe-imponente', !!c.chefe);
+    div.dataset.porteChefe = monstroHumanoide(c) ? 'humanoide' : 'colossal';
     div.classList.toggle('alvo-confirmado', c === alvoSelecionado && !c.isPlayer);
     const planoVisual = telegrafo?.plano;
     const avisoVisual = avisoDePlano(planoVisual, c);

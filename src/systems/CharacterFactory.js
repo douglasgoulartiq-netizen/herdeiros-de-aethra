@@ -105,6 +105,7 @@ export function criarPersonagem({
     missoesAtivas: [],
     missoesConcluidas: [],
     spriteKey: `pc_${raca}_${classe}`,
+    lanternaNivel: 1,
     biomaVisitados: [],
     arvore: { escolhas: [] },
     ngPlus: 0, // New Game+ (melhoria pós-backlog original, ver NewGamePlusSystem.js)

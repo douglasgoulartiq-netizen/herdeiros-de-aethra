@@ -431,3 +431,29 @@
      número e o empurravam para fora da carta. */
   #screen-batalha.bt-screen .mao-cards > .carta-batalha :is(.carta-elemento, .carta-custos, .carta-valor-rotulo) { display: none; }
 }
+.bt-slot .combatente.chefe-imponente .sprite-wrap {
+  transform-origin:50% 100%;
+  isolation:isolate;
+}
+.bt-slot .combatente.chefe-imponente:not(.morto) .sprite-canvas {
+  filter:drop-shadow(0 3px 2px #100b18) drop-shadow(0 0 5px rgba(225,162,66,.55));
+}
+.bt-slot .combatente.chefe-imponente .nome-c {
+  color:#ffe3a0;
+  text-shadow:0 1px 3px #000;
+  overflow-wrap:anywhere;
+}
+.bt-slot .combatente.chefe-imponente:not(.morto) .sprite-wrap::after {
+  content:"";position:absolute;inset:auto 13% 0;height:17%;
+  border:1px solid rgba(255,203,108,.75);border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,169,63,.28),transparent 72%);
+  box-shadow:0 0 10px rgba(222,140,55,.25);pointer-events:none;z-index:-1;
+}
+@media(max-width:719px) {
+  .bt-slot .combatente.chefe-imponente { --porte:1.42!important; }
+  .bt-slot .combatente.chefe-imponente[data-porte-chefe="humanoide"] { --porte:1.2!important; }
+}
+@media(max-height:460px) and (orientation:landscape) {
+  .bt-slot .combatente.chefe-imponente { --porte:1.3!important; }
+  .bt-slot .combatente.chefe-imponente[data-porte-chefe="humanoide"] { --porte:1.15!important; }
+}

@@ -36,7 +36,7 @@ import {
   marcarMasmorraLimpa, textoDeEspera,
 } from "./systems/DungeonSystem.js";
 import { FLAGS } from "./data/featureFlags.js";
-import { sortearEncontroDeLista, deveDispararEncontro, deveSerHorda, sortearLevasHorda, reforcarEmboscada, chanceAjustadaPeloGrupo, iniciarTregua } from "./systems/EncounterSystem.js";
+import { sortearEncontroDeLista, deveDispararEncontro, deveSerHorda, sortearLevasHorda, reforcarEmboscada, reforcarAgressaoNoturna, chanceAjustadaPeloGrupo, iniciarTregua } from "./systems/EncounterSystem.js";
 import { sortearLoot, descansar, usarConsumivel } from "./systems/InventorySystem.js";
 import { marcarExploracao } from "./systems/QuestSystem.js";
 import { salvarJogo, carregarJogo, existeSave, migrarSave, LAYOUT_MUNDO, listarSlots, selecionarSlot, slotAtivo, apagarSave } from "./systems/SaveSystem.js";
@@ -65,7 +65,7 @@ import {
 } from "./systems/ChunkSystem.js";
 import { registrarProgressoDiario } from "./systems/DailyQuestSystem.js";
 import { elegivelParaNgPlus, aplicarNewGamePlus } from "./systems/NewGamePlusSystem.js";
-import { climaAtualDaZona, horaDoDiaAtual } from "./systems/WeatherSystem.js";
+import { climaAtualDaZona, horaDoDiaAtual, ehNoite } from "./systems/WeatherSystem.js";
 import { posicionarNpcs } from "./systems/NpcPlacement.js";
 import {
   garantirMemoriaNpcs, registrarConversa, registrarEncontroRecorrente,
@@ -899,10 +899,9 @@ function atualizarIndicadorClima() {
     }
   }
   const clima = climaAtual();
-  if (clima) {
-    const hora = horaDoDiaAtual(Date.now());
-    partes.push(`${clima.icone} ${clima.nome}`, `${hora.icone} ${hora.nome}`);
-  }
+  if (clima) partes.push(`${clima.icone} ${clima.nome}`);
+  const hora = horaDoDiaAtual(Date.now());
+  partes.push(`${hora.icone} ${hora.nome} ${hora.rotulo}`);
   el.textContent = partes.join(" · ");
 
   // EVENTO REGIONAL NA ZONA ATUAL.
@@ -1502,7 +1501,7 @@ function loopRender(agora = performance.now()) {
   renderer.desenhar({
     grid,
     alturas: alturasAtivas(),
-    player: { ...mundo.player, x: mundo.player.renderX, y: mundo.player.renderY },
+    player: { ...mundo.player, x: mundo.player.renderX, y: mundo.player.renderY, horaNoite: ehNoite(Date.now()), lanternaNivel: personagem?.lanternaNivel || 1 },
     npcs: npcsAtivos(),
     objetos: objetosAtivos(),
     props: propsAtivos(),
@@ -1512,6 +1511,8 @@ function loopRender(agora = performance.now()) {
     // No celular o próprio botão contextual conta a ação; repetir uma tarja
     // no canvas cobria o herói. Teclado mantém a dica completa.
     mostrarPronto: document.body.classList.contains("touch") ? null : contextoAcao.textoTeclado,
+    hora: horaDoDiaAtual(Date.now()),
+    climaId: climaAtual()?.id || null,
   });
   // O minimapa sai cedo sozinho quando nada mudou (ver MinimapaUI:
   // `ultimaChave`), então chamá-lo a cada quadro custa uma comparação de
@@ -1864,14 +1865,16 @@ function verificarEncontroAleatorio(grid, x, y) {
   // Pet de trégua (Lebre, Javali): o bicho vai à frente e o que estava à
   // espreita muda de ideia. Multiplica a chance já ajustada pelo grupo, em
   // vez de somar — assim ele vale o mesmo em qualquer nível.
-  const chanceFinal = chanceAjustadaPeloGrupo(chance, personagem.nivel) * fatorDeTregua(personagem, dados.pets);
+  const noite = mundo.mapaAtual === "overworld" && ehNoite(Date.now());
+  const chanceFinal = chanceAjustadaPeloGrupo(chance, personagem.nivel) * (noite ? 1.55 : 1) * fatorDeTregua(personagem, dados.pets);
   if (deveDispararEncontro(chanceFinal)) {
-    const candidatos = idsCandidatos.map((id) => dados.monsters.find((m) => m.id === id)).filter(Boolean);
+    const candidatosBase = idsCandidatos.map((id) => dados.monsters.find((m) => m.id === id)).filter(Boolean);
+    const candidatos = noite ? candidatosBase.map(reforcarAgressaoNoturna) : candidatosBase;
     // Horda (task #47): 10% dos encontros disparados viram horda — 5 ondas
     // sucessivas do mesmo pool da zona, em vez de 1 grupo só. A "ameaça"
     // pré-combate mostra só a 1ª onda (as próximas só se revelam limpando a
     // anterior), mas leva junto as ondas 2-5 pra Batalha já saber delas.
-    if (deveSerHorda()) {
+    if (deveSerHorda(noite ? 0.28 : 0.10)) {
       const levas = sortearLevasHorda(candidatos, 5);
       if (levas.length) {
         levas[0] = aplicarEmboscadaSeAplicavel(levas[0], candidatos);

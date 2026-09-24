@@ -277,6 +277,12 @@ export class Renderer {
     this.ctx.save();
     if (transparente) this.ctx.globalAlpha = 0.42;
     this.ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, w, h);
+    if (prop.id && /(lanterna|poste|tocha|fogueira|pousada|portao|ponte)/i.test(prop.id) && this.horaAtual?.ehNoite) {
+      const lx = dx + w * .5, ly = dy + h * .28, r = T * 1.35;
+      const grad = this.ctx.createRadialGradient(lx, ly, 1, lx, ly, r);
+      grad.addColorStop(0, "rgba(255,220,125,.52)"); grad.addColorStop(1, "rgba(255,160,45,0)");
+      this.ctx.fillStyle = grad; this.ctx.beginPath(); this.ctx.arc(lx, ly, r, 0, Math.PI * 2); this.ctx.fill();
+    }
     if (transparente) {
       // Contorno luminoso discreto mantém a árvore legível ao mesmo tempo em
       // que revela claramente o personagem passando por trás dela.
@@ -443,13 +449,14 @@ export class Renderer {
     }
   }
 
-  desenhar({ grid, alturas = null, player, npcs, objetos, mostrarPronto, props, tema, pet, objetivoMissao = null }) {
+  desenhar({ grid, alturas = null, player, npcs, objetos, mostrarPronto, props, tema, pet, objetivoMissao = null, hora = null, climaId = null }) {
     const ctx = this.ctx;
     const T = this.tilePx;
     const mapaWpx = grid[0].length * T;
     const mapaHpx = grid.length * T;
     this.gridAtual = grid;
     this.alturasAtual = alturas;
+    this.horaAtual = hora;
     const playerPx = { x: player.x * T + T / 2, y: player.y * T + T / 2 + this.deslocamentoAltura(player.x, player.y) };
     const margemTopo = alturas ? Math.ceil(ALTURA_PROJETADA_MAXIMA + 1) * T : 0;
     const cam = this.camera(playerPx, mapaWpx, mapaHpx, margemTopo, player.dir);
@@ -512,7 +519,43 @@ export class Renderer {
       this.desenharJogador(item.dado, playerPx, cam);
     }
 
+    this.desenharAmbienteHorario(player, cam, hora, climaId);
     if (mostrarPronto) this.desenharDicaDeInteracao(mostrarPronto);
+  }
+
+  desenharAmbienteHorario(player, cam, hora, climaId) {
+    if (!hora) return;
+    const h = hora.horaDecimal ?? hora.hora;
+    const crepusculo = (h >= 5 && h < 7) ? (7 - h) / 2 : (h >= 18 && h < 20) ? (h - 18) / 2 : 0;
+    const ctx = this.ctx;
+    if (crepusculo > 0) {
+      ctx.save(); ctx.fillStyle = `rgba(218,112,67,${(crepusculo * .16).toFixed(3)})`;
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); ctx.restore();
+    }
+    const intensidade = hora.escuridao ?? (hora.ehNoite ? 1 : 0);
+    if (intensidade <= 0) return;
+    const T = this.tilePx;
+    const x = player.x * T + T / 2 - cam.x;
+    const y = player.y * T + T / 2 + this.deslocamentoAltura(player.x, player.y) - cam.y;
+    const alcance = T * (3.9 + Math.min(2, player.lanternaNivel || 1) * .45);
+    ctx.save(); ctx.globalAlpha = intensidade; ctx.fillStyle = "rgba(5,9,26,.58)"; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const luz = ctx.createRadialGradient(x, y, T * .4, x, y, alcance);
+    luz.addColorStop(0, "rgba(255,224,145,.44)"); luz.addColorStop(.34, "rgba(255,193,87,.16)"); luz.addColorStop(1, "rgba(255,193,87,0)");
+    ctx.fillStyle = luz; ctx.fillRect(x - alcance, y - alcance, alcance * 2, alcance * 2);
+    if (climaId === "neblina" || climaId === "chuva" || climaId === "nevasca") {
+      ctx.fillStyle = climaId === "nevasca" ? "rgba(220,240,255,.08)" : "rgba(190,205,230,.055)";
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    if (climaId !== "nevasca") {
+      const tempo = Date.now() / 700; ctx.fillStyle = "rgba(255,226,125,.72)";
+      for (let i = 0; i < 12; i++) {
+        const px = (i * 97 + Math.floor(tempo * (i % 3 + 1) * 8)) % Math.max(1, this.canvas.width);
+        const py = (i * 53 + Math.floor(tempo * (i % 2 + 1) * 5)) % Math.max(1, this.canvas.height);
+        ctx.globalAlpha = Math.max(.08, .35 + Math.sin(tempo + i) * .25);
+        ctx.beginPath(); ctx.arc(px, py, Math.max(1, T * .035), 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.restore();
   }
 
   desenharRastroMissao(objetivo, player, cam) {
@@ -742,6 +785,16 @@ export class Renderer {
     // lógico, enquanto roupa, cabelo e equipamento ganham mais pixels.
     const dy = playerPx.y - cam.y - tam * 0.78;
     ctx.save();
+    if (player.horaNoite) {
+      const lx = playerPx.x - cam.x + (player.dir === "esquerda" ? -tam * .34 : tam * .34);
+      const ly = playerPx.y - cam.y - tam * .24;
+      const raio = T * .72;
+      const glow = ctx.createRadialGradient(lx, ly, 1, lx, ly, raio);
+      glow.addColorStop(0, "rgba(255,242,170,.8)"); glow.addColorStop(.28, "rgba(255,185,75,.28)"); glow.addColorStop(1, "rgba(255,185,75,0)");
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(lx, ly, raio, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#6b3e21"; ctx.fillRect(lx - T * .06, ly - T * .08, T * .12, T * .25);
+      ctx.fillStyle = "#ffe99b"; ctx.beginPath(); ctx.arc(lx, ly - T * .11, T * .1, 0, Math.PI * 2); ctx.fill();
+    }
     ctx.globalAlpha = .36;
     ctx.fillStyle = "#070706";
     ctx.beginPath();
