@@ -34,6 +34,10 @@ import { escalaDeNivel, NIVEL_LIMIAR } from "../systems/EscalaSystem.js";
 
 export function montarPainelEstado(personagem, dados, contexto = {}) {
   const corpo = abrirModalBase("📋 Como você está", { largura: LARGURA.media });
+  preencherPainelEstado(corpo, personagem, dados, contexto);
+}
+
+export function preencherPainelEstado(corpo, personagem, dados, contexto = {}) {
   const time = contexto.time || [personagem];
 
   corpo.appendChild(secaoNumeros(personagem, dados));

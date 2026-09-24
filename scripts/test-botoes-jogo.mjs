@@ -53,7 +53,7 @@ await page.waitForFunction(() => !document.getElementById("hud")?.classList.cont
   && !document.querySelector(".cutscene, .tutorial"), null, { timeout: 20000 });
 
 const resultados = [];
-for (const hub of ["personagem", "jornada", "mochila", "mais"]) {
+for (const hub of ["personagem", "jornada", "invocar", "mais"]) {
   const botaoHub = page.locator(`#hud-hub-${hub}`);
   const abrirHub = async () => {
     if (mobile) await page.locator(`.hda-navbar button[data-destino='${hub}']`).click();
@@ -91,7 +91,12 @@ for (const hub of ["personagem", "jornada", "mochila", "mais"]) {
         if (await alvo.isVisible()) await alvo.click();
         else if (await seletor.isVisible()) await seletor.selectOption(aba);
         else throw new Error(`Aba ${acao}/${aba} sem controle visível`);
-        resultados.push({ botao: `${acao}/${aba}`, abriu: await alvo.getAttribute("aria-selected") === "true" });
+        const navegou = aba === "evolucao"
+          ? await page.locator(".progressao-heroi-nav").count() > 0
+          : aba === "historico"
+            ? await page.locator("#hda-modal-titulo").textContent() === "Histórico de invocações"
+            : await alvo.getAttribute("aria-selected") === "true";
+        resultados.push({ botao: `${acao}/${aba}`, abriu: navegou });
       }
     }
     await page.keyboard.press("Escape");
@@ -101,6 +106,33 @@ for (const hub of ["personagem", "jornada", "mochila", "mais"]) {
   }
 }
 
+// Real buttons in the unified workspaces, not just sidebar entry points.
+for (const [entrada, sequencia] of [
+  ["mapa", ["viagem", "atlas", "missoes", "diario", "arquivo_missoes", "compendio", "mapa"]],
+  ["equipamento", []],
+  ["gacha", ["historico", "gacha", "colecao"]],
+]) {
+  await page.evaluate((acao) => document.dispatchEvent(new CustomEvent("hda-navegar", { detail: acao })), entrada);
+  for (const acao of sequencia) {
+    await page.locator(`[data-workspace-action="${acao}"]`).first().click();
+    resultados.push({ botao: `workspace/${acao}`, abriu: await page.locator("#modal-overlay").isVisible() });
+  }
+  resultados.push({ botao: `${entrada}/sem-overflow`, abriu: await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1) });
+  await page.keyboard.press("Escape");
+}
+await page.evaluate(() => document.dispatchEvent(new CustomEvent("hda-navegar", { detail: "equipamento" })));
+await page.locator(".party-busca").fill("poção");
+await page.getByRole("button", { name: "Forja e Alquimia", exact: true }).click();
+await page.locator('[data-workspace-action="equipamento"]').first().click();
+resultados.push({ botao: "forja/retorno", abriu: await page.locator(".companhia-equipamento").count() === 1 });
+resultados.push({ botao: "equipamento/preserva-busca", abriu: await page.locator(".party-busca").inputValue() === "poção" });
+await page.locator(".party-busca").fill("");
+await page.screenshot({ path: `test-unificacao-${horizontal ? "horizontal" : mobile ? "mobile" : "desktop"}.png` });
+await page.evaluate(() => document.dispatchEvent(new CustomEvent("hda-navegar", { detail: "colecao" })));
+await page.getByRole("button", { name: "Companheiros", exact: true }).click();
+resultados.push({ botao: "companhia/pets", abriu: await page.locator("#pets-grade").count() === 1 });
+await page.getByRole("button", { name: "Formação", exact: true }).click();
+resultados.push({ botao: "pets/retorno-formacao", abriu: await page.locator(".companhia-formacao").count() === 1 });
 console.log(JSON.stringify({ resultados, erros }, null, 2));
 await browser.close();
 if (erros.length || resultados.some((r) => !r.abriu)) process.exitCode = 1;

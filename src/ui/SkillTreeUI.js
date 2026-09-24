@@ -284,6 +284,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
   conteudo().innerHTML = `
     <button class="fechar">Fechar (Esc)</button>
     <nav class="progressao-heroi-nav" aria-label="Progressão do herói">
+      <button type="button" data-voltar-companhia>← Companhia</button>
       <button class="ativo" type="button" aria-current="page">🌳 Habilidades e cards</button>
       ${opcoes.abrirHeranca ? '<button type="button" data-progressao-heranca>💠 Caminhos e Herança</button>' : ""}
     </nav>
@@ -298,6 +299,7 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
   conteudo().querySelector(".fechar").onclick = fecharModalLocal;
   const btnHeranca = conteudo().querySelector("[data-progressao-heranca]");
   if (btnHeranca) btnHeranca.onclick = opcoes.abrirHeranca;
+  conteudo().querySelector('[data-voltar-companhia]').onclick = () => document.dispatchEvent(new CustomEvent('hda-navegar', { detail: 'estado' }));
   conteudo().querySelectorAll(".arv-aba").forEach((b) => {
     b.onclick = () => montarArvoreHabilidades(personagem, dados, onMudar, b.dataset.aba, opcoes);
   });

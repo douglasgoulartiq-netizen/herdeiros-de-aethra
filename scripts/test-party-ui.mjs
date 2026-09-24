@@ -39,19 +39,21 @@ for (const vp of [{ nome: "desktop", width: 1440, height: 900 }, { nome: "celula
   await page.evaluate(() => localStorage.removeItem("rpg_pt_save_v1"));
   await page.click("#btn-novo-jogo");
   await page.waitForTimeout(400);
-  await page.fill("input[placeholder='Digite um nome...']", "Herdeira");
-  for (let i = 0; i < 15; i += 1) {
-    const fim = await page.evaluate(() => {
-      const pa = document.querySelector(".painel-criacao");
-      if (!pa || !pa.offsetParent) return true;
-      const c = pa.querySelector(".opcao-card"); if (c) c.click();
-      const a = [...pa.querySelectorAll("button")]
-        .find((x) => /Avançar|Começar|Iniciar|Jogar/i.test(x.textContent || "") && !x.disabled);
-      if (a) a.click(); return false;
-    });
-    if (fim) break;
-    await page.waitForTimeout(320);
-  }
+  await page.evaluate(async () => {
+    const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    document.querySelector(".criacao-inicio")?.click();
+    await esperar(100);
+    document.querySelector(".criacao-aleatoria")?.click();
+    await esperar(100);
+    document.querySelector(".criacao-continuar")?.click();
+    for (let i = 0; i < 45; i++) {
+      document.querySelector("#cutscene-pular")?.click();
+      document.querySelector(".cutscene-confirmar-pulo")?.click();
+      [...document.querySelectorAll(".tutorial button")].find((b) => /pular|mais tarde/i.test(b.textContent))?.click();
+      if (!document.getElementById("hud")?.classList.contains("hidden") && !document.querySelector(".cutscene, .tutorial")) break;
+      await esperar(240);
+    }
+  });
   await page.waitForFunction(() => {
     const d = window.HDA_MUNDO ? window.HDA_MUNDO() : null;
     return !!(d && d.chunksCarregados && d.chunksCarregados !== "—");
@@ -73,7 +75,7 @@ for (const vp of [{ nome: "desktop", width: 1440, height: 900 }, { nome: "celula
     return { membros: 1 + gs.membrosDoTime(pers).length, itens: pers.inventario.length };
   });
 
-  await page.keyboard.press("y");
+  await page.keyboard.press("i");
   await page.waitForTimeout(900);
 
   const tela = await page.evaluate(() => {
@@ -101,6 +103,8 @@ for (const vp of [{ nome: "desktop", width: 1440, height: 900 }, { nome: "celula
   ver("sem rolagem horizontal", !tela.overflowX);
 
   // --- escolher um item abre a comparação POR MEMBRO ----------------------
+  await page.locator('[data-cat="arma"]').click();
+  await page.waitForTimeout(300);
   await page.evaluate(() => { const l = [...document.querySelectorAll(".hda-ladrilho")].pop(); if (l) l.click(); });
   await page.waitForTimeout(450);
 
@@ -175,7 +179,7 @@ for (const vp of [{ nome: "desktop", width: 1440, height: 900 }, { nome: "celula
   await page.waitForTimeout(400);
   const semNada = await page.evaluate(() => ({
     ladrilhos: document.querySelectorAll(".hda-ladrilho").length,
-    avisou: /nada na mochila/i.test(document.querySelector(".party-mochila").innerText || ""),
+    avisou: /nenhum resultado/i.test(document.querySelector(".party-mochila").innerText || ""),
   }));
   ver("busca sem resultado esvazia a grade e avisa",
     semNada.ladrilhos === 0 && semNada.avisou, JSON.stringify(semNada));

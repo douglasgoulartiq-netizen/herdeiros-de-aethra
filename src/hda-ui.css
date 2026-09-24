@@ -1514,3 +1514,20 @@ body.desafio-encontro-ativo #hda-notificacoes {
   .pet-carta { grid-template-columns:48px 1fr; }
   .pet-botao { grid-column:1 / -1; }
 }
+/* Unified workspaces: normal document flow, never overlaid on content. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .tela-party:not([data-companhia-aba="ficha"]) .companhia-palco { display: none !important; }
+  .tela-party .companhia-ferramentas { margin-bottom: 6px; }
+}
+.hda-workspace-nav { flex: 0 0 auto; min-width: 0; padding: 6px 12px; border-bottom: 1px solid #35505b; }
+.hda-workspace-nav > div, .companhia-ferramentas { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+.hda-workspace-nav button, .companhia-ferramentas button { flex: 0 0 auto; }
+.hda-workspace-nav > div + div { margin-top: 6px; }
+.hda-workspace-nav button, .companhia-ferramentas button { min-height: 40px; padding: 8px 12px; color: #e2edf0; background: #12252d; border: 1px solid #41616a; border-radius: 6px; }
+.hda-workspace-nav button[aria-current], .hda-workspace-nav button:hover { border-color: #eac46c; background: #24404a; }
+.hda-workspace-nav button:focus-visible, .companhia-ferramentas button:focus-visible { outline: 2px solid #eac46c; outline-offset: 2px; }
+.companhia-ferramentas { margin-bottom: 12px; }
+@media (max-width: 600px) {
+  .hda-workspace-nav { padding: 4px 8px; }
+  .hda-workspace-nav button, .companhia-ferramentas button { min-height: 44px; font-size: .8rem; padding: 6px 8px; }
+}

@@ -127,36 +127,28 @@ export const HUBS = [
   // `curto` é o rótulo do trilho, onde cabem 68px: "Personagem" virava
   // "PERSON…" e uma palavra cortada não é um rótulo. Na barra do celular e no
   // título do painel continua valendo o nome inteiro.
-  { id: "personagem", icone: "👤", rotulo: "Personagem", curto: "Herói", acoes: [
-    { acao: "estado", rotulo: "Como você está", icone: "📋", atalho: "K" },
-    { acao: "arvore", rotulo: "Habilidades", icone: "✨", atalho: "T" },
+  { id: "personagem", icone: "🛡️", rotulo: "Companhia", curto: "Equipe", acoes: [
+    { acao: "estado", rotulo: "Heróis", icone: "👤", atalho: "K" },
+    { acao: "equipamento", rotulo: "Equipamento", icone: "🎒", atalho: "I" },
+    { acao: "arvore", rotulo: "Evolução · Habilidades", icone: "✨", atalho: "T" },
     { acao: "caminhos", rotulo: "Caminhos do Herdeiro", icone: "🌌", atalho: "H", id: "btn-caminhos" },
     // "Time" saiu de dentro do painel de invocação e virou tela própria
     // (PartyUI.js). Antes, para vestir um convocado era preciso passar pelo
     // gacha — uma tela de sorteio — o que misturava duas coisas que não têm
     // nada a ver uma com a outra.
-    { acao: "party", rotulo: "Companhia", icone: "🛡️", atalho: "Y" },
-    { acao: "gacha", rotulo: "Invocação", icone: "✨", atalho: "G" },
+    { acao: "party", rotulo: "Formação e companheiros", icone: "🛡️", atalho: "Y" },
   ] },
-  // "Mapa" e "Atlas" são duas coisas e continuam separadas: o Mapa (U) é
-  // desenhado do território real, mostra o nível de cada região e respeita a
-  // névoa — é instrumento de navegação; o Atlas é a pintura de lore com as 17
-  // regiões catalogadas — é leitura. Unir os dois faria o jogador procurar
-  // uma coisa e achar a outra.
+  // Mapa, viagens e atlas compartilham Jornada → Mapa. Os atalhos de
+  // teclado antigos continuam disponíveis sem duplicar entradas no menu.
   { id: "jornada", icone: "🧭", rotulo: "Jornada", acoes: [
     { acao: "missoes", rotulo: "Missões", icone: "📜", atalho: "M" },
     { acao: "mapa", rotulo: "Mapa de Aethra", icone: "🗺️", atalho: "U" },
-    { acao: "viagem", rotulo: "Viagem Rápida", icone: "🧭", atalho: "V" },
-    { acao: "atlas", rotulo: "Atlas ilustrado", icone: "🖼️" },
-    { acao: "diario", rotulo: "Diário de Decisões", icone: "📖", atalho: "D" },
-    { acao: "compendio", rotulo: "Compêndio", icone: "📚", atalho: "C" },
+    { acao: "compendio", rotulo: "Códice", icone: "📚", atalho: "C" },
   ] },
-  { id: "mochila", icone: "🎒", rotulo: "Mochila", acoes: [
-    { acao: "party", rotulo: "Equipamento da companhia", icone: "🎒", atalho: "I" },
-    { acao: "inventario", rotulo: "Só do principal", icone: "👤" },
-    { acao: "forja", rotulo: "Forja & Alquimia", icone: "🔨", atalho: "F" },
+  { id: "invocar", icone: "✨", rotulo: "Invocar", acoes: [
+    { acao: "gacha", rotulo: "Invocar heróis", icone: "✨", atalho: "G" },
   ] },
-  { id: "mais", icone: "⋯", rotulo: "Mais", acoes: [
+  { id: "mais", icone: "⋯", rotulo: "Menu", acoes: [
     { acao: "tutorial", rotulo: "Tutorial e ajuda", icone: "🎓", atalho: "F1" },
     { acao: "descansar", rotulo: "Descansar", icone: "💤", atalho: "R" },
     { acao: "sair_masmorra", rotulo: "Sair da Masmorra", icone: "🚪" },

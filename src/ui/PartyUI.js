@@ -128,7 +128,8 @@ function barra(atual, max, classe) {
 // ---------------------------------------------------------------------------
 
 export function montarParty(personagem, time, dados, onMudar, estadoAnterior = null) {
-  const membros = (time && time.length ? time : [personagem]).filter(Boolean);
+  const membros = [personagem, ...(time || []), ...(estadoAnterior?.aba === "ficha" ? personagem.gacha?.personagensObtidos || [] : [])]
+    .filter((m, i, todos) => m && todos.findIndex((outro) => outro === m || (m.uid && outro?.uid === m.uid)) === i);
   const interfaceToque = ehMobile() || (typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
   const estado = estadoAnterior || {
     membroIdx: 0,
@@ -149,6 +150,13 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     classe: "tela-party",
   });
   const corpo = tela.corpo;
+  tela.raiz.dataset.companhiaAba = estado.aba;
+  const abaRenderizada = estado.aba;
+  estado.rolagens ||= {};
+  corpo.addEventListener("scroll", () => { estado.rolagens[abaRenderizada] = corpo.scrollTop; }, { passive: true });
+  requestAnimationFrame(() => {
+    if (corpo.isConnected) corpo.scrollTop = estado.rolagens[abaRenderizada] || 0;
+  });
   corpo.classList.add("companhia-corpo");
   const redesenhar = () => montarParty(personagem, time, dados, onMudar, estado);
 
@@ -192,12 +200,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   palcoCompanhia.className = "companhia-palco";
   const trilhoCompanhia = document.createElement("aside");
   trilhoCompanhia.className = "companhia-trilho";
-  trilhoCompanhia.setAttribute("aria-label", "Membros da formação ativa");
+  trilhoCompanhia.setAttribute("aria-label", estado.aba === "ficha" ? "Heróis da companhia" : "Membros da formação ativa");
   fileira.setAttribute("role", "radiogroup");
-  trilhoCompanhia.innerHTML = `<small>FORMAÇÃO ATIVA</small>`;
+  trilhoCompanhia.innerHTML = `<small>${estado.aba === "ficha" ? "HERÓIS" : "FORMAÇÃO ATIVA"}</small>`;
   trilhoCompanhia.appendChild(fileira);
 
-  const elementoAtivo = ativo.elemento || ativo.equipamento?.arma?.elemento || "fisico";
+  const elementoAtivo = ativo.elementoId || ativo.elemento || ativo.equipamento?.arma?.elemento || "fisico";
   const infoAtivo = infoElemento(elementoAtivo, dados.elements) || { nome: elementoAtivo, icone: "◆", cor: "#c9c9c9" };
   const poderAtivo = Math.min(250, Math.max(0, Math.round(poderDeCombate(ativo, dados))));
   const alvoArte = ativo.rosterId ? { rosterId: ativo.rosterId } : { racaId: ativo.racaId, classeId: ativo.classeId };
@@ -267,12 +275,36 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // desta tela. Aqui as três coisas que se faz com o grupo ficam lado a
   // lado — ver o que cada um tem, vestir, e mandar vestir sozinho.
   const ABAS = [
-    { id: "ficha", rotulo: "Herói", icone: "👤" },
+    { id: "ficha", rotulo: "Heróis", icone: "👤" },
     { id: "mochila", rotulo: "Equipamento", icone: "🎒" },
     { id: "time", rotulo: "Formação", icone: "🛡️" },
-    { id: "auto", rotulo: "Otimizar", icone: "⚙️" },
+    ...(estado.abrirEvolucao ? [{ id: "evolucao", rotulo: "Evolução", icone: "✨" }] : []),
   ];
-  tela.definirAbas(ABAS, (id) => { estado.aba = id; redesenhar(); }, estado.aba);
+  tela.definirAbas(ABAS, (id) => {
+    if (id === "evolucao") { estado.abrirEvolucao(); return; }
+    estado.aba = id; redesenhar();
+  }, estado.aba === "auto" ? "mochila" : estado.aba);
+  const ferramentas = document.createElement("nav");
+  ferramentas.className = "companhia-ferramentas";
+  ferramentas.setAttribute("aria-label", "Ações da companhia");
+  const atalhos = estado.aba === "time"
+    ? [["Coleção", "colecao"], ["Companheiros", "pets"], ["Revisar equipamentos", "auto"]]
+    : estado.aba === "mochila" || estado.aba === "auto"
+      ? [...(estado.aba === "auto" ? [["Voltar ao equipamento", "mochila"]] : []), ["Otimizar · ver proposta", "auto"], ["Forja e Alquimia", "forja"]]
+      : [["Coleção e vínculos", "colecao"]];
+  for (const [rotulo, id] of atalhos) {
+    const botao = document.createElement("button");
+    botao.type = "button"; botao.textContent = rotulo;
+    botao.onclick = () => {
+      if (id === "forja") { estado.abrirForja?.(); return; }
+      if (id === "colecao" || id === "pets") {
+        document.dispatchEvent(new CustomEvent("hda-navegar", { detail: id })); return;
+      }
+      estado.aba = id; redesenhar();
+    };
+    if (id !== "forja" || estado.abrirForja) ferramentas.appendChild(botao);
+  }
+  corpo.insertBefore(ferramentas, corpo.firstChild);
 
   const painelMochila = document.createElement("section");
   painelMochila.className = "companhia-painel companhia-equipamento";
@@ -644,7 +676,15 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     }
   }
 
-  if (estado.aba === "ficha") desenharFicha();
+  if (estado.aba === "ficha") {
+    desenharFicha();
+    if (estado.montarResumo) {
+      const resumo = document.createElement("details");
+      resumo.innerHTML = "<summary>Bônus, efeitos e situação do mundo</summary>";
+      painelFicha.appendChild(resumo);
+      estado.montarResumo(resumo, ativo);
+    }
+  }
   if (estado.aba === "auto") desenharAuto();
 
   // Tooltips: um listener só na tela inteira, resolvendo id → objeto. O

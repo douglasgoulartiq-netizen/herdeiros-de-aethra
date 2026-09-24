@@ -403,6 +403,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes = {}) {
   conteudo().innerHTML = `
     <button class="fechar">Fechar (Esc)</button>
     <nav class="progressao-heroi-nav" aria-label="Progressão do herói">
+      <button type="button" data-voltar-companhia>← Companhia</button>
       ${opcoes.abrirHabilidades ? '<button type="button" data-progressao-habilidades>🌳 Habilidades e cards</button>' : ""}
       <button class="ativo" type="button" aria-current="page">💠 Caminhos e Herança</button>
     </nav>
@@ -424,6 +425,7 @@ export function montarCaminhoHerdeiro(personagem, dados, onMudar, opcoes = {}) {
   conteudo().querySelector(".fechar").onclick = fecharModalLocal;
   const btnHabilidades = conteudo().querySelector("[data-progressao-habilidades]");
   if (btnHabilidades) btnHabilidades.onclick = opcoes.abrirHabilidades;
+  conteudo().querySelector('[data-voltar-companhia]').onclick = () => document.dispatchEvent(new CustomEvent('hda-navegar', { detail: 'estado' }));
 
   // --- cabeçalho de pontos -------------------------------------------------
   const painelPontos = conteudo().querySelector("#caminho-pontos");

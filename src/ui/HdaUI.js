@@ -23,6 +23,7 @@
 // fazia a ação principal sair de vista assim que a lista crescia — o problema
 // nº 1 da auditoria.
 import { INTERVALO_CAIXA_TEXTO_MS } from "../systems/AutoPlayState.js";
+import { montarNavegacaoDaTela } from "./WorkspaceNavigation.js";
 import { somInterfaceAbrir, somInterfaceFechar, somTrocarAba } from "./SoundFX.js";
 
 const overlay = () => document.getElementById("modal-overlay");
@@ -202,6 +203,7 @@ export function abrirTela({ titulo, subtitulo = "", largura = LARGURA.media, cla
   `;
   const corpo = raiz.querySelector("#modal-corpo");
   const cabecalho = raiz.querySelector(".hda-modal-cab");
+  montarNavegacaoDaTela(raiz, cabecalho, titulo);
   const fechar = () => { fecharTela(); if (aoFechar) aoFechar(); };
   raiz.querySelector(".hda-fechar").onclick = fechar;
   ativarModal(fechar);

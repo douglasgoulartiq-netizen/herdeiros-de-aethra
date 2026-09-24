@@ -36,14 +36,12 @@ function criarEstadoCompendio({ icone, titulo, descricao, tipo = "vazio" }) {
 
 export function montarCompendio(personagem, dados, abaInicial = "bestiario") {
   const tela = abrirTela({
-    titulo: "Compêndio",
+    titulo: abaInicial === "missoes" ? "Missões · Histórico" : abaInicial === "invocacoes" ? "Histórico de invocações" : "Códice",
     largura: LARGURA.larga,
     classe: "tela-compendio",
   });
-  tela.definirAbas([
+  if (!["missoes", "invocacoes"].includes(abaInicial)) tela.definirAbas([
     { id: "bestiario", rotulo: "Bestiário", icone: "🐉" },
-    { id: "missoes", rotulo: "Missões", icone: "📜" },
-    { id: "invocacoes", rotulo: "Invocações", icone: "✨" },
     { id: "faccoes", rotulo: "Facções", icone: "🏳️" },
     { id: "mitologia", rotulo: "Mitologia", icone: "📖" },
   ], (id) => montarCompendio(personagem, dados, id), abaInicial);

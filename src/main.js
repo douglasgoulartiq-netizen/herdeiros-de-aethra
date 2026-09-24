@@ -87,7 +87,7 @@ import { cutscenePorId } from "./systems/CutsceneSystem.js";
 // camada de dados que os dois compartilham.
 import { montarMinimapa, atualizarMinimapa } from "./ui/MinimapaUI.js";
 import { montarMapaMundo } from "./ui/MapaMundoUI.js";
-import { montarPainelEstado } from "./ui/PainelEstadoUI.js";
+import { preencherPainelEstado } from "./ui/PainelEstadoUI.js";
 import { faixaDeNivel, ameacaRelativa, zonaDoMundoPorId } from "./systems/MapaSystem.js";
 // Cartões de decisão: o jogo passa a CONTAR o que já sabia (item melhor na
 // mochila, habilidade destravada, material suficiente para forjar). Ver
@@ -1587,7 +1587,7 @@ function onKeyDown(e) {
   } else if (e.key.toLowerCase() === "e") {
     tentarInteragir();
   } else if (e.key.toLowerCase() === "i") {
-    if (podeJogarNoMundo()) onHudAction("party");
+    if (podeJogarNoMundo()) onHudAction("equipamento");
   } else if (e.key.toLowerCase() === "m") {
     if (podeJogarNoMundo()) onHudAction("missoes");
   } else if (e.key.toLowerCase() === "q") {
@@ -2350,22 +2350,42 @@ function sairDaMasmorra() {
   mostrarMensagem("Você retorna à superfície.");
 }
 
+const estadosCompanhia = new WeakMap();
+document.addEventListener("hda-navegar", (evento) => {
+  if (personagem) onHudAction(evento.detail);
+});
+function abrirCompanhia(aba) {
+  let estado = estadosCompanhia.get(personagem);
+  if (!estado) {
+    estado = { membroIdx: 0, filtro: "todos", busca: "", uidSelecionado: null };
+    estadosCompanhia.set(personagem, estado);
+  }
+  estado.aba = aba;
+  estado.abrirEvolucao = () => abrirProgressaoDoHeroi();
+  estado.abrirForja = () => onHudAction("forja");
+  estado.montarResumo = (corpo, ativo) => preencherPainelEstado(corpo, ativo, dados, contextoEstado());
+  montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, atualizarInterfacePrincipal, estado);
+}
+
 function onHudAction(action) {
   // O `contexto` ({ dados, time }) é o que liga o painel de equipamento
   // automático dentro da tela — sem ele o inventário abre igual a antes.
-  if (action === "inventario") montarInventario(personagem, atualizarInterfacePrincipal, personagem, null, null, { dados, time: [personagem, ...membrosDoTime(personagem)] });
-  else if (action === "party") montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, atualizarInterfacePrincipal);
+  if (action === "inventario" || action === "equipamento") abrirCompanhia("mochila");
+  else if (action === "party") abrirCompanhia("time");
   else if (action === "missoes") montarMissoes(personagem, dados);
   else if (action === "forja") montarForja(personagem, dados, atualizarInterfacePrincipal);
   else if (action === "salvar") salvarProgresso();
   else if (action === "gacha") montarGacha(personagem, dados, atualizarInterfacePrincipal);
+  else if (action === "colecao" || action === "pets") montarGacha(personagem, dados, atualizarInterfacePrincipal, action);
+  else if (action === "historico") montarCompendio(personagem, dados, "invocacoes");
+  else if (action === "arquivo_missoes") montarCompendio(personagem, dados, "missoes");
   else if (action === "arvore") abrirProgressaoDoHeroi("habilidades");
   else if (action === "caminhos") abrirProgressaoDoHeroi("heranca");
   else if (action === "compendio") montarCompendio(personagem, dados);
   else if (action === "viagem") abrirViagemRapida();
   else if (action === "atlas") abrirAtlas();
   else if (action === "mapa") abrirMapaMundo();
-  else if (action === "estado") abrirPainelEstado();
+  else if (action === "estado") abrirCompanhia("ficha");
   else if (action === "auto") alternarModoAutomatico();
   else if (action === "acessibilidade") montarAcessibilidade(personagem, () => atualizarHUD(personagem));
   else if (action === "diario") montarDiarioDeDecisoes(personagem, dados);
@@ -2471,10 +2491,14 @@ function abrirAtlas() {
 // hora, zona, eventos ativos) é montado aqui porque só main.js tem acesso a
 // `mundo`; a tela não sabe nada sobre o mapa.
 function abrirPainelEstado() {
+  if (personagem) abrirCompanhia("ficha");
+}
+
+function contextoEstado() {
   if (!personagem) return;
   const zona = mundo.mapaAtual === "overworld" ? zonaDoMundoPorId(mundo.zonaAtualId) : null;
   const nivelZona = zona ? faixaDeNivel(zona) : null;
-  montarPainelEstado(personagem, dados, {
+  return {
     time: [personagem, ...membrosDoTime(personagem)],
     clima: climaAtualDaZona(mundo.zonaAtualId, Date.now(), altitudeNoPonto(mundo.player.x, mundo.player.y)),
     hora: horaDoDiaAtual(Date.now()),
@@ -2483,7 +2507,7 @@ function abrirPainelEstado() {
     // `listarEventosAtivos` devolve IDs crus; o painel mostrava
     // "ev_tempestade_eter_altaverde" ao jogador. `resumoDosEventos` traduz.
     eventosAtivos: resumoDosEventos(personagem, mundo.zonaAtualId),
-  });
+  };
 }
 
 function abrirMapaMundo() {

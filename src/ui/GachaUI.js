@@ -91,17 +91,43 @@ export function montarGacha(personagem, dados, onMudar, abaInicial = "invocar") 
   const g = personagem.gacha;
 
   const tela = abrirTela({
-    titulo: "Invocação",
+    titulo: ["colecao", "pets"].includes(abaInicial) ? "Companhia" : "Invocação",
     subtitulo: `<span id="gacha-saldo-chip">💠 <b id="gacha-saldo">${g.fragmentos}</b></span>`,
     largura: LARGURA.larga,
     classe: "tela-gacha",
   });
-  tela.definirAbas([
+  const gerenciando = ["colecao", "pets"].includes(abaInicial);
+  tela.definirAbas(gerenciando ? [
+    { id: "estado", rotulo: "Heróis", icone: "👤" },
+    { id: "equipamento", rotulo: "Equipamento", icone: "🎒" },
+    { id: "formacao", rotulo: "Formação", icone: "🛡️" },
+    { id: "arvore", rotulo: "Evolução", icone: "✨" },
+  ] : [
     { id: "invocar", rotulo: "Invocar", icone: "✨" },
-    { id: "colecao", rotulo: `Coleção (${g.personagensObtidos.length})`, icone: "📚" },
-    { id: "pets", rotulo: `Pets (${garantirEstadoDePets(personagem).possuidos.length})`, icone: "🐾" },
+    { id: "historico", rotulo: "Histórico", icone: "📖" },
     { id: "recompensas", rotulo: "Recompensas", icone: "🎁" },
-  ], (id) => montarGacha(personagem, dados, onMudar, id), abaInicial);
+  ], (id) => {
+    if (gerenciando || id === "historico") {
+      document.dispatchEvent(new CustomEvent("hda-navegar", { detail: id === "formacao" ? "party" : id }));
+      return;
+    }
+    montarGacha(personagem, dados, onMudar, id);
+  }, gerenciando ? "formacao" : abaInicial);
+  if (gerenciando) {
+    const ferramentas = document.createElement("nav");
+    ferramentas.className = "hda-workspace-nav";
+    ferramentas.setAttribute("aria-label", "Coleção e companheiros");
+    const faixa = document.createElement("div");
+    for (const [id, rotulo] of [["party", "Formação"], ["colecao", "Coleção e vínculos"], ["pets", "Companheiros"]]) {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = rotulo;
+      if (id === abaInicial) b.setAttribute("aria-current", "page");
+      b.onclick = () => document.dispatchEvent(new CustomEvent("hda-navegar", { detail: id }));
+      faixa.appendChild(b);
+    }
+    ferramentas.appendChild(faixa);
+    tela.corpo.before(ferramentas);
+  }
 
   const corpo = tela.corpo;
   corpo.id = "gacha-corpo";
