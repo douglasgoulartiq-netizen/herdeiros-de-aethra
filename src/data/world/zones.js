@@ -80,7 +80,11 @@ export const ZONAS_MUNDO = [
     id: "campos_de_elyndor", nome: "Campos de Elyndor", regiaoId: "altaverde",
     bioma: "planície cultivada", funcao: "travessia",
     perigo: [2, 4], forma: "planicie", centro: { x: 84, y: 54 }, peso: 1.10,
-    elementoDominante: null,
+    // Era a única zona de combate do mundo sem elemento dominante, então
+    // nenhuma batalha aqui ganhava selo de terreno e nenhum herói de Natureza
+    // sentia o ambiente afim. Lavoura e pasto entre a vila e a floresta: as
+    // outras duas zonas de Altaverde também são de Natureza.
+    elementoDominante: "natureza",
     monstros: ["goblin", "bandido", "javali", "lobo", "touro_selvagem"],
     recursos: ["erva"], clima: "temperado",
     descricao: "Planície aberta ligando a vila ao resto do reino — a estrada principal passa por aqui.",

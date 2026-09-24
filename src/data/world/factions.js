@@ -67,6 +67,14 @@ export const DOMINIO_FACCAO = {
   forja_dos_anoes_cinzentos: [
     "vale_pedras", "caverna_eco", "montanha_sombria", "mina_carmesim",
     "mina_ferro_negro", "cratera_primeiro_fogo",
+    // Estas cinco não pertenciam a facção nenhuma: sem dono não há reputação
+    // regional, nem desconto do mercador itinerante, nem emboscada quando o
+    // herói é malvisto ali. As três do Vale dos Titãs ficam com a Forja porque
+    // as outras duas zonas da mesma região já eram dela; as duas de Morranvell
+    // são a fortaleza de gelo e a mina, território dos mesmos anões (ver os
+    // NPCs de morranvell: clãs, Mina Alta, salão).
+    "arena_ossea", "coracao_petrificado", "templo_dos_titas",
+    "trono_congelado", "vale_das_geleiras",
   ],
   ordem_dos_arquivistas: [
     "terras_esquecidas", "ruinas_aethra", "labirinto_mecanico",

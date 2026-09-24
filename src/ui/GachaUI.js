@@ -65,6 +65,10 @@ function badge(raridade) {
 // quando a arte nova entrar em assets/arte_v2/, esta tela não muda uma linha.
 // O `asset-vazio` ao lado do <img> é o degrau final da cadeia: quando nenhum
 // arquivo existe, ele aparece no lugar do ícone de imagem quebrada.
+// A carta de pet também passa pelo AssetResolver (ver `imgHtml` abaixo). Era a
+// última tela que montava "assets/sprites/pet_<id>.png" na mão: ficava fora da
+// cadeia de fallback, um sprite ausente virava ícone de imagem quebrada, e a
+// arte nova de assets/arte_v2/ nunca alcançaria os pets.
 function retratoConvocado(rosterId, raridade, tamanho = 72) {
   const cor = RARITY_COLORS[raridade] || "#666";
   const img = rosterId ? imgHtml({ rosterId }, USOS.RETRATO) : "";
@@ -696,7 +700,7 @@ function renderPets(corpo, personagem, dados, onMudar) {
     el.className = `pet-carta${ehAtivo ? " ativo" : ""}`;
     el.style.borderColor = cor(def.raridade);
     el.innerHTML = `
-      <div class="pet-retrato"><img src="assets/sprites/pet_${def.id}.png" alt="" /></div>
+      <div class="pet-retrato">${imgHtml({ id: def.id, tipo: "pet" }, USOS.RETRATO)}<span class="asset-vazio" style="display:none;">?</span></div>
       <div class="pet-info">
         <div class="pet-nome">${def.nome}${ehAtivo ? ' <span class="pet-selo">ativo</span>' : ""}</div>
         <div class="pet-raridade" style="color:${cor(def.raridade)}">${def.raridade}</div>
@@ -709,6 +713,11 @@ function renderPets(corpo, personagem, dados, onMudar) {
       </button>`;
     grade.appendChild(el);
   }
+  // Sem isto o <img> fica parado no PRIMEIRO candidato da cadeia (a arte nova
+  // de assets/arte_v2/, que ainda não existe) e a carta mostra ícone de imagem
+  // quebrada. `ligarCadeias` é o que faz o resolver descer para o arquivo
+  // seguinte até achar um que exista — as outras telas do arquivo já chamam.
+  ligarCadeias(grade);
 
   grade.querySelectorAll(".pet-botao").forEach((b) => {
     b.onclick = () => {
