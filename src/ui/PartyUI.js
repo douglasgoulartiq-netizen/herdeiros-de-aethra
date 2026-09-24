@@ -616,6 +616,11 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         </div>
         <div class="ficha-elemento" style="border-color:${info.cor}">${info.icone} ${info.nome}</div>
       </div>
+      <div class="ficha-acoes" aria-label="Ações rápidas de ${m.nome}">
+        <button type="button" data-ficha-acao="mochila">🎒 Equipar e comparar</button>
+        <button type="button" data-ficha-acao="habilidades">🃏 Editar habilidades</button>
+        <button type="button" data-ficha-acao="evolucao">✨ Evoluir personagem</button>
+      </div>
       ${m.descricaoTraco || m.descricao ? `<p class="desc">${m.descricaoTraco || m.descricao}</p>` : ""}
 
       <div class="ficha-grade">
@@ -691,6 +696,14 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
 
   if (estado.aba === "ficha") {
     desenharFicha();
+    painelFicha.querySelectorAll("[data-ficha-acao]").forEach((botao) => {
+      botao.onclick = () => {
+        const destino = botao.dataset.fichaAcao;
+        if (destino === "evolucao") { estado.abrirEvolucao?.(); return; }
+        if (destino === "habilidades") { estado.abrirEvolucao?.(); return; }
+        estado.aba = destino; redesenhar();
+      };
+    });
     if (estado.montarResumo) {
       const resumo = document.createElement("details");
       resumo.innerHTML = "<summary>Bônus, efeitos e situação do mundo</summary>";

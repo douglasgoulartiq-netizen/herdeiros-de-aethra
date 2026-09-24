@@ -175,6 +175,10 @@
 .companhia-equip-slot.preenchido { border-color:#d7aa52; background:linear-gradient(145deg,#283b40,#111b1f); }
 .companhia-equip-slot:hover { border-color:#77d1dc; transform:translateY(-1px); }
 .companhia-equip-slot small { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.58rem; color:#aebdbc; }
+.ficha-acoes { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0 14px; padding:9px; border:1px solid #344b52; background:linear-gradient(90deg,#0d1b20,#111b1f); border-radius:6px; }
+.ficha-acoes button { min-height:40px; padding:8px 12px; color:#e3efee; background:#152b32; border:1px solid #4b6870; border-radius:5px; cursor:pointer; }
+.ficha-acoes button:first-child { border-color:#d7aa52; color:#ffe4a3; }
+.ficha-acoes button:hover { border-color:#77d1dc; transform:translateY(-1px); }
 .companhia-poder { min-width:0;padding:16px;text-align:right;border-left:1px solid #34454a; }
 .companhia-poder strong { display:block;margin-top:3px;color:#f1c765;font:500 clamp(2rem,4vw,3.3rem)/1 Georgia,serif; }
 .companhia-poder > span { color:#8e999a;font-size:.72rem; }
