@@ -30,6 +30,22 @@ const NOMES = new Map([
   ["👤", "Personagem"], ["🔮", "Invocação"], ["▶", "Iniciar"], ["🔒", "Bloqueado"]
 ]);
 
+// Lightweight vector glyphs share a single silver/crystal line weight.
+// Original text remains for existing text-based integrations and fallbacks.
+const TRACOS_ARCANOS = {
+  '🎒':'M6 8h12v12H6z M9 8V5h6v3 M8 12h8v5H8z',
+  '🛡':'M12 3 4 6v6c0 4 8 9 8 9s8-5 8-9V6z M12 7v9',
+  '⚔':'m5 3 13 13-2 2L3 5z M14 20l6-6 M5 21l4-4 M3 14l7 7 M16 3l5 2-9 9',
+  '✨':'m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3z',
+  '🔮':'M18 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M8 17l-2 4h12l-2-4 M12 6v8 M9 10h6',
+  '👤':'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-3c0-6 16-6 16 0v3z',
+  '📜':'M6 3h13v15H8V6H3V3z M8 18v3h13v-3 M11 7h5 M11 11h5 M11 15h3',
+  '🗺':'m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2z M9 3v16 M15 5v16',
+  '⚙':'m12 3 3 3h4v4l2 2-2 3v4h-4l-3 2-3-2H5v-4l-2-3 2-2V6h4z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+  '💍':'M17 15a5 5 0 1 1-10 0 5 5 0 0 1 10 0 M8 4l4-2 4 2-4 6z',
+  '×':'m6 6 12 12 M18 6 6 18',
+};
+
 const somenteIcone = /^[\p{Extended_Pictographic}\p{Symbol}\p{Punctuation}\uFE0F\u200D\s]+$/u;
 const iconeInicial = /^(\p{Extended_Pictographic}|[✦✧✓✔×✕+➕−▲▼◀▶⚔⚙☰])(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*\s*/u;
 
@@ -58,7 +74,11 @@ function envolverIconeInicial(el) {
   const moldura = document.createElement("span");
   moldura.className = `hda-icone${glifo === "×" ? " hda-icone--fechar" : ""}`;
   moldura.setAttribute("aria-hidden", "true");
-  moldura.textContent = glifo;
+  const traco = TRACOS_ARCANOS[glifo.replace(/\uFE0F/g, '')];
+  if (traco) {
+    moldura.classList.add('arc-icone-vetor');
+    moldura.innerHTML = `<span class="arc-glifo-original">${glifo}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="${traco}"/></svg>`;
+  } else moldura.textContent = glifo;
   no.replaceWith(moldura, document.createTextNode(resto ? ` ${resto.trimStart()}` : ""));
 }
 

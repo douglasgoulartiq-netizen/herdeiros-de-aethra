@@ -142,7 +142,6 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     aba: "mochila",
   };
   if (!estado.aba) estado.aba = "mochila";
-  if (!estado.limiteItens) estado.limiteItens = interfaceToque ? 6 : 18;
   if (estado.membroIdx >= membros.length) estado.membroIdx = 0;
   if (estado.membroUid) {
     const indice = membros.findIndex((m) => (m.uid || (m === personagem ? 'protagonista' : null)) === estado.membroUid);
@@ -237,7 +236,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       <div class="companhia-equip-slots" aria-label="Equipamento de ${ativo.nome}">
         ${SLOTS_EQUIPAMENTO.map((sl) => {
           const it = ativo.equipamento && ativo.equipamento[sl.slot];
-          return `<button type="button" class="companhia-equip-slot${it ? " preenchido" : ""}" data-slot-vitrine="${sl.slot}" aria-label="${sl.label}: ${it ? it.nome : "vazio"}" title="${it ? it.nome : `Equipar ${sl.label}`}" >${sl.icone}<small>${it ? it.nome : sl.label}</small></button>`;
+          return `<button type="button" class="companhia-equip-slot${it ? " preenchido" : ""}" data-slot-vitrine="${sl.slot}" aria-label="${sl.label}: ${it ? it.nome : "vazio"}" title="${it ? it.nome : `Equipar ${sl.label}`}" >${it ? `<img src="${caminhoDoIcone(it)}" alt="" loading="lazy" />` : sl.icone}<small>${sl.label}</small></button>`;
         }).join("")}
       </div>
     </div>
@@ -247,6 +246,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       <div class="companhia-recursos"><span>♥ ${ativo.hp}/${ativo.hpMax}</span><span>◆ ${ativo.mp}/${ativo.mpMax}</span></div>
     </div>`;
   palcoCompanhia.append(trilhoCompanhia, vitrineCompanhia);
+  vitrineCompanhia.querySelector('.companhia-arte').appendChild(vitrineCompanhia.querySelector('.companhia-equip-slots'));
   corpo.appendChild(palcoCompanhia);
   ligarCadeias(fileira);
   ligarCadeias(vitrineCompanhia);
@@ -361,11 +361,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   painelMochila.appendChild(barraFiltro);
 
   barraFiltro.querySelectorAll(".party-cat").forEach((b) => {
-    b.onclick = () => { estado.filtro = b.dataset.cat; estado.uidSelecionado = null; redesenhar(); };
+    b.onclick = () => { estado.filtro = b.dataset.cat; estado.paginaItens = 0; estado.uidSelecionado = null; redesenhar(); };
   });
   const campoBusca = barraFiltro.querySelector(".party-busca");
   campoBusca.oninput = () => {
     estado.busca = campoBusca.value;
+    estado.paginaItens = 0;
     // Redesenhar a tela inteira a cada tecla tiraria o foco do campo. Só a
     // grade é refeita, e o cursor fica onde estava.
     const aindaVisivel = estado.uidSelecionado && pilhasVisiveis().some((p) => p.uids[0] === estado.uidSelecionado);
@@ -416,7 +417,10 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     }
     const grade = criarGrade({ densidade: "densa" });
     grade.setAttribute("role", "list");
-    const visiveis = pilhas.slice(0, estado.limiteItens);
+    const porPagina = 12;
+    const paginas = Math.max(1, Math.ceil(pilhas.length / porPagina));
+    estado.paginaItens = Math.max(0, Math.min(estado.paginaItens || 0, paginas - 1));
+    const visiveis = pilhas.slice(estado.paginaItens * porPagina, (estado.paginaItens + 1) * porPagina);
     visiveis.forEach(({ item, uids }) => grade.appendChild(criarLadrilhoItem(item, uids, ativo, estado.uidSelecionado)));
     areaGrade.appendChild(grade);
     grade.querySelectorAll(".hda-ladrilho").forEach((el) => {
@@ -445,12 +449,24 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         }
       };
     });
-    if (pilhas.length > visiveis.length) {
-      const mais = document.createElement("button");
-      mais.className = "party-carregar-mais";
-      mais.textContent = `Mostrar mais (${pilhas.length - visiveis.length} restantes)`;
-      mais.onclick = () => { estado.limiteItens += interfaceToque ? 6 : 18; desenharGrade(); };
-      areaGrade.appendChild(mais);
+    if (paginas > 1) {
+      const paginacao = document.createElement('nav');
+      paginacao.className = 'arc-paginacao';
+      paginacao.setAttribute('aria-label','Páginas da mochila');
+      const anterior = document.createElement('button');
+      anterior.textContent = '‹'; anterior.setAttribute('aria-label','Página anterior');
+      anterior.disabled = estado.paginaItens === 0;
+      const resumo = document.createElement('span');
+      resumo.textContent = `${estado.paginaItens + 1} / ${paginas} · ${pilhas.length} tipos de item`;
+      const proxima = document.createElement('button');
+      proxima.textContent = '›'; proxima.setAttribute('aria-label','Próxima página');
+      proxima.disabled = estado.paginaItens >= paginas - 1;
+      const trocar = delta => {
+        estado.paginaItens += delta; fecharDetalhe(); desenharGrade();
+        areaGrade.querySelector('.hda-ladrilho')?.focus();
+      };
+      anterior.onclick = () => trocar(-1); proxima.onclick = () => trocar(1);
+      paginacao.append(anterior,resumo,proxima); areaGrade.appendChild(paginacao);
     }
   }
 
@@ -473,6 +489,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   }
 
   function desenharDetalhe(item, uids, { focar = false } = {}) {
+    painel.classList.remove('arc-comparar-todos');
     const cor = RARITY_COLORS[item.raridade] || "#888";
     const slot = slotDoItem(item);
     const ehConsumivel = item.tipo === "consumivel";
@@ -533,12 +550,18 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       ${item.descricao ? `<p class="desc">${item.descricao}</p>` : ""}
       ${efeitosHtml}
       <div class="party-linhas">${linhas}</div>
+      ${membros.length > 1 ? '<button type="button" class="arc-comparar-time" aria-expanded="false">Comparar com outros heróis</button>' : ''}
       <div class="party-detalhe-acoes">
         <button class="party-btn-vender">Vender por 🪙 ${Math.max(1, Math.round((item.valor || 1) * 0.5))}</button>
       </div>`;
 
     orientacaoDetalhe.hidden = true;
     painel.setAttribute("aria-hidden", "false");
+    painel.querySelector('.arc-comparar-time')?.addEventListener('click', ev => {
+      const expandido = painel.classList.toggle('arc-comparar-todos');
+      ev.currentTarget.setAttribute('aria-expanded', String(expandido));
+      ev.currentTarget.textContent = expandido ? 'Mostrar somente herói selecionado' : 'Comparar com outros heróis';
+    });
     painel.querySelector(".party-detalhe-fechar").onclick = () => fecharDetalhe({ devolverFoco: true });
     painel.onkeydown = (ev) => { if (ev.key === "Escape") fecharDetalhe({ devolverFoco: true }); };
     painel.querySelectorAll(".party-btn-equipar").forEach((b) => {

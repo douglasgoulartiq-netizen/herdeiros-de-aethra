@@ -1,0 +1,165 @@
+/* CRISTAL ARCANO — one visual vocabulary, existing game mechanics.
+   Semantic rarity, HP and elemental colors deliberately remain unchanged. */
+:root {
+  color-scheme: dark;
+  --arc-ink:#edf1ff; --arc-muted:#afbad2; --arc-bg:#0d1120;
+  --arc-panel:#141b30; --arc-line:#65738f; --arc-crystal:#91d4ff;
+  --arc-frame:linear-gradient(145deg,#d0d5e2,#68758e 38%,#353e58 70%,#a4b3d0);
+  --hda-bg:var(--arc-bg); --hda-panel:#12192b; --hda-panel-2:#1b2540;
+  --hda-line:#53617b; --hda-gold:#9ed9ff; --hda-text:var(--arc-ink); --hda-muted:var(--arc-muted);
+  --hda-font-display:Georgia,'Times New Roman',serif;
+  --am-ink:var(--arc-ink); --am-muted:var(--arc-muted); --am-night:var(--arc-bg);
+  --am-panel:var(--arc-panel); --am-panel-2:#1b2540; --am-gold:var(--arc-crystal);
+  --am-gold-soft:#61749e; --am-line:#53617b; --am-cyan:#91d4ff;
+}
+.arc-icone-vetor { color:#c3ddf5; }
+.arc-icone-vetor svg { width:100%; height:100%; overflow:visible; }
+.arc-glifo-original { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+/* Framed surfaces: no asset downloads or expensive backdrop filters. */
+#modal-conteudo.hda-modal, .tela-party.hda-modal, .hda-sheet,
+.cartao, .cutscene-painel, .missao-guia {
+  color:var(--arc-ink); border:1px solid transparent;
+  background:linear-gradient(145deg,#192038,#0e1323 65%,#19172c) padding-box,var(--arc-frame) border-box;
+  border-radius:10px; box-shadow:0 18px 52px #0009,inset 0 0 0 3px #0b1022,inset 0 0 0 4px #49557266;
+}
+#modal-conteudo .hda-modal-cab,.tela-party .hda-modal-cab,.hda-sheet-cab {
+  background:linear-gradient(110deg,#1b2540,#101727); border-bottom:1px solid #64718b;
+  padding:12px 18px; min-height:56px;
+}
+#modal-conteudo .hda-modal-cab h2 { font:500 clamp(1.25rem,2vw,1.8rem)/1.2 Georgia,serif; color:#eef2ff; letter-spacing:.025em; }
+#modal-conteudo .hda-modal-cab h2::before { content:'◈'; color:#9edcff; margin-right:10px; text-shadow:0 0 9px #7acfff60; }
+#modal-conteudo .hda-modal-sub { background:#10172a; color:#ced8eb; border-color:#54627b; }
+#modal-conteudo .hda-modal-corpo,#modal-conteudo #modal-corpo,.tela-party .companhia-corpo { background:transparent; }
+#modal-conteudo :is(h3,h4) { color:#e2eaff; }
+#modal-conteudo :is(.desc,small) { color:var(--arc-muted); }
+#modal-conteudo :is(.card,.ficha-bloco,.estado-card,.missao-card,.gacha-banner,.pc-time-resumo,.gacha-secao,.auto-equipar) {
+  background:linear-gradient(135deg,#1a2238,#11192a); border-color:#4d5b78; box-shadow:inset 0 1px #b8cbef0c;
+}
+#modal-conteudo :is(button,input,select,textarea),.hud-painel button,.hda-navbar button {
+  border-radius:5px; font-family:var(--hda-font-body); border-color:#526380;
+}
+#modal-conteudo button:not(.hda-ladrilho):not(.companhia-equip-slot),.hud-painel button {
+  background:linear-gradient(180deg,#202d47,#151e33); color:#e6edff; box-shadow:inset 0 1px #e1edff12;
+}
+#modal-conteudo button:hover:not(:disabled),.hud-painel button:hover { border-color:#9bcfee; }
+#modal-conteudo :is(button.primario,button.ativa,button[aria-selected='true']),
+.tela-party > .hda-tabs button.ativa {
+  background:linear-gradient(180deg,#254a76,#183052); color:#f4faff; border-color:#93cbef;
+  box-shadow:inset 0 1px #d1eaff55,inset 0 -2px #7ac8ff,0 0 12px #419aff18;
+}
+#modal-conteudo :is(input,select,textarea) { background:#0c1425; color:#edf1ff; min-height:40px; }
+#modal-conteudo button:disabled { opacity:.48; box-shadow:none; }
+:is(button,[role='button'],input,select,[tabindex]):focus-visible { outline:2px solid #b8e7ff; outline-offset:3px; }
+#modal-conteudo > .hda-tabs,.tela-party > .hda-tabs,.hda-acoes,.hda-modal-acoes {
+  background:#11182b; border-color:#506080; gap:6px;
+}
+#modal-conteudo > .hda-tabs button { min-width:0; min-height:44px; }
+#modal-conteudo :is(.hda-ladrilho,.party-card,.equip-slot) { background:linear-gradient(145deg,#202a40,#0b1221); }
+#modal-conteudo :is(.hda-ladrilho.selecionado,.party-card.ativo) {
+  outline:1px solid #b9e9ff; outline-offset:1px; box-shadow:inset 0 0 15px #459eed24,0 0 9px #5eb9ff30;
+}
+/* Shared navigation, map, creation, dialogue, progression, combat chrome. */
+#hud-topo,.hud-trilho,.hud-painel,.hda-navbar { background:linear-gradient(135deg,#172039f5,#0e1426f5); border-color:#77849e; color:#e9eeff; }
+.hud-aba,.hda-navbar button { color:#dce7fa; }
+.hud-aba.ativa,.hud-aba[aria-expanded='true'] { background:#263c61; border-color:#93cbef; }
+#screen-boot :is(button,.save-slot),#screen-criacao :is(button,.card,.criacao-resumo) { background:linear-gradient(145deg,#1e2945,#10192c); border-color:#7584a0; color:#e9eeff; }
+#screen-boot h1,#screen-criacao h2 { color:#e9f2ff; font-family:Georgia,serif; }
+.caminho-detalhe,.talento-card,.mapa-painel,.missao-rastreada-resumo,.ficha-acoes { background:#141d33; border-color:#627494; color:#e9eeff; }
+.pc-recomendacao,.missao-card.rastreada { border-color:#97d6ff; background:linear-gradient(100deg,#203c58,#152036); }
+#screen-batalha.bt-screen :is(.bt-header,.bt-infobar,.bt-dock),.carta-detalhe { background:linear-gradient(145deg,#19243c,#0d1528); border-color:#73839d; }
+#screen-batalha.bt-screen .carta-batalha { --carta-fundo:linear-gradient(150deg,#23304c,#10182a); --carta-borda:#586d91; }
+#screen-batalha.bt-screen .carta-batalha.estado-selecionado { border-color:#b4e7ff; box-shadow:0 0 12px #75c4ff55; }
+/* Equipment composition: companion rail / paper doll / real inventory. */
+.tela-party .companhia-palco { background:radial-gradient(ellipse at 50% 60%,#2b365350,transparent 70%),#10182a; border-color:#596a88; box-shadow:inset 0 0 28px #070b1855; }
+.tela-party .companhia-palco::after { display:none; }
+.tela-party .companhia-trilho { background:#0e1526; border-color:#4e5d7b; }
+.tela-party .companhia-trilho .party-card { border-color:#526481; background:#172138; }
+.tela-party .companhia-trilho .party-card.ativo { border-color:#afe7ff; background:#233554; }
+.tela-party .companhia-vitrine { grid-template-columns:minmax(180px,1fr) minmax(120px,.65fr); padding:16px; gap:12px; }
+.tela-party .companhia-identidade { grid-column:1/-1; grid-row:1; border:0; padding:0; }
+.tela-party .companhia-identidade h3 { color:#eff3ff; font-size:clamp(1.3rem,2vw,1.9rem); line-height:1.2; }
+.tela-party .companhia-identidade p { margin:4px 0; }
+.tela-party .companhia-selos > span { background:#172139; border-color:#586b8c; }
+.tela-party .companhia-arte { min-height:270px; padding:0 55px; }
+.tela-party .companhia-sprite { max-height:310px; width:100%; min-width:110px; }
+.tela-party .companhia-poder { border-color:#4d607f; padding:10px; }
+.tela-party .companhia-poder strong { color:#c5e8ff; }
+.tela-party .companhia-equip-slots { position:absolute; inset:0; display:grid; grid-template-columns:50px 1fr 50px; grid-template-rows:repeat(4,1fr); gap:6px; max-width:none; margin:0; pointer-events:none; }
+.tela-party .companhia-equip-slot { pointer-events:auto; width:50px; min-height:52px; padding:4px; background:linear-gradient(140deg,#25314b,#0d1628); border:1px solid #788ca9; }
+.tela-party .companhia-equip-slot:nth-child(1) {grid-area:1/1;}.tela-party .companhia-equip-slot:nth-child(2) {grid-area:2/1;}.tela-party .companhia-equip-slot:nth-child(3) {grid-area:1/3;}.tela-party .companhia-equip-slot:nth-child(4) {grid-area:3/1;}.tela-party .companhia-equip-slot:nth-child(5) {grid-area:2/3;}.tela-party .companhia-equip-slot:nth-child(6) {grid-area:3/3;}.tela-party .companhia-equip-slot:nth-child(7) {grid-area:4/3;}
+.companhia-equip-slot img { width:28px; height:28px; object-fit:contain; image-rendering:pixelated; }
+.tela-party .companhia-equip-slot small { font-size:.62rem; color:#e1e9fa; }
+.tela-party .party-filtros { background:#111a2d; border-color:#536681; position:static; }
+.tela-party .party-cats { display:flex; flex-wrap:wrap; gap:4px; }
+.tela-party .party-cat { min-height:36px; padding:6px 9px; font-size:.75rem; }
+.tela-party .party-detalhe { background:#131e33; border-color:#7183a3; }
+.tela-party .party-detalhe:not(.arc-comparar-todos) .party-linha-membro:not(.membro-ativo) { display:none; }
+.arc-paginacao { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+.arc-paginacao button { min-width:44px; min-height:44px; }
+.arc-paginacao span { color:#c7d4ec; font-size:.8rem; }
+.tela-party .companhia-ferramentas { min-height:56px; flex-shrink:0; margin:0; align-items:center; }
+.tela-party .companhia-estado-detalhe { background:#111a2d; border-color:#526380; color:#cbd8ed; }
+.tela-party .companhia-estado-detalhe strong { color:#e9f2ff; }
+.tela-party .companhia-estado-detalhe[hidden] { display:none!important; }
+/* Custom progression panels do not use the shared modal header. */
+#modal-conteudo.arvore-caminhos { color:var(--arc-ink); background:linear-gradient(145deg,#192038,#0e1323); border-color:#8a9bb7; }
+#modal-conteudo.arvore-caminhos > h2 { color:#e9f2ff; font-family:Georgia,serif; }
+#modal-conteudo .caminho-mobile-legenda { background:#121b30!important; }
+#modal-conteudo .caminho-mobile-trilha { background:linear-gradient(155deg,#212d48,#10192c)!important; border-color:#627494!important; }
+#modal-conteudo .caminho-mobile-no.estado-desbloqueavel { background:linear-gradient(135deg,#254b70,#15233b)!important; border-color:#a3d8f7; }
+#modal-conteudo .caminho-mobile-no:not(:first-child)::before { background:#84aecf!important; }
+#modal-conteudo #caminho-detalhe.caminho-detalhe-fixo { background:linear-gradient(160deg,#202c45,#111a2b); border-color:#8194b4; }
+#modal-conteudo #caminho-painel .painel-no-acao { background:linear-gradient(0deg,#111a2b 72%,transparent); }
+#modal-conteudo .hda-workspace-nav { background:#111a2b; border-color:#526380; }
+#modal-conteudo > h2 { color:#e9f2ff; font-family:Georgia,serif; padding-inline:12px; }
+#modal-conteudo :is(.arv-topo,.arv-ramo,.progressao-heroi-nav) { background:#141d31; border-color:#526580; }
+#modal-conteudo :is(.arv-pontos strong,.arv-ramo-inv,.arv-no-tier) { color:#a9dcff; }
+#modal-conteudo :is(.arv-no,.arv-filtro-ramo) { border-color:#586b88; }
+#modal-conteudo :is(.arv-no.selecionado,.arv-filtro-ramo.ativo) { background:#263f61; border-color:#a3d8f7; }
+#modal-conteudo .arv-no.bloqueado { opacity:.8; }
+@media(min-width:1050px) {
+  .tela-party[data-companhia-aba='mochila'] .companhia-corpo { display:grid; grid-template-columns:minmax(440px,1.05fr) minmax(380px,1fr); gap:14px; align-content:start; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-ferramentas { grid-column:1/-1; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-palco { grid-template-columns:140px minmax(0,1fr); align-self:start; margin:0; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-trilho .party-fileira { max-height:none; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-trilho .party-card { display:grid; grid-template-columns:38px minmax(0,1fr); gap:3px; padding:5px; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-trilho .party-retrato { width:36px; height:44px; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-trilho .party-nome { text-align:left; font-size:.68rem; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-vitrine { grid-template-columns:minmax(0,1fr); }
+  .tela-party[data-companhia-aba='mochila'] .companhia-arte { min-height:220px; height:220px; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-sprite { max-height:220px; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-poder { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:4px 0; border:0; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-poder strong { font-size:1.8rem; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-equipamento { display:flex; flex-direction:column; min-width:0; gap:8px; }
+  .tela-party[data-companhia-aba='mochila'] .party-mochila .hda-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+  .tela-party[data-companhia-aba='mochila'] .party-detalhe { position:static; max-height:38vh; overflow:auto; width:auto; margin:0; }
+}
+@media(max-width:719px) {
+  #modal-conteudo.hda-modal { border-radius:8px; max-width:100%; }
+  #modal-conteudo .hda-modal-cab { min-height:48px; padding:8px 12px; }
+  #modal-conteudo .hda-modal-cab h2 { font-size:1.25rem; }
+  #modal-conteudo > .hda-tabs { display:flex; gap:3px; padding:4px; }
+  #modal-conteudo > .hda-tabs button { flex:1 0 auto; font-size:.78rem; padding:8px; }
+  .tela-party .companhia-trilho { order:0; border-bottom:1px solid #536581; border-top:0; }
+  .tela-party .companhia-trilho .party-card { flex-basis:90px; width:90px; display:flex; flex-direction:column; gap:3px; }
+  .tela-party .companhia-trilho .party-nome { max-width:100%; font-size:.68rem; text-align:center; }
+  .tela-party .companhia-vitrine { grid-template-columns:1fr 90px; gap:8px; padding:12px; }
+  .tela-party .companhia-identidade h3 {font-size:1.25rem;}
+  .tela-party .companhia-arte { min-height:230px; }
+  .tela-party .companhia-sprite {max-height:240px;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-arte {display:contents;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-arte > :not(.companhia-equip-slots),.tela-party[data-companhia-aba='mochila'] .companhia-arte::before {display:none;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-vitrine {grid-template-columns:minmax(0,1fr) 90px;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-identidade {grid-column:1;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-poder {grid-column:2; grid-row:1;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-equip-slots {position:static; grid-column:1/-1; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:auto; gap:5px;}
+  .tela-party[data-companhia-aba='mochila'] .companhia-equip-slot {grid-area:auto; width:100%;}
+  .tela-party .party-mochila .hda-grid {grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px;}
+  .tela-party .companhia-corpo {padding:8px 8px calc(18px + env(safe-area-inset-bottom));}
+}
+@media(max-height:500px) and (min-width:720px) {
+  #modal-conteudo .hda-modal-cab {min-height:42px; padding-block:6px;}
+  .tela-party .companhia-vitrine {padding:10px;}
+  .tela-party .companhia-arte {min-height:220px;}
+}
+@media(prefers-reduced-motion:reduce) { .arc-paginacao button {transition:none;} }
