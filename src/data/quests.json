@@ -1,5 +1,17 @@
 [
   {
+    "id": "tutorial_companhia",
+    "nome": "Uma companhia para Aethra",
+    "tipo": "tutorial",
+    "vertente": "principal",
+    "regiao": "vila",
+    "quantidade": 5,
+    "descricao": "Reúna três companheiros, forme seu primeiro time completo e vença duas patrulhas. A orientação acompanha os controles reais do jogo.",
+    "objetivoTexto": "Invoque três aliados, monte o time e vença duas batalhas guiadas.",
+    "recompensaOuro": 0,
+    "recompensaXP": 0
+  },
+  {
     "id": "q1_ratos_no_celeiro",
     "nome": "Pragas no Celeiro",
     "tipo": "matar",

@@ -80,7 +80,7 @@ import {
 // Cenas: o prólogo (uma vez, em jogo novo) e as aberturas de questline
 // regional (disparadas de dentro do diálogo do NPC, em GameUI.js).
 import { reproduzirCutscene, cutsceneAberta } from "./ui/CutsceneUI.js";
-import { abrirTutorialInicial, tutorialAberto } from "./ui/TutorialUI.js";
+import { abrirTutorialInicial, tutorialAberto, registrarCombateTutorial } from "./ui/LiveTutorialUI.js";
 import { melhorRecomendacaoTime, chaveDaRecomendacao } from "./systems/CombatPowerSystem.js";
 import { cutscenePorId } from "./systems/CutsceneSystem.js";
 // Mapas: o minimapa do HUD (arredores, canto superior esquerdo) e o
@@ -579,6 +579,7 @@ function iniciarCriacao() {
     iniciarMundo();
     await abrirTutorialInicial(personagem, dados, {
       oferecer: true,
+      iniciarEncontro: iniciarPatrulhaTutorial,
       aoEncerrar: () => salvarProgresso({ silencioso: true }),
     });
   });
@@ -796,7 +797,7 @@ function destinoDaMissaoRastreada({ paraMapaMundo = false } = {}) {
 function atualizarGuiaMissao() {
   let guia = document.getElementById("guia-missao");
   const destino = destinoDaMissaoRastreada();
-  if (!destino || destino.mapa !== mundo.mapaAtual || !personagem) {
+  if (!destino || destino.id === 'tutorial_companhia' || destino.mapa !== mundo.mapaAtual || !personagem) {
     if (guia) guia.classList.add("hidden");
     return;
   }
@@ -1025,10 +1026,13 @@ function iniciarMundo(jaCarregado = false) {
   requestAnimationFrame(loopRender);
 
   if (!jaCarregado) {
-    mostrarMensagem("🧭 Você está na Vila de Aethra. Aproxime-se de um morador e pressione E para conversar; as setas movem seu herdeiro.", 6200);
+    mostrarMensagem("🧭 Sua primeira missão é reunir uma companhia e proteger os arredores.", 4200);
   }
 
   if (intervaloAutoSave) clearInterval(intervaloAutoSave);
+  if (jaCarregado && personagem.tutorialMissao?.status === 'em_andamento') {
+    abrirTutorialInicial(personagem, dados, { iniciarEncontro: iniciarPatrulhaTutorial, aoEncerrar: () => salvarProgresso({ silencioso: true }) });
+  }
   if (usuarioLogado) {
     intervaloAutoSave = setInterval(() => salvarProgresso({ silencioso: true }), 45000);
   }
@@ -1954,7 +1958,16 @@ function iniciarEncontroComAmeaca(monstrosDef, levasExtras = [], onVitoria) {
   mostrarDesafioAmeaca(monstrosDef, time, dados, () => dispararBatalha(monstrosDef, levasExtras, onVitoria), () => mostrarMensagem("Você fugiu antes que o combate começasse."), terrenoElementoAtual(), levasExtras.length);
 }
 
+function iniciarPatrulhaTutorial(indice) {
+  if (!document.getElementById('screen-batalha').classList.contains('hidden')) return;
+  const inimigo = dados.monsters.find(m => m.id === (indice ? 'morcego' : 'slime'));
+  if (!inimigo) return;
+  fecharModal();
+  dispararBatalha([inimigo]);
+}
+
 function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
+  registrarCombateTutorial(personagem, 'inicio');
   document.getElementById("hud").classList.add("hidden");
   const tela = document.getElementById("screen-batalha");
   tela.classList.remove("hda-batalha-saida");
@@ -1990,6 +2003,7 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
     climaIcone: clima ? clima.icone : null,
   };
   iniciarBatalha(tela, imagens, dados, personagem, membrosExtras, monstrosDef, terrenoElementoAtual(), clima ? clima.elementoBonus : null, facaoAtual(), levasExtras, (resultado) => {
+    registrarCombateTutorial(personagem, resultado);
     tela.classList.add("hda-batalha-saida");
     setTimeout(() => tela.classList.remove("hda-batalha-saida"), 300);
     document.getElementById("hud").classList.remove("hidden");
@@ -2395,7 +2409,7 @@ function onHudAction(action) {
   else if (action === "diario") montarDiarioDeDecisoes(personagem, dados);
   else if (action === "descansar") descansarTime();
   else if (action === "sair_masmorra") sairDaMasmorra();
-  else if (action === "tutorial") abrirTutorialInicial(personagem, dados, { aoEncerrar: () => salvarProgresso({ silencioso: true }) });
+  else if (action === "tutorial") abrirTutorialInicial(personagem, dados, { iniciarEncontro: iniciarPatrulhaTutorial, aoEncerrar: () => salvarProgresso({ silencioso: true }) });
 }
 
 // Habilidades de classe, cards equipados e Herança pertencem à mesma etapa

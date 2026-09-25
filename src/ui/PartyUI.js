@@ -617,13 +617,6 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     }).join("");
 
     painelFicha.innerHTML = `
-      <div class="ficha-cabecalho">
-        <div>
-          <div class="ficha-nome">${m.nome}</div>
-          <div class="desc">${m.classeNome || m.classeId || ""}${m.racaNome ? ` · ${m.racaNome}` : ""} · Nível ${m.nivel || 1}${m.raridade ? ` · ${RARITY_LABEL[m.raridade] || m.raridade}` : ""}</div>
-        </div>
-        <div class="ficha-elemento" style="border-color:${info.cor}">${info.icone} ${info.nome}</div>
-      </div>
       <div class="ficha-acoes" aria-label="Ações rápidas de ${m.nome}">
         <button type="button" data-ficha-acao="mochila">🎒 Equipar e comparar</button>
         <button type="button" data-ficha-acao="habilidades">🃏 Editar habilidades</button>
@@ -657,10 +650,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
       ${passivas.length ? `<div class="ficha-bloco"><h4>Passivas</h4><div class="ficha-chips">${passivas.map((pa) => `<span class="ficha-chip" data-tip-texto="${(pa.descricao || "").replace(/"/g, "&quot;")}">${pa.icone || "◆"} ${pa.nome}</span>`).join("")}</div></div>` : ""}
       ${marcas.length ? `<div class="ficha-bloco"><h4>Marcas de classe</h4><div class="ficha-chips">${marcas.map((ma) => `<span class="ficha-chip" data-tip-texto="${(ma.descricao || "").replace(/"/g, "&quot;")}">${ma.icone || "◈"} ${ma.nome}</span>`).join("")}</div></div>` : ""}
 
-      <div class="ficha-bloco">
-        <h4>Equipamento</h4>
-        <div class="ficha-slots">${equipados}</div>
-      </div>`;
+      `;
   }
 
   // ---- 6. ABA "EQUIPAR AUTOMÁTICO" ----------------------------------------

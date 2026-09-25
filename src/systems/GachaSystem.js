@@ -218,7 +218,7 @@ function registrarObtido(personagem, defRoster, banner = "?", featured = false, 
   }
   const instancia = instanciarPersonagemGacha(defRoster);
   g.personagensObtidos.push(instancia);
-  if (g.timeAtivo.length < MAX_CONVOCADOS_GACHA) g.timeAtivo.push(instancia.uid);
+  if (g.timeAtivo.length < MAX_CONVOCADOS_GACHA && personagem.tutorialMissao?.status !== 'em_andamento') g.timeAtivo.push(instancia.uid);
   registrarHistoricoInvocacao(personagem, defRoster, banner, false, featured);
   return { duplicata: false, instancia };
 }
@@ -282,7 +282,13 @@ export function invocarIniciante(personagem, roster, dados = null) {
   }
   if (idxRaridade(raridade) > g.beginner.melhorRaridadeIdx) g.beginner.melhorRaridadeIdx = idxRaridade(raridade);
 
-  const def = personagemAleatorioDaRaridade(roster, raridade);
+  // First mission must not strand a beginner with duplicate companions.
+  const novos = personagem.tutorialMissao?.status === 'em_andamento' && g.personagensObtidos.length < 3
+    ? roster.filter(p => !g.personagensObtidos.some(o => o.rosterId === p.id)) : [];
+  const mesmaRaridade = novos.filter(p => p.raridade === raridade);
+  const pool = mesmaRaridade.length ? mesmaRaridade : novos;
+  const def = pool.length ? pool[Math.floor(Math.random() * pool.length)] : personagemAleatorioDaRaridade(roster, raridade);
+  raridade = def.raridade;
   const r = registrarObtido(personagem, def, "iniciante", false, dados);
   if (g.beginner.pullsUsados >= BANNER_INICIANTE.TETO_TOTAL) g.beginner.concluido = true;
   return { ok: true, raridade, def, instancia: r.instancia, duplicata: r.duplicata, xpConvertido: r.xpConvertido, subiuNivelDuplicata: r.subiuNivel, featured: false };
