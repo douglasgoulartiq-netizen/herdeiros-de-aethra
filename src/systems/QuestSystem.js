@@ -48,13 +48,36 @@ export function textoObjetivoMissao(questDef) {
   return questDef.descricao || "Continue a investigação.";
 }
 
+// A missão rastreada AGORA já está pronta para entregar?
+//
+// Serve a uma regra só (ver iniciarMissao): o rastreador nunca é arrancado
+// de uma missão que está a um passo da recompensa. Usa o catálogo global
+// porque `iniciarMissao` não recebe um — e se ele não existir (testes de
+// unidade carregam este módulo sozinho), a resposta é "não", que mantém o
+// comportamento antigo em vez de quebrar.
+function rastreadaEstaPronta(personagem) {
+  const id = personagem?.missaoRastreadaId;
+  if (!id) return false;
+  const catalogo = typeof window !== "undefined" ? window.__QUESTS__ : null;
+  const def = Array.isArray(catalogo) ? catalogo.find((q) => q.id === id) : null;
+  return def ? missaoPronta(personagem, def) : false;
+}
+
 export function iniciarMissao(personagem, questDef) {
   if (personagem.missoesAtivas.some((m) => m.id === questDef.id)) return false;
   if (personagem.missoesConcluidas.includes(questDef.id)) return false;
   personagem.missoesAtivas.push({ id: questDef.id, progresso: 0 });
   // História principal toma o foco ao ser aceita; missões secundárias só
   // entram no rastreador quando não existe nenhuma direção ativa.
-  if (ehMissaoPrincipal(questDef) || !personagem.missaoRastreadaId) {
+  //
+  // A EXCEÇÃO: missão pronta para entregar não perde o rastreador. Antes,
+  // aceitar uma principal enquanto se voltava para entregar outra fazia a
+  // bússola virar no meio do caminho — e, no modo automático, o herói dava
+  // meia-volta com a recompensa na mão. Quem terminar a entrega libera o
+  // rastreador em concluirMissao(), e a principal assume no passo seguinte.
+  const podeAssumir = !personagem.missaoRastreadaId
+    || (ehMissaoPrincipal(questDef) && !rastreadaEstaPronta(personagem));
+  if (podeAssumir) {
     personagem.missaoRastreadaId = questDef.id;
     personagem.rastreamentoMissaoPausado = false;
   }

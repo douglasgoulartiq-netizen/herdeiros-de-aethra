@@ -755,7 +755,16 @@ function destinoDaMissaoRastreada({ paraMapaMundo = false } = {}) {
   if (!personagem || !dados?.quests) return null;
   const rastreada = missaoRastreada(personagem, dados.quests);
   if (!rastreada) return null;
-  const { def } = rastreada;
+  return destinoDeMissao(rastreada.def, { paraMapaMundo });
+}
+
+// Para onde ir por causa de UMA missão. Era interno ao rastreador; virou
+// função de missão qualquer porque o modo automático passou a navegar por
+// todas as missões ativas, não só pela rastreada (ver
+// alvosDasMissoesAutomaticas). A bússola do HUD continua lendo só a
+// rastreada, pelo invólucro acima.
+function destinoDeMissao(def, { paraMapaMundo = false } = {}) {
+  if (!personagem || !def) return null;
   const progresso = progressoDaMissao(personagem, def);
 
   // Objetivo cumprido: a direção correta deixa de ser a área da tarefa e
@@ -1804,6 +1813,50 @@ function checarConclusaoDaMasmorra() {
 // recusa (com razão) enquanto a batalha está aberta, e o chefe morre COM a
 // tela ainda aberta — o jogador ainda vai clicar em "Continuar". Então a
 // saída fica pendente e tenta de novo até a tela fechar.
+// VAIVÉM DE MASMORRA — a trava que faltava.
+//
+// Sair de uma masmorra devolve o herói a `entrance.x - 1`: uma casa da
+// porta. No tick seguinte, a entrada volta à lista de alvos valendo 90 a
+// UMA casa de distância (pontuação 89) — nenhum baú do outro lado do mapa
+// chega perto disso. O automático reentrava na hora. Lá dentro, qualquer
+// missão do mundo externo vira "volte à superfície" (132), ele caminhava
+// até a saída, saía… e reentrava. Medido: 9 travessias em 40 segundos, sem
+// nada sendo concluído.
+//
+// `masmorraEmEspera` não cobria o caso, porque só vale para masmorra
+// CONCLUÍDA — o vaivém acontecia justamente com a masmorra pela metade.
+//
+// A carência resolve a causa sem esconder o sintoma: a masmorra que o herói
+// acabou de deixar para de ser alvo automático por um tempo, e volta a
+// valer assim que ele se afasta de verdade (12 casas) ou o prazo vence. O
+// jogador pisando na porta continua entrando na hora — isto não bloqueia a
+// transição, só a INTENÇÃO da IA.
+const CARENCIA_REENTRADA_MS = 45000;
+const DISTANCIA_QUE_LIBERA_REENTRADA = 12;
+let masmorraDeixadaAgora = { id: null, em: 0 };
+
+function registrarSaidaDeMasmorra(id) {
+  if (id && id !== "overworld") masmorraDeixadaAgora = { id, em: Date.now() };
+}
+
+function masmorraAceitaEntradaAutomatica(id) {
+  if (masmorraEmEspera(mundo, id)) return false;
+  if (masmorraDeixadaAgora.id !== id) return true;
+  if (Date.now() - masmorraDeixadaAgora.em >= CARENCIA_REENTRADA_MS) {
+    masmorraDeixadaAgora = { id: null, em: 0 };
+    return true;
+  }
+  const entrada = MASMORRAS[id]?.entrance;
+  if (entrada) {
+    const longe = Math.max(Math.abs(mundo.player.x - entrada.x), Math.abs(mundo.player.y - entrada.y));
+    if (longe >= DISTANCIA_QUE_LIBERA_REENTRADA) {
+      masmorraDeixadaAgora = { id: null, em: 0 };
+      return true;
+    }
+  }
+  return false;
+}
+
 let saidaDeMasmorraPendente = false;
 function agendarSaidaDaMasmorra() {
   saidaDeMasmorraPendente = true;
@@ -1843,6 +1896,7 @@ function verificarTransicaoMasmorra(x, y) {
   } else {
     const m = MASMORRAS[mundo.mapaAtual];
     if (m && x >= m.exitZone.x0 && x <= m.exitZone.x1 && y >= m.exitZone.y0 && y <= m.exitZone.y1) {
+      registrarSaidaDeMasmorra(mundo.mapaAtual);
       mundo.mapaAtual = "overworld";
       mundo.player.x = m.entrance.x - 1;
       mundo.player.y = m.entrance.y;
@@ -2362,6 +2416,7 @@ function sairDaMasmorra() {
   if (emBatalha) { mostrarMensagem("Termine ou fuja da batalha antes de sair da masmorra."); return; }
   const m = MASMORRAS[mundo.mapaAtual];
   if (!m) return;
+  registrarSaidaDeMasmorra(mundo.mapaAtual);
   mundo.mapaAtual = "overworld";
   mundo.player.x = m.entrance.x - 1;
   mundo.player.y = m.entrance.y;
@@ -2719,6 +2774,93 @@ function autoPlayDevePararPorHpBaixo() {
   return fracaoMedia < limite;
 }
 
+// Uma ação por vez no roteiro da orientação. Mais lento que o tick de 380 ms
+// porque cada passo abre painel, invoca ou monta time — coisas que levam
+// alguns quadros para aparecer na tela.
+const INTERVALO_ORIENTACAO_AUTO_MS = 1100;
+let ultimaAcaoOrientacao = 0;
+
+// Por que este passo a passo explícito, e não "clicar no que a orientação
+// destacar":
+//
+// A primeira versão desta correção fazia exatamente isso — clicava em
+// `.missao-guia-alvo`. Parecia elegante (segue o mesmo roteiro que o
+// jogador vê) e não funcionou: o destaque da etapa "invocar" é
+// `#hud-hub-invocar`, que é um BOTÃO DE ALTERNÂNCIA. O primeiro clique
+// abria o painel, o segundo fechava, e a orientação continuava apontando
+// para ele porque o passo nunca avançava. Medido: 22 cliques em 25 s,
+// zero heróis invocados. Clicar no destaque é seguro para o humano, que
+// olha a tela; para um laço automático, todo alvo que alterna é um ciclo.
+//
+// Então o automático persegue o OBJETIVO de cada etapa com controles que
+// só empurram numa direção: invocar (grátis) até três heróis, colocar três
+// no time, fechar o painel e iniciar a patrulha. As duas vitórias vêm da
+// IA de combate, que já existe. "Pular orientação" nunca é clicado — pular
+// descartaria as recompensas da missão.
+function conduzirOrientacaoAutomatica() {
+  const cartao = document.querySelector(".missao-guia");
+  if (!cartao || !personagem) return;
+  const agora = Date.now();
+  if (agora - ultimaAcaoOrientacao < INTERVALO_ORIENTACAO_AUTO_MS) return;
+  const visivel = (el) => !!el && !el.hidden && !el.disabled && el.getClientRects().length > 0;
+  const noModal = (sel) => [...document.querySelectorAll(sel)].find(visivel) || null;
+  const agir = (el) => { ultimaAcaoOrientacao = agora; el.click(); autoSalvarSeAutomatico(); return true; };
+  const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
+
+  const gacha = personagem.gacha || {};
+  const heroisObtidos = (gacha.personagensObtidos || []).length;
+  const noTime = (gacha.timeAtivo || []).length;
+
+  // 1) Três companheiros, usando só as invocações GRÁTIS de iniciante. Se as
+  //    grátis acabarem, o automático não gasta o ouro do jogador: segue para
+  //    a etapa seguinte com o que tem.
+  if (heroisObtidos < 3) {
+    const puxar = noModal(".btn-puxar");
+    if (puxar) return void agir(puxar);
+    const abaIniciante = document.querySelector("#gacha-tab-iniciante");
+    if (visivel(abaIniciante) && !abaIniciante.classList.contains("ativa")) return void agir(abaIniciante);
+    if (!visivel(abaIniciante)) { ultimaAcaoOrientacao = agora; onHudAction("gacha"); return; }
+    return; // aba certa aberta, sem invocação grátis disponível: deixa fluir
+  }
+
+  // 2) Três aliados no time. `.btn-time` é a MESMA classe para "Colocar no
+  //    time" e "Remover do time" — o botão troca de rótulo no lugar. Clicar
+  //    pela classe tirava do time quem tinha acabado de entrar; medido:
+  //    o contador oscilando 1 → 0 → 1 por minutos. Por isso o filtro é pelo
+  //    rótulo, e só a direção "colocar" interessa.
+  if (noTime < 3) {
+    const colocar = [...document.querySelectorAll(".btn-time")]
+      .find((b) => visivel(b) && /colocar/i.test(b.textContent || ""));
+    if (colocar) return void agir(colocar);
+    ultimaAcaoOrientacao = agora;
+    onHudAction("party");
+    return;
+  }
+
+  // 3) Com o time pronto, o painel precisa SAIR da tela: enquanto houver um
+  //    modal aberto a orientação aponta para o "fechar" e o botão "Iniciar
+  //    patrulha" continua escondido.
+  if (modalAberto) {
+    const fechar = noModal("#modal-conteudo .fechar, #modal-conteudo [aria-label='Fechar']");
+    if (fechar) return void agir(fechar);
+    ultimaAcaoOrientacao = agora;
+    fecharModal();
+    return;
+  }
+
+  // 4) "Iniciar patrulha" e "Concluir primeira missão" são o mesmo botão do
+  //    cartão, e nenhum dos dois alterna. É o único clique que o automático
+  //    dá no próprio cartão.
+  const acao = cartao.querySelector("button");
+  if (visivel(acao)) return void agir(acao);
+
+  // 5) Etapa das batalhas sem nada a clicar: o mundo continua. O herói
+  //    explora e luta normalmente, e cada vitória conta para a missão (ver
+  //    registrarCombateTutorial) — era exatamente isto que o `return` antigo
+  //    impedia.
+  autoAndar();
+}
+
 function tickAutoPlay() {
   if (!autoPlayState.ativo || !personagem) return;
   // Cena de história e tutorial são leitura: o automático espera o jogador
@@ -2735,10 +2877,31 @@ function tickAutoPlay() {
     }
     return;
   }
-  if (tutorialAberto()) return;
   if (document.body.classList.contains("desafio-encontro-ativo") || document.querySelector(".rolagem-camada")) return;
   const emBatalha = !document.getElementById("screen-batalha").classList.contains("hidden");
   if (emBatalha) return; // a própria batalha se resolve sozinha (ver BattleUI.js)
+
+  // ORIENTAÇÃO ABERTA: o automático CUMPRE a primeira missão em vez de
+  // ficar parado esperando.
+  //
+  // Antes era `if (tutorialAberto()) return;`. Como o cartão de orientação
+  // fica de pé durante toda a primeira missão (invocar → formar → duas
+  // batalhas → concluir), ligar o automático numa partida nova não fazia
+  // absolutamente nada: o herói não andava, não invocava, não lutava. Quem
+  // não descobrisse sozinho o botão "Pular orientação" concluía que o modo
+  // automático estava quebrado.
+  //
+  // A orientação já calcula, a cada 500 ms, qual é o ÚNICO controle certo
+  // do passo atual e o destaca com `.missao-guia-alvo`. O automático agora
+  // clica exatamente nesse controle — ou seja, segue o próprio roteiro que
+  // o jogo está mostrando ao jogador, sem uma segunda máquina de estados
+  // que poderia divergir dele. O botão de ação do cartão ("Iniciar
+  // patrulha", "Concluir primeira missão") vem primeiro por ser o que faz
+  // a etapa avançar.
+  //
+  // A batalha já saiu acima: durante a luta, quem joga é a IA de combate, e
+  // o cartão só descreve o que está acontecendo.
+  if (tutorialAberto()) return conduzirOrientacaoAutomatica();
 
   // Os menus laterais são uma camada de configuração, não uma pausa. Enquanto
   // um deles está expandido o herói continua viajando, porém não conversa,
@@ -2916,8 +3079,9 @@ function tickAutoPlay() {
 //   - a SAÍDA só entra quando não sobrou mais nada a fazer lá dentro, e com
 //     prioridade mínima — é a válvula de escape, não um destino.
 function masmorraTemAlgoAFazer(id, m) {
-  // Em espera depois de concluída: não há o que fazer lá, nem entrar dá.
-  if (masmorraEmEspera(mundo, id)) return false;
+  // Em espera depois de concluída, ou recém-deixada (ver
+  // masmorraAceitaEntradaAutomatica): não é destino do automático agora.
+  if (!masmorraAceitaEntradaAutomatica(id)) return false;
   // `garantirBausMasmorra` é o MESMO acessor que o índice de chunks usa. Ler
   // `mundo[m.chestsKey]` direto devolvia `undefined` numa partida nova (a
   // lista é criada preguiçosamente), e com isso "a masmorra ainda tem baú?"
@@ -3005,13 +3169,18 @@ function npcEObjetivoDeMissao(npcId) {
   return prioridadeMissaoNoNpc(npcId) > PRIORIDADE.npc;
 }
 
-function alvoDaMissaoAutomatica() {
-  const destino = destinoDaMissaoRastreada();
+function alvoDeUmaMissaoAutomatica(def) {
+  const destino = destinoDeMissao(def);
   if (!destino || destino.mapa !== mundo.mapaAtual) return null;
-  const def = dados?.quests?.find((q) => q.id === destino.id);
   // A failed/unchanged hand-in must not keep navigation parked at that NPC.
   if (destino.pronto && mundo.mapaAtual === 'overworld' && def?.npcId &&
       memoriaNpcAuto.visitado(personagem, def.npcId, estadoDasMissoesDoNpc(def.npcId))) return null;
+  // Objetivo dentro de masmorra em silêncio (ou recém-deixada) não é destino:
+  // andar até a entrada só para levar "volte mais tarde" na cara é a receita
+  // do vaivém que o item 3 abaixo corrige.
+  const mapaAlvo = def?.mapaAlvo;
+  if (!destino.pronto && mundo.mapaAtual === "overworld" && mapaAlvo && mapaAlvo !== "overworld"
+      && !masmorraAceitaEntradaAutomatica(mapaAlvo)) return null;
   return {
     x: destino.x,
     y: destino.y,
@@ -3020,15 +3189,48 @@ function alvoDaMissaoAutomatica() {
     pesoDistancia: destino.pronto ? 0.65 : 0.8,
     // Entradas de masmorra são transições por pisar no tile; chefes, baús e
     // NPCs continuam sendo interagidos quando chegamos a uma casa de distância.
-    exigeMesmoTile: !destino.pronto && def?.mapaAlvo && def.mapaAlvo !== "overworld" && mundo.mapaAtual === "overworld",
+    exigeMesmoTile: !destino.pronto && mapaAlvo && mapaAlvo !== "overworld" && mundo.mapaAtual === "overworld",
     missaoId: destino.id,
   };
 }
 
+// TODAS as missões ativas viram alvo, não só a rastreada.
+//
+// O defeito que isto conserta: a navegação automática lia
+// `destinoDaMissaoRastreada()`, então só existia UM objetivo de missão por
+// vez. Aceitar uma missão nova no caminho trocava o rastreador
+// (QuestSystem.iniciarMissao) e o herói abandonava o que estava quase
+// terminando para atravessar o mapa atrás da recém-aceita — e, ao chegar
+// perto de outro ofertante, trocava de novo. Medido: o herói ia e voltava
+// entre duas zonas sem concluir nenhuma das duas.
+//
+// Com a lista completa, a régua de pontuação (prioridade − distância)
+// resolve sozinha: uma entrega pronta vale 178 e uma coleta em curso 132,
+// então o que está perto e maduro sai primeiro, sem depender de qual missão
+// está com a bússola. O rastreador volta a ser o que o nome diz — a escolha
+// do JOGADOR sobre o que a bússola do HUD aponta — e não o trilho da IA.
+//
+// Deduplicação por tile: dentro de uma masmorra, toda missão do mundo
+// externo aponta para a MESMA saída. Sem isto, dez missões ativas virariam
+// dez alvos idênticos empilhados.
+function alvosDasMissoesAutomaticas() {
+  if (!personagem || !dados?.quests) return [];
+  const porTile = new Map();
+  for (const ativa of personagem.missoesAtivas || []) {
+    const def = dados.quests.find((q) => q.id === ativa.id);
+    if (!def) continue;
+    const alvo = alvoDeUmaMissaoAutomatica(def);
+    if (!alvo) continue;
+    const chave = `${alvo.x},${alvo.y}`;
+    const anterior = porTile.get(chave);
+    if (!anterior || alvo.prioridade > anterior.prioridade) porTile.set(chave, alvo);
+  }
+  return [...porTile.values()];
+}
+
 function alvosAutoExploracao({ somenteExploracao = false } = {}) {
   const alvos = [];
-  const alvoMissao = alvoDaMissaoAutomatica();
-  if (alvoMissao) alvos.push(alvoMissao);
+  alvos.push(...alvosDasMissoesAutomaticas());
   // Ferido e sem poção: a fogueira entra na lista com a maior prioridade de
   // todas. Fora desse caso ela nem aparece — não faz sentido o automático
   // ir descansar de HP cheio.

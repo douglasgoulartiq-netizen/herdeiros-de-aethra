@@ -90,6 +90,21 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
       if (!busy && launch) { busy = true; iniciarEncontro(s.vitorias); setTimeout(() => {busy=false;},1000); }
     };
     guide.classList.toggle('guia-no-topo', battleActive || (!!target && target.getBoundingClientRect().top > innerHeight/2));
+    // Em telas estreitas (320×568) o cartão ocupa até 36vh sobre um
+    // z-index de 10020 e cobria a mão de cartas — a batalha ficava
+    // injogável no celular.
+    //
+    // A tentativa anterior de corrigir isto dependia de `body.em-batalha`,
+    // que não era limpo ao FUGIR: o cartão podia sumir para sempre. Esta
+    // versão lê a tela de batalha DIRETAMENTE do DOM a cada 500 ms, então
+    // não existe estado para ficar preso — se a tela de batalha não está
+    // aberta neste instante, o cartão reaparece no próximo ciclo, qualquer
+    // que tenha sido o desfecho (vitória, derrota ou fuga).
+    //
+    // Recolher e não esconder: durante a luta a orientação vira uma faixa
+    // de uma linha no topo (ver .missao-guia.guia-recolhida), preservando o
+    // texto que explica o combate sem tomar a área jogável.
+    guide.classList.toggle('guia-recolhida', !!document.querySelector('#screen-batalha:not(.hidden)'));
     const next = `${s.etapa}:${s.vitorias}`;
     if (next !== signature) { signature = next; aoEncerrar?.('progresso'); }
   }

@@ -102,5 +102,12 @@ body.com-tutorial .cartoes-pilha { display:none!important; }
 .missao-guia p { margin:8px 0; }
 .missao-guia button { min-height:40px; margin:3px; }
 .missao-guia.guia-no-topo { top:76px; bottom:auto; }
+/* Durante a batalha o cartão vira uma faixa no topo: continua legível e
+   devolve a área de baixo — onde ficam a mão de cartas e as ações — para o
+   jogo. Os botões saem porque nenhum deles é usado no meio da luta. */
+.missao-guia.guia-recolhida { top:4px; bottom:auto; right:4px; left:4px; width:auto; max-height:3.6em; overflow:hidden; padding:6px 10px; font-size:12px; opacity:.94; }
+.missao-guia.guia-recolhida strong { display:none; }
+.missao-guia.guia-recolhida p { margin:0; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.missao-guia.guia-recolhida button { display:none; }
 .missao-guia-alvo { outline:3px solid #f9d876 !important; outline-offset:3px; box-shadow:0 0 15px #f9d876b0 !important; }
 @media(max-height:480px) { .missao-guia { font-size:12px; width:300px; max-height:42vh; } }
