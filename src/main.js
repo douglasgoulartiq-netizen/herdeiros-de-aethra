@@ -1,4 +1,5 @@
 import { carregarDados, carregarTodasImagens } from "./data/loader.js";
+import { criarMemoriaNpcAuto } from "./systems/AutoNpcMemory.js";
 import {
   TILE, SOLID_TILES, zonaNoPonto, ZONAS, OVERWORLD_W, OVERWORLD_H,
   buildDungeon, buildDungeon2, DUNGEON_W, DUNGEON_H, DUNGEON2_W, DUNGEON2_H,
@@ -2599,6 +2600,7 @@ let ultimoNpcInteragido = null;
 // um rodízio sem fim, sem nunca sair da vila. Cada NPC agora espera
 // ESPERA_NPC_AUTO_MS antes de voltar a ser alvo do automático.
 const npcsConversadosAuto = new Map();
+const memoriaNpcAuto = criarMemoriaNpcAuto();
 const ESPERA_NPC_AUTO_MS = 90000;
 const npcConversadoHaPouco = (id) => {
   const quando = npcsConversadosAuto.get(id);
@@ -2772,10 +2774,10 @@ function tickAutoPlay() {
     const modalRaiz = document.getElementById("modal-conteudo") || document;
     // Entrega vem antes de aceitar outra missão no mesmo NPC. Assim uma
     // recompensa pronta nunca fica escondida atrás de uma nova oferta.
-    const entregarRegional = modalRaiz.querySelector(".btn-qr-concluir:not([disabled]):not(.primario)");
-    if (entregarRegional) { entregarRegional.click(); autoSalvarSeAutomatico(); return; }
-    const entregar = modalRaiz.querySelector(".btn-entregar:not([disabled])");
-    if (entregar) { entregar.click(); autoSalvarSeAutomatico(); return; }
+    const entregarRegional = modalRaiz.querySelector(".btn-qr-concluir:not([disabled]):not(.primario):not([data-auto-tentada])");
+    if (entregarRegional) { entregarRegional.dataset.autoTentada = 'true'; entregarRegional.click(); autoSalvarSeAutomatico(); return; }
+    const entregar = modalRaiz.querySelector(".btn-entregar:not([disabled]):not([data-auto-tentada])");
+    if (entregar) { entregar.dataset.autoTentada = 'true'; entregar.click(); autoSalvarSeAutomatico(); return; }
 
     // Decisões com duas consequências não devem ser escolhidas às cegas. O
     // automático para exatamente neste ponto e deixa o jogador selecionar o
@@ -2788,8 +2790,8 @@ function tickAutoPlay() {
       return;
     }
 
-    const aceitar = modalRaiz.querySelector(".btn-aceitar, .btn-qr-aceitar");
-    if (aceitar) { aceitar.click(); autoSalvarSeAutomatico(); return; }
+    const aceitar = modalRaiz.querySelector(".btn-aceitar:not([disabled]):not([data-auto-tentada]), .btn-qr-aceitar:not([disabled]):not([data-auto-tentada])");
+    if (aceitar) { aceitar.dataset.autoTentada = 'true'; aceitar.click(); autoSalvarSeAutomatico(); return; }
     const escolha = document.querySelector(".btn-escolha-habilidade");
     if (escolha) { escolha.click(); autoSalvarSeAutomatico(); return; }
     // Evento aleatório de exploração (melhoria pós-backlog): o modo
@@ -2809,6 +2811,8 @@ function tickAutoPlay() {
     // preso na tela enquanto o herói continuava andando por baixo.
     const interacaoNarrativa = document.querySelector("#modal-conteudo[data-interacao='true']");
     if (interacaoNarrativa) {
+      const npcId = interacaoNarrativa.querySelector('[data-npc-dialogo]')?.dataset.npcDialogo;
+      if (npcId) memoriaNpcAuto.registrar(personagem, npcId, estadoDasMissoesDoNpc(npcId));
       fecharModal();
       autoAndar();
       return;
@@ -2876,9 +2880,12 @@ function tickAutoPlay() {
     // de se afastar (o alvo deixa de ser encontrado e a trava é liberada).
     if (alvo.tipo === "npc") {
       const eMissao = npcEObjetivoDeMissao(alvo.ref.id);
+      const estadoNpc = estadoDasMissoesDoNpc(alvo.ref.id);
+      if (memoriaNpcAuto.visitado(personagem, alvo.ref.id, estadoNpc)) { autoAndar(); return; }
       if (!eMissao && (alvo.ref.id === ultimoNpcInteragido || npcConversadoHaPouco(alvo.ref.id))) { autoAndar(); return; }
       ultimoNpcInteragido = alvo.ref.id;
       npcsConversadosAuto.set(alvo.ref.id, Date.now());
+      memoriaNpcAuto.registrar(personagem, alvo.ref.id, estadoNpc);
     } else {
       ultimoNpcInteragido = null;
     }
@@ -2980,6 +2987,19 @@ function prioridadeMissaoNoNpc(npcId) {
   return prioridade;
 }
 
+function estadoDasMissoesDoNpc(npcId) {
+  const comuns = (dados.quests || []).filter(q => q.npcId === npcId).map(q => {
+    if (personagem.missoesConcluidas?.includes(q.id)) return `${q.id}:concluida`;
+    if (personagem.missoesAtivas?.some(m => m.id === q.id)) {
+      return `${q.id}:${progressoDaMissao(personagem, q).pronto ? 'entregar' : 'ativa'}`;
+    }
+    return `${q.id}:oferta`;
+  });
+  const regionais = questsOferecidasPor(personagem, npcId).map(({ quest, estado }) =>
+    `${quest.id}:${estado}:${estado === 'ativa' && progressoObjetivoRegional(personagem, quest.id).pronto ? 'entregar' : ''}`);
+  return [...comuns, ...regionais].sort().join('|');
+}
+
 function npcEObjetivoDeMissao(npcId) {
   // Só oferta ou entrega libera uma nova conversa imediata.
   return prioridadeMissaoNoNpc(npcId) > PRIORIDADE.npc;
@@ -2989,6 +3009,9 @@ function alvoDaMissaoAutomatica() {
   const destino = destinoDaMissaoRastreada();
   if (!destino || destino.mapa !== mundo.mapaAtual) return null;
   const def = dados?.quests?.find((q) => q.id === destino.id);
+  // A failed/unchanged hand-in must not keep navigation parked at that NPC.
+  if (destino.pronto && mundo.mapaAtual === 'overworld' && def?.npcId &&
+      memoriaNpcAuto.visitado(personagem, def.npcId, estadoDasMissoesDoNpc(def.npcId))) return null;
   return {
     x: destino.x,
     y: destino.y,
@@ -3054,6 +3077,7 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
     const vagasAuto = (mundo.gerado && mundo.gerado.vagasNpc) || [];
     const npcsMapa = npcsPosicionados();
     dados.npcs.forEach((n, i) => {
+      if (memoriaNpcAuto.visitado(personagem, n.id, estadoDasMissoesDoNpc(n.id))) return;
       const prioridadeMissao = prioridadeMissaoNoNpc(n.id);
       // Um NPC com missão pode voltar a ser procurado mesmo que tenha sido
       // visitado há pouco: a conversa pode ter acabado de abrir a entrega ou

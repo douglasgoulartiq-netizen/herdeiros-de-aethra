@@ -163,3 +163,86 @@
   .tela-party .companhia-arte {min-height:220px;}
 }
 @media(prefers-reduced-motion:reduce) { .arc-paginacao button {transition:none;} }
+
+/* Size against the actual panel, not only the window: sidebars and browser
+   zoom can leave much less room than the desktop breakpoint suggests. */
+#modal-conteudo.tela-party {
+  container:companhia / inline-size;
+  min-width:0;
+  max-width:100%;
+}
+.tela-party :is(.companhia-corpo,.companhia-palco,.companhia-vitrine,.companhia-arte,.companhia-painel,.companhia-ferramentas) {
+  min-width:0;
+  box-sizing:border-box;
+}
+.tela-party .companhia-ferramentas {
+  flex-wrap:wrap;
+  overflow:visible;
+  height:auto;
+  padding-block:6px;
+}
+.tela-party .companhia-ferramentas button {
+  flex:0 1 auto;
+  min-width:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.tela-party .companhia-identidade :is(h3,p),
+.tela-party .companhia-selos > span { overflow-wrap:anywhere; }
+.tela-party .companhia-arte { grid-row:auto; }
+@container companhia (max-width:1000px) {
+  .tela-party .companhia-corpo { display:block!important; }
+  .tela-party .companhia-palco { grid-template-columns:minmax(0,1fr)!important; }
+  .tela-party .companhia-trilho { order:0; border-right:0; padding:8px; }
+  .tela-party .companhia-trilho .party-fileira {
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    max-height:none!important;
+    overflow:visible;
+    gap:6px;
+  }
+  .tela-party .companhia-trilho .party-card {
+    display:flex!important; flex-direction:column; width:100%; min-width:0;
+    padding:5px; gap:3px;
+  }
+  .tela-party .companhia-trilho .party-nome {
+    width:100%; max-width:100%; white-space:normal; overflow-wrap:anywhere;
+    text-align:center!important; font-size:.72rem;
+  }
+  .tela-party .companhia-vitrine { grid-template-columns:minmax(0,1fr)!important; }
+  .tela-party .companhia-identidade { grid-area:auto!important; }
+  .tela-party .companhia-arte {
+    display:grid!important; grid-area:auto; height:250px; min-height:250px;
+    padding:0 58px;
+  }
+  .tela-party .companhia-sprite { min-width:0; width:100%; max-height:250px; }
+  .tela-party .companhia-poder {
+    grid-area:auto!important; display:flex; flex-wrap:wrap; align-items:center;
+    gap:8px; border:0; padding:6px 0; text-align:left;
+  }
+  .tela-party .companhia-poder strong { font-size:1.8rem; }
+  .tela-party .companhia-poder-barra { display:none; }
+  .tela-party .companhia-equipamento { display:block!important; }
+}
+@container companhia (max-width:600px) {
+  #modal-conteudo.tela-party > .hda-tabs {
+    display:block!important; overflow:visible; padding:4px; flex-shrink:0;
+  }
+  #modal-conteudo.tela-party > .hda-tabs .hda-tabs-select { display:none; }
+  #modal-conteudo.tela-party > .hda-tabs .hda-tabs-faixa {
+    display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-flow:row; grid-auto-columns:auto;
+    overflow:visible; width:100%; gap:4px;
+  }
+  .tela-party > .hda-tabs button { width:100%; min-width:0; white-space:normal; }
+  .tela-party .companhia-ferramentas button { flex:1 1 120px; }
+  .tela-party .companhia-trilho .party-retrato { width:36px; height:40px; }
+  .tela-party .companhia-vitrine { padding:10px; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-arte { display:contents!important; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-sprite { display:none; }
+  .tela-party[data-companhia-aba='mochila'] .companhia-equip-slots {
+    position:static; grid-area:auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-rows:auto; pointer-events:auto;
+  }
+  .tela-party[data-companhia-aba='mochila'] .companhia-equip-slot { grid-area:auto; width:100%; }
+}

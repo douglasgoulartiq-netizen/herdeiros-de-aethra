@@ -1531,6 +1531,7 @@ export function montarLoja(personagem, dados, onMudar, contexto = {}) {
 
 export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   const corpo = abrirModalBase(npc.nome);
+  corpo.dataset.npcDialogo = npc.id;
   marcarInteracaoAutomatica(corpo);
 
   // Quem é essa pessoa, em uma linha. Só para NPC com ficha da ETAPA 3 — os
