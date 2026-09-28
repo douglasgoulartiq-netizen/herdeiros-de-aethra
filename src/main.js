@@ -234,12 +234,24 @@ async function boot() {
   window.HDA_TELEPORTE = (x, y) => {
     mundo.player.x = x;
     mundo.player.y = y;
+    marcarTeleporteVisual();
     atualizarChunksAtivos();
     return { x: mundo.player.x, y: mundo.player.y, mapa: mundo.mapaAtual };
   };
   // Ganchos de diagnóstico da reconstrução do mapa (PASS 2): dão acesso à
   // grade ativa e ao renderer pra um teste poder conferir enquadramento e
   // camada de props sem depender de olhar a imagem.
+  // Posição VISUAL do herói (a interpolada), sem console.log: um medidor de
+  // fluidez precisa ler isto a cada quadro, e HDA_MUNDO imprime no console.
+  // Só de teste: move a posição LÓGICA sem declarar teleporte, para a
+  // posição visual ter de alcançá-la. É assim que se mede se a caminhada
+  // depende ou não da taxa de quadros.
+  window.HDA_TELEPORTE_LOGICO = (x, y) => {
+    mundo.player.x = Math.round(x);
+    mundo.player.y = Math.round(y);
+    return { x: mundo.player.x, y: mundo.player.y };
+  };
+  window.HDA_RENDER_POS = () => ({ x: mundo.player.renderX, y: mundo.player.renderY, frame: mundo.player.frame });
   window.HDA_GRID = () => gridAtiva();
   window.HDA_PROPS = () => propsAtivos();
   window.HDA_RENDERER = () => renderer;
@@ -1164,6 +1176,7 @@ function reposicionarSePresoEmParede() {
     : (MASMORRAS[mundo.mapaAtual] ? MASMORRAS[mundo.mapaAtual].spawn : OVERWORLD_SPAWN);
   mundo.player.x = spawn.x;
   mundo.player.y = spawn.y;
+  marcarTeleporteVisual();
 }
 
 // Uma fogueira por região perigosa do mundo aberto e uma por masmorra. As
@@ -1477,13 +1490,16 @@ function npcsAtivos() {
     });
 }
 
-// Suaviza o deslocamento visual do jogador entre tiles (o movimento lógico
-// continua "encaixado" no grid, usado por toda a lógica do jogo — isso só
-// afeta a posição usada para desenhar, dando uma sensação de deslize em vez
-// de um "pulo" seco a cada tile). Teleportes (trocar de mapa, derrota etc.)
-// são detectados por uma distância grande e resolvidos instantaneamente,
-// sem deslizar pela tela inteira.
-function atualizarPosicaoRenderizada() {
+// Suaviza o deslocamento visual do jogador entre tiles. O movimento LÓGICO
+// continua encaixado na grade e é ele que toda a regra do jogo usa — colisão,
+// encontro, zona, chunk. Isto aqui muda só a posição usada para desenhar.
+//
+// `dtSegurado` é o tempo desde o quadro anterior, já limitado por quem chama
+// (ver loopRender). O limite existe para o caso de a aba voltar do segundo
+// plano depois de minutos: sem ele, um dt gigante faria alfa ≈ 1 e o herói
+// apareceria de uma vez no destino — o mesmo salto que esta função existe
+// para evitar.
+function atualizarPosicaoRenderizada(dtSegurado = 16.7) {
   const p = mundo.player;
   if (p.renderX === undefined || p.renderY === undefined) {
     p.renderX = p.x;
@@ -1493,22 +1509,86 @@ function atualizarPosicaoRenderizada() {
   const distX = p.x - p.renderX;
   const distY = p.y - p.renderY;
   const dist = Math.hypot(distX, distY);
-  if (dist > 1.01) {
+
+  // TELEPORTE é declarado, não adivinhado.
+  //
+  // O código anterior tratava "distância maior que 1,01 tile" como teleporte.
+  // Isso confundia duas coisas que não têm nada a ver: uma troca de mapa (que
+  // É um salto) e um quadro demorado (que não é). Ao voltar de uma aba em
+  // segundo plano, ou depois de um engasgo de 200ms, a posição lógica já
+  // tinha avançado mais de um tile e o herói PISCAVA para o lugar novo — o
+  // atraso de renderização virava teleporte.
+  //
+  // Agora quem teleporta avisa (ver marcarTeleporteVisual): mudança de mapa,
+  // viagem rápida, resgate após derrota, carregar save e o gancho de teste.
+  // Fora esses casos a posição visual sempre PERSEGUE a lógica, por mais
+  // atrasada que esteja, e a colisão nunca é afetada — quem anda é `p.x/p.y`,
+  // isto aqui é só o desenho.
+  if (p.teleportePendente) {
+    p.teleportePendente = false;
     p.renderX = p.x;
     p.renderY = p.y;
+    p.distAndada = 0;
     p.frame = 0;
-  } else if (dist > 0.001) {
-    // Quatro poses durante toda a interpolação. O código antigo mudava o
-    // frame uma vez por tile; como a posição era suavizada, o corpo inteiro
-    // deslizava parado e parecia flutuar.
-    p.frame = Math.floor(performance.now() / 92) % 4;
-    p.renderX += distX * 0.35;
-    p.renderY += distY * 0.35;
-    if (Math.abs(p.x - p.renderX) < 0.02) p.renderX = p.x;
-    if (Math.abs(p.y - p.renderY) < 0.02) p.renderY = p.y;
-  } else {
-    p.frame = 0;
+    return;
   }
+
+  if (dist > 0.0015) {
+    // INTERPOLAÇÃO POR TEMPO, não por quadro.
+    //
+    // Era `renderX += distX * 0.35` — 35% do que falta A CADA QUADRO. A 60
+    // FPS isso converge no dobro da velocidade que a 30 FPS: a mesma
+    // caminhada ficava lenta num aparelho fraco e apressada num forte, e a
+    // velocidade visual mudava junto com a carga da máquina.
+    //
+    // A fórmula agora é a suavização exponencial correta:
+    //     alfa = 1 - e^(-dt/τ)
+    // que dá exatamente o mesmo resultado no mesmo tempo, com qualquer taxa
+    // de quadros. τ = 55ms foi escolhido para reproduzir o ritmo do 0,35 a
+    // 60 FPS, para a caminhada não parecer diferente do que era.
+    const alfa = 1 - Math.exp(-dtSegurado / TAU_CAMINHADA_MS);
+    p.renderX += distX * alfa;
+    p.renderY += distY * alfa;
+
+    // PASSO PELA DISTÂNCIA, não pelo relógio.
+    //
+    // O frame vinha de `performance.now() / 92`: as pernas andavam no mesmo
+    // ritmo com o herói atravessando pântano (1,18× mais devagar), água
+    // (1,55×) ou na diagonal (1,41×) — e continuavam andando enquanto ele
+    // estava parado esbarrando numa parede. Somando o deslocamento REAL, o
+    // pé acompanha o chão em qualquer terreno, e um herói bloqueado não
+    // percorre distância nenhuma, logo não anima.
+    p.distAndada = (p.distAndada || 0) + Math.hypot(p.renderX - (p.ultimoRenderX ?? p.renderX), p.renderY - (p.ultimoRenderY ?? p.renderY));
+    p.frame = Math.floor(p.distAndada / DISTANCIA_POR_POSE) % 4;
+
+    // Encostar no destino: sem isto, a exponencial nunca chega a zero e o
+    // herói desliza para sempre num décimo de pixel por quadro.
+    if (Math.abs(p.x - p.renderX) < 0.01) p.renderX = p.x;
+    if (Math.abs(p.y - p.renderY) < 0.01) p.renderY = p.y;
+  } else {
+    // Parou: fecha o passo em vez de cortar no meio. A pose 0 é o descanso;
+    // vindo de 1 ou 3 (pernas abertas) o corpo passa pela 2 antes, o que lê
+    // como "terminou de pisar" em lugar de um corte seco.
+    p.renderX = p.x;
+    p.renderY = p.y;
+    p.distAndada = 0;
+    p.frame = p.frame === 1 || p.frame === 3 ? 2 : 0;
+  }
+  p.ultimoRenderX = p.renderX;
+  p.ultimoRenderY = p.renderY;
+}
+
+// Quanto o herói precisa percorrer para trocar de pose. Um tile inteiro
+// cobre as quatro poses do ciclo, então cada pose vale um quarto de tile —
+// é o que faz o pé "grudar" no chão em vez de patinar.
+const DISTANCIA_POR_POSE = 0.25;
+// Constante de tempo da perseguição visual. Ver o comentário da fórmula.
+const TAU_CAMINHADA_MS = 55;
+
+// Quem muda o herói de lugar de propósito chama isto. Uma linha em cada
+// transição, e o desenho nunca mais confunde salto com engasgo.
+function marcarTeleporteVisual() {
+  if (mundo && mundo.player) mundo.player.teleportePendente = true;
 }
 
 // O PET SEGUE PELO RASTRO, não por uma conta de perseguição.
@@ -1549,23 +1629,70 @@ function petParaDesenho() {
 }
 
 let ultimoQuadroMundo = 0;
+let ultimoInstante = 0;
+let acumuladoInterface = 0;
+let cacheObjetivoMissao = null;
+
+// TRÊS RITMOS, NÃO UM.
+//
+// Antes havia um limitador só: 33ms sempre, 120ms com painel aberto. Medido
+// no build anterior, a 1280x720: o jogo ficava preso em 32 FPS mesmo PARADO,
+// caía para 21,9 FPS com o automático andando (5 quadros acima de 100ms), e
+// com a mochila aberta o mundo desenhava a ~8 FPS enquanto o navegador
+// sobrava ocioso a 60 — que é exatamente o "personagem dando saltos ao
+// fundo" ao abrir um painel.
+//
+// A causa não era o desenho ser caro: era tudo estar amarrado no mesmo
+// relógio. Agora são três coisas separadas, cada uma no seu ritmo:
+//
+//   MOVIMENTO VISUAL — todo quadro. É barato (duas multiplicações) e é o
+//   que os olhos leem como fluidez. Nunca é limitado.
+//
+//   DESENHO DO CENÁRIO — todo quadro com o mundo à vista; com um painel
+//   aberto, a cada 33ms. O painel cobre a maior parte da tela, então 30 FPS
+//   ao fundo é suficiente — mas 30, não 8.
+//
+//   INTERFACE (bússola de missão, botão de ação, minimapa) — a cada 100ms.
+//   `destinoDaMissaoRastreada()` percorre as missões ativas, procura o NPC
+//   entre os posicionados e calcula progresso; fazia isso 30 vezes por
+//   segundo para um losango que se move um pixel. `atualizarGuiaMissao()`
+//   ainda mexia no DOM junto. Dez vezes por segundo ninguém percebe
+//   diferença, e o quadro fica livre.
+const INTERVALO_DESENHO_COM_PAINEL = 33;
+const INTERVALO_INTERFACE_MS = 100;
+// Teto do passo de tempo. Um quadro de 250ms é engasgo; tratar um de 4
+// segundos (aba em segundo plano) como tempo real faria o herói cruzar o
+// mapa de uma vez.
+const DT_MAXIMO_MS = 100;
+
 function loopRender(agora = performance.now()) {
-  // O mundo segue vivo sob as janelas, mas não precisa redesenhar dezenas de
-  // camadas a 60 FPS enquanto o jogador lê inventário/árvore. Este limite
-  // reserva a thread principal para os cliques e a rolagem dos painéis.
+  const dtBruto = ultimoInstante ? agora - ultimoInstante : 16.7;
+  ultimoInstante = agora;
+  const dt = Math.min(dtBruto, DT_MAXIMO_MS);
+
+  // 1. MOVIMENTO VISUAL — sempre, em todo quadro.
+  mundo.player.spriteKey = personagem.spriteKey;
+  atualizarPosicaoRenderizada(dt);
+  atualizarRastro();
+
   const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
-  const intervalo = modalAberto ? 120 : 33;
-  if (agora - ultimoQuadroMundo < intervalo) {
+  if (modalAberto && agora - ultimoQuadroMundo < INTERVALO_DESENHO_COM_PAINEL) {
     requestAnimationFrame(loopRender);
     return;
   }
   ultimoQuadroMundo = agora;
+
+  // 2. INTERFACE — no seu próprio relógio, mais lento.
+  acumuladoInterface += dt;
+  const atualizarUI = acumuladoInterface >= INTERVALO_INTERFACE_MS || cacheObjetivoMissao === null;
+  if (atualizarUI) acumuladoInterface = 0;
+
   const grid = gridAtiva();
-  mundo.player.spriteKey = personagem.spriteKey;
-  atualizarPosicaoRenderizada();
-  atualizarRastro();
   const contextoAcao = contextoInteracaoProxima();
-  atualizarBotaoAcaoTouch(contextoAcao);
+  if (atualizarUI) {
+    atualizarBotaoAcaoTouch(contextoAcao);
+    cacheObjetivoMissao = destinoDaMissaoRastreada();
+  }
   renderer.desenhar({
     grid,
     alturas: alturasAtivas(),
@@ -1575,7 +1702,7 @@ function loopRender(agora = performance.now()) {
     props: propsAtivos(),
     tema: temaAtivo(),
     pet: petParaDesenho(),
-    objetivoMissao: destinoDaMissaoRastreada(),
+    objetivoMissao: cacheObjetivoMissao,
     // No celular o próprio botão contextual conta a ação; repetir uma tarja
     // no canvas cobria o herói. Teclado mantém a dica completa.
     mostrarPronto: document.body.classList.contains("touch") ? null : contextoAcao.textoTeclado,
@@ -1586,8 +1713,10 @@ function loopRender(agora = performance.now()) {
   // `ultimaChave`), então chamá-lo a cada quadro custa uma comparação de
   // string — e é o que garante que ele nunca fica atrasado em relação ao
   // mundo desenhado logo acima.
-  atualizarMinimapa();
-  atualizarGuiaMissao();
+  if (atualizarUI) {
+    atualizarMinimapa();
+    atualizarGuiaMissao();
+  }
   requestAnimationFrame(loopRender);
 }
 
@@ -1606,7 +1735,7 @@ function contextoDoMinimapa() {
     player: mundo.player,
     npcs: npcsAtivos(),
     objetos: objetosAtivos(),
-    objetivoMissao: destinoDaMissaoRastreada(),
+    objetivoMissao: cacheObjetivoMissao,
     zonaNome: zona ? zona.nome : (masmorra ? masmorra.nome || "Masmorra" : ""),
     nivelTexto: nivel ? nivel.texto : "",
     nivelCor: ameaca ? ameaca.cor : null,
@@ -2149,6 +2278,7 @@ function verificarTransicaoMasmorra(x, y) {
         mundo.mapaAtual = id;
         mundo.player.x = m.spawn.x;
         mundo.player.y = m.spawn.y;
+        marcarTeleporteVisual();
         marcarExploracao(personagem, "entrada_masmorra");
         mostrarMensagem(id === "dungeon2" ? "Você entra no Covil das Cinzas..." : "Você entra na masmorra antiga...");
         return;
@@ -2161,6 +2291,7 @@ function verificarTransicaoMasmorra(x, y) {
       mundo.mapaAtual = "overworld";
       mundo.player.x = m.entrance.x - 1;
       mundo.player.y = m.entrance.y;
+      marcarTeleporteVisual();
       mostrarMensagem("Você retorna à superfície.");
     }
   }
@@ -2371,6 +2502,7 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
         .sort((a, b) => ((a.x - queda.x) ** 2 + (a.y - queda.y) ** 2) - ((b.x - queda.x) ** 2 + (b.y - queda.y) ** 2))[0];
       const casa = vilaMaisProxima ? { x: vilaMaisProxima.x, y: vilaMaisProxima.y } : (mundo.gerado ? mundo.gerado.spawn : OVERWORLD_SPAWN);
       mundo.player.x = casa.x; mundo.player.y = casa.y;
+      marcarTeleporteVisual();
       atualizarChunksAtivos();
       mostrarMensagem(`🛟 Você foi resgatado e voltou para ${vilaMaisProxima?.nome || "a Vila de Aethra"}.`, 4200);
     }
@@ -2691,6 +2823,7 @@ function sairDaMasmorra() {
   mundo.mapaAtual = "overworld";
   mundo.player.x = m.entrance.x - 1;
   mundo.player.y = m.entrance.y;
+  marcarTeleporteVisual();
   atualizarChunksAtivos();
   mostrarMensagem("Você retorna à superfície.");
 }
@@ -2890,6 +3023,7 @@ function viajarParaPonto(pontoId) {
   const destino = encontrarTileAndavelProximo(mundo.grid, ponto.x, ponto.y);
   mundo.player.x = destino.x;
   mundo.player.y = destino.y;
+  marcarTeleporteVisual();
   atualizarChunksAtivos();
   const zona = zonaNoPonto(destino.x, destino.y);
   if (zona) mundo.zonaAtualId = zona.id;
@@ -2906,6 +3040,7 @@ function viajarParaZona(zonaId) {
   const destino = encontrarTileAndavelProximo(mundo.grid, alvo.x, alvo.y);
   mundo.player.x = destino.x;
   mundo.player.y = destino.y;
+  marcarTeleporteVisual();
   atualizarChunksAtivos();
   mundo.zonaAtualId = zona.id;
   fecharModal();
