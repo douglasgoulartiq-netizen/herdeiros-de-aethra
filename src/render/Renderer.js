@@ -78,6 +78,13 @@ const DPR_MAXIMO = 3;
 // atrás dele. Este deslocamento puro põe mais mundo na direção do passo sem
 // jogar o personagem sob o HUD/controles. Desktop e paisagem continuam com a
 // câmera central de antes.
+// Constante de tempo da antecipacao da camera. Com tau=90ms o deslocamento
+// assenta em torno de 200ms — o meio da faixa de 150 a 250ms.
+const TAU_OLHAR_CAMERA_MS = 90;
+// Opacidade da copa com o herói atrás, e o tempo para chegar lá.
+const ALFA_OCLUSAO = 0.42;
+const TAU_OCLUSAO_MS = 70;
+
 export function deslocamentoCameraDirecional(direcao, largura, altura, tilePx, telaPequena = true) {
   if (!telaPequena || largura >= altura) return { x: 0, y: 0 };
   const vertical = Math.min(tilePx * 2.15, altura * .105);
@@ -161,6 +168,16 @@ export class Renderer {
   constructor(canvas, imagens) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    // Opacidade atual de cada prop que oculta o herói, por chave id:x:y. Só
+    // guarda o que está fora do opaco: assim que a copa volta a 1 a entrada
+    // sai do mapa, e o conjunto não cresce com o mundo.
+    this.alfaOclusao = new Map();
+    this.oclusaoTocada = new Set();
+    // Tempo do quadro atual, gravado no início de desenhar() para os
+    // sub-desenhos (props) poderem suavizar sem receber mais um parâmetro.
+    this.dtAtual = 16.7;
+    // Antecipação suave da câmera (ver camera()).
+    this.olharCamera = null;
     this.ctx.imageSmoothingEnabled = false;
     this.imagens = imagens;
     this.tilesetTileW = TILE_SIZE; // cada tile no tileset já está em 64x64 (upscale do gerador)
@@ -243,17 +260,52 @@ export class Renderer {
     return { folha: this.imagens.tileset, coluna: equivalente === undefined ? 0 : equivalente };
   }
 
-  camera(playerPx, mapaWpx, mapaHpx, margemTopo = 0, direcao = null) {
+  // ANTECIPAÇÃO SUAVE.
+  //
+  // `deslocamentoCameraDirecional` devolve um degrau: vira para cima e a
+  // câmera pula 2,15 tiles de uma vez. Andando em zigue-zague — que é como
+  // se contorna qualquer obstáculo — o cenário dava um tranco a cada curva,
+  // e com o analógico de oito direções isso piorou, porque agora dá para
+  // trocar de direção sem soltar o dedo.
+  //
+  // O degrau continua sendo o ALVO; o que a câmera usa é um valor que
+  // persegue esse alvo por tempo, com a mesma exponencial da caminhada. τ =
+  // 90ms assenta em torno de 200ms (três a quatro constantes de tempo), que
+  // é o meio da faixa que você pediu. Suavizar o OLHAR e não a posição da
+  // câmera é de propósito: a câmera continua colada no herói, então um
+  // teleporte não a arrasta pelo mundo — só o pequeno deslocamento de
+  // antecipação é interpolado.
+  camera(playerPx, mapaWpx, mapaHpx, margemTopo = 0, direcao = null, dt = 16.7) {
     const vw = this.canvas.width;
     const vh = this.canvas.height;
-    const olhar = deslocamentoCameraDirecional(direcao, vw, vh, this.tilePx, this.telaPequena);
-    let cx = playerPx.x + olhar.x - vw / 2;
-    let cy = playerPx.y + olhar.y - vh / 2;
+    const alvo = deslocamentoCameraDirecional(direcao, vw, vh, this.tilePx, this.telaPequena);
+    if (!this.olharCamera) this.olharCamera = { x: alvo.x, y: alvo.y };
+    const alfa = 1 - Math.exp(-Math.min(dt, 100) / TAU_OLHAR_CAMERA_MS);
+    this.olharCamera.x += (alvo.x - this.olharCamera.x) * alfa;
+    this.olharCamera.y += (alvo.y - this.olharCamera.y) * alfa;
+    // Encosta no alvo: sem isto sobra uma fração de pixel oscilando para
+    // sempre, que em pixel art aparece como tremor.
+    if (Math.abs(alvo.x - this.olharCamera.x) < 0.5) this.olharCamera.x = alvo.x;
+    if (Math.abs(alvo.y - this.olharCamera.y) < 0.5) this.olharCamera.y = alvo.y;
+
+    let cx = playerPx.x + this.olharCamera.x - vw / 2;
+    let cy = playerPx.y + this.olharCamera.y - vh / 2;
     // Mapa menor que a tela (masmorra pequena no celular deitado): centraliza
     // em vez de grudar no canto.
     cx = mapaWpx <= vw ? (mapaWpx - vw) / 2 : Math.max(0, Math.min(cx, mapaWpx - vw));
     cy = mapaHpx <= vh ? (mapaHpx - vh) / 2 : Math.max(-margemTopo, Math.min(cy, mapaHpx - vh));
-    return { x: cx, y: cy };
+    // POLÍTICA DE PIXEL, num lugar só: a câmera para em pixel inteiro.
+    // Cada elemento já arredondava a própria posição na hora de desenhar;
+    // com a câmera em fração, dois elementos vizinhos cruzavam o limite do
+    // arredondamento em quadros diferentes e a cena cintilava. Arredondando
+    // aqui, tudo se desloca junto — que é o que mantém o pixel art nítido.
+    return { x: Math.round(cx), y: Math.round(cy) };
+  }
+
+  // Chamado quando o herói troca de lugar de propósito: zera a antecipação
+  // para ela não escorregar da direção antiga para a nova depois do salto.
+  reiniciarCamera() {
+    this.olharCamera = null;
   }
 
   // Desenha um prop de cenário. Devolve false quando a arte não está
@@ -273,9 +325,35 @@ export class Renderer {
     const w = Math.round(caixa.larguraTiles * T);
     const h = Math.round(caixa.alturaTiles * T);
     if (dx > this.canvas.width || dy > this.canvas.height || dx + w < 0 || dy + h < 0) return true;
-    const transparente = propOcluiJogador(prop, player);
+    // OCLUSÃO QUE DESBOTA, em vez de piscar.
+    //
+    // `propOcluiJogador` é um sim/não: a árvore ia de opaca a 42% num quadro.
+    // Andando na borda da copa — que é onde se anda ao contornar a árvore —
+    // a condição alternava a cada passo e a copa piscava. Agora cada prop
+    // guarda a própria opacidade e caminha até o alvo por tempo (τ = 70ms,
+    // ~160ms para assentar), então atravessar a borda é uma passagem, não um
+    // piscar.
+    //
+    // A COLISÃO NÃO MUDA: `propOcluiJogador` continua decidindo pelos mesmos
+    // critérios de sempre, e nada aqui toca em grid, caixa ou navegação.
+    const deveOcultar = propOcluiJogador(prop, player);
+    const chave = prop.__chaveOclusao || (prop.__chaveOclusao = `${prop.id}:${prop.x}:${prop.y}`);
+    const alvoAlfa = deveOcultar ? ALFA_OCLUSAO : 1;
+    let atual = this.alfaOclusao.get(chave);
+    // Entrada nova começa OPACA, nunca no alvo: começar em 0,42 faria a copa
+    // aparecer já transparente no primeiro quadro em que o herói entra atrás
+    // dela — exatamente o piscar que este código existe para remover.
+    if (atual === undefined) atual = 1;
+    const passo = 1 - Math.exp(-Math.min(this.dtAtual || 16.7, 100) / TAU_OCLUSAO_MS);
+    atual += (alvoAlfa - atual) * passo;
+    // Encosta nas pontas. O caso de `1` é o que garante que nada fica
+    // permanentemente meio transparente depois que o herói sai de trás.
+    if (Math.abs(alvoAlfa - atual) < 0.01) atual = alvoAlfa;
+    if (atual >= 0.999) this.alfaOclusao.delete(chave);
+    else { this.alfaOclusao.set(chave, atual); this.oclusaoTocada.add(chave); }
+    const transparente = atual < 0.999;
     this.ctx.save();
-    if (transparente) this.ctx.globalAlpha = 0.42;
+    if (transparente) this.ctx.globalAlpha = atual;
     this.ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, w, h);
     if (prop.id && /(lanterna|poste|tocha|fogueira|pousada|portao|ponte)/i.test(prop.id) && this.horaAtual?.ehNoite) {
       const lx = dx + w * .5, ly = dy + h * .28, r = T * 1.35;
@@ -286,7 +364,10 @@ export class Renderer {
     if (transparente) {
       // Contorno luminoso discreto mantém a árvore legível ao mesmo tempo em
       // que revela claramente o personagem passando por trás dela.
-      this.ctx.globalAlpha = 0.34;
+      // O contorno entra junto com o desbotar, na mesma proporção: aparecer
+      // de uma vez sobre uma copa que ainda está quase opaca chamaria mais
+      // atenção do que o próprio herói.
+      this.ctx.globalAlpha = 0.34 * (1 - atual) / (1 - ALFA_OCLUSAO);
       this.ctx.strokeStyle = "#d9efb0";
       this.ctx.lineWidth = Math.max(1, Math.round(this.escala));
       this.ctx.strokeRect(dx + 1, dy + 1, Math.max(1, w - 2), Math.max(1, h - 2));
@@ -449,7 +530,14 @@ export class Renderer {
     }
   }
 
-  desenhar({ grid, alturas = null, player, npcs, objetos, mostrarPronto, props, tema, pet, objetivoMissao = null, hora = null, climaId = null }) {
+  desenhar({ grid, alturas = null, player, npcs, objetos, mostrarPronto, props, tema, pet, objetivoMissao = null, hora = null, climaId = null, dt = 16.7 }) {
+    this.dtAtual = dt;
+    // Chaves de oclusão vistas NESTE quadro. Uma árvore que sai da tela (por
+    // distância ou por troca de mapa) deixa de ser desenhada e sua opacidade
+    // congelaria no meio do caminho: ao voltar, apareceria permanentemente
+    // meio transparente. Como ela está fora da vista, esquecer é a resposta
+    // certa — ninguém vê a transição, e o estado volta a ser opaco.
+    this.oclusaoTocada.clear();
     const ctx = this.ctx;
     const T = this.tilePx;
     const mapaWpx = grid[0].length * T;
@@ -459,7 +547,7 @@ export class Renderer {
     this.horaAtual = hora;
     const playerPx = { x: player.x * T + T / 2, y: player.y * T + T / 2 + this.deslocamentoAltura(player.x, player.y) };
     const margemTopo = alturas ? Math.ceil(ALTURA_PROJETADA_MAXIMA + 1) * T : 0;
-    const cam = this.camera(playerPx, mapaWpx, mapaHpx, margemTopo, player.dir);
+    const cam = this.camera(playerPx, mapaWpx, mapaHpx, margemTopo, player.dir, dt);
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -521,6 +609,11 @@ export class Renderer {
 
     this.desenharAmbienteHorario(player, cam, hora, climaId);
     if (mostrarPronto) this.desenharDicaDeInteracao(mostrarPronto);
+    // Poda: o que não foi desenhado neste quadro está fora da vista, e o
+    // estado de oclusão dele não interessa mais (ver oclusaoTocada).
+    if (this.alfaOclusao.size) {
+      for (const chave of this.alfaOclusao.keys()) if (!this.oclusaoTocada.has(chave)) this.alfaOclusao.delete(chave);
+    }
   }
 
   desenharAmbienteHorario(player, cam, hora, climaId) {
@@ -698,7 +791,19 @@ export class Renderer {
     ctx.fill();
     ctx.restore();
     if (img) {
-      const passo = n.ambulante ? Math.sin(Date.now() / 135) * T * .018 : 0;
+      // BALANÇO LIGADO AO DESLOCAMENTO, não ao relógio.
+      //
+      // Era `sin(Date.now()/135)`: o NPC balançava no mesmo ritmo estando
+      // parado ou andando, o que lê como "tremendo no lugar". Agora o
+      // balanço da caminhada vem de `fasePasso`, que é a distância andada em
+      // poses — parou de andar, parou de balançar.
+      //
+      // Quem está parado ganha uma RESPIRAÇÃO: um terço da amplitude e sete
+      // vezes mais lenta, o suficiente para o corpo não parecer um adesivo e
+      // pouco o bastante para ninguém confundir com caminhada.
+      let passo = 0;
+      if (n.andando) passo = Math.abs(Math.sin(n.fasePasso * Math.PI)) * -T * .03;
+      else if (n.ambulante) passo = Math.sin(Date.now() / 1400) * T * .006;
       ctx.drawImage(img, px, py + passo, tam, tam);
     }
 

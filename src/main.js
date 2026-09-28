@@ -17,7 +17,7 @@ import { ganharXP, aplicarCrescimento } from "./systems/CharacterFactory.js";
 import { verificarDestino, registrarColeta, textoRecompensa, textoObjetivo } from "./systems/DestinoSystem.js";
 import { concederPontosPorNivel } from "./systems/TalentSystem.js";
 import { ROTAS_MARITIMAS } from "./data/world/routes.js";
-import { Renderer } from "./render/Renderer.js";
+import { Renderer, propOcluiJogador } from "./render/Renderer.js";
 import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
 import { montarCriacaoPersonagem, MOTIVACOES_CRIACAO } from "./ui/CharacterCreationUI.js";
 import { atualizarHUD, atualizarIndicadorRecomendacaoTime, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao, entregarMissao } from "./ui/GameUI.js";
@@ -254,6 +254,11 @@ async function boot() {
   window.HDA_RENDER_POS = () => ({ x: mundo.player.renderX, y: mundo.player.renderY, frame: mundo.player.frame });
   window.HDA_GRID = () => gridAtiva();
   window.HDA_PROPS = () => propsAtivos();
+  window.HDA_NPCS = () => npcsAtivos();
+  window.HDA_ASSENTAMENTOS = () => (mundo.gerado?.assentamentos || []);
+  // Só de teste: a mesma regra de oclusão que o renderer usa, exposta para
+  // um teste poder encontrar uma posição que de fato fica atrás da copa.
+  window.HDA_OCLUI = (prop, jogador) => propOcluiJogador(prop, jogador);
   window.HDA_RENDERER = () => renderer;
   // Gancho só de teste, no mesmo espírito de HDA_TELEPORTE: abre uma batalha
   // com os monstros pedidos (ids do monsters.json), no lugar onde o herói
@@ -1480,14 +1485,97 @@ function npcsAtivos() {
     .map((f) => {
       const npc = { ...f.ref, x: f.x, y: f.y };
       if (!npc.ambulante) return npc;
-      const fase = Date.now() / 920 + [...npc.id].reduce((s, c) => s + c.charCodeAt(0), 0);
-      // Passeio curto ao redor do posto lógico. Interação continua centrada
-      // no posto e a oscilação fica abaixo de meio tile, então ninguém entra
-      // em casa nem desaparece do índice espacial.
-      npc.x += Math.sin(fase) * .34;
-      npc.y += Math.sin(fase * .63) * .22;
-      return npc;
+      return passearNpc(npc, f.x, f.y);
     });
+}
+
+// CAMINHADA DOS NPCs AMBULANTES.
+//
+// O QUE HAVIA. Duas senoides somadas à posição: `x += sin(t)*0.34`,
+// `y += sin(t*0.63)*0.22`. Não é caminhada, é balanço — o corpo desliza de um
+// lado para o outro sem nunca ir a lugar nenhum, sem olhar para onde vai e
+// sem mexer as pernas, porque nada disso estava ligado ao deslocamento.
+//
+// O QUE PASSA A HAVER. Cada ambulante ganha um destino curto perto do próprio
+// posto, caminha até lá numa linha, para um tempo e escolhe outro. A direção
+// do sprite vem do vetor andado e a pose vem da distância percorrida — as
+// mesmas duas regras do herói, então NPC e jogador se movem com a mesma
+// linguagem.
+//
+// DUAS TRAVAS QUE IMPORTAM:
+//
+// O raio é pequeno (1,5 tile do posto) porque a posição LÓGICA do NPC, a que
+// o índice espacial e a interação usam, continua sendo o posto. Um passeio
+// grande faria o jogador andar até o sprite e a tecla de interação não
+// responder — o boneco estaria longe de onde o jogo acha que ele está.
+//
+// O destino é sorteado UMA vez por trecho, não a cada quadro. Recalcular rota
+// por quadro para cada NPC da tela era justamente o custo que você pediu para
+// evitar; aqui cada NPC decide a cada poucos segundos.
+const PASSEIO_NPC = {
+  raio: 1.5,          // até onde o sprite se afasta do posto
+  velocidade: 0.0016, // tiles por milissegundo (~1,6 tile/s, mais lento que o herói)
+  pausaMin: 1200,
+  pausaMax: 4200,
+  distanciaPorPose: 0.3,
+};
+const passeios = new Map();
+
+function passearNpc(npc, postoX, postoY) {
+  const agora = Date.now();
+  let e = passeios.get(npc.id);
+  if (!e || e.postoX !== postoX || e.postoY !== postoY) {
+    // Posto novo (a rotina do dia moveu o NPC): recomeça deste lugar.
+    e = { postoX, postoY, x: postoX, y: postoY, alvoX: postoX, alvoY: postoY,
+          pausaAte: agora + Math.random() * PASSEIO_NPC.pausaMax, dist: 0, dir: npc.dir || "baixo", ultimo: agora };
+    passeios.set(npc.id, e);
+  }
+  const dt = Math.min(agora - e.ultimo, 100);
+  e.ultimo = agora;
+
+  const dx = e.alvoX - e.x;
+  const dy = e.alvoY - e.y;
+  const falta = Math.hypot(dx, dy);
+
+  if (falta < 0.04) {
+    // Chegou. Fica parado o tempo da pausa e então escolhe outro destino.
+    e.x = e.alvoX; e.y = e.alvoY;
+    if (agora >= e.pausaAte) {
+      const ang = Math.random() * Math.PI * 2;
+      const r = 0.4 + Math.random() * PASSEIO_NPC.raio;
+      const cx = postoX + Math.cos(ang) * r;
+      const cy = postoY + Math.sin(ang) * r;
+      // Respeita o cenário: destino em cima de parede, água ou árvore é
+      // descartado e o NPC simplesmente espera mais um pouco.
+      const grid = gridAtiva();
+      if (grid && !estaBloqueado(Math.round(cx), Math.round(cy), grid)) {
+        e.alvoX = cx; e.alvoY = cy;
+      } else {
+        e.pausaAte = agora + 600;
+      }
+      e.pausaAte = Math.max(e.pausaAte, agora + PASSEIO_NPC.pausaMin + Math.random() * (PASSEIO_NPC.pausaMax - PASSEIO_NPC.pausaMin));
+    }
+    npc.x = e.x; npc.y = e.y; npc.dir = e.dir; npc.frame = 0;
+    npc.andando = false;
+    npc.fasePasso = e.dist / PASSEIO_NPC.distanciaPorPose;
+    return npc;
+  }
+
+  // Andando: passo proporcional ao tempo, nunca ultrapassando o destino.
+  const passo = Math.min(falta, PASSEIO_NPC.velocidade * dt);
+  e.x += (dx / falta) * passo;
+  e.y += (dy / falta) * passo;
+  e.dist += passo;
+  // Direção pelo vetor REAL do passo, como no herói: o eixo dominante manda,
+  // e o horizontal ganha o empate porque só existem quatro folhas.
+  e.dir = Math.abs(dx) >= Math.abs(dy) ? (dx < 0 ? "esquerda" : "direita") : (dy < 0 ? "cima" : "baixo");
+  npc.x = e.x; npc.y = e.y; npc.dir = e.dir;
+  npc.frame = Math.floor(e.dist / PASSEIO_NPC.distanciaPorPose) % 4;
+  // Fase contínua do passo, em "poses": o desenho usa isto para o balanço
+  // acompanhar a distância andada em vez do relógio.
+  npc.fasePasso = e.dist / PASSEIO_NPC.distanciaPorPose;
+  npc.andando = true;
+  return npc;
 }
 
 // Suaviza o deslocamento visual do jogador entre tiles. O movimento LÓGICO
@@ -1589,6 +1677,9 @@ const TAU_CAMINHADA_MS = 55;
 // transição, e o desenho nunca mais confunde salto com engasgo.
 function marcarTeleporteVisual() {
   if (mundo && mundo.player) mundo.player.teleportePendente = true;
+  // A câmera perde a antecipação junto: sem isto ela escorregaria da direção
+  // anterior para a nova depois do salto, o que lê como um puxão.
+  renderer?.reiniciarCamera?.();
 }
 
 // O PET SEGUE PELO RASTRO, não por uma conta de perseguição.
@@ -1708,6 +1799,9 @@ function loopRender(agora = performance.now()) {
     mostrarPronto: document.body.classList.contains("touch") ? null : contextoAcao.textoTeclado,
     hora: horaDoDiaAtual(Date.now()),
     climaId: climaAtual()?.id || null,
+    // Tempo desde o quadro anterior: a antecipação da câmera e o desbotar da
+    // oclusão precisam dele para serem independentes da taxa de quadros.
+    dt,
   });
   // O minimapa sai cedo sozinho quando nada mudou (ver MinimapaUI:
   // `ultimaChave`), então chamá-lo a cada quadro custa uma comparação de
