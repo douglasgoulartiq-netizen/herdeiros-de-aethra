@@ -45,3 +45,34 @@ export function multiplicadorDaRelacao(relacao, dadosElementos) {
   if (!dadosElementos) return 1;
   return dadosElementos.multiplicadores[relacao] ?? 1;
 }
+
+// O GOLPE DE METAL — a saída que faltava para o empate de dano zero.
+//
+// O DEFEITO. `combatente.elemento` NÃO é a identidade do personagem: é o
+// elemento da ARMA equipada (ver CombatSystem, onde o combatente é montado a
+// partir de `personagem.equipamento.arma.elemento`). 107 das 161 armas do
+// jogo têm elemento, e o mesmo campo responde por dois papéis opostos — com
+// o que você BATE e o que você RESISTE.
+//
+// Junte isso a "mesmo elemento = imune = 0" e o empate aparece sozinho:
+// um herói de espada de fogo encontra um monstro de fogo. O ataque básico
+// dele sai como fogo e causa 0. Toda habilidade FÍSICA dele também sai como
+// fogo (herdam o elemento da arma) e causam 0. E o ataque do monstro, que é
+// fogo, contra um herói cujo `elemento` é fogo, também causa 0. Ninguém
+// machuca ninguém, para sempre, e a única saída era fugir.
+//
+// A REGRA. Um golpe físico é, antes de tudo, metal e força: o encantamento é
+// um bônus. Quando o encantamento não morde — e imunidade é exatamente isso
+// — o golpe vale pelo que sobra, dano físico neutro. Então, e SÓ para
+// ataques físicos, um elemento que resultaria em imunidade cai para
+// "fisico", que a matriz acima trata como neutro contra tudo.
+//
+// O que isto NÃO muda: magia elemental continua podendo ser anulada. Uma
+// bola de fogo num inimigo de fogo ainda causa 0, e isso continua sendo uma
+// decisão tática de verdade — a diferença é que agora sempre existe o
+// ataque básico como resposta, em vez de um beco sem saída.
+export function elementoFisicoEfetivo(elementoAtacante, elementoDefensor, dadosElementos) {
+  const bruto = elementoAtacante || "fisico";
+  if (relacaoElemental(bruto, elementoDefensor, dadosElementos) === "imune") return "fisico";
+  return bruto;
+}

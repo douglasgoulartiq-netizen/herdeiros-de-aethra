@@ -1,7 +1,7 @@
 // Sistema de batalha ATB (Active Time Battle) com regras inspiradas em d20.
 import { statusDoOleo, sincronizarElemento, devolverOleoAoPersonagem, TIPO_STATUS as STATUS_OLEO } from "./WeaponOilSystem.js";
 import { atributosEfetivos, defesaTotal, velocidadeTotal, ataqueBase, critBonusTotal } from "./CharacterFactory.js";
-import { relacaoElemental, multiplicadorElemental, multiplicadorDaRelacao } from "./ElementSystem.js";
+import { relacaoElemental, multiplicadorElemental, multiplicadorDaRelacao, elementoFisicoEfetivo } from "./ElementSystem.js";
 import { escolherAlvoPorArquetipo, deveHesitar } from "./EnemyAI.js";
 import { FLAGS } from "../data/featureFlags.js";
 import {
@@ -719,7 +719,7 @@ export class Batalha {
   // exato, virando o "min–max" exibido. Nunca deve ser chamada em nenhum
   // lugar que decida o resultado real de um golpe — só para exibição na UI
   // ANTES de confirmar a ação (ver BattleUI.js).
-  estimarFaixaDano(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true } = {}) {
+  estimarFaixaDano(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, magico = false } = {}) {
     const alvoDef = this.defesaEfetiva(alvo);
     const atributo = atributoForcado || atacante.ataque.atributo;
     const baseAtributo = atacante.atributos[atributo] || 0;
@@ -727,7 +727,14 @@ export class Batalha {
     base *= multiplicador;
     const furiaBuff = atacante.statusEffects.find((s) => s.tipo === "buff_ataque_proximo");
     if (furiaBuff) base *= 1 + furiaBuff.valor;
-    const elemResolvido = elementoAtacante || atacante.elemento || "fisico";
+    // Mesma regra do golpe real (ver rolarAtaque), inclusive o `magico`: a
+    // prévia tem de mostrar o número que o jogador vai receber, senão ele
+    // leria "IMUNE · 0" e desistiria de um ataque que causa dano — ou o
+    // contrário, o que é pior.
+    const elemBrutoP = elementoAtacante || atacante.elemento;
+    const elemResolvido = magico
+      ? (elemBrutoP || "fisico")
+      : elementoFisicoEfetivo(elemBrutoP, alvo.elemento || "fisico", this.dadosElementos);
     let relacao = "neutro";
     let multElemental = 1;
     if (FLAGS.elementos && this.dadosElementos) {
@@ -946,12 +953,13 @@ export class Batalha {
         ignoraDefesa: Math.round(this.defesaEfetiva(plano.alvo) * 0.4),
         elementoAtacante: inimigo.elemento,
         respeitaFormacao: false,
+        magico: true,
       });
     }
     return null;
   }
 
-  rolarAtaque(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true } = {}) {
+  rolarAtaque(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, magico = false } = {}) {
     const { critico: criticoBase, erroTotal, bloqueado } = this.resolverAcaoD20(atacante, alvo);
     let critico = criticoBase;
     const alvoDef = this.defesaEfetiva(alvo);
@@ -1075,7 +1083,21 @@ export class Batalha {
       });
     }
 
-    const elemResolvido = elementoAtacante || atacante.elemento || "fisico";
+    // GOLPE DE METAL (ver elementoFisicoEfetivo): quando o elemento da arma
+    // resultaria em imunidade, o golpe vale como físico neutro em vez de
+    // zerar. Sem isto, espada de fogo contra inimigo de fogo trava a batalha
+    // dos dois lados.
+    //
+    // `magico: true` desliga a regra. Nem tudo que passa por aqui é um golpe
+    // de arma: a conjuração do arquétipo Conjurador também usa este caminho,
+    // e magia elemental anulada por imunidade é mecânica desenhada, não
+    // defeito — quem conjura fogo num inimigo de fogo tem de errar a
+    // escolha. O empate não volta por isso: quem conjura também tem o ataque
+    // básico, e o ataque básico é de metal.
+    const elemBruto = elementoAtacante || atacante.elemento;
+    const elemResolvido = magico
+      ? (elemBruto || "fisico")
+      : elementoFisicoEfetivo(elemBruto, alvo.elemento || "fisico", this.dadosElementos);
     let relacao = "neutro";
     if (FLAGS.elementos && this.dadosElementos) {
       const elemDef = alvo.elemento || "fisico";
@@ -2022,6 +2044,7 @@ export class Batalha {
       ignoraDefesa: Math.round(this.defesaEfetiva(alvo) * 0.4),
       elementoAtacante: atacante.elemento,
       respeitaFormacao: false,
+      magico: true,
     });
     if (r.acertou) {
       this.aplicarDano(alvo, r.dano);

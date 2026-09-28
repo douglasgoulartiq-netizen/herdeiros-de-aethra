@@ -4976,6 +4976,36 @@
       "valor": 460,
       "elemento": "arcano",
       "descricao": "Um grimório que lê quem o abre. Dano baseado em INT."
+    },
+    {
+      "id": "encomenda_semente",
+      "nome": "Saco de Semente Selado",
+      "tipo": "material",
+      "subtipo": "missao",
+      "raridade": "comum",
+      "icone": "erva",
+      "valor": 0,
+      "descricao": "Semente de plantio que Tobias separou. O selo de cera está intacto — ele pediu que continue assim."
+    },
+    {
+      "id": "encomenda_receita",
+      "nome": "Receita da Tia de Helena",
+      "tipo": "material",
+      "subtipo": "missao",
+      "raridade": "comum",
+      "icone": "erva",
+      "valor": 0,
+      "descricao": "Meia folha de papel com uma letra difícil. Helena copiou de memória e não tem certeza da quantidade de sal."
+    },
+    {
+      "id": "encomenda_ferradura",
+      "nome": "Ferradura de Sobra",
+      "tipo": "material",
+      "subtipo": "missao",
+      "raridade": "comum",
+      "icone": "erva",
+      "valor": 0,
+      "descricao": "Baltazar comprou um lote errado e ficou com uma a mais. Serve no cavalo de alguém, ele diz."
     }
   ]
 }

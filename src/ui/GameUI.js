@@ -1742,7 +1742,11 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
     montarDialogo(npc, dados, personagem, onMudar, contexto);
   });
 
-  const quests = dados.quests.filter((q) => q.npcId === npc.id);
+  // Quem este NPC é para cada missão: o OFERTANTE (npcId) e, nas missões de
+  // entrega, também o DESTINATÁRIO (npcDestino). Sem a segunda metade, o
+  // jogador chegava com o pacote na mão e não tinha a quem dar.
+  const quests = dados.quests.filter((q) => q.npcId === npc.id
+    || (q.npcDestino === npc.id && (personagem.missoesAtivas || []).some((m) => m.id === q.id)));
   quests.forEach((q) => {
     const jaAtiva = personagem.missoesAtivas.some((m) => m.id === q.id);
     const jaConcluida = personagem.missoesConcluidas.includes(q.id);
@@ -1754,10 +1758,14 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
       const pronto = missaoPronta(personagem, q);
       div.innerHTML = `<div class="info"><div class="nome">${q.nome}</div><div class="desc">${q.descricao}</div></div>
         <div><button ${pronto ? "" : "disabled"} class="btn-entregar" data-id="${q.id}">${pronto ? "Entregar" : "Em progresso"}</button></div>`;
-    } else {
+    } else if (q.npcId === npc.id) {
       div.innerHTML = `<div class="info"><div class="nome">${q.nome}</div><div class="desc">${q.descricao}</div>
         <div class="desc">Recompensa: ${q.recompensaOuro} ouro, ${q.recompensaXP} XP</div></div>
         <div><button class="btn-aceitar" data-id="${q.id}">Aceitar</button></div>`;
+    } else {
+      // Destinatário de uma entrega que o jogador ainda não aceitou: não há
+      // nada a oferecer nem a receber aqui.
+      return;
     }
     corpo.appendChild(div);
   });
@@ -1765,6 +1773,17 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   corpo.querySelectorAll(".btn-aceitar").forEach((b) => b.onclick = async () => {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
     if (!iniciarMissao(personagem, q)) return;
+    // Missão de entrega: o pacote sai das mãos de quem pede, agora. Sem
+    // isto o objetivo seria impossível — o item não existe em lugar nenhum
+    // do mundo, ele nasce nesta conversa.
+    if (q.tipo === "entregar" && q.itemAlvo) {
+      const base = dados.items.itens.find((i) => i.id === q.itemAlvo);
+      const quantos = q.quantidade || 1;
+      for (let i = 0; i < quantos; i++) {
+        personagem.inventario.push({ ...(base || { id: q.itemAlvo, nome: q.itemNome || q.itemAlvo, tipo: "material" }), uid: cryptoId() });
+      }
+      mostrarMensagem(`📦 Você recebeu: ${q.itemNome || base?.nome || q.itemAlvo}`, 3200);
+    }
     onMudar();
     const cena = cenaDaMissao(q, "aceita");
     if (cena) {
@@ -1776,6 +1795,23 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   });
   corpo.querySelectorAll(".btn-entregar").forEach((b) => b.onclick = async () => {
     const q = dados.quests.find((x) => x.id === b.dataset.id);
+    await entregarMissao(q, personagem, dados, onMudar);
+    montarDialogo(npc, dados, personagem, onMudar, contexto);
+  });
+}
+
+// ENTREGA DA MISSÃO — a recompensa inteira, num lugar só.
+//
+// Era o corpo do `onclick` do botão "Entregar" e não dava para chamar de
+// nenhum outro lugar. Agora que a recompensa também pode cair na hora em que
+// o objetivo é cumprido (ver concluirMissoesProntas em QuestSystem/main),
+// as duas rotas precisam ser a MESMA: mesmo item, mesmo XP, mesma subida de
+// nível, mesmos fragmentos, mesma reputação, mesmo desfecho no diário e
+// mesma cutscene. Duplicar isso significaria, mais cedo ou mais tarde, uma
+// entrega automática que paga menos que a manual.
+export async function entregarMissao(q, personagem, dados, onMudar = () => {}) {
+  if (!q) return { ok: false };
+  {
     const r = concluirMissao(personagem, q, dados.items.itens);
     if (r.ok) {
       if (r.item) {
@@ -1810,6 +1846,6 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
       else mostrarMensagem(msg);
     }
     onMudar();
-    montarDialogo(npc, dados, personagem, onMudar, contexto);
-  });
+    return r;
+  }
 }

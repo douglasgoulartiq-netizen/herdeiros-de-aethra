@@ -33,7 +33,10 @@ export function progressoDaMissao(personagem, questDef) {
   const estado = (personagem?.missoesAtivas || []).find((m) => m.id === questDef?.id);
   if (!estado || !questDef) return { atual: 0, meta: questDef?.quantidade || 1, pronto: false };
   const meta = questDef.quantidade || 1;
-  const atual = questDef.tipo === "coletar"
+  // "entregar" conta igual a "coletar": o que importa é ter o pacote na
+  // mochila. A diferença das duas está em ONDE a missão fecha — ver
+  // entregaImediata() e destinoDeMissao().
+  const atual = questDef.tipo === "coletar" || questDef.tipo === "entregar"
     ? (personagem.inventario || []).filter((i) => i.id === questDef.itemAlvo).length
     : estado.progresso || 0;
   return { atual: Math.min(meta, atual), meta, pronto: missaoPronta(personagem, questDef) };
@@ -45,6 +48,7 @@ export function textoObjetivoMissao(questDef) {
   if (questDef.tipo === "matar") return `Derrote ${questDef.quantidade || 1} × ${String(questDef.alvo || "alvo").replace(/_/g, " ")}.`;
   if (questDef.tipo === "coletar") return `Colete ${questDef.quantidade || 1} × ${String(questDef.itemAlvo || "item").replace(/_/g, " ")}.`;
   if (questDef.tipo === "explorar") return `Vá até ${String(questDef.localAlvo || questDef.regiao || "o destino").replace(/_/g, " ")}.`;
+  if (questDef.tipo === "entregar") return `Leve ${String(questDef.itemNome || questDef.itemAlvo || "o pacote").replace(/_/g, " ")} até ${questDef.nomeDestino || "o destinatário"}.`;
   return questDef.descricao || "Continue a investigação.";
 }
 
@@ -84,6 +88,23 @@ export function iniciarMissao(personagem, questDef) {
   return true;
 }
 
+// A missão paga na hora em que o objetivo é cumprido?
+//
+// Por padrão SIM: a caminhada de volta ao ofertante num mundo 4× é minutos
+// entre cumprir o objetivo e sentir que cumpriu, e era a queixa mais direta
+// sobre as primeiras horas. Uma missão pode recusar a entrega imediata
+// declarando `entregaImediata: false` em quests.json — é a saída para quando
+// o reencontro com o ofertante FOR a cena, e não burocracia.
+//
+// Missões de entrega (`tipo: "entregar"`) nunca pagam sozinhas: o destino é
+// justamente chegar a outra pessoa, então antecipar a recompensa apagaria a
+// missão inteira.
+export function entregaImediata(questDef) {
+  if (!questDef) return false;
+  if (questDef.tipo === "entregar") return false;
+  return questDef.entregaImediata !== false;
+}
+
 export function registrarAbate(personagem, monstroId) {
   const eventos = [];
   personagem.missoesAtivas.forEach((m) => {
@@ -100,9 +121,9 @@ export function missaoPronta(personagem, questDef) {
   const m = personagem.missoesAtivas.find((x) => x.id === questDef.id);
   if (!m) return false;
   if (questDef.tipo === "matar") return m.progresso >= questDef.quantidade;
-  if (questDef.tipo === "coletar") {
+  if (questDef.tipo === "coletar" || questDef.tipo === "entregar") {
     const qtd = personagem.inventario.filter((i) => i.id === questDef.itemAlvo).length;
-    return qtd >= questDef.quantidade;
+    return qtd >= (questDef.quantidade || 1);
   }
   if (questDef.tipo === "explorar") return m.progresso >= 1;
   return false;
@@ -111,8 +132,8 @@ export function missaoPronta(personagem, questDef) {
 export function concluirMissao(personagem, questDef, itemsCatalog) {
   const idx = personagem.missoesAtivas.findIndex((m) => m.id === questDef.id);
   if (idx < 0) return { ok: false };
-  if (questDef.tipo === "coletar") {
-    let restante = questDef.quantidade;
+  if (questDef.tipo === "coletar" || questDef.tipo === "entregar") {
+    let restante = questDef.quantidade || 1;
     for (let i = personagem.inventario.length - 1; i >= 0 && restante > 0; i--) {
       if (personagem.inventario[i].id === questDef.itemAlvo) {
         personagem.inventario.splice(i, 1);

@@ -20,7 +20,7 @@ import { ROTAS_MARITIMAS } from "./data/world/routes.js";
 import { Renderer } from "./render/Renderer.js";
 import { ligarAjusteDeViewport, pedirTelaCheiaNoPrimeiroGesto, alternarTelaCheia, emTelaCheia, suportaTelaCheia } from "./systems/ViewportSystem.js";
 import { montarCriacaoPersonagem, MOTIVACOES_CRIACAO } from "./ui/CharacterCreationUI.js";
-import { atualizarHUD, atualizarIndicadorRecomendacaoTime, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao } from "./ui/GameUI.js";
+import { atualizarHUD, atualizarIndicadorRecomendacaoTime, mostrarMensagem, notificarSucesso, montarInventario, montarMissoes, montarForja, montarDialogo, fecharModal, montarViagemRapida, montarNavegacao, entregarMissao } from "./ui/GameUI.js";
 import { iniciarBatalha } from "./ui/BattleUI.js";
 import { montarGacha } from "./ui/GachaUI.js";
 import { montarArvoreHabilidades } from "./ui/SkillTreeUI.js";
@@ -114,7 +114,7 @@ import { deveAparecerMercador, sortearEstoqueMercador } from "./systems/Travelin
 import { mostrarMercadorItinerante } from "./ui/TravelingMerchantUI.js";
 import { ligarCursorTeclado } from "./ui/CursorTeclado.js";
 import { montarParty } from "./ui/PartyUI.js";
-import { missaoRastreada, progressoDaMissao, textoObjetivoMissao, ehMissaoPrincipal } from "./systems/QuestSystem.js";
+import { missaoRastreada, progressoDaMissao, textoObjetivoMissao, ehMissaoPrincipal, missaoPronta, entregaImediata } from "./systems/QuestSystem.js";
 
 // Libera o sintetizador no primeiro gesto em qualquer tela. O evento é
 // único e passivo: não interfere em botões, movimento ou rolagem.
@@ -751,6 +751,45 @@ const MASMORRAS = {
   },
 };
 
+// RECOMPENSA NA HORA.
+//
+// Percorre as missões ativas e entrega as que já estão prontas, sem exigir a
+// volta ao ofertante. Chamada nos dois momentos em que um objetivo pode ser
+// cumprido: ao fim de uma batalha (missões de matar) e ao mudar a mochila
+// (missões de coletar).
+//
+// Três cuidados que o torna seguro chamar de qualquer lugar:
+//   - `entregandoMissoes` impede reentrada. `entregarMissao` é assíncrona
+//     (pode abrir cutscene) e mexe em `missoesAtivas`; sem a trava, um
+//     segundo disparo no meio do primeiro entregaria a mesma missão duas
+//     vezes, pagando em dobro.
+//   - a lista é copiada antes do laço, porque `concluirMissao` remove itens
+//     de `missoesAtivas` enquanto iteramos.
+//   - entrega UMA por vez e reavalia: concluir uma missão de coletar consome
+//     os itens do inventário e pode desfazer a prontidão de outra que pedia
+//     o mesmo item.
+let entregandoMissoes = false;
+async function entregarMissoesProntas() {
+  if (entregandoMissoes || !personagem || !dados?.quests) return;
+  entregandoMissoes = true;
+  try {
+    let entregouAlguma = true;
+    while (entregouAlguma) {
+      entregouAlguma = false;
+      for (const ativa of [...(personagem.missoesAtivas || [])]) {
+        const def = dados.quests.find((q) => q.id === ativa.id);
+        if (!def || !entregaImediata(def)) continue;
+        if (!missaoPronta(personagem, def)) continue;
+        await entregarMissao(def, personagem, dados, atualizarInterfacePrincipal);
+        entregouAlguma = true;
+        break;
+      }
+    }
+  } finally {
+    entregandoMissoes = false;
+  }
+}
+
 function destinoDaMissaoRastreada({ paraMapaMundo = false } = {}) {
   if (!personagem || !dados?.quests) return null;
   const rastreada = missaoRastreada(personagem, dados.quests);
@@ -766,6 +805,20 @@ function destinoDaMissaoRastreada({ paraMapaMundo = false } = {}) {
 function destinoDeMissao(def, { paraMapaMundo = false } = {}) {
   if (!personagem || !def) return null;
   const progresso = progressoDaMissao(personagem, def);
+
+  // MISSÃO DE ENTREGA: o destino é o DESTINATÁRIO desde o primeiro passo —
+  // o pacote já está na mochila quando a missão começa, então não existe
+  // "fase de objetivo" separada da "fase de entrega".
+  if (def.tipo === "entregar" && def.npcDestino) {
+    const destinatario = npcsPosicionados().find((n) => n.id === def.npcDestino);
+    if (destinatario) {
+      return {
+        id: def.id, x: destinatario.x, y: destinatario.y, mapa: "overworld",
+        nome: `Entregar: ${def.nome}`, texto: textoObjetivoMissao(def), pronto: progresso.pronto,
+      };
+    }
+    return null;
+  }
 
   // Objetivo cumprido: a direção correta deixa de ser a área da tarefa e
   // passa a ser quem recebe a entrega.
@@ -2074,6 +2127,11 @@ function dispararBatalha(monstrosDef, levasExtras = [], onVitoria) {
     // (forjar, aprimorar, trocar) — nunca no meio do combate. Vitória apenas:
     // depois de uma derrota o jogador quer voltar a jogar, não ler conselho.
     if (resultado !== "derrota") verificarCartoes("calmo", 2600);
+    // RECOMPENSA NA HORA: o abate que fecha a missão paga a missão. Antes, o
+    // herói matava o terceiro slime e tinha de atravessar o mapa de volta até
+    // o Tobias para receber — num mundo 4× isso são minutos de caminhada
+    // entre cumprir o objetivo e sentir que cumpriu.
+    if (resultado !== "derrota") entregarMissoesProntas();
     registrarEvento("batalha_fim", { resultado, duracaoMs: Date.now() - inicioBatalhaMs, causa: resultado === "derrota" ? "hp_zerado" : null });
     if (Math.max(0, personagem.ouro - ouroAntes) > 0) registrarEvento("moeda", { fonte: "batalha", valor: Math.max(0, personagem.ouro - ouroAntes) });
     if (autoPlayState.ativo) {
@@ -2291,6 +2349,8 @@ function abrirBau(alvo, porQuem = null) {
           }
         }
       }
+      // Baú também pode conter o item que fecha uma missão de coleta.
+      entregarMissoesProntas();
       const ouroBase = { bau_comum: 45, bau_raro: 90, bau_epico: 170, bau_lendario: 300 }[alvo.ref.tier] || 45;
       // Interesse Tesouros: +10% de ouro em baús.
       const ouroGanho = Math.round(ouroBase * (1 + Math.max(0, (personagem.nivel || 1) - 1) * 0.08) * (abencoado ? 1.35 : 1) * multOuroBau(personagem));
@@ -2340,6 +2400,9 @@ function coletarNo(alvo, porQuem = null) {
     const colheita = porQuem ? `🐾 ${porQuem} colheu:` : "Você coletou:";
     mostrarMensagem(`${colheita} ${itemMaterial.nome}${quantidade > 1 ? ` x${quantidade}` : ""}!${msgTeste}`, msgTeste ? 4200 : 2200);
     registrarProgressoDiario(personagem, "coleta", quantidade);
+    // A última gema entrou na mochila: a missão de coleta fecha aqui mesmo,
+    // sem a viagem de volta (ver entregarMissoesProntas).
+    entregarMissoesProntas();
   }
   if (!personagem.locaisExplorados) personagem.locaisExplorados = [];
   if (!personagem.locaisExplorados.includes(alvo.ref.id)) {
@@ -3124,10 +3187,18 @@ function prioridadeMissaoNoNpc(npcId) {
   let prioridade = 0;
 
   // Missões comuns: história principal e entrega pronta têm precedência.
-  dados.quests.filter((q) => q.npcId === npcId).forEach((q) => {
+  // Numa missão de entrega quem importa é o DESTINATÁRIO — é ele que fecha a
+  // missão, e sem esta linha o automático levava o pacote para sempre.
+  dados.quests.filter((q) => q.npcId === npcId || q.npcDestino === npcId).forEach((q) => {
     const ativa = personagem.missoesAtivas?.find((m) => m.id === q.id);
     const concluida = personagem.missoesConcluidas?.includes(q.id);
     if (concluida) return;
+    if (q.npcDestino === npcId && q.npcId !== npcId) {
+      // Só vale como destino depois de a missão ser aceita; antes disso este
+      // NPC não tem nada a ver com ela.
+      if (ativa && progressoDaMissao(personagem, q).pronto) prioridade = Math.max(prioridade, PRIORIDADE.missaoEntrega);
+      return;
+    }
     if (ativa) {
       const pronto = progressoDaMissao(personagem, q).pronto;
       prioridade = Math.max(prioridade, pronto ? PRIORIDADE.missaoEntrega : 0);
