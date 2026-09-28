@@ -1,0 +1,586 @@
+{
+  "scope": "Pilot: one level-1 solo slime battle per class/race; no campaign, navigation, equipment, gacha, quests or UI. No satisfaction inference.",
+  "revision": "391c9cf2c2e21bef6662fb553ede0e5b9b223822",
+  "runs": 36,
+  "outcomes": {
+    "vitoria": 36
+  },
+  "results": [
+    {
+      "seed": 20260925,
+      "classe": "guerreiro",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 22,
+      "hp": 55,
+      "lastLog": [
+        "Audit ataca Slime e causa 13 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 13 de dano."
+      ]
+    },
+    {
+      "seed": 20260926,
+      "classe": "guerreiro",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 19,
+      "hp": 51,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 11 de dano."
+      ]
+    },
+    {
+      "seed": 20260927,
+      "classe": "guerreiro",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 42,
+      "hp": 49,
+      "lastLog": [
+        "Slime ataca Audit e causa 7 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 22 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260928,
+      "classe": "guerreiro",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 4,
+      "ticks": 26,
+      "hp": 52,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 37 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260929,
+      "classe": "guerreiro",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 18,
+      "hp": 52,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 11 de dano."
+      ]
+    },
+    {
+      "seed": 20260930,
+      "classe": "guerreiro",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 5,
+      "ticks": 46,
+      "hp": 44,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 23 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260931,
+      "classe": "mago",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 22,
+      "hp": 33,
+      "lastLog": [
+        "Audit ataca Slime e causa 14 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 7 de dano."
+      ]
+    },
+    {
+      "seed": 20260932,
+      "classe": "mago",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 7,
+      "ticks": 42,
+      "hp": 17,
+      "lastLog": [
+        "Slime ataca Audit e causa 10 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 5 de dano."
+      ]
+    },
+    {
+      "seed": 20260933,
+      "classe": "mago",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 39,
+      "hp": 23,
+      "lastLog": [
+        "Slime ataca Audit e causa 9 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 15 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260934,
+      "classe": "mago",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 52,
+      "hp": 12,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 15 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260935,
+      "classe": "mago",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 7,
+      "ticks": 52,
+      "hp": 8,
+      "lastLog": [
+        "Slime ataca Audit e causa 5 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 5 de dano."
+      ]
+    },
+    {
+      "seed": 20260936,
+      "classe": "mago",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 13,
+      "ticks": 97,
+      "hp": 5,
+      "lastLog": [
+        "Slime erra completamente o ataque! (d20: 2, erro total abaixo de 4)",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 6 de dano."
+      ]
+    },
+    {
+      "seed": 20260937,
+      "classe": "ladino",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 18,
+      "hp": 37,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 10 de dano."
+      ]
+    },
+    {
+      "seed": 20260938,
+      "classe": "ladino",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 11,
+      "hp": 38,
+      "lastLog": [
+        "Slime erra completamente o ataque! (d20: 3, erro total abaixo de 4)",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 18 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260939,
+      "classe": "ladino",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 14,
+      "hp": 36,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 7 de dano."
+      ]
+    },
+    {
+      "seed": 20260940,
+      "classe": "ladino",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 14,
+      "hp": 37,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 20 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260941,
+      "classe": "ladino",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 30,
+      "hp": 25,
+      "lastLog": [
+        "Audit ataca Slime e causa 7 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 8 de dano."
+      ]
+    },
+    {
+      "seed": 20260942,
+      "classe": "ladino",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 28,
+      "hp": 31,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 9 de dano."
+      ]
+    },
+    {
+      "seed": 20260943,
+      "classe": "clerigo",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 4,
+      "ticks": 27,
+      "hp": 49,
+      "lastLog": [
+        "Slime erra completamente o ataque! (d20: 2, erro total abaixo de 4)",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 12 de dano."
+      ]
+    },
+    {
+      "seed": 20260944,
+      "classe": "clerigo",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 5,
+      "ticks": 24,
+      "hp": 38,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 7 de dano."
+      ]
+    },
+    {
+      "seed": 20260945,
+      "classe": "clerigo",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 2,
+      "ticks": 16,
+      "hp": 49,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 21 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260946,
+      "classe": "clerigo",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 62,
+      "hp": 40,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 13 de dano."
+      ]
+    },
+    {
+      "seed": 20260947,
+      "classe": "clerigo",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 22,
+      "hp": 42,
+      "lastLog": [
+        "Audit ataca Slime e causa 16 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 17 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260948,
+      "classe": "clerigo",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 6,
+      "ticks": 48,
+      "hp": 34,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 9 de dano."
+      ]
+    },
+    {
+      "seed": 20260949,
+      "classe": "barbaro",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 4,
+      "ticks": 27,
+      "hp": 52,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 15 de dano."
+      ]
+    },
+    {
+      "seed": 20260950,
+      "classe": "barbaro",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 5,
+      "ticks": 24,
+      "hp": 52,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 14 de dano."
+      ]
+    },
+    {
+      "seed": 20260951,
+      "classe": "barbaro",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 4,
+      "ticks": 32,
+      "hp": 55,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 14 de dano."
+      ]
+    },
+    {
+      "seed": 20260952,
+      "classe": "barbaro",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 2,
+      "ticks": 16,
+      "hp": 60,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 39 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260953,
+      "classe": "barbaro",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 4,
+      "ticks": 22,
+      "hp": 47,
+      "lastLog": [
+        "Slime ataca Audit e causa 9 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 23 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260954,
+      "classe": "barbaro",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 25,
+      "hp": 49,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 28 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260955,
+      "classe": "patrulheiro",
+      "raca": "humano",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 14,
+      "hp": 37,
+      "lastLog": [
+        "Slime ataca Audit e causa 8 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 20 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260956,
+      "classe": "patrulheiro",
+      "raca": "elfo",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 10,
+      "hp": 38,
+      "lastLog": [
+        "Slime ataca Audit e causa 4 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 14 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260957,
+      "classe": "patrulheiro",
+      "raca": "anao",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 16,
+      "hp": 45,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 15 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260958,
+      "classe": "patrulheiro",
+      "raca": "orc",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 16,
+      "hp": 45,
+      "lastLog": [
+        "Slime erra completamente o ataque! (d20: 2, erro total abaixo de 4)",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 10 de dano."
+      ]
+    },
+    {
+      "seed": 20260959,
+      "classe": "patrulheiro",
+      "raca": "halfling",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 3,
+      "ticks": 14,
+      "hp": 32,
+      "lastLog": [
+        "Slime ataca Audit e causa 10 de dano (CRÍTICO!).",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 14 de dano (CRÍTICO!)."
+      ]
+    },
+    {
+      "seed": 20260960,
+      "classe": "patrulheiro",
+      "raca": "draconato",
+      "policy": "basic_attack_only",
+      "level": 1,
+      "outcome": "vitoria",
+      "actions": 9,
+      "ticks": 67,
+      "hp": 23,
+      "lastLog": [
+        "Slime ataca Audit e causa 3 de dano.",
+        "Slime foi derrotado!",
+        "Audit ataca Slime e causa 18 de dano (CRÍTICO!)."
+      ]
+    }
+  ]
+}

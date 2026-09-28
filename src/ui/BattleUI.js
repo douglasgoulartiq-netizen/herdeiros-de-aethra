@@ -2441,7 +2441,12 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   renderArena();
   renderLog();
   renderAcoes();
-  loopATB();
+  const chefeEntrada = inimigos.find(c => c.chefe && c.vivo);
+  if (chefeEntrada) {
+    palco.apresentarChefe(chefeEntrada).then(ativo => {
+      if (ativo && !batalha.terminada && screenEl.isConnected && !screenEl.classList.contains('hidden')) loopATB();
+    });
+  } else loopATB();
 
   // Alça de INSPEÇÃO devolvida pra quem chamou. Não é usada pelo jogo (o
   // main.js ignora o retorno) — existe pra o teste de layout shift

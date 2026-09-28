@@ -1,0 +1,20 @@
+/* Ornamentação fica nas extremidades; nunca recebe cliques. */
+#screen-batalha .bt-field { isolation: isolate; }
+#screen-batalha .bt-cena { filter: saturate(.84); }
+#screen-batalha .bt-overlays {
+  pointer-events: none;
+  background: linear-gradient(90deg,rgba(8,17,22,.24),transparent 14%,transparent 86%,rgba(8,17,22,.24));
+}
+#screen-batalha .boss-entrance {
+  box-sizing: border-box; margin: auto; width: min(92%,620px); height: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 6px 12px; border-block: 1px solid #b59d69;
+  background: linear-gradient(90deg,transparent,#151e2bf5 12%,#151e2bf5 88%,transparent);
+  color: #efdfb9; text-align: center; pointer-events: auto;
+  animation: boss-reveal .35s ease-out both;
+}
+#screen-batalha .boss-entrance span { min-width: 0; overflow-wrap: anywhere; font-size: clamp(12px,1.5vw,19px); }
+#screen-batalha .boss-entrance button { flex: 0 0 auto; min-height: 36px; }
+@keyframes boss-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@media (max-width:600px) { #screen-batalha .boss-entrance { gap: 5px; padding: 4px 8px; } }
+@media (prefers-reduced-motion:reduce) { #screen-batalha .boss-entrance { animation: none; } }

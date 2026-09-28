@@ -45,5 +45,13 @@ export function desenharFundoIlustrado(ctx, img, largura, altura, horizonte) {
   sombra.addColorStop(1, 'rgba(8,14,24,.25)');
   ctx.fillStyle = sombra;
   ctx.fillRect(0, 0, largura, altura);
+  // Reduz o contraste apenas no piso ocupado pelos combatentes. O panorama
+  // e as bordas continuam ricos, sem blur caro ou nova imagem decodificada.
+  const palco = ctx.createRadialGradient(largura * .5, altura * .63, 0, largura * .5, altura * .63, Math.max(largura, altura) * .58);
+  palco.addColorStop(0, 'rgba(26,33,38,.30)');
+  palco.addColorStop(.62, 'rgba(26,33,38,.16)');
+  palco.addColorStop(1, 'rgba(26,33,38,0)');
+  ctx.fillStyle = palco;
+  ctx.fillRect(0, linha, largura, altura - linha);
   ctx.restore();
 }

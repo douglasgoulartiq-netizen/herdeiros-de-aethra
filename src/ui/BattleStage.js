@@ -35,6 +35,7 @@
 // preenche é a BattleUI.
 import { TILE_SIZE } from "../data/worldMap.js";
 import { carregarFundoBatalha, desenharFundoIlustrado } from './BattleBackgrounds.js';
+import { apresentarChefe } from './BossEntrance.js';
 
 // Quantos lugares existem em cada fileira. Os números vêm do jogo: o time
 // ativo é o principal + até 3 convocados (MAX_CONVOCADOS_GACHA), e o maior
@@ -339,6 +340,7 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
   let ultimoTamanho = "";
   let fundoIlustrado = null;
   let destruido = false;
+  let entradaChefe = null;
   const redesenharCena = (forcar = false) => {
     const r = campoEl.getBoundingClientRect();
     const L = Math.max(1, Math.round(r.width));
@@ -401,8 +403,14 @@ export function montarPalco(screenEl, { cenario, imagens, autoAtivo = false } = 
     dockEl: screenEl.querySelector("#batalha-acoes"),
     alternarLog,
     logEstaAberto: () => logAberto,
+    apresentarChefe(chefe) {
+      entradaChefe?.cancelar();
+      entradaChefe = apresentarChefe(screenEl.querySelector('#bt-pista'), chefe, { automatico: autoAtivo });
+      return entradaChefe.pronto.then(() => !destruido);
+    },
     destruir() {
       destruido = true;
+      entradaChefe?.cancelar();
       fundoIlustrado = null;
       if (observador) observador.disconnect();
     },

@@ -889,6 +889,73 @@ export class Renderer {
     // Aumenta a leitura sem mudar a base: os pés continuam no mesmo ponto
     // lógico, enquanto roupa, cabelo e equipamento ganham mais pixels.
     const dy = playerPx.y - cam.y - tam * 0.78;
+
+    // ---------------------------------------------------------------------
+    // PESO DO CORPO — é o que separa "andar" de "pular".
+    //
+    // Antes o herói era desenhado CHAPADO: quatro poses trocando de imagem
+    // sem nenhuma transferência de peso. Troca discreta de pose, com o corpo
+    // sempre na mesma altura, o olho lê como salto — cada troca aparece como
+    // um solavanco em vez de uma passada.
+    //
+    // A arte não muda. O que entra é o movimento que um corpo real faz entre
+    // uma pose e a outra, calculado a partir da fase contínua do passo
+    // (p.fasePasso, em main.js: 1 unidade por pose, 4 poses por tile):
+    //
+    //   subida   — o quadril sobe na passagem e desce no apoio. DUAS subidas
+    //              por tile, uma por PÉ. É a diferença entre caminhada e
+    //              pulo: pulo sobe uma vez por ciclo, caminhada sobe duas.
+    //   balanço  — o peso troca de perna uma vez a cada DOIS passos, então
+    //              este tem o dobro do período (um ciclo inteiro por tile).
+    //   esmagar  — no instante do apoio o corpo achata de leve e alarga: é o
+    //              impacto do pé no chão, e é o que dá a sensação de massa.
+    //
+    // NADA DISTO USA rotate() OU scale() FRACIONÁRIO. O canvas do jogo roda
+    // com imageSmoothingEnabled = false (pixel art); girar ou escalar um
+    // sprite nesse modo reamostra por vizinho mais próximo e o desenho passa
+    // a cintilar — linhas de pixel somem e voltam a cada quadro, o que é pior
+    // que o problema original. Então o corpo se move em PIXEL INTEIRO, pelo
+    // retângulo de destino do drawImage: o desenho continua exato, só muda de
+    // lugar e de proporção em passos inteiros, como faz um jogo 2D de verdade.
+    //
+    // Tudo isto zera quando p.andando é falso, então o herói parado continua
+    // exatamente como sempre foi.
+    // ---------------------------------------------------------------------
+    // ONDE CADA POSE CAI NO CICLO — medido nas folhas, não chutado.
+    // Em pc_*.png (256×64, quatro quadros de 64) os quadros 0 e 2 são
+    // IDÊNTICOS pixel a pixel, e 1 e 3 são as duas passadas (pé esquerdo e pé
+    // direito à frente). Ou seja: 0 e 2 são a PASSAGEM (as duas pernas sob o
+    // corpo) e 1 e 3 são os APOIOS. Num passo real o quadril está no ponto
+    // MAIS ALTO na passagem e no MAIS BAIXO quando o pé encosta — é o oposto
+    // do que uma leitura ingênua faria. Como `frame = floor(fase) % 4`, o
+    // meio de cada quadro está em fase 0,5 / 1,5 / 2,5 / 3,5: a subida é
+    // máxima em 0,5 e 2,5 e mínima em 1,5 e 3,5.
+    const anda = player.andando ? 1 : 0;
+    const fase = anda ? (player.fasePasso || 0) : 0;
+    // Período 2 em `fase` -> duas subidas por tile, uma por pé.
+    const alturaPasso = (1 + Math.cos((fase - .5) * Math.PI)) / 2;
+    // Período 4 -> a troca de perna de apoio, uma vez a cada dois passos.
+    const balanco = Math.cos((fase - 1.5) * Math.PI / 2);
+    // AMPLITUDES. A primeira versão destas constantes (0,055·T de subida e
+    // 0,05·tam de achatamento) dava 6,3px de oscilação num sprite de 55px —
+    // 11% da altura, medido. É bonito num teste isolado e ridículo em jogo:
+    // quique de 11% é o que faz um personagem parecer quicando. Caminhada em
+    // pixel art vive entre 3% e 6%. Aqui: 2px de subida e 1px de achatamento
+    // num sprite de 55px (mesa) e 1px/1px no de 34px (celular) — o mínimo que
+    // o olho registra como peso, e nada além disso.
+    const subidaPx = Math.round(anda * alturaPasso * T * .042);
+    const swayPx = Math.round(anda * balanco * T * .014);
+    // Achatamento no apoio: máximo quando o quadril está no ponto mais baixo.
+    const achataY = Math.round(anda * (1 - alturaPasso) * tam * .022);
+    const achataX = Math.round(achataY * .6);
+    // Retângulo do CORPO. Os pés ficam presos ao chão: a altura sai do topo
+    // (por isso `by` desce junto com `achataY`) e a largura cresce para os
+    // dois lados a partir do eixo.
+    const largura = tam + achataX;
+    const altura = tam - achataY;
+    const bx = dx - Math.round(achataX / 2) + swayPx;
+    const by = dy + achataY - subidaPx;
+
     ctx.save();
     if (player.horaNoite) {
       const lx = playerPx.x - cam.x + (player.dir === "esquerda" ? -tam * .34 : tam * .34);
@@ -900,29 +967,39 @@ export class Renderer {
       ctx.fillStyle = "#6b3e21"; ctx.fillRect(lx - T * .06, ly - T * .08, T * .12, T * .25);
       ctx.fillStyle = "#ffe99b"; ctx.beginPath(); ctx.arc(lx, ly - T * .11, T * .1, 0, Math.PI * 2); ctx.fill();
     }
-    ctx.globalAlpha = .36;
+    // A sombra FICA NO CHÃO. Ela não acompanha a subida do corpo — encolhe e
+    // clareia um pouco quando o quadril sobe, e volta ao tamanho cheio no
+    // apoio. É esta discordância entre corpo e sombra que informa ao olho que
+    // o herói está levantando o pé, e não a imagem inteira subindo (que é
+    // exatamente o que lê como pulo).
+    ctx.globalAlpha = .36 - anda * alturaPasso * .06;
     ctx.fillStyle = "#070706";
     ctx.beginPath();
-    ctx.ellipse(playerPx.x - cam.x, playerPx.y - cam.y + T * .29, T * .3, T * .085, 0, 0, Math.PI * 2);
+    ctx.ellipse(playerPx.x - cam.x, playerPx.y - cam.y + T * .29,
+      T * .3 * (1 - anda * alturaPasso * .1), T * .085 * (1 - anda * alturaPasso * .14), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
+
+    // Daqui para baixo o herói é desenhado no retângulo do CORPO (bx/by,
+    // largura/altura), que já carrega subida, balanço e achatamento. A sombra
+    // acima ficou com o retângulo do CHÃO, de propósito.
     if (player.dir === "esquerda" || player.dir === "direita") {
       // Perfil lateral: estreita a silhueta sem reduzir a altura e espelha
       // para a esquerda. Como todas as combinações raça/classe passam por
       // este renderer, as quatro direções funcionam para o elenco inteiro.
-      const larguraPerfil = tam * .84;
-      const px = dx + (tam - larguraPerfil) / 2;
+      const larguraPerfil = largura * .84;
+      const px = bx + (largura - larguraPerfil) / 2;
       ctx.save();
       if (player.dir === "esquerda") {
-        ctx.translate(px + larguraPerfil, dy);
+        ctx.translate(px + larguraPerfil, by);
         ctx.scale(-1, 1);
-        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, 0, 0, larguraPerfil, tam);
+        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, 0, 0, larguraPerfil, altura);
       } else {
-        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, px, dy, larguraPerfil, tam);
+        ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, px, by, larguraPerfil, altura);
       }
       ctx.restore();
     } else {
-      ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, dx, dy, tam, tam);
+      ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, bx, by, largura, altura);
       if (player.dir === "cima") {
         // As folhas originais trazem a pose frontal. Esta leitura traseira
         // cobre rosto/peito com nuca, ombreiras e capa específicos da classe,
@@ -935,21 +1012,21 @@ export class Renderer {
                 : chave.includes("barbaro") ? "#6f302d" : "#443e55";
         ctx.fillStyle = "rgba(13,12,18,.82)";
         ctx.beginPath();
-        ctx.ellipse(dx + tam * .5, dy + tam * .27, tam * .14, tam * .15, 0, 0, Math.PI * 2);
+        ctx.ellipse(bx + largura * .5, by + altura * .27, largura * .14, altura * .15, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = cor;
         ctx.beginPath();
-        ctx.moveTo(dx + tam * .31, dy + tam * .37);
-        ctx.quadraticCurveTo(dx + tam * .5, dy + tam * .28, dx + tam * .69, dy + tam * .37);
-        ctx.lineTo(dx + tam * .64, dy + tam * .73);
-        ctx.quadraticCurveTo(dx + tam * .5, dy + tam * .82, dx + tam * .36, dy + tam * .73);
+        ctx.moveTo(bx + largura * .31, by + altura * .37);
+        ctx.quadraticCurveTo(bx + largura * .5, by + altura * .28, bx + largura * .69, by + altura * .37);
+        ctx.lineTo(bx + largura * .64, by + altura * .73);
+        ctx.quadraticCurveTo(bx + largura * .5, by + altura * .82, bx + largura * .36, by + altura * .73);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = "rgba(224,210,172,.48)";
         ctx.lineWidth = Math.max(1, T * .018);
         ctx.beginPath();
-        ctx.moveTo(dx + tam * .5, dy + tam * .4);
-        ctx.lineTo(dx + tam * .5, dy + tam * .7);
+        ctx.moveTo(bx + largura * .5, by + altura * .4);
+        ctx.lineTo(bx + largura * .5, by + altura * .7);
         ctx.stroke();
       }
     }

@@ -1622,21 +1622,47 @@ function atualizarPosicaoRenderizada(dtSegurado = 16.7) {
   }
 
   if (dist > 0.0015) {
-    // INTERPOLAÇÃO POR TEMPO, não por quadro.
+    // VELOCIDADE CONSTANTE — é o que separa caminhar de saltitar.
     //
-    // Era `renderX += distX * 0.35` — 35% do que falta A CADA QUADRO. A 60
-    // FPS isso converge no dobro da velocidade que a 30 FPS: a mesma
-    // caminhada ficava lenta num aparelho fraco e apressada num forte, e a
-    // velocidade visual mudava junto com a carga da máquina.
+    // Duas versões atrás isto era `renderX += distX * 0.35`: 35% do que falta
+    // A CADA QUADRO, o que fazia a caminhada depender da taxa de quadros.
+    // Consertei aquilo com a suavização exponencial por tempo
+    // (alfa = 1 - e^(-dt/τ), τ = 55ms), que resolveu a dependência de FPS mas
+    // MANTEVE o defeito de fundo, e é ele que produz a sensação de pulo:
     //
-    // A fórmula agora é a suavização exponencial correta:
-    //     alfa = 1 - e^(-dt/τ)
-    // que dá exatamente o mesmo resultado no mesmo tempo, com qualquer taxa
-    // de quadros. τ = 55ms foi escolhido para reproduzir o ritmo do 0,35 a
-    // 60 FPS, para a caminhada não parecer diferente do que era.
-    const alfa = 1 - Math.exp(-dtSegurado / TAU_CAMINHADA_MS);
-    p.renderX += distX * alfa;
-    p.renderY += distY * alfa;
+    //   exponencial = velocidade máxima no começo do tile e quase zero no
+    //   fim. Com τ=55ms e um passo a cada 130ms, sobra e^(-130/55) ≈ 9% do
+    //   tile quando o passo seguinte dispara — ou seja, o herói ARRANCA,
+    //   desacelera até quase parar, arranca de novo. Sete vezes por segundo.
+    //   Esse arranca-e-para é exatamente a leitura de "pulando de tile em
+    //   tile", por mais bem animado que o sprite esteja.
+    //
+    // Gente andando não faz isso: a velocidade do quadril é praticamente
+    // constante. Então a posição visual agora persegue a lógica em VELOCIDADE
+    // CONSTANTE, calibrada para cobrir um passo exatamente no tempo que o
+    // jogo leva para permitir o próximo (ver cadenciaPasso/comprimentoPasso
+    // em `mover`, que já embutem o atraso do terreno e o custo da diagonal —
+    // na água o passo é mais lento, e o desenho acompanha em vez de chegar
+    // antes e ficar esperando).
+    const cadencia = p.cadenciaPasso || COOLDOWN_MOVIMENTO;
+    const passo = p.comprimentoPasso || 1;
+    const v0 = passo / cadencia; // tiles por milissegundo
+    // Correção proporcional ao atraso. Em regime o herói mantém um passo de
+    // distância da posição lógica e anda liso; se perder quadros, acelera até
+    // 2,2× para recuperar (nunca teleporta — isso é trabalho do
+    // marcarTeleporteVisual); se estiver adiantado, freia em vez de travar.
+    // A correção age só sobre o atraso EXCEDENTE — o que passa de um passo.
+    // (Primeira tentativa minha corrigia sobre a distância inteira. Não
+    // funciona, e a medição pegou: logo depois do passo falta um tile e o
+    // fator ia a 1, no fim do tile faltava quase nada e o fator caía ao piso;
+    // o herói voltava a acelerar-e-frear, só que por outro motivo. Pico/média
+    // ficou em 2,0, praticamente igual à exponencial que eu tinha saído.)
+    // Sem atraso excedente o fator é exatamente 1: velocidade constante.
+    const excesso = Math.max(0, dist - passo) / passo;
+    const fator = 1 + Math.min(1.2, excesso);
+    const avanco = Math.min(dist, v0 * fator * dtSegurado);
+    p.renderX += (distX / dist) * avanco;
+    p.renderY += (distY / dist) * avanco;
 
     // PASSO PELA DISTÂNCIA, não pelo relógio.
     //
@@ -1648,19 +1674,40 @@ function atualizarPosicaoRenderizada(dtSegurado = 16.7) {
     // percorre distância nenhuma, logo não anima.
     p.distAndada = (p.distAndada || 0) + Math.hypot(p.renderX - (p.ultimoRenderX ?? p.renderX), p.renderY - (p.ultimoRenderY ?? p.renderY));
     p.frame = Math.floor(p.distAndada / DISTANCIA_POR_POSE) % 4;
+    // Fase CONTÍNUA do passo, em poses. O `frame` inteiro escolhe o desenho;
+    // esta fração é o que dá peso ao corpo entre um desenho e o outro (ver
+    // desenharJogador no Renderer).
+    p.fasePasso = p.distAndada / DISTANCIA_POR_POSE;
+    p.andando = true;
 
-    // Encostar no destino: sem isto, a exponencial nunca chega a zero e o
-    // herói desliza para sempre num décimo de pixel por quadro.
-    if (Math.abs(p.x - p.renderX) < 0.01) p.renderX = p.x;
-    if (Math.abs(p.y - p.renderY) < 0.01) p.renderY = p.y;
+    // O antigo "encostar no destino" (snap abaixo de 0,01 tile) saiu junto
+    // com a exponencial: ele existia porque a exponencial nunca chega a zero
+    // e o herói ficava deslizando um décimo de pixel para sempre. Com
+    // velocidade constante a chegada é exata (ver `avanco >= dist` acima), e
+    // um snap agora só reintroduziria um micro-tranco de 0,6px no fim de cada
+    // passo — bem o tipo de coisa que o olho lê como tropeço.
+  } else if (Date.now() - (p.ultimoMovimento || 0) < (p.cadenciaPasso || COOLDOWN_MOVIMENTO) * 1.5) {
+    // ALCANÇOU A POSIÇÃO LÓGICA, MAS AINDA ESTÁ ANDANDO.
+    //
+    // Com velocidade constante o desenho às vezes chega ao destino alguns
+    // milissegundos antes de o jogo liberar o passo seguinte. Sem este ramo,
+    // esses poucos milissegundos caíam no "parou" lá embaixo, que zera
+    // distAndada e devolve a pose de descanso — uma piscada de pose a cada
+    // tile, sete vezes por segundo. Enquanto o último passo é recente o
+    // ciclo continua de onde estava; só a distância percorrida (e portanto a
+    // pose) fica de fato parada nesse intervalo curtíssimo.
+    p.renderX = p.x;
+    p.renderY = p.y;
+    p.andando = true;
   } else {
-    // Parou: fecha o passo em vez de cortar no meio. A pose 0 é o descanso;
-    // vindo de 1 ou 3 (pernas abertas) o corpo passa pela 2 antes, o que lê
-    // como "terminou de pisar" em lugar de um corte seco.
+    // Parou de verdade: fecha o passo em vez de cortar no meio. A pose 0 é o
+    // descanso; vindo de 1 ou 3 (pernas abertas) o corpo passa pela 2 antes,
+    // o que lê como "terminou de pisar" em lugar de um corte seco.
     p.renderX = p.x;
     p.renderY = p.y;
     p.distAndada = 0;
     p.frame = p.frame === 1 || p.frame === 3 ? 2 : 0;
+    p.andando = false;
   }
   p.ultimoRenderX = p.renderX;
   p.ultimoRenderY = p.renderY;
@@ -1670,8 +1717,6 @@ function atualizarPosicaoRenderizada(dtSegurado = 16.7) {
 // cobre as quatro poses do ciclo, então cada pose vale um quarto de tile —
 // é o que faz o pé "grudar" no chão em vez de patinar.
 const DISTANCIA_POR_POSE = 0.25;
-// Constante de tempo da perseguição visual. Ver o comentário da fórmula.
-const TAU_CAMINHADA_MS = 55;
 
 // Quem muda o herói de lugar de propósito chama isto. Uma linha em cada
 // transição, e o desenho nunca mais confunde salto com engasgo.
@@ -2185,7 +2230,40 @@ function mover(dx, dy) {
   mundo.player.x = nx;
   mundo.player.y = ny;
   mundo.player.ultimoMovimento = agora;
-  mundo.player.frame = mundo.player.frame === 1 ? 3 : 1;
+  // RITMO DESTE PASSO, para o desenho andar na mesma velocidade que a regra.
+  //
+  // Duas coisas entram aqui. A primeira é o limite teórico, que já embute o
+  // atraso do terreno e o custo da diagonal: sem ele a posição visual usaria
+  // sempre o ritmo de terra firme e chegaria antes do tempo na água e no
+  // pântano — e chegar antes significa ficar parado esperando o passo
+  // seguinte, que é exatamente o arranca-e-para que estamos tirando.
+  //
+  // A segunda é o ritmo REAL. O limite é 130ms, mas quem chama `mover` é um
+  // relógio de 40ms (teclado e analógico), então o passo sai no primeiro tique
+  // depois do limite: na prática 130 a 170ms, com média perto de 150. Calibrar
+  // o desenho pelos 130 teóricos faria o herói cobrir o tile e esperar ~20ms
+  // parado, toda vez — de novo um arranca-e-para, agora pequeno, mas foi o que
+  // a medição pegou (5% dos quadros com velocidade zero).
+  //
+  // Então o desenho segue o ritmo OBSERVADO, suavizado. Nada disso mexe na
+  // velocidade do jogo: `mover` continua obedecendo ao mesmo limite de sempre,
+  // e o que se ajusta é só a velocidade do desenho para caber no tempo que o
+  // passo de fato leva.
+  const limitePasso = COOLDOWN_MOVIMENTO * atrasoTerreno * atrasoDiagonal;
+  const intervalo = agora - (mundo.player.ultimoPassoEm || 0);
+  if (intervalo > 0 && intervalo <= limitePasso * 2) {
+    mundo.player.ritmoObservado = mundo.player.ritmoObservado
+      ? mundo.player.ritmoObservado * 0.72 + intervalo * 0.28
+      : intervalo;
+  }
+  mundo.player.ultimoPassoEm = agora;
+  mundo.player.cadenciaPasso = Math.max(limitePasso, mundo.player.ritmoObservado || limitePasso);
+  mundo.player.comprimentoPasso = Math.hypot(dx, dy);
+  // (Saiu daqui um `player.frame = frame === 1 ? 3 : 1`. Ele forçava a pose no
+  // instante do passo, competindo com a pose calculada pela distância
+  // percorrida a cada quadro — duas fontes para a mesma coisa, e a do passo
+  // pulava direto entre as duas poses de apoio, sem passar pela passagem.
+  // Agora quem manda na pose é só a distância.)
 
   verificarTransicaoMasmorra(nx, ny);
   verificarMudancaDeZona(nx, ny);

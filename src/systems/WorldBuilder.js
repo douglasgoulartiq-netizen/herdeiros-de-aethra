@@ -847,6 +847,21 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // usam exclusivamente as famílias V2, todas desenhadas no mesmo padrão
   // detalhado da pousada.
   const dentroDaMancha = new Set(tiles.map((t) => idx(t.x, t.y)));
+  // Travessas conectadas ao eixo central, reservadas antes das fachadas.
+  // Não abrir ruas depois das casas: isso apagaria paredes e colisões.
+  const ruas = [];
+  if (["CAPITAL", "CIDADE", "VILA"].includes(a.categoria)) {
+    const afastamento = pracaR + 4;
+    for (const sinal of [-1, 1]) {
+      const y = centro.y + sinal * afastamento;
+      for (let x = centro.x - raio + 2; x <= centro.x + raio - 2; x++) {
+        if (!dentroDaMancha.has(idx(x, y))) continue;
+        g[y][x] = TILE.COBBLE;
+        ocupado.add(idx(x, y));
+        ruas.push({ x, y });
+      }
+    }
+  }
 
   // Eixos urbanos visíveis. A praça liga-se aos quatro portões e ganha um
   // anel de circulação, como na referência: o jogador entende onde está e
@@ -985,7 +1000,12 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
         ocupado.add(idx(c.x, c.y));
       }
       props.push(pousada);
-      descanso = { x: pousada.x, y: pousada.y + 1, nome: `Pousada de ${a.nome}` };
+      pousada.hospedagem = ident.clima === "nevado" ? "alpina"
+        : ident.porto || ident.clima === "costeiro" ? "maritima"
+          : ident.clima === "arido" || ident.clima === "vulcanico" ? "caravana"
+            : organica ? "bosque" : "real";
+      const nomesHospedagem = { alpina: "Abrigo da Lareira", maritima: "Estalagem das Marés", caravana: "Pátio das Caravanas", bosque: "Hospedaria dos Cedros", real: "Estalagem da Coroa" };
+      descanso = { x: pousada.x, y: pousada.y + 1, nome: `${nomesHospedagem[pousada.hospedagem]} — ${a.nome}` };
     }
   }
 
@@ -1101,7 +1121,16 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // em `props` mas não é prédio, e contá-lo inflaria o número que o teste e o
   // relatório usam para dizer "esta capital tem 40 prédios".
   const construcoes = props.filter((p) => p.id.startsWith("casa") || p.id === "templo").length;
-  return { distritos, props, casas: construcoes, tiles, praca: pracaR, descanso };
+  // Soleiras e becos recebem piso distinto sem modificar paredes ou água.
+  // A largura das ruas principais permanece reservada em `ocupado`.
+  for (const p of props.filter(p => p.id.startsWith("casa") || p.id === "pousada")) {
+    for (let ox = -1; ox <= 1; ox++) {
+      const x = p.x + ox, y = p.y + 1;
+      if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y)) || SOLID_TILES.has(g[y][x]) || TILES_AGUA.has(g[y][x])) continue;
+      g[y][x] = TILE.COBBLE;
+    }
+  }
+  return { distritos, props, casas: construcoes, tiles, praca: pracaR, descanso, ruas };
 }
 
 // ---------------------------------------------------------------------------
@@ -1330,7 +1359,9 @@ function carvearEstrada(g, caminho, nivel, ident, pontes, nomeRota, pegadaDeCida
         // quarteirão e casa, tudo virava estrada. Dentro da cidade quem leva
         // o tráfego é a rua dela; a estrada só precisa encostar.
         if (ehPisoDeCidade(pegadaDeCidade, x, y)) continue;
-        g[y][x] = TILE.PATH;
+        // A via oficial tem eixo de pedra e acostamento de terra; trilhas
+        // continuam rústicas. Pontes e pisos urbanos são preservados acima.
+        g[y][x] = nivel === "PRINCIPAL" && ox === 0 && oy === 0 ? TILE.COBBLE : TILE.PATH;
       }
     }
     if (sobreAgua) {
@@ -1343,6 +1374,10 @@ function carvearEstrada(g, caminho, nivel, ident, pontes, nomeRota, pegadaDeCida
         ultima.tiles += 1;
       }
     }
+  }
+  // Segunda passada: o acostamento do próximo ponto não apaga o eixo.
+  if (nivel === "PRINCIPAL") for (const p of caminho) {
+    if (!ehPisoDeCidade(pegadaDeCidade, p.x, p.y) && g[p.y][p.x] === TILE.PATH) g[p.y][p.x] = TILE.COBBLE;
   }
   return tilesPonte;
 }
@@ -1531,11 +1566,13 @@ function ornamentarEstradas(g, props, tracados, pegadaDeCidade, assentamentos) {
     for (let i = 10; i < pontos.length - 10; i += 16) {
       const p = pontos[i]; const anterior = pontos[Math.max(0, i - 1)];
       const dx = p.x - anterior.x; const dy = p.y - anterior.y;
-      const lado = i % 32 ? 2 : -2;
+      const marco = Math.floor((i - 10) / 16);
+      const lado = marco % 2 ? 2 : -2;
       const x = p.x - dy * lado; const y = p.y + dx * lado;
       const chave = idx(x, y);
       if (!dentro(x, y) || pegadaDeCidade.has(chave) || ocupados.has(chave) || SOLID_TILES.has(g[y][x]) || TILES_AGUA.has(g[y][x])) continue;
-      props.push({ id: i % 32 ? "poste" : "placa", x, y, rota: rota.nome });
+      props.push({ id: marco % 2 ? "poste" : "placa", x, y, rota: rota.nome,
+        destino: `${rota.deRef.nome} / ${rota.paraRef.nome}` });
       ocupados.add(chave);
     }
   }
@@ -1751,7 +1788,7 @@ export function construirMundo(semente) {
     assentamentos.push({
       ...a, x: centro.x, y: centro.y, raio: CATEGORIAS[a.categoria].raio,
       distritos: construido.distritos, casas: construido.casas, praca: construido.praca,
-      descanso: construido.descanso, temaArquitetura,
+      descanso: construido.descanso, temaArquitetura, ruas: construido.ruas,
     });
   }
   const assentamentoPorIdMapa = new Map(assentamentos.map((a) => [a.id, a]));

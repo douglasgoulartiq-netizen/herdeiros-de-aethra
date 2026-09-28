@@ -1,0 +1,26 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verificação — cenas vivas</title><link rel="stylesheet" href="../src/cena-viva.css">
+<style>body{margin:0;background:#14212b;color:#e9debc;font:16px sans-serif}main{max-width:1000px;margin:auto;padding:16px}canvas{width:100%;height:auto}button{padding:10px;background:#243949;color:#fff;border:1px solid #ad9361}.bt-pista-anuncios{height:80px}#screen-batalha{position:relative}h2{font-size:18px}</style>
+<main><h1>Cenas vivas — componentes reais</h1><h2>Composição do cenário: costa</h2><canvas id="fundo" width="960" height="440"></canvas>
+<section id="screen-batalha"><div id="entrada" class="bt-pista-anuncios"></div><button id="repetir">Apresentar chefe</button><p id="status">Pronto</p></section>
+<h2>Hospedagens e identidade regional</h2><canvas id="cidade" width="960" height="280"></canvas>
+<h2>Atividades: ferreiro, mercador e guarda</h2><canvas id="npcs" width="960" height="190"></canvas></main>
+<script type="module">
+import {desenharFundoIlustrado} from '../src/ui/BattleBackgrounds.js';
+import {desenharHospedagem} from '../src/render/UrbanDetails.js';
+import {desenharEstandarte,desenharAtividade} from '../src/render/WorldVignettes.js';
+import {apresentarChefe} from '../src/ui/BossEntrance.js';
+const carregar=src=>new Promise((ok,no)=>{const img=new Image();img.onload=()=>ok(img);img.onerror=no;img.src=src});
+const img=await carregar('../assets/cenarios-batalha/costa-v1.webp');
+desenharFundoIlustrado(fundo.getContext('2d'),img,960,440,.28);
+const casa=await carregar('../assets/props/pousada.png');
+const ctx=cidade.getContext('2d');
+['alpina','maritima','caravana','bosque','real'].forEach((tipo,i)=>{ctx.drawImage(casa,i*192,20,190,190);desenharHospedagem(ctx,tipo,i*192,20,190,190);desenharEstandarte(ctx,['gelo','porto','deserto','organica','verde'][i],i*192+145,155,44);ctx.fillStyle='#e9debc';ctx.fillText(tipo,i*192+70,240)});
+const personagens=[{servicos:['forja'],sprite:'artesao'},{servicos:['loja'],sprite:'mercador'},{papelVisual:'guarda',sprite:'guarda'}];
+const sprites=await Promise.all(personagens.map(p=>carregar(`../assets/sprites/npc_${p.sprite}_v2.png`)));
+const cn=npcs.getContext('2d');let frame;
+function desenhar(tempo){cn.clearRect(0,0,960,190);personagens.forEach((p,i)=>{cn.drawImage(sprites[i],110+i*280,30,120,120);desenharAtividade(cn,p,110+i*280,30,120,tempo,matchMedia('(prefers-reduced-motion:reduce)').matches)});frame=requestAnimationFrame(desenhar)}
+desenhar(0);addEventListener('pagehide',()=>cancelAnimationFrame(frame));
+let entrada;
+document.querySelector('#repetir').onclick=()=>{entrada?.cancelar();document.querySelector('#status').textContent='Apresentando';entrada=apresentarChefe(document.querySelector('#entrada'),{nome:'Guardião das Marés'});entrada.pronto.then(()=>document.querySelector('#status').textContent='Combate liberado')};
+</script></html>
