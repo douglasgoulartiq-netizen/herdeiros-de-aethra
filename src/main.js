@@ -293,6 +293,7 @@ async function boot() {
   await atualizarPainelLogin();
 
   window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
   // Navegação por hubs: uma definição só (ver HUBS em GameUI.js) alimenta a
   // coluna agrupada do desktop e a barra inferior do celular.
   montarNavegacao(onHudAction);
@@ -1634,6 +1635,79 @@ function tentarMover(dx, dy) {
   mover(dx, dy);
 }
 
+// TECLADO EM OITO DIREÇÕES.
+//
+// Antes, cada seta chamava `mover` sozinha e a repetição vinha do autorepeat
+// do sistema — que dispara UMA tecla por vez. Segurar ↑ e → ao mesmo tempo
+// produzia uma sequência alternada de passos retos, nunca uma diagonal.
+//
+// Agora as teclas seguradas ficam num conjunto e um único relógio lê a SOMA
+// delas. ↑+→ vira (1,-1) de verdade, e soltar uma das duas volta ao passo
+// reto no mesmo instante, sem esperar o autorepeat recomeçar.
+//
+// Setas, WASD e o teclado numérico (incluindo as diagonais 1/3/7/9, que é
+// como muitos roguelikes se jogam) chegam todos aqui.
+const VETOR_POR_TECLA = {
+  ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+  w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0],
+  Numpad8: [0, -1], Numpad2: [0, 1], Numpad4: [-1, 0], Numpad6: [1, 0],
+  Numpad7: [-1, -1], Numpad9: [1, -1], Numpad1: [-1, 1], Numpad3: [1, 1],
+};
+// "w" e "a" já são atalhos de painel? Não: os atalhos usados são
+// i/m/q/f/s/y/g/t/h/c/v/d/u/k/r/p (ver onKeyDown). WASD colide com "s"
+// (salvar) e "d" (diário), então WASD fica de fora por enquanto — as setas e
+// o numérico cobrem as oito direções sem ambiguidade.
+delete VETOR_POR_TECLA.w; delete VETOR_POR_TECLA.a;
+delete VETOR_POR_TECLA.s; delete VETOR_POR_TECLA.d;
+
+function normalizarTeclaMovimento(chave) {
+  return chave;
+}
+
+const teclasSeguradas = new Set();
+let relogioMovimentoTeclado = null;
+
+function vetorDasTeclas() {
+  let dx = 0, dy = 0;
+  for (const k of teclasSeguradas) {
+    const v = VETOR_POR_TECLA[k];
+    if (!v) continue;
+    dx += v[0]; dy += v[1];
+  }
+  // Duas teclas opostas se anulam; mais de uma no mesmo eixo não acelera.
+  return [Math.sign(dx), Math.sign(dy)];
+}
+
+function passoDoTeclado() {
+  const [dx, dy] = vetorDasTeclas();
+  if (!dx && !dy) { pararMovimentoTeclado(); return; }
+  tentarMover(dx, dy);
+}
+
+function pressionarTeclaDeMovimento(chave) {
+  teclasSeguradas.add(chave);
+  passoDoTeclado();
+  if (!relogioMovimentoTeclado) {
+    // Mais rápido que o cooldown do passo de propósito: `mover` é quem
+    // decide se já passou tempo suficiente, e um relógio mais lento perderia
+    // o instante em que a segunda tecla entra numa diagonal.
+    relogioMovimentoTeclado = setInterval(passoDoTeclado, 40);
+  }
+}
+
+function pararMovimentoTeclado() {
+  clearInterval(relogioMovimentoTeclado);
+  relogioMovimentoTeclado = null;
+}
+
+function onKeyUp(e) {
+  teclasSeguradas.delete(normalizarTeclaMovimento(e.key));
+  if (!teclasSeguradas.size) pararMovimentoTeclado();
+}
+// Sair da aba com a tecla pressionada deixava o herói andando sozinho para
+// sempre: o keyup acontece fora da janela e nunca chega.
+window.addEventListener("blur", () => { teclasSeguradas.clear(); pararMovimentoTeclado(); });
+
 function tentarInteragir() {
   if (!podeJogarNoMundo()) return;
   interagir();
@@ -1649,10 +1723,9 @@ function onKeyDown(e) {
   }
   if (e.key === "Escape") { fecharModal(); return; }
 
-  const teclasMovimento = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-  if (teclasMovimento[e.key]) {
+  if (VETOR_POR_TECLA[normalizarTeclaMovimento(e.key)]) {
     e.preventDefault();
-    tentarMover(...teclasMovimento[e.key]);
+    pressionarTeclaDeMovimento(normalizarTeclaMovimento(e.key));
   } else if (e.key.toLowerCase() === "e") {
     tentarInteragir();
   } else if (e.key.toLowerCase() === "i") {
@@ -1693,6 +1766,135 @@ function onKeyDown(e) {
   }
 }
 
+// O ANALÓGICO DE OITO DIREÇÕES.
+//
+// O direcional anterior eram quatro botões numa cruz: só dava para andar
+// reto, e num aparelho de 360px ele ocupava 44vw. Este é um analógico —
+// encosta em qualquer ponto do círculo, ou encosta no meio e arrasta, e o
+// herói anda naquela direção enquanto o dedo estiver na tela.
+//
+// Três decisões que valem explicar:
+//
+// ZONA MORTA de 28% do raio. Sem ela, o menor tremor do polegar no centro
+// dispara um passo — e o centro é exatamente onde o dedo pousa. Dentro da
+// zona morta o herói fica parado e a manete volta ao meio.
+//
+// OITO SETORES DE 45°, e não um vetor contínuo. O mundo é uma grade: só
+// existem oito passos possíveis. Arredondar o ângulo para o setor mais
+// próximo é o que faz o controle parecer preciso — um vetor contínuo teria de
+// ser arredondado de qualquer jeito, mas no lugar errado, e a diagonal
+// escaparia para os lados perto dos 45°.
+//
+// PONTEIRO, não toque. `pointerdown/move/up` cobre dedo, caneta e mouse com
+// um código só, e `setPointerCapture` garante que arrastar para FORA do
+// círculo continue funcionando — sem isso, o passo morre no instante em que o
+// polegar cruza a borda, que é justamente quando o jogador está empurrando
+// mais forte numa direção.
+const ZONA_MORTA_ANALOGICO = 0.28;
+const NOMES_DIRECAO = ["direita", "baixo-direita", "baixo", "baixo-esquerda", "esquerda", "cima-esquerda", "cima", "cima-direita"];
+
+function configurarAnalogico() {
+  const base = document.getElementById("touch-dpad");
+  if (!base) return;
+  const manete = base.querySelector(".anlg-manete");
+  const leitura = base.querySelector(".anlg-leitura");
+  let vetor = [0, 0];
+  let relogio = null;
+  let ponteiro = null;
+
+  const aplicar = () => { if (vetor[0] || vetor[1]) tentarMover(vetor[0], vetor[1]); };
+
+  const soltar = () => {
+    vetor = [0, 0];
+    clearInterval(relogio); relogio = null;
+    base.classList.remove("anlg-ativo");
+    base.style.removeProperty("--anlg-x");
+    base.style.removeProperty("--anlg-y");
+    base.removeAttribute("data-direcao");
+    if (leitura) leitura.textContent = "";
+    if (manete) manete.style.transform = "";
+  };
+
+  const atualizar = (ev) => {
+    const r = base.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const raio = Math.min(r.width, r.height) / 2;
+    const px = ev.clientX - cx;
+    const py = ev.clientY - cy;
+    const dist = Math.hypot(px, py);
+
+    if (dist < raio * ZONA_MORTA_ANALOGICO) {
+      vetor = [0, 0];
+      base.removeAttribute("data-direcao");
+      if (manete) manete.style.transform = "";
+      base.style.setProperty("--anlg-x", "0px");
+      base.style.setProperty("--anlg-y", "0px");
+      return;
+    }
+    // Setor de 45°: +22,5° desloca a fronteira para o meio de cada fatia, de
+    // modo que "direita" cubra de -22,5° a +22,5° em vez de 0° a 45°.
+    const ang = Math.atan2(py, px);
+    const setor = ((Math.round(ang / (Math.PI / 4)) % 8) + 8) % 8;
+    const passo = [
+      [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1],
+    ][setor];
+    vetor = passo;
+    base.dataset.direcao = NOMES_DIRECAO[setor];
+    if (leitura) leitura.textContent = NOMES_DIRECAO[setor];
+    // A manete acompanha o dedo, mas presa ao aro: passar disso faria o
+    // controle parecer quebrado quando o polegar desliza para longe.
+    const limite = Math.min(dist, raio * 0.62);
+    const ux = Math.cos(ang) * limite;
+    const uy = Math.sin(ang) * limite;
+    base.style.setProperty("--anlg-x", `${ux.toFixed(1)}px`);
+    base.style.setProperty("--anlg-y", `${uy.toFixed(1)}px`);
+    if (manete) manete.style.transform = `translate(calc(-50% + ${ux.toFixed(1)}px), calc(-50% + ${uy.toFixed(1)}px))`;
+  };
+
+  base.addEventListener("pointerdown", (ev) => {
+    ev.preventDefault();
+    ponteiro = ev.pointerId;
+    try { base.setPointerCapture(ponteiro); } catch { /* navegador sem captura: segue com os eventos soltos */ }
+    base.classList.add("anlg-ativo");
+    atualizar(ev);
+    aplicar();
+    clearInterval(relogio);
+    // Mais rápido que o cooldown de propósito: quem decide se já pode dar o
+    // próximo passo é `mover`, que conhece o atraso do terreno e o custo da
+    // diagonal. Um relógio lento perderia o momento certo.
+    relogio = setInterval(aplicar, 40);
+  });
+  base.addEventListener("pointermove", (ev) => {
+    if (ponteiro === null || ev.pointerId !== ponteiro) return;
+    ev.preventDefault();
+    atualizar(ev);
+  });
+  const fim = (ev) => {
+    if (ponteiro === null || (ev && ev.pointerId !== ponteiro)) return;
+    ponteiro = null;
+    soltar();
+  };
+  base.addEventListener("pointerup", fim);
+  base.addEventListener("pointercancel", fim);
+  base.addEventListener("lostpointercapture", fim);
+  // Sair da aba com o dedo na tela deixaria o herói andando sozinho.
+  window.addEventListener("blur", soltar);
+
+  // TECLADO. O analógico é um `role="application"` focável: quem navega por
+  // teclado usa as mesmas setas do jogo aqui dentro, sem cair na navegação
+  // por Tab do navegador.
+  base.addEventListener("keydown", (ev) => {
+    const v = VETOR_POR_TECLA[ev.key];
+    if (!v) return;
+    ev.preventDefault();
+    pressionarTeclaDeMovimento(ev.key);
+  });
+  base.addEventListener("keyup", (ev) => {
+    if (VETOR_POR_TECLA[ev.key]) { teclasSeguradas.delete(ev.key); if (!teclasSeguradas.size) pararMovimentoTeclado(); }
+  });
+}
+
 function configurarControlesToque() {
   const ehToque = "ontouchstart" in window || navigator.maxTouchPoints > 0;
   if (ehToque) {
@@ -1700,30 +1902,7 @@ function configurarControlesToque() {
     document.getElementById("touch-controls").classList.remove("hidden");
   }
 
-  const direcoes = [
-    ["touch-up", 0, -1], ["touch-down", 0, 1], ["touch-left", -1, 0], ["touch-right", 1, 0],
-  ];
-  direcoes.forEach(([id, dx, dy]) => {
-    const btn = document.getElementById(id);
-    let intervalo = null;
-    const iniciar = (ev) => {
-      ev.preventDefault();
-      btn.classList.add("pressionado");
-      tentarMover(dx, dy);
-      clearInterval(intervalo);
-      intervalo = setInterval(() => tentarMover(dx, dy), COOLDOWN_MOVIMENTO);
-    };
-    const parar = (ev) => {
-      if (ev) ev.preventDefault();
-      clearInterval(intervalo);
-      btn.classList.remove("pressionado");
-    };
-    btn.addEventListener("touchstart", iniciar, { passive: false });
-    btn.addEventListener("touchend", parar);
-    btn.addEventListener("touchcancel", parar);
-    btn.addEventListener("mousedown", iniciar);
-    window.addEventListener("mouseup", parar);
-  });
+  configurarAnalogico();
 
   const btnAcao = document.getElementById("touch-acao");
   const acionar = (ev) => {
@@ -1737,20 +1916,49 @@ function configurarControlesToque() {
 }
 
 const COOLDOWN_MOVIMENTO = 130;
+// A diagonal percorre √2 tiles de distância real. Sem este custo, andar na
+// diagonal seria 41% mais rápido que andar reto — e como encontro aleatório,
+// streaming de chunks e descoberta de zona são verificados POR PASSO, a
+// diagonal viraria a única forma sensata de viajar. Com o custo, escolher a
+// diagonal é escolher o caminho mais curto, não uma velocidade maior.
+const CUSTO_DIAGONAL = Math.SQRT2;
+
+// CANTO DE PAREDE. Andar na diagonal entre dois blocos sólidos seria
+// atravessar a quina — o herói passaria por uma fresta que não existe, entre
+// duas árvores encostadas. A regra: a diagonal exige que PELO MENOS UM dos
+// dois vizinhos ortogonais esteja livre. Com os dois bloqueados é uma quina
+// fechada e o passo é recusado; com um livre o herói contorna, que é o que a
+// vista de cima sugere.
+//
+// Esta função é a mesma regra que a IA de exploração usa (ver
+// AutoExploreAI.diagonalPermitida). As duas TÊM de concordar: se o caminho
+// planejado incluir um passo que `mover` recusa, o automático fica parado
+// empurrando a parede para sempre.
+function diagonalBloqueadaPorQuina(x, y, dx, dy, grid) {
+  if (dx === 0 || dy === 0) return false;
+  return estaBloqueado(x + dx, y, grid) && estaBloqueado(x, y + dy, grid);
+}
+
 function mover(dx, dy) {
+  if (!dx && !dy) return;
   const agora = Date.now();
   const tileAtual = gridAtiva()?.[mundo.player.y]?.[mundo.player.x];
   const atrasoTerreno = tileAtual === TILE.WATER ? 1.55 : tileAtual === TILE.SAND || tileAtual === TILE.MARSH ? 1.18 : 1;
-  if (agora - mundo.player.ultimoMovimento < COOLDOWN_MOVIMENTO * atrasoTerreno) return;
+  const atrasoDiagonal = dx && dy ? CUSTO_DIAGONAL : 1;
+  if (agora - mundo.player.ultimoMovimento < COOLDOWN_MOVIMENTO * atrasoTerreno * atrasoDiagonal) return;
   const grid = gridAtiva();
   const nx = mundo.player.x + dx;
   const ny = mundo.player.y + dy;
+  // Na diagonal o sprite olha para o lado: só existem quatro folhas de
+  // caminhada, e "esquerda/direita" lê melhor que "cima/baixo" num passo
+  // que tem as duas componentes.
   if (dx < 0) mundo.player.dir = "esquerda";
   else if (dx > 0) mundo.player.dir = "direita";
   else if (dy < 0) mundo.player.dir = "cima";
   else if (dy > 0) mundo.player.dir = "baixo";
 
   if (estaBloqueado(nx, ny, grid)) return;
+  if (diagonalBloqueadaPorQuina(mundo.player.x, mundo.player.y, dx, dy, grid)) return;
   mundo.player.x = nx;
   mundo.player.y = ny;
   mundo.player.ultimoMovimento = agora;

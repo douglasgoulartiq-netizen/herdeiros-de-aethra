@@ -65,6 +65,21 @@ export function criarCombatenteJogador(personagem, dados, posicao = "frente") {
     // `elemento` acima é sobrescrito, e é daqui que ele volta quando o óleo
     // expira — sem isso o golpe viraria "físico" no fim do prazo.
     elementoBase: (personagem.equipamento.arma && personagem.equipamento.arma.elemento) || "fisico",
+    // O QUE O HERÓI RESISTE — separado do que ele empunha.
+    //
+    // O defeito: `elemento` acima é o elemento da ARMA, e era lido também
+    // quando o herói era o ALVO. Como "mesmo elemento = imune = 0", equipar
+    // uma espada de fogo tornava o herói IMUNE a magia de fogo. Medido: 200
+    // conjurações do Dragão Jovem causaram 0 de dano com espada de fogo e
+    // 7.680 com uma arma sem elemento. Não era build, era a arma respondendo
+    // por uma pergunta que não é dela.
+    //
+    // Agora a defesa vem da identidade escolhida na criação
+    // (`personagem.elementoId`), que é permanente e já existia sem uso em
+    // combate. Trocar de arma deixa de mexer no que você resiste, e a
+    // escolha de elemento da ficha passa a significar alguma coisa na luta.
+    elementoDefensivo: personagem.elementoId || "fisico",
+    ehJogador: true,
     // O equipamento viaja para o combatente por REFERÊNCIA. Dois sistemas
     // precisam dele durante a luta: os efeitos de item lendário
     // (ItemEffectSystem) e o requisito de atributo (RequisitoSystem). Antes
@@ -179,6 +194,9 @@ export function criarCombatenteInimigo(monstroDef, idx, ngPlus = 0, modoHistoria
     velocidade: monstroDef.vel,
     ataque: { dano: atkEscalado, atributo: "FOR", bonusCritico: 0 },
     elemento: monstroDef.elemento || "fisico",
+    // Monstro é uma criatura elemental: ataca e resiste pelo mesmo elemento.
+    elementoDefensivo: monstroDef.elemento || "fisico",
+    ehJogador: false,
     habilidades: [],
     sorteUsada: false,
     primeiroTurno: true,
@@ -313,6 +331,32 @@ const COMBOS_ELEMENTAIS = [
 export function comboDoisElementos(elementoA, elementoB) {
   if (!elementoA || !elementoB || elementoA === elementoB) return null;
   return COMBOS_ELEMENTAIS.find((c) => (c.par[0] === elementoA && c.par[1] === elementoB) || (c.par[0] === elementoB && c.par[1] === elementoA)) || null;
+}
+
+// O QUE UM ALVO RESISTE. Um lugar só, para nunca mais voltar a ler o elemento
+// da arma quando a pergunta é sobre defesa (ver elementoDefensivo em
+// criarCombatenteJogador). O `?? .elemento` mantém de pé qualquer combatente
+// antigo vindo de um save, que não tem o campo novo.
+export function elementoDefesaDe(alvo) {
+  return alvo?.elementoDefensivo ?? alvo?.elemento ?? "fisico";
+}
+
+// TETO DE IMUNIDADE PARA O HERÓI.
+//
+// Com a defesa vindo da identidade, um herói de Fogo seria IMUNE a todo
+// ataque de fogo do jogo. Deixou de ser exploit (não se troca de identidade
+// como se troca de espada), mas continua sendo forte demais: uma escolha da
+// tela de criação apagaria um elemento inteiro da dificuldade, e o jogador
+// descobriria isso por acidente.
+//
+// A régua: monstro é criatura elemental e mantém a imunidade — atacar fogo
+// com fogo continua sendo erro tático de quem escolheu o card. Herói é
+// pessoa com afinidade: o mesmo elemento vira resistência pesada (×0,5),
+// que é vantagem sentida sem ser invulnerabilidade.
+export function relacaoContraAlvo(elementoAtaque, alvo, dadosElementos) {
+  const relacao = relacaoElemental(elementoAtaque, elementoDefesaDe(alvo), dadosElementos);
+  if (relacao === "imune" && alvo?.ehJogador) return "resistencia_intensa";
+  return relacao;
 }
 
 export class Batalha {
@@ -734,13 +778,14 @@ export class Batalha {
     const elemBrutoP = elementoAtacante || atacante.elemento;
     const elemResolvido = magico
       ? (elemBrutoP || "fisico")
-      : elementoFisicoEfetivo(elemBrutoP, alvo.elemento || "fisico", this.dadosElementos);
+      : elementoFisicoEfetivo(elemBrutoP, elementoDefesaDe(alvo), this.dadosElementos,
+          relacaoContraAlvo(elemBrutoP || "fisico", alvo, this.dadosElementos));
     let relacao = "neutro";
     let multElemental = 1;
     if (FLAGS.elementos && this.dadosElementos) {
-      const elemDef = alvo.elemento || "fisico";
-      relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
-      multElemental = multiplicadorElemental(elemResolvido, elemDef, this.dadosElementos);
+      const elemDef = elementoDefesaDe(alvo);
+      relacao = relacaoContraAlvo(elemResolvido, alvo, this.dadosElementos);
+      multElemental = multiplicadorDaRelacao(relacao, this.dadosElementos);
     }
     if (relacao === "imune") return { min: 0, max: 0, esperado: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null, reacao: null, elemento: elemResolvido };
     const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
@@ -802,9 +847,9 @@ export class Batalha {
     let relacao = "neutro";
     let multElemental = 1;
     if (FLAGS.elementos && this.dadosElementos) {
-      const elemDef = alvo.elemento || "fisico";
-      relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
-      multElemental = multiplicadorElemental(elemResolvido, elemDef, this.dadosElementos);
+      const elemDef = elementoDefesaDe(alvo);
+      relacao = relacaoContraAlvo(elemResolvido, alvo, this.dadosElementos);
+      multElemental = multiplicadorDaRelacao(relacao, this.dadosElementos);
     }
     if (relacao === "imune") return { min: 0, max: 0, esperado: 0, minCritico: 0, maxCritico: 0, imune: true, relacaoElemental: relacao, combo: null, reacao: null, elemento: elemResolvido };
     const combo = this.peekComboElemental(atacante, alvo, elemResolvido);
@@ -1095,13 +1140,16 @@ export class Batalha {
     // escolha. O empate não volta por isso: quem conjura também tem o ataque
     // básico, e o ataque básico é de metal.
     const elemBruto = elementoAtacante || atacante.elemento;
+    // A relação é decidida ANTES do recuo para metal, porque o teto de
+    // imunidade do herói muda a resposta (ver relacaoContraAlvo).
     const elemResolvido = magico
       ? (elemBruto || "fisico")
-      : elementoFisicoEfetivo(elemBruto, alvo.elemento || "fisico", this.dadosElementos);
+      : elementoFisicoEfetivo(elemBruto, elementoDefesaDe(alvo), this.dadosElementos,
+          relacaoContraAlvo(elemBruto || "fisico", alvo, this.dadosElementos));
     let relacao = "neutro";
     if (FLAGS.elementos && this.dadosElementos) {
-      const elemDef = alvo.elemento || "fisico";
-      relacao = relacaoElemental(elemResolvido, elemDef, this.dadosElementos);
+      const elemDef = elementoDefesaDe(alvo);
+      relacao = relacaoContraAlvo(elemResolvido, alvo, this.dadosElementos);
       // GOLPE DE DOIS ELEMENTOS: fica com a melhor das duas relações. É o que
       // faz o efeito valer — um alvo que resiste a um dos dois não anula o
       // golpe inteiro.
@@ -1496,8 +1544,8 @@ export class Batalha {
           let relacao = "neutro";
           const elemAtqMagico = habilidade.elemento || atacante.elemento || "fisico";
           if (FLAGS.elementos && this.dadosElementos) {
-            const elemDef = alvoOuAlvos.elemento || "fisico";
-            relacao = relacaoElemental(elemAtqMagico, elemDef, this.dadosElementos);
+            const elemDef = elementoDefesaDe(alvoOuAlvos);
+            relacao = relacaoContraAlvo(elemAtqMagico, alvoOuAlvos, this.dadosElementos);
             dano *= multiplicadorElemental(elemAtqMagico, elemDef, this.dadosElementos);
           }
           dano *= this.multiplicadorTerreno(elemAtqMagico, alvoOuAlvos);
@@ -1680,8 +1728,8 @@ export class Batalha {
     let relacao = "neutro";
     let dano = (atacante.atributos.INT || 0) * 1.6 * variancia;
     if (FLAGS.elementos && this.dadosElementos) {
-      relacao = relacaoElemental(elemento, alvo.elemento || "fisico", this.dadosElementos);
-      dano *= multiplicadorElemental(elemento, alvo.elemento || "fisico", this.dadosElementos);
+      relacao = relacaoContraAlvo(elemento, alvo, this.dadosElementos);
+      dano *= multiplicadorDaRelacao(relacao, this.dadosElementos);
     }
     if (relacao === "imune") return { dano: 0, relacao, elemento };
     dano *= this.multiplicadorTerreno(elemento, alvo) * this.multiplicadorClima(elemento, alvo);

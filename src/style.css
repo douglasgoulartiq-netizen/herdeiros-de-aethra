@@ -467,57 +467,140 @@ button.perigo { background: #6e2020; border-color: #b03a3a; }
    "baixo" ficava debaixo do botão "Inventário". */
 :root { --hda-piso-controles: calc(var(--hda-navbar-alt, 58px) + var(--hda-safe-bottom, 0px) + 10px); }
 
+/* ===== ANALÓGICO DE OITO DIREÇÕES (Cristal Arcano) =====
+   Um disco de cristal engastado em prata. O aro traz quatro raios cardeais
+   gravados e uma rosa de oito pontas ao fundo; a manete é um núcleo ciano que
+   acende e segue o polegar. Ocupa 34vw (antes 44vw) e some quase por completo
+   quando o dedo sai — o mapa é o que tem de ser visto. */
 #touch-dpad {
   position: absolute;
   left: max(14px, env(safe-area-inset-left));
   bottom: var(--hda-piso-controles);
-  /* Cresce com a tela em vez de 190px fixos: num aparelho de 360px de largura
-     o direcional antigo comia mais da metade da tela. */
-  width: min(44vw, 200px); height: min(44vw, 200px);
-  display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr;
-  gap: 4px;
-  pointer-events: auto;
-  background: radial-gradient(circle, rgba(20,16,15,0.28) 0%, rgba(20,16,15,0) 72%);
+  width: min(34vw, 152px); height: min(34vw, 152px);
+  pointer-events: auto; touch-action: none;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   border-radius: 50%;
-  opacity: .78;
-  transition: opacity .15s ease, transform .15s ease;
+  display: grid; place-items: center;
+  opacity: .62;
+  transition: opacity .18s ease, transform .18s ease;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(145,212,255,.16) 0%, rgba(20,27,48,.62) 46%, rgba(13,17,32,.80) 72%, rgba(13,17,32,0) 100%);
+  border: 1px solid rgba(160,178,210,.42);
+  box-shadow: 0 10px 26px rgba(0,0,0,.45), inset 0 0 22px rgba(120,190,255,.12), inset 0 0 0 3px rgba(11,16,34,.55);
 }
+#touch-dpad:focus-visible { outline: 2px solid var(--arc-crystal, #91d4ff); outline-offset: 3px; }
+#touch-dpad.anlg-ativo { opacity: .95; }
+
+/* Aro de prata com os quatro raios cardeais. */
+.anlg-aro {
+  position: absolute; inset: 7%; border-radius: 50%;
+  border: 1px solid rgba(190,205,232,.55);
+  box-shadow: inset 0 0 14px rgba(145,212,255,.14);
+}
+.anlg-raio { position: absolute; background: linear-gradient(var(--dir, to bottom), rgba(196,214,240,.85), rgba(196,214,240,0)); }
+.anlg-n, .anlg-s { left: 50%; width: 1px; height: 13%; transform: translateX(-50%); }
+.anlg-n { top: 3%; } .anlg-s { bottom: 3%; }
+.anlg-l, .anlg-o { top: 50%; height: 1px; width: 13%; transform: translateY(-50%); }
+.anlg-l { right: 3%; } .anlg-o { left: 3%; }
+
+/* Rosa de oito pontas: as quatro diagonais, mais tênues que os cardeais —
+   elas existem para o polegar saber que a diagonal é um destino legítimo. */
+.anlg-rosa {
+  position: absolute; inset: 20%; border-radius: 50%;
+  background:
+    conic-gradient(from 22.5deg,
+      rgba(145,212,255,.10) 0 45deg, transparent 45deg 90deg,
+      rgba(145,212,255,.10) 90deg 135deg, transparent 135deg 180deg,
+      rgba(145,212,255,.10) 180deg 225deg, transparent 225deg 270deg,
+      rgba(145,212,255,.10) 270deg 315deg, transparent 315deg 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 38%, #000 40%);
+  mask: radial-gradient(circle, transparent 38%, #000 40%);
+}
+
+/* A manete. Fica no centro em repouso e segue o dedo enquanto arrasta. */
+.anlg-manete {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 38%; height: 38%; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 38% 32%, #e8f3ff 0%, #9fc6ea 26%, #43587e 62%, #1d2740 100%);
+  border: 1px solid rgba(214,226,246,.75);
+  box-shadow: 0 3px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.28);
+  transition: transform .06s linear, box-shadow .12s ease;
+}
+.anlg-nucleo {
+  width: 34%; height: 34%; border-radius: 50%;
+  background: var(--arc-crystal, #91d4ff);
+  box-shadow: 0 0 8px rgba(145,212,255,.85);
+  opacity: .55; transition: opacity .12s ease, box-shadow .12s ease;
+}
+#touch-dpad.anlg-ativo .anlg-manete { box-shadow: 0 3px 14px rgba(0,0,0,.55), 0 0 18px rgba(145,212,255,.45), inset 0 1px 0 rgba(255,255,255,.3); }
+#touch-dpad.anlg-ativo .anlg-nucleo { opacity: 1; box-shadow: 0 0 14px rgba(145,212,255,1); }
+
+/* Setor aceso: um brilho de 45° na direção escolhida, ancorado no ângulo. */
+#touch-dpad[data-direcao]::after {
+  content: ""; position: absolute; inset: 7%; border-radius: 50%;
+  background: conic-gradient(from calc(var(--anlg-ang, 0deg) - 22.5deg), rgba(145,212,255,.28) 0 45deg, transparent 45deg);
+  -webkit-mask: radial-gradient(circle, transparent 52%, #000 54%);
+  mask: radial-gradient(circle, transparent 52%, #000 54%);
+  pointer-events: none;
+}
+#touch-dpad[data-direcao="direita"]        { --anlg-ang: 0deg; }
+#touch-dpad[data-direcao="baixo-direita"]  { --anlg-ang: 45deg; }
+#touch-dpad[data-direcao="baixo"]          { --anlg-ang: 90deg; }
+#touch-dpad[data-direcao="baixo-esquerda"] { --anlg-ang: 135deg; }
+#touch-dpad[data-direcao="esquerda"]       { --anlg-ang: 180deg; }
+#touch-dpad[data-direcao="cima-esquerda"]  { --anlg-ang: 225deg; }
+#touch-dpad[data-direcao="cima"]           { --anlg-ang: 270deg; }
+#touch-dpad[data-direcao="cima-direita"]   { --anlg-ang: 315deg; }
+
+/* Leitura para leitor de tela; invisível aos olhos. */
+.anlg-leitura { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anlg-manete { transition: none; }
+}
+
 .touch-btn {
-  background: rgba(61,47,31,0.82); color: #f1e9d8; border: 2px solid rgba(160,124,72,0.95);
+  background: rgba(20,27,48,0.82); color: var(--arc-ink, #edf1ff); border: 1px solid rgba(160,178,210,0.7);
   border-radius: 12px; font-size: 1.7em; line-height: 1; display: flex; align-items: center; justify-content: center;
   margin: 2px; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
   box-shadow: 0 3px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
   transition: background 0.06s, transform 0.06s, box-shadow 0.06s;
 }
-.touch-btn:active {
-  background: rgba(200,150,80,0.95); border-color: rgba(240,190,110,1);
+.touch-btn:active, .touch-btn.pressionado {
+  background: rgba(70,110,160,0.95); border-color: var(--arc-crystal, #91d4ff);
   transform: scale(0.92); box-shadow: 0 1px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
 }
-.touch-btn.pressionado {
-  background: rgba(200,150,80,0.95); border-color: rgba(240,190,110,1);
-  transform: scale(0.92); box-shadow: 0 1px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
-}
-.dpad-up { grid-column: 2; grid-row: 1; }
-.dpad-left { grid-column: 1; grid-row: 2; }
-.dpad-right { grid-column: 3; grid-row: 2; }
-.dpad-down { grid-column: 2; grid-row: 3; }
 .touch-acao {
   position: absolute;
   right: max(20px, env(safe-area-inset-right));
   bottom: calc(var(--hda-piso-controles) + 12px);
   width: min(29vw, 126px); height: min(18vw, 76px); border-radius: 22px;
   pointer-events: auto; font-size: 1em; font-weight: bold; flex-direction: column; gap: 3px;
-  background: rgba(122,59,30,0.88); border: 3px solid rgba(210,110,55,0.95);
-  box-shadow: 0 4px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-  transition: background 0.06s, transform 0.06s, box-shadow 0.06s;
-  opacity: .78;
+  /* Cristal Arcano: o botão de ação é o par do analógico, e estava na paleta
+     marrom antiga — dois controles lado a lado em linguagens visuais
+     diferentes. Agora é a mesma prata sobre índigo, com o ciano reservado
+     para o estado ATIVO (há algo com que interagir). */
+  background: linear-gradient(160deg, rgba(27,37,64,.92), rgba(16,23,39,.94));
+  border: 1px solid rgba(178,194,222,.7);
+  color: var(--arc-ink, #edf1ff);
+  box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 2px rgba(11,16,34,.5);
+  transition: background .1s, transform .06s, box-shadow .12s, border-color .12s;
+  opacity: .72;
 }
 .touch-acao-icone { font-size: 1.55em; line-height: .9; }
 .touch-acao-rotulo { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72em; letter-spacing: .02em; }
-.touch-acao[data-acao="nenhuma"] { opacity: .38; filter: saturate(.55); }
+.touch-acao[data-acao="nenhuma"] { opacity: .3; filter: saturate(.4); }
+/* Com alvo por perto o botão acende em ciano — é o sinal de "dá para agir". */
+.touch-acao:not([data-acao="nenhuma"]) {
+  opacity: .95; border-color: var(--arc-crystal, #91d4ff);
+  box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 16px rgba(145,212,255,.28), inset 0 1px 0 rgba(255,255,255,.14);
+}
+.touch-acao .touch-acao-icone { color: var(--arc-crystal, #91d4ff); text-shadow: 0 0 10px rgba(145,212,255,.6); }
 .touch-acao:active, .touch-acao.pressionado {
-  background: rgba(210,110,55,0.95); transform: scale(0.92);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14);
+  background: linear-gradient(160deg, rgba(58,88,134,.96), rgba(31,45,74,.96));
+  border-color: #bfe6ff; transform: scale(0.94);
+  box-shadow: 0 2px 8px rgba(0,0,0,.45), 0 0 22px rgba(145,212,255,.5), inset 0 1px 0 rgba(255,255,255,.18);
 }
 body.touch #hud-buttons button { padding: 12px 16px; font-size: 1em; }
 

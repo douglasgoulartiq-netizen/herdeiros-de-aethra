@@ -71,8 +71,16 @@ export function multiplicadorDaRelacao(relacao, dadosElementos) {
 // bola de fogo num inimigo de fogo ainda causa 0, e isso continua sendo uma
 // decisão tática de verdade — a diferença é que agora sempre existe o
 // ataque básico como resposta, em vez de um beco sem saída.
-export function elementoFisicoEfetivo(elementoAtacante, elementoDefensor, dadosElementos) {
+// `relacaoJaDecidida` existe porque a imunidade não é mais uma função só dos
+// dois elementos: contra um HERÓI ela tem teto e vira resistência pesada (ver
+// relacaoContraAlvo em CombatSystem). Quem já calculou a relação com o teto
+// passa o resultado aqui, e o recuo para "fisico" só acontece quando a
+// imunidade é real. Sem este parâmetro, um golpe de fogo num herói de fogo
+// viraria físico neutro (dano cheio) em vez da resistência de ×0,5 — o teto
+// acabaria beneficiando quem ataca o herói.
+export function elementoFisicoEfetivo(elementoAtacante, elementoDefensor, dadosElementos, relacaoJaDecidida = null) {
   const bruto = elementoAtacante || "fisico";
-  if (relacaoElemental(bruto, elementoDefensor, dadosElementos) === "imune") return "fisico";
+  const relacao = relacaoJaDecidida ?? relacaoElemental(bruto, elementoDefensor, dadosElementos);
+  if (relacao === "imune") return "fisico";
   return bruto;
 }

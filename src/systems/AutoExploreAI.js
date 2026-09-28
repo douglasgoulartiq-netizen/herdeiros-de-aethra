@@ -24,9 +24,30 @@
 
 // Os 8 vizinhos: o jogo interage por distância de Chebyshev <= 1 (ver
 // objetoInteragivelProximo em main.js), ou seja, ficar na diagonal de um
-// baú já permite abrir. O MOVIMENTO, porém, é só ortogonal (ver mover()),
-// então a BFS anda em 4 direções e só a checagem de "cheguei" usa as 8.
-const VIZINHOS_4 = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+// baú já permite abrir. O MOVIMENTO também é em 8 direções desde que as
+// diagonais foram liberadas — ver VIZINHOS_MOVIMENTO logo abaixo.
+// O movimento passou a ser em OITO direções (ver mover() em main.js), então a
+// BFS anda nas oito também. Sem isto, o automático continuaria planejando
+// caminhos em "escada" — um passo reto de cada vez — enquanto o jogador
+// atravessa em linha reta na diagonal, e as duas navegações divergiriam.
+//
+// O custo continua uniforme (1 por passo), o que faz a BFS medir distância de
+// Chebyshev. É de propósito: esta distância só serve para ORDENAR alvos
+// ("qual vale mais a pena agora?"), e a adjacência para interagir já era
+// Chebyshev desde sempre (ver custoAte). Uma fila com prioridade por √2 daria
+// um número mais exato para uma decisão que não precisa dele.
+const VIZINHOS_MOVIMENTO = [
+  [0, -1], [0, 1], [-1, 0], [1, 0],
+  [-1, -1], [1, -1], [-1, 1], [1, 1],
+];
+
+// A MESMA regra de quina que main.js aplica. As duas precisam concordar: um
+// caminho que inclua um passo que `mover` recusa deixa o automático parado
+// empurrando a parede.
+export function diagonalPermitida(x, y, dx, dy, bloqueado) {
+  if (dx === 0 || dy === 0) return true;
+  return !(bloqueado(x + dx, y) && bloqueado(x, y + dy));
+}
 const VIZINHOS_8 = [
   [-1, -1], [0, -1], [1, -1],
   [-1, 0], [0, 0], [1, 0],
@@ -55,13 +76,14 @@ export function mapearAlcance(origem, largura, altura, bloqueado) {
     const atual = fila[cabeca++];
     const ax = atual % largura;
     const ay = (atual - ax) / largura;
-    for (const [dx, dy] of VIZINHOS_4) {
+    for (const [dx, dy] of VIZINHOS_MOVIMENTO) {
       const nx = ax + dx;
       const ny = ay + dy;
       if (nx < 0 || ny < 0 || nx >= largura || ny >= altura) continue;
       const vizinho = idx(nx, ny);
       if (dist[vizinho] !== -1) continue;
       if (bloqueado(nx, ny)) continue;
+      if (!diagonalPermitida(ax, ay, dx, dy, bloqueado)) continue;
       dist[vizinho] = dist[atual] + 1;
       veioDe[vizinho] = atual;
       fila[cauda++] = vizinho;

@@ -125,16 +125,45 @@ function monstroBase(overrides) {
   check("Invocador não invoca duas vezes", batalha.inimigos.length === totalApos1);
 }
 
-// --- Imunidade elemental (task #30) integrada ao conjurarAtaque do Conjurador ---
+// --- Relacao elemental no conjurarAtaque do Conjurador ---
+//
+// ESTE BLOCO MUDOU DE CONTRATO, de proposito.
+//
+// Ele exigia que "Conjurador fogo vs jogador fogo causa 0 dano", lendo o
+// elemento do jogador de `jogador.elemento` — que e o elemento da ARMA
+// equipada. Isso era o exploit: bastava empunhar uma espada de fogo para
+// ficar imune a toda magia de fogo do jogo (medido: 0 de dano em 200
+// conjuracoes, contra 7.634 com uma arma sem elemento).
+//
+// O novo contrato tem tres partes:
+//   1. a ARMA nao decide mais o que o heroi resiste;
+//   2. quem decide e a IDENTIDADE escolhida na criacao (personagem.elementoId);
+//   3. contra um HEROI a imunidade tem teto e vira resistencia pesada — um
+//      monstro continua imune ao proprio elemento, um heroi nao fica
+//      invulneravel por causa de uma escolha da tela de criacao.
 {
   const dadosElementos = JSON.parse(fs.readFileSync(new URL("../src/data/elements.json", import.meta.url)));
-  const jogador = criarCombatenteJogador(fakePersonagem(), {});
-  jogador.elemento = "fogo";
-  const conjurador = criarCombatenteInimigo(monstroBase({ id: "conjurador2", arquetipo: "conjurador", elemento: "fogo" }), 0);
-  const batalha = new Batalha([jogador], [conjurador], dadosElementos);
-  const hpAntes = jogador.hp;
-  batalha.conjurarAtaque(conjurador, jogador);
-  check("Conjurador fogo vs jogador fogo (imune) causa 0 dano", jogador.hp === hpAntes);
+  const conjuraEm = (personagem) => {
+    const jogador = criarCombatenteJogador(personagem, {});
+    const conjurador = criarCombatenteInimigo(monstroBase({ id: "conjurador2", arquetipo: "conjurador", elemento: "fogo" }), 0);
+    const batalha = new Batalha([jogador], [conjurador], dadosElementos);
+    let total = 0;
+    for (let i = 0; i < 120; i++) { const antes = jogador.hp; batalha.conjurarAtaque(conjurador, jogador); total += antes - jogador.hp; jogador.hp = jogador.hpMax; }
+    return total;
+  };
+  const comArmaDeFogo = () => { const p = fakePersonagem(); p.elementoId = "agua"; p.equipamento = { ...(p.equipamento || {}), arma: { id: "esp", nome: "Espada", elemento: "fogo", dano: 5 } }; return p; };
+  const semArma = () => { const p = fakePersonagem(); p.elementoId = "agua"; return p; };
+  const identidadeFogo = () => { const p = fakePersonagem(); p.elementoId = "fogo"; return p; };
+
+  const danoComEspadaDeFogo = conjuraEm(comArmaDeFogo());
+  const danoSemArma = conjuraEm(semArma());
+  const danoIdentidadeFogo = conjuraEm(identidadeFogo());
+
+  check("a arma de fogo NAO torna o heroi imune a magia de fogo", danoComEspadaDeFogo > 0);
+  check("a arma nao muda o que o heroi resiste (arma de fogo ~ sem arma)",
+    Math.abs(danoComEspadaDeFogo - danoSemArma) < danoSemArma * 0.35);
+  check("a identidade de fogo REDUZ o dano de fogo, sem zerar",
+    danoIdentidadeFogo > 0 && danoIdentidadeFogo < danoSemArma);
 }
 
 console.log(process.exitCode ? "=== FALHAS ENCONTRADAS ===" : "=== todos os testes passaram ===");

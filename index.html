@@ -109,11 +109,17 @@
     <div id="mensagem-topo" class="hidden"></div>
 
     <div id="touch-controls" class="hidden">
-      <div id="touch-dpad">
-        <button id="touch-up" class="touch-btn dpad-up" aria-label="Cima">▲</button>
-        <button id="touch-left" class="touch-btn dpad-left" aria-label="Esquerda">◀</button>
-        <button id="touch-right" class="touch-btn dpad-right" aria-label="Direita">▶</button>
-        <button id="touch-down" class="touch-btn dpad-down" aria-label="Baixo">▼</button>
+      <!-- Analógico de oito direções. Mantém o id #touch-dpad porque o
+           enquadramento da câmera (ViewportSystem), a troca de mão dominante
+           e três testes de tela medem este elemento pelo id. -->
+      <div id="touch-dpad" role="application" aria-label="Direcional: arraste para andar em oito direções" tabindex="0">
+        <div class="anlg-aro" aria-hidden="true">
+          <span class="anlg-raio anlg-n"></span><span class="anlg-raio anlg-s"></span>
+          <span class="anlg-raio anlg-l"></span><span class="anlg-raio anlg-o"></span>
+        </div>
+        <div class="anlg-rosa" aria-hidden="true"></div>
+        <div class="anlg-manete" aria-hidden="true"><span class="anlg-nucleo"></span></div>
+        <span class="anlg-leitura" aria-live="polite"></span>
       </div>
       <button id="touch-acao" class="touch-btn touch-acao" aria-label="Ação" data-acao="nenhuma">
         <span class="touch-acao-icone" aria-hidden="true">✦</span>

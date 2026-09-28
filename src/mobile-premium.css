@@ -70,8 +70,29 @@ body.modo-economico .efeito-ambiente { display:none !important; }
      mochila vários painéis para baixo. */
   .party-fileira { display:flex !important; flex-wrap:nowrap !important; overflow-x:auto; scroll-snap-type:x mandatory; gap:10px; padding:4px 3px 12px; scrollbar-width:thin; }
   .party-fileira .party-card { flex:0 0 min(74vw,260px); width:auto; scroll-snap-align:start; }
-  .party-abas, .party-filtros { display:flex; flex-wrap:nowrap !important; overflow-x:auto; scrollbar-width:none; }
-  .party-abas > *, .party-filtros > * { flex:0 0 auto; min-height:44px; }
+  /* FILTROS E BUSCA DA MOCHILA — corrigido na origem.
+     Esta regra dizia `flex-wrap:nowrap !important; overflow-x:auto`: os
+     filtros viravam um trilho horizontal e a busca começava em x=661 numa
+     tela de 390px. Tecnicamente dava para arrastar até ela; na prática
+     ninguém arrasta um trilho sem barra (`scrollbar-width:none`) para
+     descobrir que existem mais filtros. Medido: 617px de conteúdo fora da
+     área visível em 320, 390 e 430px — a mesma sobra nas três, porque a
+     fileira nunca quebrava.
+     Agora quebra em linhas. Os filtros se acomodam na largura que houver e a
+     busca ocupa uma linha só dela. Sem rolagem horizontal, sem !important
+     brigando com a folha de baixo. */
+  .party-abas, .party-filtros {
+    display:flex; flex-wrap:wrap; overflow-x:visible;
+    gap:6px; align-items:center;
+  }
+  .party-abas > *, .party-filtros > * { flex:0 1 auto; min-height:44px; }
+  /* A busca é o único item que ganha a linha inteira: é um campo de texto, e
+     dividir linha com chips a deixaria estreita demais para digitar. */
+  .party-filtros .party-busca-wrap { flex:1 0 100%; order:99; min-width:0; }
+  .party-filtros .party-busca-wrap .party-busca { width:100%; min-height:44px; box-sizing:border-box; }
+  /* Os chips de categoria repartem a linha em vez de transbordar. `min-width:0`
+     é o que permite o texto encolher em vez de empurrar a caixa. */
+  .party-filtros > button, .party-abas > button { min-width:0; }
   .party-carregar-mais { width:100%; margin-top:8px; }
 
   .missao-rastreada-resumo { padding:12px; }
