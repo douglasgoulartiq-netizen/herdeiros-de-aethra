@@ -315,8 +315,9 @@ export class Renderer {
   desenharProp(prop, cam, player = null) {
     const meta = PROPS[prop.id];
     if (!meta) return false;
-    const img = this.imagens[`prop_${prop.id}`];
     const larguraEsperada = meta.larguraTiles * TILE_SIZE;
+    const arteCidade = prop.arteCidade && this.imagens[`cidade_${prop.arteCidade}`];
+    const img = arteCidade?.width >= larguraEsperada ? arteCidade : this.imagens[`prop_${prop.id}`];
     if (!img || img.width < larguraEsperada) return false;
     const caixa = caixaDoProp(prop);
     const T = this.tilePx;

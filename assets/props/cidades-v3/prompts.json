@@ -1,0 +1,144 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "exec-9492036b-1798-4481-a0f5-cd81446a0836.png",
+  "basePrompt": "Use case: stylized-concept. Create ONE production pixel-art building sprite on genuine transparent background. Reference image is STYLE and CAMERA only. Match its hand-pixelled clear clustered shading and muted game colors, not a 3D render. Orthogonal front-facing facade, elevated camera showing roof, NO rotated isometric diamond. Whole building centered in square canvas with narrow transparent margins; base horizontal, doorway bottom CENTER. No ground tile, no grass island, no people, no text, no scene, no dramatic shadows or bloom. Readable at 96x96 pixels. Subject: ",
+  "firstPrompt": "Use case: stylized-concept. Production transparent building sprite for a pixel-art RPG. Image 1 is STYLE REFERENCE ONLY. Create one modest medieval farmer home matching exactly the reference's terracotta house: orthogonal straight front facade, roof visible from elevated game camera, no rotated isometric diamond, flat hand-pixelled shade clusters, muted terracotta roof, cream plaster and dark timber. Single building, centered doorway at bottom center, two small windows and restrained climbing vine. Whole house fits square canvas, narrow transparent margin, no ground patch, no street, no people, no text. Genuine transparent background. Match reference pixel density; not 3D rendered, no microtexture, no volumetric shadows. Readable at 96x96 game pixels. Building base horizontal.",
+  "variants": [
+    [
+      "mercador",
+      "a prosperous merchant townhouse, sage green roof, cream plaster, timber balcony"
+    ],
+    [
+      "bosque",
+      "a woodland home of curved natural timber, moss-green shingles, restrained roots embracing walls"
+    ],
+    [
+      "neve",
+      "a northern chalet, steep slate roof with patches of snow, dark timber, thick stone base"
+    ],
+    [
+      "cla",
+      "a northern clan dwelling, thick gray masonry, short blue-gray pitched roof with snow edges"
+    ],
+    [
+      "forja",
+      "a basalt forgewright home, charcoal roof, broad chimney, dull copper fittings, no lava"
+    ],
+    [
+      "mina",
+      "a mining home of red sandstone, rusty terracotta roof, timber braces"
+    ],
+    [
+      "oasis",
+      "a pale adobe oasis home, stepped flat roof, small shaded courtyard doorway, muted teal awning"
+    ],
+    [
+      "caravana",
+      "a desert caravan dwelling, cream adobe flat roof, terracotta parapet, striped ochre entrance awning"
+    ],
+    [
+      "palafita",
+      "a wetland timber home on short visible stilts, reed roof, small wooden entry steps"
+    ],
+    [
+      "pescador",
+      "a coastal fisher cottage, whitewashed walls, blue slate roof, rope and small barrel"
+    ],
+    [
+      "porto",
+      "a harbor shipwright house, weathered timber, broad navy shingle roof, short porch"
+    ],
+    [
+      "coral",
+      "a coral-island limestone home, pale coral-pink tiled roof, white masonry, restrained sea-green shutters"
+    ],
+    [
+      "vento",
+      "a windy plateau home, graystone walls, pale blue roof, small cloth wind vane and secured timber porch"
+    ],
+    [
+      "arcana",
+      "an old repaired dark-stone home, muted violet slate roof, small old carved doorway, no glow"
+    ],
+    [
+      "pousada",
+      "a welcoming wide two-storey medieval inn, sage roof, cream timber facade, small hanging bed-symbol sign, centered door"
+    ],
+    [
+      "templo",
+      "a modest medieval stone sanctuary, blue-gray pitched roof, simple arch doorway, small bell tower, no cross"
+    ]
+  ],
+  "outputs": [
+    {
+      "id": "mercador",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-bdec5f19-1dfd-4d19-b1ff-aa83e3e2d9c8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "bosque",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-551cd6ec-5a7d-41f1-897f-104c9840d17d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "neve",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-6e38756d-d9ee-44ed-be7d-55998c03339a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "cla",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-2be4d328-5607-4bc6-8949-9c3b037cbf1d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "forja",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-69e8c519-5b26-4083-9f92-4fe14816f583.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "mina",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-3896827c-df89-485d-81d6-a7de1058820d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "caravana",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-9288d324-c9f6-4e5a-b267-862b0830e9b3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "oasis",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-870fa584-bbd3-4cb0-82d4-4e172147a498.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "palafita",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-d965bb88-62db-458e-bf9d-1f6a3678ce89.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "pescador",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-9b6f68f6-c875-4d7e-b50e-dbf73dad1157.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "porto",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-3a31ccca-ceff-4a6a-8194-2bc014fa55be.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "coral",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-4e8785a3-07fe-45ac-a9c6-5028c0cb23d6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "vento",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-18ddb15d-b6b4-4554-a2f5-17ffc0859603.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "arcana",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-a145a0cb-057f-4b87-be79-84c8804dcabf.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "templo",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-1fd3f9ef-ef93-45fb-8bcc-bbcdea3abd56.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "id": "pousada",
+      "hint": "Generated images are saved to C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908 as C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-39d1b1de-2a5e-4366-9663-8aafe50a2400.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "export": {
+    "logicalPixels": 128,
+    "pngPixels": 512,
+    "filter": "nearest-neighbor",
+    "alpha": true
+  }
+}

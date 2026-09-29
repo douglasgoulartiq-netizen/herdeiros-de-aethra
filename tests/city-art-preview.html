@@ -1,0 +1,30 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cidades — verificação do mapa real</title>
+<style>body{margin:0;background:#15221d;color:#eee;font:16px system-ui}header{padding:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}select,button{padding:10px;font:inherit}canvas{display:block;width:100%;height:calc(100dvh - 115px);image-rendering:pixelated}p{margin:8px 12px}</style>
+<header><label>Cidade <select id="cities"></select></label><button id="next">Próxima rua</button><button id="mobile">Enquadramento celular</button></header><p id="status">Carregando artes…</p><canvas id="map"></canvas>
+<script type="module">
+import {mundoDaSemente} from '../src/systems/WorldBuilder.js';
+import {Renderer} from '../src/render/Renderer.js';
+import {IDS_DE_PROP} from '../src/data/propRegistry.js';
+import {ARTES_CIDADES} from '../src/data/cityArt.js';
+const load=async src=>{const img=new Image();img.src=src;await img.decode();return img};
+const images=Object.fromEntries(await Promise.all([
+ ['tileset','../assets/tiles/tileset.png'],['tileset_extra','../assets/tiles/tileset_extra.png'],['mascaras','../assets/tiles/mascaras.png'],['hero','../assets/sprites/pc_humano_guerreiro.png'],
+ ...IDS_DE_PROP.map(id=>[`prop_${id}`,`../assets/props/${id}.png`]),
+ ...ARTES_CIDADES.map(id=>[`cidade_${id}`,`../assets/props/cidades-v3/${id}.png`]),
+].map(async ([key,path])=>[key,await load(path)])));
+const world=mundoDaSemente('cidade-v3');
+const select=document.querySelector('#cities'),canvas=document.querySelector('#map');
+world.assentamentos.forEach((city,i)=>select.add(new Option(city.nome,String(i))));
+const renderer=new Renderer(canvas,images);let street=0;
+function draw(){
+ renderer.redimensionar();const city=world.assentamentos[Number(select.value)];
+ const houses=world.props.filter(p=>p.assentamentoId===city.id && p.arteCidade);
+ const target=houses[street%houses.length]||city;
+ renderer.desenhar({grid:world.grid,props:world.props,player:{x:target.x,y:target.y+2,spriteKey:'hero'},npcs:[],objetos:[]});
+ document.querySelector('#status').textContent=`${city.nome} · ${houses.length} construções · mapa e renderizador reais · sem alterar seu jogo salvo`;
+}
+select.onchange=()=>{street=0;draw()};document.querySelector('#next').onclick=()=>{street++;draw()};
+document.querySelector('#mobile').onclick=()=>{canvas.style.width=canvas.style.width==='390px'?'100%':'390px';draw()};
+addEventListener('resize',draw);draw();
+</script></html>

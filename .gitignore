@@ -11,6 +11,7 @@ _backup_antes_da_atualizacao/
 # Atalhos e instaladores do Windows — não fazem sentido num servidor
 *.bat
 *.ps1
+!tools/import-city-art.ps1
 
 # Geradores de arte e testes: rodam no PC, nunca no navegador
 scripts/

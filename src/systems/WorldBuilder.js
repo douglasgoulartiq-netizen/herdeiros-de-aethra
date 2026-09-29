@@ -35,6 +35,7 @@ import { ASSENTAMENTOS, CATEGORIAS, POIS, LANDMARKS, MASMORRAS_MUNDO } from "../
 import { ESTRADAS_PRINCIPAIS, CAMINHOS_SECRETOS, RIOS, NIVEIS_ESTRADA } from "../data/world/routes.js";
 import { prngDe, hashTexto, embaralhar } from "./WorldSeed.js";
 import { PROPS, tilesDeColisao } from "../data/propRegistry.js";
+import { arteDaCidade } from "../data/cityArt.js";
 
 const W = OVERWORLD_W;
 const H = OVERWORLD_H;
@@ -1783,7 +1784,8 @@ export function construirMundo(semente) {
         : ident.porto ? "porto" : ident.ilhas ? "elevada" : ident.instavel ? "ruina"
           : ident.clima === "arido" ? "deserto" : ident.clima === "sombrio" ? "sombria"
             : ident.clima === "umido" ? "organica" : ident.clima === "ventoso" ? "ventos" : "verde";
-    props.push(...construido.props.map((p) => ({ ...p, assentamentoId: a.id, temaArquitetura })));
+    props.push(...construido.props.map((p) => ({ ...p, assentamentoId: a.id, temaArquitetura,
+      arteCidade: arteDaCidade(p, zr.regiaoId), regiaoId: zr.regiaoId })));
     construido.tiles.forEach((t) => pegadaDeCidade.add(idx(t.x, t.y)));
     assentamentos.push({
       ...a, x: centro.x, y: centro.y, raio: CATEGORIAS[a.categoria].raio,

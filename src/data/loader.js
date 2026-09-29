@@ -1,5 +1,6 @@
 // Carrega todos os arquivos JSON de dados do jogo.
 import { IDS_DE_PROP } from "./propRegistry.js";
+import { ARTES_CIDADES } from "./cityArt.js";
 import { definirIndiceDeIcones } from "./itemIcons.js";
 
 const ARQUIVOS = [
@@ -130,6 +131,7 @@ export async function carregarTodasImagens(dados) {
   // faltar, carregarImagem devolve o placeholder e o Renderer simplesmente
   // pula o prop: o tile embaixo continua desenhado e a colisão não muda.
   IDS_DE_PROP.forEach((id) => jobs.push([`prop_${id}`, `assets/props/${id}.png`]));
+  ARTES_CIDADES.forEach((id) => jobs.push([`cidade_${id}`, `assets/props/cidades-v3/${id}.png`]));
   jobs.push(["bau_fechado", "assets/sprites/bau_fechado.png"]);
   jobs.push(["bau_aberto", "assets/sprites/bau_aberto.png"]);
   jobs.push(["npc_marker", "assets/sprites/npc_marker.png"]);
