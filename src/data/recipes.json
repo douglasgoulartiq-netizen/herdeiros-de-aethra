@@ -65,5 +65,198 @@
         "quantidade": 2
       }
     ]
+  },
+  {
+    "id": "receita_lamina_elfica",
+    "nome": "Forjar Lâmina Élfica",
+    "ingredientes": [
+      {
+        "itemId": "minerio_raro",
+        "quantidade": 3
+      },
+      {
+        "itemId": "madeira",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "lamina_elfica"
+  },
+  {
+    "id": "receita_amuleto_radiante",
+    "nome": "Engastar Amuleto Radiante",
+    "ingredientes": [
+      {
+        "itemId": "gema_rara",
+        "quantidade": 2
+      },
+      {
+        "itemId": "minerio",
+        "quantidade": 4
+      }
+    ],
+    "resultadoId": "amuleto_radiante"
+  },
+  {
+    "id": "receita_escudo_carvalho_vivo",
+    "nome": "Entalhar Escudo de Carvalho Vivo",
+    "ingredientes": [
+      {
+        "itemId": "coracao_de_carvalho",
+        "quantidade": 1
+      },
+      {
+        "itemId": "madeira",
+        "quantidade": 6
+      },
+      {
+        "itemId": "erva_rara",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "escudo_de_carvalho_vivo"
+  },
+  {
+    "id": "receita_presa_do_charco",
+    "nome": "Afiar Presa do Charco",
+    "ingredientes": [
+      {
+        "itemId": "viscera_toxica",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio_raro",
+        "quantidade": 2
+      },
+      {
+        "itemId": "erva_rara",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "presa_do_charco"
+  },
+  {
+    "id": "receita_couraca_do_colosso",
+    "nome": "Forjar Couraça do Colosso",
+    "ingredientes": [
+      {
+        "itemId": "nucleo_do_colosso",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio",
+        "quantidade": 8
+      },
+      {
+        "itemId": "gema",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "couraca_do_colosso"
+  },
+  {
+    "id": "receita_manto_regenerativo",
+    "nome": "Curtir Manto Regenerativo",
+    "ingredientes": [
+      {
+        "itemId": "pele_regenerativa",
+        "quantidade": 1
+      },
+      {
+        "itemId": "erva_rara",
+        "quantidade": 3
+      }
+    ],
+    "resultadoId": "manto_regenerativo"
+  },
+  {
+    "id": "receita_escudo_de_escamas",
+    "nome": "Rebitar Escudo de Escamas Ancestrais",
+    "ingredientes": [
+      {
+        "itemId": "escama_do_dragao_anciao",
+        "quantidade": 2
+      },
+      {
+        "itemId": "minerio_raro",
+        "quantidade": 4
+      },
+      {
+        "itemId": "gema_rara",
+        "quantidade": 1
+      }
+    ],
+    "resultadoId": "escudo_de_escamas"
+  },
+  {
+    "id": "receita_elmo_do_touro",
+    "nome": "Montar Elmo do Touro",
+    "ingredientes": [
+      {
+        "itemId": "chifre_da_colheita",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio",
+        "quantidade": 5
+      }
+    ],
+    "resultadoId": "elmo_do_touro"
+  },
+  {
+    "id": "receita_machado_carmesim",
+    "nome": "Forjar Machado Carmesim",
+    "ingredientes": [
+      {
+        "itemId": "nucleo_carmesim",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio_raro",
+        "quantidade": 3
+      },
+      {
+        "itemId": "gema",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "machado_carmesim"
+  },
+  {
+    "id": "receita_botas_da_engrenagem",
+    "nome": "Montar Botas da Engrenagem",
+    "ingredientes": [
+      {
+        "itemId": "dente_da_engrenagem",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio_raro",
+        "quantidade": 2
+      },
+      {
+        "itemId": "madeira",
+        "quantidade": 2
+      }
+    ],
+    "resultadoId": "botas_da_engrenagem"
+  },
+  {
+    "id": "receita_elo_do_fundo",
+    "nome": "Engastar Elo do Fundo",
+    "ingredientes": [
+      {
+        "itemId": "elo_da_ancora_viva",
+        "quantidade": 1
+      },
+      {
+        "itemId": "gema_rara",
+        "quantidade": 1
+      },
+      {
+        "itemId": "minerio",
+        "quantidade": 4
+      }
+    ],
+    "resultadoId": "elo_do_fundo"
   }
 ]

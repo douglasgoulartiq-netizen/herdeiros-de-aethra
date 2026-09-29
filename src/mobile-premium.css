@@ -59,8 +59,29 @@ body.modo-economico .efeito-ambiente { display:none !important; }
 
   #modal-conteudo { padding-bottom:calc(82px + env(safe-area-inset-bottom)); }
   #modal-conteudo > .fechar { position:sticky; top:0; z-index:12; min-height:44px; }
-  .progressao-heroi-nav, .arv-abas { display:flex; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; }
-  .progressao-heroi-nav button, .arv-abas button { flex:1 0 auto; min-height:44px; }
+  /* NAVEGAÇÃO PRINCIPAL NÃO ROLA DE LADO.
+     MEDIDO em 320/390/430 px: a barra tem 502 px de conteúdo em 252/315/351
+     px de espaço, então a SEGUNDA aba — "💠 Caminhos e Herança" — ficava
+     inteira fora da tela (206/140/102 px de folga escondida). Ela rola, sim,
+     e portanto nada estava tecnicamente inacessível; o problema é outro e é
+     pior: com `scrollbar-width:none` não há nenhuma pista de que existe uma
+     segunda aba. Num celular de 390 px o jogador vê UMA aba e conclui que o
+     painel tem uma seção só.
+     São duas abas. Elas cabem em duas linhas, e duas linhas de 44 px custam
+     menos que uma seção inteira invisível. `.arv-abas` (lista de ramos, que
+     é longa de verdade) continua rolando. */
+  .progressao-heroi-nav { display:flex; overflow-x:visible; flex-wrap:wrap; gap:5px; padding:3px; margin-bottom:4px; }
+  .progressao-heroi-nav button { flex:1 1 42%; min-height:44px; padding:5px 8px; font-size:.84rem; }
+  /* MEDIDO em 320×700: com a navegação em duas linhas, mais o botão Fechar,
+     mais o título, mais as abas, mais a caixa de pontos, o primeiro talento da
+     árvore começava a 645 px e o ladrilho terminava 9 px ABAIXO da tela. A
+     árvore é o conteúdo da tela — ela não pode nascer cortada. Estes recortes
+     são todos de espaço morto: margem de título, respiro de caixa, nada de
+     alvo de toque (os 44 px continuam de pé). */
+  #modal-conteudo > .fechar { margin:2px 0 4px; }
+  #modal-conteudo > h2 { margin:2px 0 6px; font-size:clamp(1rem,4.4vw,1.2rem); }
+  .arv-abas { display:flex; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; }
+  .arv-abas button { flex:1 0 auto; min-height:44px; }
   .arv-sub, .arv-ramo-desc, .arv-no-desc, .arv-no-tipo, .arv-legenda { display:none; }
   .arv-topo { padding:7px 9px; margin-bottom:7px; }
   .arv-no { padding:8px; margin-bottom:5px; }

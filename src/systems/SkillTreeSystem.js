@@ -151,7 +151,7 @@ export function motivosBloqueio(personagem, dados, no) {
   }
   const noRamo = pontosNoRamo(personagem, dados, no.ramo);
   if (noRamo < (no.requerRamo || 0)) {
-    motivos.push(`${no.requerRamo} pontos neste ramo (você tem ${noRamo})`);
+    motivos.push(`${no.requerRamo} ponto${no.requerRamo > 1 ? "s" : ""} neste ramo (você tem ${noRamo})`);
   }
   const faltas = faltaDeAtributo(personagem, dados, no);
   if (faltas) {

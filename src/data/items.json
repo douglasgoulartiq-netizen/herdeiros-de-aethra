@@ -5006,6 +5006,185 @@
       "icone": "erva",
       "valor": 0,
       "descricao": "Baltazar comprou um lote errado e ficou com uma a mais. Serve no cavalo de alguém, ele diz."
+    },
+    {
+      "id": "lamina_elfica",
+      "nome": "Lâmina Élfica",
+      "tipo": "arma",
+      "subtipo": "espada",
+      "classeRecomendada": "guerreiro",
+      "raridade": "raro",
+      "icone": "espada",
+      "dano": 17,
+      "atributo": "FOR",
+      "valor": 120,
+      "elemento": "natureza",
+      "requisito": {
+        "FOR": 12
+      },
+      "descricao": "Uma lâmina de minério élfico, leve e fria ao toque. Dano baseado em FOR."
+    },
+    {
+      "id": "amuleto_radiante",
+      "nome": "Amuleto Radiante",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "INT": 2,
+        "CON": 1
+      },
+      "valor": 210,
+      "descricao": "+2 de Inteligência e +1 de Constituição. A gema guarda a luz de todo chefe que caiu por ela."
+    },
+    {
+      "id": "escudo_de_carvalho_vivo",
+      "nome": "Escudo de Carvalho Vivo",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "epico",
+      "icone": "escudo",
+      "defesa": 8,
+      "valor": 170,
+      "requisito": {
+        "CON": 10
+      },
+      "efeitos": [
+        "quebra_postura"
+      ],
+      "descricao": "Escudo de Carvalho Vivo, oferece 8 de defesa. A madeira ainda fecha os próprios cortes."
+    },
+    {
+      "id": "presa_do_charco",
+      "nome": "Presa do Charco",
+      "tipo": "arma",
+      "subtipo": "adaga",
+      "classeRecomendada": "ladino",
+      "raridade": "epico",
+      "icone": "adaga",
+      "dano": 20,
+      "atributo": "DES",
+      "valor": 195,
+      "bonusCritico": 10,
+      "elemento": "veneno",
+      "requisito": {
+        "DES": 14
+      },
+      "efeitos": [
+        "condutor"
+      ],
+      "descricao": "Uma adaga do charco. Dano baseado em DES. Cada corte deixa o veneno assentado."
+    },
+    {
+      "id": "couraca_do_colosso",
+      "nome": "Couraça do Colosso",
+      "tipo": "armadura",
+      "subtipo": "armadura",
+      "slot": "peito",
+      "raridade": "epico",
+      "icone": "armadura",
+      "defesa": 12,
+      "valor": 200,
+      "requisito": {
+        "CON": 12
+      },
+      "descricao": "Couraça do Colosso, oferece 12 de defesa. Pesa como a montanha de onde saiu."
+    },
+    {
+      "id": "manto_regenerativo",
+      "nome": "Manto Regenerativo",
+      "tipo": "armadura",
+      "subtipo": "armadura",
+      "slot": "peito",
+      "raridade": "epico",
+      "icone": "armadura",
+      "defesa": 8,
+      "valor": 185,
+      "efeitos": [
+        "roubo_de_vida"
+      ],
+      "descricao": "Manto Regenerativo, oferece 8 de defesa. A pele do troll continua se remendando sozinha."
+    },
+    {
+      "id": "escudo_de_escamas",
+      "nome": "Escudo de Escamas Ancestrais",
+      "tipo": "armadura",
+      "subtipo": "escudo",
+      "slot": "escudo",
+      "raridade": "lendario",
+      "icone": "escudo",
+      "defesa": 11,
+      "valor": 980,
+      "requisito": {
+        "CON": 12
+      },
+      "efeitos": [
+        "algoz_de_chefes"
+      ],
+      "descricao": "Escudo de Escamas Ancestrais, oferece 11 de defesa. O fogo escorre por ele sem pegar."
+    },
+    {
+      "id": "elmo_do_touro",
+      "nome": "Elmo do Touro",
+      "tipo": "armadura",
+      "subtipo": "elmo",
+      "slot": "cabeca",
+      "raridade": "raro",
+      "icone": "elmo",
+      "defesa": 5,
+      "valor": 105,
+      "bonusAtributo": {
+        "FOR": 1
+      },
+      "descricao": "Elmo do Touro, oferece 5 de defesa e +1 de Força. Os chifres continuam apontando para frente."
+    },
+    {
+      "id": "machado_carmesim",
+      "nome": "Machado Carmesim",
+      "tipo": "arma",
+      "subtipo": "machado",
+      "classeRecomendada": "barbaro",
+      "raridade": "epico",
+      "icone": "machado",
+      "dano": 25,
+      "atributo": "FOR",
+      "valor": 330,
+      "elemento": "terra",
+      "requisito": {
+        "FOR": 16
+      },
+      "efeitos": [
+        "quebra_postura"
+      ],
+      "descricao": "Um machado carmesim. Dano baseado em FOR. O núcleo do capataz ainda bate dentro do cabo."
+    },
+    {
+      "id": "botas_da_engrenagem",
+      "nome": "Botas da Engrenagem",
+      "tipo": "armadura",
+      "subtipo": "botas",
+      "slot": "pes",
+      "raridade": "epico",
+      "icone": "botas",
+      "defesa": 3,
+      "valor": 320,
+      "bonusVelocidade": 8,
+      "descricao": "Botas da Engrenagem, oferece 3 de defesa. O dente do labirinto empurra cada passo."
+    },
+    {
+      "id": "elo_do_fundo",
+      "nome": "Elo do Fundo",
+      "tipo": "acessorio",
+      "slot": "amuleto",
+      "raridade": "epico",
+      "icone": "amuleto",
+      "bonusAtributo": {
+        "CON": 3
+      },
+      "valor": 325,
+      "descricao": "+3 de Constituição. O elo continua puxando para baixo, e quem o veste não sai do lugar."
     }
   ]
 }

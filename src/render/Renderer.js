@@ -28,6 +28,9 @@ import { TILE, TILE_SIZE, TILES_BASE, TILE_FALLBACK } from "../data/worldMap.js"
 import { PROPS, propsVisiveis, caixaDoProp } from "../data/propRegistry.js";
 import { MisturaDeTerreno } from "./TerrainBlend.js";
 import { escalaChefeMapa, imagemOficialMonstro } from "../systems/MonsterVisualSystem.js";
+import { desenharHospedagem } from "./UrbanDetails.js";
+import { desenharEstandarte, desenharAtividade } from "./WorldVignettes.js";
+import { animacoesReduzidas } from "../systems/BattleSettings.js";
 
 const TILE_ORDER = [
   "grass", "grass_detail", "path", "water", "tree", "wall_stone",
@@ -356,6 +359,25 @@ export class Renderer {
     this.ctx.save();
     if (transparente) this.ctx.globalAlpha = atual;
     this.ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, w, h);
+    // CENA VIVA — a metade que faltava.
+    //
+    // O gerador já grava `hospedagem` e `temaArquitetura` em cada prop desde
+    // a reforma urbana; até aqui NINGUÉM lia esses campos. UrbanDetails.js e
+    // WorldVignettes.js existiam no repositório sem um único import — arte
+    // pronta que nunca chegou à tela. Estas três chamadas são a ligação.
+    //
+    // Tudo é desenho puro sobre a mesma caixa do prédio: nenhuma imagem
+    // nova, nenhum tile, nenhuma colisão, nenhum consumo do RNG do mundo.
+    if (prop.hospedagem) desenharHospedagem(this.ctx, prop.hospedagem, dx, dy, w, h);
+    // O estandarte marca a identidade da cidade, e vai em TODO poste de
+    // assentamento. A primeira versão sorteava um poste em cada quatro,
+    // por medo de virar ruído — a MEDIÇÃO derrubou o medo e a regra junto:
+    // o gerador põe 4 postes por assentamento (7 no maior), então "todos"
+    // são 4 bandeiras por cidade, e o filtro só fazia metade das capitais
+    // ficar sem nenhuma. Sem sorteio também não há hash para dar errado.
+    if (prop.id === "poste" && prop.temaArquitetura) {
+      desenharEstandarte(this.ctx, prop.temaArquitetura, dx, dy, Math.min(w, h));
+    }
     if (prop.id && /(lanterna|poste|tocha|fogueira|pousada|portao|ponte)/i.test(prop.id) && this.horaAtual?.ehNoite) {
       const lx = dx + w * .5, ly = dy + h * .28, r = T * 1.35;
       const grad = this.ctx.createRadialGradient(lx, ly, 1, lx, ly, r);
@@ -807,6 +829,15 @@ export class Renderer {
       else if (n.ambulante) passo = Math.sin(Date.now() / 1400) * T * .006;
       ctx.drawImage(img, px, py + passo, tam, tam);
     }
+
+    // A vinheta de ofício: bigorna do ferreiro, banca do mercador, reflexo na
+    // lança do guarda. Fica presa ao tile do próprio NPC — não cria ator, não
+    // cria obstáculo e só desenha para quem já passou pelo corte de câmera
+    // acima, então o custo é proporcional ao que está na tela.
+    //
+    // `animacoesReduzidas()` congela a fase em 0: quem pediu menos movimento
+    // continua vendo a bigorna e a banca, paradas.
+    desenharAtividade(ctx, n, dx, dy, T, Date.now(), animacoesReduzidas());
 
     // Missão ou função do NPC, sempre acima da cabeça. Um único marcador é
     // muito mais legível que nomes, cargos e balões competindo entre si.

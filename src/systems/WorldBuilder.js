@@ -761,8 +761,7 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
       // NÃO é aterrada — é o que distingue a silhueta dessas vilas.
       if (a.elevada && TILES_AGUA.has(g[y][x])) { g[y][x] = ident.arquitetura.piso; tiles.push({ x, y }); continue; }
       if (TILES_AGUA.has(g[y][x])) continue; // cidade portuária mantém a água da doca
-      // Quintais pertencem ao bioma. Só ruas, soleiras e praça são pavimentadas.
-      g[y][x] = ident.chao;
+      g[y][x] = ident.arquitetura.piso;
       tiles.push({ x, y });
     }
   }
@@ -792,10 +791,23 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // por onde andar. O vão tem de ser maior que a ALTURA DA ARTE, não que a
   // altura da colisão: 6 (ou 8 onde cabe casa grande) deixa dois tiles de
   // calçada visível entre uma fileira e a seguinte.
-  // Uma fileira por bloco, com dois tiles de rua visível após a fachada.
-  // O espaço da silhueta também é validado ao posicionar cada construção.
-  const alturaArte = a.categoria === "ACAMPAMENTO" ? 4 : plano.grandes < .3 ? 5 : 6;
-  const passoBloco = alturaArte + 2;
+  // Quarteirão = DUAS fileiras coladas (a de trás aparece por cima do
+  // telhado da da frente, que é como um bairro se lê de cima), e um vão de
+  // dois tiles de calçada até o próximo quarteirão.
+  //
+  // O número sai da ALTURA DA ARTE, não da colisão: a casa pequena tem 4
+  // tiles de arte e 2 de parede, então duas fileiras a 3 de distância cobrem
+  // 7 linhas, e o quarteirão seguinte só pode começar 9 linhas depois se
+  // quisermos calçada visível entre eles. Com espaçamento uniforme de 3 (a
+  // primeira tentativa) o telhado de cima tapava o vão inteiro e a cidade
+  // virava uma parede contínua de telhados, sem chão à vista.
+  const alturaArte = plano.grandes >= 0.3 ? 6 : 4;
+  const dentroDoQuarteirao = 3;
+  // Três fileiras por quarteirão em cidade grande, duas nas pequenas: a
+  // terceira fileira aproveita a altura do quarteirão sem comer a calçada,
+  // e é o que tira a capital de 15 prédios para perto de 25.
+  const fileirasPorBloco = plano.alvo >= 20 ? 3 : 2;
+  const passoBloco = alturaArte + dentroDoQuarteirao * (fileirasPorBloco - 1) + 2;
   const ocupado = new Set();
 
   // Praça central: sempre aberta, é onde o jogador chega e onde ficam os
@@ -855,7 +867,7 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // Eixos urbanos visíveis. A praça liga-se aos quatro portões e ganha um
   // anel de circulação, como na referência: o jogador entende onde está e
   // para onde cada bairro continua sem precisar de minimapa.
-  const pisoVia = TILE.COBBLE;
+  const pisoVia = ident.arquitetura.piso === TILE.COBBLE ? TILE.VILLAGE_FLOOR : TILE.COBBLE;
   const meiaVia = a.categoria === "CAPITAL" ? 1 : 0;
   if (a.categoria !== "ACAMPAMENTO") {
     const cruzCompleta = ["CAPITAL", "CIDADE"].includes(a.categoria);
@@ -1009,19 +1021,6 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
     props.push(p); ocupado.add(idx(p.x, p.y));
   }
 
-  // Praça reconhecível: mercado de um lado, água do outro, eixo central livre.
-  // Os equipamentos nunca substituem serviços/NPCs nem o ponto de descanso.
-  const mobiliario = pracaR >= 3 ? [
-    {id:'fonte_urbana',x:centro.x+pracaR-1,y:centro.y+2},
-    {id:'banca_urbana',x:centro.x-pracaR+1,y:centro.y+2},
-  ] : pracaR >= 2 ? [{id:'poco_urbano',x:centro.x+pracaR,y:centro.y+1}] : [];
-  for (const p of mobiliario) {
-    const cols=tilesDeColisao(p);
-    if (!cols.every(c=>dentro(c.x,c.y)&&dentroDaMancha.has(idx(c.x,c.y))&&!SOLID_TILES.has(g[c.y][c.x])&&!TILES_AGUA.has(g[c.y][c.x])&&(c.x!==centro.x)&&!props.some(p=>p.x===c.x&&p.y===c.y))) continue;
-    for (const c of cols) {g[c.y][c.x]=ident.arquitetura.parede;ocupado.add(idx(c.x,c.y));}
-    props.push(p);
-  }
-
   // As fileiras nascem A PARTIR DA PRAÇA, para os dois lados, em vez de a
   // partir da borda. Começando da borda, o acampamento e o assentamento
   // ficavam com a única fileira possível caindo em cima da praça — e sem
@@ -1034,40 +1033,12 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
   // ficava com zero construções.
   let casasPostas = 0;
 
-  // Não basta separar paredes: reservar a silhueta impede telhados de
-  // esconderem a fachada vizinha. O espaço reservado não vira colisão.
-  const volumes = props.filter(p => ['pousada','fonte_urbana','banca_urbana','poco_urbano'].includes(p.id));
-  const retangulo = p => {
-    const m = PROPS[p.id];
-    return {x:p.x-m.ancoraX,y:p.y-m.ancoraY,w:m.larguraTiles,h:m.alturaTiles};
-  };
-  const cabeVisualmente = p => {
-    const r = retangulo(p);
-    return volumes.every(v => {
-      const q = retangulo(v);
-      return r.x+r.w < q.x || q.x+q.w < r.x || r.y+r.h+1 < q.y || q.y+q.h+1 < r.y;
-    });
-  };
-  if (plano.templo) {
-    const alvo = {id:'templo',x:centro.x,y:centro.y-pracaR-2};
-    if (cabeACasa(g,alvo,ocupado) && cabeVisualmente(alvo)) {
-      for (const c of tilesDeColisao(alvo)) {g[c.y][c.x]=ident.arquitetura.parede;ocupado.add(idx(c.x,c.y));}
-      props.push(alvo);volumes.push(alvo);
-    }
-  }
-
   const fileiras = [];
-  for (let dy = pracaR + alturaArte + 1; dy <= raio + 1; dy += passoBloco) fileiras.push(centro.y + dy);
-  for (let dy = -pracaR - 2; dy >= -raio - 1; dy -= passoBloco) fileiras.push(centro.y + dy);
-  // Cada fachada olha para uma rua contínua de duas faixas ligada ao eixo.
-  // As faixas são reservadas antes das paredes, nunca abertas por cima delas.
-  for (const y of fileiras) for (let faixa=1;faixa<=2;faixa++) {
-    for (let x=centro.x-raio;x<=centro.x+raio;x++) {
-      const py=y+faixa;
-      if (!dentro(x,py)||!dentroDaMancha.has(idx(x,py))||SOLID_TILES.has(g[py][x])||TILES_AGUA.has(g[py][x])) continue;
-      g[py][x]=TILE.COBBLE;ocupado.add(idx(x,py));ruas.push({x,y:py});
-    }
-  }
+  const parDeFileiras = (yBase) => {
+    for (let k = 0; k < fileirasPorBloco; k += 1) fileiras.push(yBase - k * dentroDoQuarteirao);
+  };
+  for (let dy = pracaR + 2; dy <= raio + 1; dy += passoBloco) parDeFileiras(centro.y + dy);
+  for (let dy = -pracaR - 1; dy >= -raio - 1; dy -= passoBloco) parDeFileiras(centro.y + dy);
   for (const y of fileiras) {
     if (casasPostas >= plano.alvo) break;
     if (!dentro(0, y)) continue;
@@ -1092,22 +1063,27 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
         const cols = tilesDeColisao(prop);
         if (!cols.every((c) => dentroDaMancha.has(idx(c.x, c.y)))) continue;
         if (!cabeACasa(g, prop, ocupado)) continue;
-        if (!cabeVisualmente(prop)) continue;
         for (const c of cols) {
           g[c.y][c.x] = ident.arquitetura.parede;
           ocupado.add(idx(c.x, c.y));
         }
         props.push(prop);
-        volumes.push(prop);
         casasPostas += 1;
         posto = meta.colisao.x1 - meta.colisao.x0 + 1;
         break;
       }
-      x += posto === null ? 1 : posto + 2 + (rnd() < 0.25 ? 1 : 0); // becos visíveis
+      x += posto === null ? 1 : posto + (rnd() < 0.25 ? 2 : 1); // beco entre vizinhas
     }
   }
   // Marco da praça: capital e cidade ganham um templo, que é o prop mais alto
   // do jogo e o que se enxerga de longe — é o que faz a capital ter silhueta.
+  if (plano.templo) {
+    const alvo = { id: "templo", x: centro.x, y: centro.y - pracaR - 1 };
+    if (cabeACasa(g, alvo, ocupado)) {
+      for (const c of tilesDeColisao(alvo)) { g[c.y][c.x] = ident.arquitetura.parede; ocupado.add(idx(c.x, c.y)); }
+      props.push(alvo);
+    }
+  }
   // Entorno: lavoura ao redor de cidade grande, onde a região tem lavoura
   // (item 23 — mais fazendas perto de civilização).
   if (ident.lavouraPertoDeCidade && (a.categoria === "CAPITAL" || a.categoria === "CIDADE" || a.categoria === "VILA")) {
@@ -1153,25 +1129,6 @@ function construirAssentamento(g, a, centro, ident, rnd, pegadaGlobal = new Set(
       const x = p.x + ox, y = p.y + 1;
       if (!dentro(x, y) || !dentroDaMancha.has(idx(x, y)) || SOLID_TILES.has(g[y][x]) || TILES_AGUA.has(g[y][x])) continue;
       g[y][x] = TILE.COBBLE;
-    }
-    // Beco lateral liga o quintal ao passeio. Não desenhar caminho por cima
-    // de construção, rio ou outra cidade; a borda oposta permanece jardim.
-    const meta=PROPS[p.id],x=p.x+meta.colisao.x1+1;
-    for(let y=p.y-meta.alturaTiles+1;y<=p.y+2;y++) {
-      if(Math.abs(x-centro.x)<=pracaR && Math.abs(y-centro.y)<=pracaR) continue;
-      if(!dentro(x,y)||!dentroDaMancha.has(idx(x,y))||SOLID_TILES.has(g[y][x])||TILES_AGUA.has(g[y][x])) continue;
-      if(g[y][x]!==TILE.COBBLE && g[y][x]!==TILE.VILLAGE_FLOOR) g[y][x]=TILE.PATH;
-      ruas.push({x,y});
-    }
-  }
-  // Jardins pequenos junto às laterais, nunca no passeio frontal/soleira.
-  const frentes=props.filter(p=>p.id.startsWith('casa'));
-  for (let i=0;i<frentes.length;i++) {
-    const p=frentes[i],meta=PROPS[p.id];
-    const x=p.x-meta.ancoraX-1,y=p.y-1;
-    if (i%2 || !dentro(x,y) || !dentroDaMancha.has(idx(x,y)) || ocupado.has(idx(x,y)) || SOLID_TILES.has(g[y][x]) || TILES_AGUA.has(g[y][x])) continue;
-    if (!['nevado','vulcanico','arido'].includes(ident.clima)) {
-      props.push({id:'arbusto',x,y,jardim:true});
     }
   }
   return { distritos, props, casas: construcoes, tiles, praca: pracaR, descanso, ruas };
@@ -2062,6 +2019,26 @@ export function limparCacheMundo() { cacheMundo = null; }
 // pelo gerador; a busca abaixo anda só por tile aberto a partir dele, então o
 // baú escondido também é alcançável — nunca fica atrás de água ou rocha.
 const RAIO_BAU_ESCONDIDO = 6;
+
+// O tile aberto mais próximo de um ponto, em anéis crescentes. Determinístico
+// de propósito: varre os anéis em ordem fixa (Y depois X) e devolve o primeiro
+// que servir, sem sortear nada — o gerador de baús escondidos é semeado e não
+// pode ganhar uma fonte de aleatoriedade nova aqui.
+const RAIO_MARGEM = 4;
+function tileAbertoMaisProximo(ponto, aberto) {
+  if (aberto(ponto.x, ponto.y)) return { x: ponto.x, y: ponto.y };
+  for (let r = 1; r <= RAIO_MARGEM; r += 1) {
+    for (let dy = -r; dy <= r; dy += 1) {
+      for (let dx = -r; dx <= r; dx += 1) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const x = ponto.x + dx; const y = ponto.y + dy;
+        if (aberto(x, y)) return { x, y };
+      }
+    }
+  }
+  return null;
+}
+
 export function bausEscondidosDoMundo(gerado, semente) {
   if (!gerado || !gerado.grid) return [];
   if (gerado.bausEscondidos && gerado.bausEscondidos.semente === semente) return gerado.bausEscondidos.lista;
@@ -2081,9 +2058,22 @@ export function bausEscondidosDoMundo(gerado, semente) {
     if (rnd() >= 0.5) continue;
     const no = (gerado.nos || []).find((n) => n.zonaId === z.id);
     if (!no) continue;
-    // Busca em largura a partir do nó, só por tile aberto, até o raio.
-    const vistos = new Set([idx(no.x, no.y)]);
-    let fronteira = [{ x: no.x, y: no.y }];
+    // O nó pode estar DENTRO d'água — 17 dos 84 nós da semente de teste
+    // estão, e isso não é novo: o gerador de recursos sempre permitiu nó
+    // em lago. A busca abaixo só anda por tile aberto, então partir de um
+    // nó submerso não encontrava vizinho nenhum e a zona perdia o baú em
+    // silêncio. Era assim que três zonas elegíveis sumiam e o traço do
+    // elfo entregava 2 baús em vez dos 3 que o teste exige.
+    //
+    // A correção não mexe no nó (mover nó mudaria o mapa de todo mundo e
+    // invalidaria save): ela só escolhe uma MARGEM — o tile aberto mais
+    // próximo do nó — como ponto de partida da busca. O baú continua
+    // perto do recurso e continua alcançável a pé.
+    const margem = tileAbertoMaisProximo(no, aberto);
+    if (!margem) continue;
+    // Busca em largura a partir da margem, só por tile aberto, até o raio.
+    const vistos = new Set([idx(margem.x, margem.y)]);
+    let fronteira = [{ x: margem.x, y: margem.y }];
     const candidatos = [];
     for (let passo = 1; passo <= RAIO_BAU_ESCONDIDO && fronteira.length; passo += 1) {
       const proxima = [];
