@@ -22,6 +22,10 @@ import {
   configCards, salvarConfigCards, SUGESTAO_JOGADA, DANO_PREVISTO, ANIMACOES_CARDS, INFO_TATICA,
 } from "../systems/BattleSettings.js";
 import { somCardHover, somCardSelecionado, somCardErro, somCombo, somUltimatePronta, somCooldownPronto } from "./SoundFX.js";
+// Velocidade da apresentação do combate. A preferência é a MESMA que vive na
+// tela de Acessibilidade (rpg_pt_acessibilidade_v1) — aqui não nasce estado
+// novo, só um atalho para ela de dentro da batalha, que é onde ela importa.
+import { carregarConfigAcessibilidade, atualizarConfigAcessibilidade, VELOCIDADES_ANIMACAO_COMBATE } from "../systems/AccessibilitySystem.js";
 
 // Item 92: nunca criar rolagem horizontal infinita. Até 8 cards cabem em
 // duas linhas; acima disso, entra paginação com setas (e teclas ← →).
@@ -720,6 +724,55 @@ export function criarPainelDeCards(opcoes) {
   }
 
   // -------------------------------------------------------------------
+  // VELOCIDADE DA BATALHA, NA BATALHA.
+  //
+  // A preferência existia e funcionava — medido: a ação dura 557ms em
+  // "normal", 318ms em "rápida" e 119ms em "instantâneo" — mas morava só na
+  // tela de Acessibilidade. Para acelerar uma luta que está arrastando, o
+  // jogador tinha que sair da batalha, abrir configurações, trocar e voltar.
+  // Uma preferência de ritmo que só se troca fora do ritmo não serve.
+  //
+  // Este botão cicla a MESMA preferência, sem criar estado novo: quem lê
+  // continua sendo multiplicadorVelocidadeAnimacao(), e a tela de
+  // Acessibilidade continua sendo a dona do assunto. É atalho, não cópia.
+  // -------------------------------------------------------------------
+  const ORDEM_VELOCIDADE = ["normal", "rapida", "instantaneo"];
+  const ROTULO_VELOCIDADE = { normal: "1×", rapida: "2×", instantaneo: "4×" };
+  const TITULO_VELOCIDADE = {
+    normal: "Velocidade normal — toque para acelerar",
+    rapida: "Velocidade rápida (2×) — toque para acelerar",
+    instantaneo: "Quase instantâneo (4×) — toque para voltar ao normal",
+  };
+
+  function velocidadeAtual() {
+    const v = carregarConfigAcessibilidade().velocidadeAnimacaoCombate;
+    return v in VELOCIDADES_ANIMACAO_COMBATE ? v : "normal";
+  }
+
+  function botaoVelocidade() {
+    const v = velocidadeAtual();
+    return `<button type="button" class="mao-btn-config mao-btn-velocidade" id="btn-vel-batalha"
+      title="${TITULO_VELOCIDADE[v]}" aria-label="${TITULO_VELOCIDADE[v]}">⏩ <span class="vel-num">${ROTULO_VELOCIDADE[v]}</span></button>`;
+  }
+
+  function ligarBotaoVelocidade(raiz) {
+    const btn = raiz.querySelector("#btn-vel-batalha");
+    if (!btn) return;
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const proxima = ORDEM_VELOCIDADE[(ORDEM_VELOCIDADE.indexOf(velocidadeAtual()) + 1) % ORDEM_VELOCIDADE.length];
+      atualizarConfigAcessibilidade({ velocidadeAnimacaoCombate: proxima });
+      // Sem redesenhar a mão: trocar a velocidade no meio do turno não pode
+      // remontar os cards (isso mexeria na seleção em curso). Só o rótulo
+      // do próprio botão muda.
+      const num = btn.querySelector(".vel-num");
+      if (num) num.textContent = ROTULO_VELOCIDADE[proxima];
+      btn.title = TITULO_VELOCIDADE[proxima];
+      btn.setAttribute("aria-label", TITULO_VELOCIDADE[proxima]);
+    });
+  }
+
+  // -------------------------------------------------------------------
   // Configurações (item 99)
   // -------------------------------------------------------------------
   function montarConfiguracoes() {
@@ -785,6 +838,7 @@ export function criarPainelDeCards(opcoes) {
         <span class="mao-recursos" title="Éter disponível para habilidades.">💠 ${estado.jogador.mp}/${estado.jogador.mpMax}</span>
         <span class="mao-linha" title="Sua linha na formação. Trocar de linha custa o turno.">${estado.jogador.posicao === "retaguarda" ? "🛡️ Retaguarda" : "⚔️ Frente"}</span>
         <span class="mao-deslize" id="mao-deslize" aria-hidden="true">↔ deslize</span>
+        ${botaoVelocidade()}
         <button type="button" class="mao-btn-config" id="btn-cards-config" title="Configurações de leitura da batalha">⚙️</button>
       </div>
       <div class="mao-instrucoes" role="note"><span>1 toque: prever</span><span>2 toques: confirmar</span><span>Alvo: ${estado.alvo?.nome || "selecione um inimigo"}</span></div>
@@ -825,6 +879,7 @@ export function criarPainelDeCards(opcoes) {
     const painelCfg = acoesEl.querySelector("#cards-config-painel");
     if (configAberta && painelCfg) painelCfg.hidden = false;
     if (btnCfg) btnCfg.addEventListener("click", (ev) => { ev.stopPropagation(); painelCfg.hidden = !painelCfg.hidden; });
+    ligarBotaoVelocidade(acoesEl);
     ligarConfiguracoes(acoesEl);
 
     const ant = acoesEl.querySelector("#pg-ant");

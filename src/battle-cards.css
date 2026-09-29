@@ -141,6 +141,22 @@
 .mao-btn-config {
   margin: 0 0 0 auto; padding: 3px 9px; font-size: 0.95em; line-height: 1;
 }
+/* O botão de velocidade fica colado no de configurações: o `margin-left:auto`
+   do primeiro dos dois já empurra o par para a direita, e o segundo não
+   repete o empurrão. `tabular-nums` para o rótulo não mudar de largura ao
+   ciclar 1× → 2× → 4×, que seria um tranco no cabeçalho a cada toque. */
+.mao-btn-velocidade + .mao-btn-config { margin-left: 4px; }
+.mao-btn-velocidade {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  /* Largura travada. Medido: "1×" dava 57px e "2×"/"4×" davam 60px, ou seja,
+     o cabeçalho da mão se reorganizava 3px a cada toque no próprio botão que
+     o jogador acabou de apertar. `tabular-nums` não resolveu (a fonte não
+     traz a variante), então a largura é declarada. */
+}
+/* O rótulo numérico tem largura própria; o botão inteiro não precisa de
+   min-width, que dependeria do tamanho de fonte herdado e não segurava. */
+.mao-btn-velocidade .vel-num { display: inline-block; min-width: 2.8em; text-align: center; }
 
 .mao-cards {
   display: flex; flex-wrap: wrap; justify-content: center;
