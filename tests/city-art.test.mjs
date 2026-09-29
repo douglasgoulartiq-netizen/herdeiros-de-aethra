@@ -5,6 +5,7 @@ import {IDENTIDADE_REGIAO} from '../src/data/world/regionIdentity.js';
 import {mundoDaSemente,limparCacheMundo} from '../src/systems/WorldBuilder.js';
 import {SOLID_TILES} from '../src/data/worldMap.js';
 import {Renderer} from '../src/render/Renderer.js';
+import {caixaDoProp} from '../src/data/propRegistry.js';
 
 assert.equal(ARTES_CIDADES.length,17);
 for(const id of Object.keys(IDENTIDADE_REGIAO)) {
@@ -33,6 +34,11 @@ for(const seed of ['cidade-v3','20260906','cidades-costeiras']) {
       assert.ok(ARTES_CIDADES.includes(p.arteCidade),`${city.nome}: arte ausente`);
       assert.equal(p.arteCidade,arteDaCidade(p,p.regiaoId));
       total++;
+    }
+    for(let i=0;i<buildings.length;i++) for(let j=i+1;j<buildings.length;j++) {
+      const a=caixaDoProp(buildings[i]),b=caixaDoProp(buildings[j]);
+      assert.ok(a.tx+a.larguraTiles<=b.tx || b.tx+b.larguraTiles<=a.tx || a.ty+a.alturaTiles<=b.ty || b.ty+b.alturaTiles<=a.ty,
+        `${city.nome}: silhuetas de prédios se sobrepõem`);
     }
     for(const p of city.ruas || []) assert.ok(!SOLID_TILES.has(m.grid[p.y][p.x]),`${city.nome}: rua bloqueada`);
     if(city.descanso) assert.ok(!SOLID_TILES.has(m.grid[city.descanso.y][city.descanso.x]));

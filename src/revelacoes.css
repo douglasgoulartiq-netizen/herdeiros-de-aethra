@@ -172,3 +172,84 @@
   .combatente .selos-linha { gap: 2px; margin: 1px 0 0; }
   .badge-escala, .badge-fase { font-size: 0.56em; padding: 0 5px; }
 }
+
+/* =========================================================================
+   A FASE DO CHEFE, VISTA EM VEZ DE LIDA
+   =========================================================================
+   A virada de fase já existia na regra (BossPhaseSystem) e já era anunciada
+   por um selo de texto ao lado do nome. Um selo conta o que aconteceu; ele
+   não faz a luta PARECER outra — o chefe seguia com a mesma cara do primeiro
+   turno enquanto batia 50% mais forte.
+
+   Aqui a fase muda o próprio combatente, e só com transform/filter/opacity,
+   que não provocam refluxo (mesma regra do resto do combate). A direção é a
+   do Cristal Arcano: prata e ciano no repouso, e a fase empurra para o
+   quente conforme a luta aperta — o calor é a informação.
+
+   Respeita prefers-reduced-motion: o CONTORNO permanece (é informação), o
+   pulso some (é ênfase). */
+
+/* FASE 2 — FÚRIA: o contorno esquenta e o corpo ganha um fio de luz. */
+/* A fileira de inimigos já tem um filtro de PROFUNDIDADE
+   (`brightness(.93) saturate(.95)` em batalha-layout.css) que vence este
+   arquivo por ordem de carregamento — medido: o brilho da fase nunca chegava
+   ao sprite. A correção não é `!important`: é qualificar pelo mesmo contexto
+   (ganha por especificidade) e REPETIR o filtro de profundidade dentro do
+   novo valor, senão a fase acenderia o chefe e apagaria a distância que a
+   cena inteira usa para separar quem está na frente de quem está atrás. */
+.bt-row-inimigos .combatente.chefe-fase-2 .sprite-wrap {
+  filter: brightness(0.97) saturate(1.05) drop-shadow(0 0 7px rgba(224, 162, 74, 0.6));
+}
+.combatente.chefe-fase-2::after {
+  content: ""; position: absolute; inset: -3px; pointer-events: none; z-index: 2;
+  border: 1px solid rgba(224, 162, 74, 0.5);
+  border-radius: 8px;
+}
+
+/* FASE 3 — DESESPERO: a aura respira. É a única coisa na tela que pulsa
+   sozinha, de propósito: significa "isto aqui vai acabar agora". */
+.bt-row-inimigos .combatente.chefe-fase-3 .sprite-wrap {
+  filter: brightness(1.04) saturate(1.18) contrast(1.06) drop-shadow(0 0 12px rgba(255, 107, 87, 0.78));
+  animation: chefe-respiro 1.5s ease-in-out infinite;
+}
+.combatente.chefe-fase-3::after {
+  content: ""; position: absolute; inset: -4px; pointer-events: none; z-index: 2;
+  border: 1px solid rgba(255, 107, 87, 0.62);
+  border-radius: 9px;
+  box-shadow: 0 0 14px rgba(255, 107, 87, 0.28), inset 0 0 10px rgba(255, 107, 87, 0.14);
+  animation: chefe-anel 1.5s ease-in-out infinite;
+}
+@keyframes chefe-respiro {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.022); }
+}
+@keyframes chefe-anel {
+  0%, 100% { opacity: 0.68; }
+  50% { opacity: 1; }
+}
+
+/* GOLPE CARREGADO — o aviso mais caro da tela.
+   Ciano frio contra o vermelho da fase 3: o jogador precisa distinguir
+   "ele está perigoso" de "ele vai bater AGORA". */
+.bt-row-inimigos .combatente.chefe-carregando .sprite-wrap {
+  filter: brightness(1.16) saturate(1.1) drop-shadow(0 0 14px rgba(127, 212, 255, 0.9));
+  animation: chefe-carga 0.62s ease-in-out infinite;
+}
+.combatente.chefe-carregando::before {
+  content: "⚠"; position: absolute; top: -6px; left: 50%;
+  transform: translateX(-50%); z-index: 6;
+  font-size: 0.9em; color: #cfe9ff;
+  text-shadow: 0 0 8px rgba(127, 212, 255, 0.9), 0 1px 2px #000;
+  animation: chefe-anel 0.62s ease-in-out infinite;
+}
+@keyframes chefe-carga {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bt-row-inimigos .combatente.chefe-fase-3 .sprite-wrap,
+  .combatente.chefe-fase-3::after,
+  .bt-row-inimigos .combatente.chefe-carregando .sprite-wrap,
+  .combatente.chefe-carregando::before { animation: none; }
+}

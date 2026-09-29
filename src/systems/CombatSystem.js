@@ -7,7 +7,7 @@ import { FLAGS } from "../data/featureFlags.js";
 import {
   ehChefe as ehChefeDeFase, garantirBase as garantirBaseDoChefe,
   checarViradaDeFase, podeUsarHabilidade, marcarHabilidadeUsada,
-  passarTurnoDoChefe, registrarQuebra, habilidadeDoChefe,
+  passarTurnoDoChefe, registrarQuebra, habilidadeDoChefe, habilidadeDisponivel,
 } from "./BossPhaseSystem.js";
 import {
   modificadoresDeAtaque, aoCausarDano as efeitosAoCausarDano,
@@ -218,6 +218,13 @@ export function criarCombatenteInimigo(monstroDef, idx, ngPlus = 0, modoHistoria
     quebras: 0,
     enfurecido: false,
     recargaHabilidade: 0,
+    recargasChefe: {},
+    // Repertório PRÓPRIO do chefe, quando monsters.json declara um. Sem
+    // declaração, BossPhaseSystem cai na assinatura do arquétipo — que agora
+    // existe para os doze arquétipos, então nenhum chefe fica sem cara.
+    habilidadesChefe: Array.isArray(monstroDef.habilidades) ? monstroDef.habilidades : null,
+    // Golpe anunciado em curso (ver "carregar" em usarHabilidadeDeChefe).
+    carregando: null,
     arquetipo: monstroDef.arquetipo || "aleatorio",
     // A escala aplicada logo acima vira um campo do combatente só para a
     // tela poder mostrá-la. O EscalaSystem sobe um monstro em até +75% de
@@ -1869,8 +1876,15 @@ export class Batalha {
     // HABILIDADE ASSINADA DE CHEFE. Vem ANTES da ação de arquétipo comum: a
     // partir da fase 2 é ela que dá cara à luta. Tem recarga própria, então
     // não vira o ataque padrão — o chefe alterna entre ela e o resto.
+    // GOLPE CARREGADO. Se o chefe anunciou um golpe no turno passado, este
+    // turno é o da execução — sem escolha, sem alvo novo. É o que faz o
+    // anúncio valer: o jogador teve um turno inteiro para se preparar, e o
+    // golpe cai de qualquer jeito.
+    if (inimigo.carregando) {
+      return { tipo: "habilidade_chefe", hab: inimigo.carregando.hab, alvo: inimigo.carregando.alvo, descarregar: true };
+    }
     if (podeUsarHabilidade(inimigo)) {
-      const hab = habilidadeDoChefe(inimigo);
+      const hab = habilidadeDisponivel(inimigo);
       const plano = this.planoDaHabilidadeDeChefe(inimigo, hab);
       if (plano) return plano;
     }
@@ -1958,7 +1972,7 @@ export class Batalha {
     const e = hab.efeito;
     if (e.tipo === "cura") return { tipo: "habilidade_chefe", hab, alvo: inimigo };
     if (e.tipo === "guarda") return { tipo: "habilidade_chefe", hab, alvo: inimigo };
-    if (e.tipo === "area") return { tipo: "habilidade_chefe", hab, alvo: null };
+    if (e.tipo === "area" || e.tipo === "maldicao") return { tipo: "habilidade_chefe", hab, alvo: null };
     if (e.alvo === "mais_ferido") {
       const alvo = vivosTime.slice().sort((a, b) => a.hp / a.hpMax - b.hp / b.hpMax)[0];
       return alvo ? { tipo: "habilidade_chefe", hab, alvo } : null;
@@ -1973,8 +1987,58 @@ export class Batalha {
   usarHabilidadeDeChefe(inimigo, plano) {
     const hab = plano.hab;
     const e = hab.efeito;
+
+    // ---- GOLPE CARREGADO, primeira metade: o ANÚNCIO ----------------------
+    // O chefe gasta este turno avisando. Não causa dano nenhum agora — o
+    // valor está justamente aí: o jogador ganha um turno para decidir se
+    // defende, cura, troca de linha ou aposta em matar antes. Sem o aviso,
+    // um golpe de 2,1× é só um número ruim; com ele, é uma decisão.
+    if (e.tipo === "carregar" && !plano.descarregar) {
+      marcarHabilidadeUsada(inimigo, hab);
+      inimigo.carregando = { hab, alvo: e.fixarAlvo ? plano.alvo : null };
+      // O telegrafo da interface lê `intencao`, o mesmo campo que anuncia
+      // qualquer plano inimigo — não inventamos um caminho paralelo.
+      inimigo.intencao = {
+        tipo: "carregar", nome: hab.nome, icone: hab.icone,
+        texto: `${hab.icone} ${inimigo.nome} ${e.aviso || "concentra força"} — ${hab.nome} vem no próximo turno!`,
+        alvo: e.fixarAlvo ? plano.alvo : null,
+      };
+      this.registrar(`${hab.icone} ${inimigo.nome} ${e.aviso || "concentra força"}…`);
+      this.registrar(`   ⚠️ ${hab.nome} cai no próximo turno${plano.alvo && e.fixarAlvo ? ` — o alvo é ${plano.alvo.nome}` : ""}.`);
+      return;
+    }
+    // ---- GOLPE CARREGADO, segunda metade: a EXECUÇÃO ---------------------
+    if (plano.descarregar) {
+      inimigo.carregando = null;
+      inimigo.intencao = null;
+      const alvo = plano.alvo && plano.alvo.vivo ? plano.alvo : this.escolherAlvoIA(inimigo) || this.timeVivo()[0];
+      if (!alvo) return;
+      this.registrar(`${hab.icone} ${inimigo.nome} desfecha ${hab.nome}!`);
+      const r = this.rolarAtaque(inimigo, alvo);
+      if (!r.acertou) { this.registrar(`   ${alvo.nome} desviou a tempo!`); return; }
+      const dano = Math.max(1, Math.round(r.dano * (e.mult || 1.8)));
+      this.aplicarDano(alvo, dano);
+      this.registrar(`   ${alvo.nome} sofre ${dano} de dano.`);
+      return;
+    }
+
     this.registrar(`${hab.icone} ${inimigo.nome} usa ${hab.nome}!`);
-    marcarHabilidadeUsada(inimigo);
+    marcarHabilidadeUsada(inimigo, hab);
+
+    // ---- MALDIÇÃO: um estado ruim no time inteiro ------------------------
+    // Usa o MESMO framework de status do resto do jogo (statusEffects com
+    // tipo/valor/duracao), então a barra de status, o tick e a limpeza já
+    // funcionam sem nada novo.
+    if (e.tipo === "maldicao") {
+      for (const alvo of this.timeVivo()) {
+        alvo.statusEffects.push({
+          tipo: e.estado, valor: e.valor, duracao: (e.duracao || 3) + 1,
+          nome: hab.nome, icone: hab.icone,
+        });
+      }
+      this.registrar(`   O time inteiro sente o efeito de ${hab.nome}.`);
+      return;
+    }
 
     if (e.tipo === "cura") {
       const cura = Math.max(1, Math.round(inimigo.hpMax * e.mult));
@@ -1991,8 +2055,40 @@ export class Batalha {
       // no mesmo turno em que o efeito entra, igual a todos os outros.
       inimigo.statusEffects.push({ tipo: "buff_defesa", valor: e.reducao, duracao: 3, nome: hab.nome, icone: hab.icone });
       this.registrar(`   ${inimigo.nome} ergue a guarda.`);
+      // O covarde some na névoa: guarda E um gole de vida, na mesma ação.
+      if (e.curaJunto) {
+        const cura = Math.max(1, Math.round(inimigo.hpMax * e.curaJunto));
+        inimigo.hp = Math.min(inimigo.hpMax, inimigo.hp + cura);
+        this.registrar(`   ${inimigo.nome} recupera ${cura} de vida na sombra.`);
+      }
       return;
     }
+
+    // ---- SACRIFÍCIO: o fanático paga com o próprio sangue -----------------
+    // Custa HP ao chefe ANTES do golpe. É uma troca honesta e legível: ele
+    // fica mais perto da morte para doer mais, e o jogador vê a barra dele
+    // cair sozinha.
+    if (e.tipo === "sacrificio") {
+      const custo = Math.max(1, Math.round(inimigo.hpMax * (e.custoHp || 0.08)));
+      inimigo.hp = Math.max(1, inimigo.hp - custo);
+      this.registrar(`   ${inimigo.nome} rasga o próprio flanco (−${custo} HP) para golpear.`);
+    }
+
+    // ---- DUPLO: dois golpes, alvos escolhidos um a um ---------------------
+    if (e.tipo === "duplo") {
+      const vezes = e.vezes || 2;
+      for (let i = 0; i < vezes; i++) {
+        const alvo = this.escolherAlvoIA(inimigo) || this.timeVivo()[0];
+        if (!alvo) break;
+        const r = this.rolarAtaque(inimigo, alvo);
+        if (!r.acertou) { this.registrar(`   ${i + 1}º golpe errou ${alvo.nome}.`); continue; }
+        const dano = Math.max(1, Math.round(r.dano * (e.mult || 1)));
+        this.aplicarDano(alvo, dano);
+        this.registrar(`   ${i + 1}º golpe: ${alvo.nome} sofre ${dano} de dano.`);
+      }
+      return;
+    }
+
     const alvos = e.tipo === "area" ? this.timeVivo() : [plano.alvo].filter(Boolean);
     for (const alvo of alvos) {
       const r = this.rolarAtaque(inimigo, alvo);
@@ -2004,6 +2100,14 @@ export class Batalha {
       dano = Math.max(1, dano);
       this.aplicarDano(alvo, dano);
       this.registrar(`   ${alvo.nome} sofre ${dano} de dano.`);
+      // ---- DRENAR: parte do dano vira vida do chefe ----------------------
+      // O suporte inimigo não cura de graça: ele precisa ACERTAR para se
+      // curar, então continua valendo a pena atordoá-lo ou matá-lo primeiro.
+      if (e.roubo) {
+        const roubado = Math.max(1, Math.round(dano * e.roubo));
+        inimigo.hp = Math.min(inimigo.hpMax, inimigo.hp + roubado);
+        this.registrar(`   ${inimigo.nome} drena ${roubado} de vida.`);
+      }
     }
   }
 

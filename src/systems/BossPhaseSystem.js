@@ -56,8 +56,22 @@ export const QUEBRAS_PARA_ENFURECER = 2;
 // A habilidade assinada de cada arquétipo. Só entra a partir da fase 2, e
 // tem recarga própria — não é para virar o ataque padrão.
 //
+// COBERTURA. A primeira versão desta tabela tinha cinco arquétipos: bruto,
+// atirador, ladrao, invocador e defensor. Os chefes do jogo usam DOZE
+// (comandante, defensor, conjurador, controlador, fanatico, agressor,
+// atirador, invocador, ladrao, suporte, cacador, covarde), e "bruto" não é
+// um deles. Contado: 32 dos 49 chefes — 65%, incluindo o Dragão Jovem —
+// caíam no genérico "Fúria Cega". Dois terços do bestiário de chefe
+// dividiam o mesmo golpe.
+//
+// Agora os doze estão cobertos, cada um com uma assinatura que diz o que
+// aquele arquétipo É: o comandante convoca, o conjurador amaldiçoa, o
+// covarde se esconde. `aleatorio` continua existindo como rede, mas deixou
+// de ser o caminho da maioria.
+//
 // `efeito` é lido pelo CombatSystem; aqui é só a declaração.
 export const HABILIDADE_DE_CHEFE = {
+  // --- os cinco originais, preservados ---
   bruto: {
     nome: "Investida Devastadora", icone: "💢",
     descricao: "Um golpe pesado que ignora metade da defesa.",
@@ -83,6 +97,51 @@ export const HABILIDADE_DE_CHEFE = {
     descricao: "Ergue a guarda e reduz o dano recebido no próximo turno.",
     efeito: { tipo: "guarda", reducao: 0.5 }, recarga: 4,
   },
+
+  // --- os oito que faltavam ---
+  comandante: {
+    nome: "Ordem de Ataque", icone: "📯",
+    descricao: "Prepara um golpe anunciado que cai no turno seguinte.",
+    // Carregar é o efeito que mais gera DECISÃO: o jogador vê o golpe vindo
+    // e tem um turno para se proteger, curar ou tentar matar antes.
+    efeito: { tipo: "carregar", mult: 2.1, aviso: "ergue a lâmina e chama a formação" }, recarga: 4,
+  },
+  conjurador: {
+    nome: "Maldição Arcana", icone: "🔮",
+    descricao: "Enfraquece a defesa de todo o time por alguns turnos.",
+    efeito: { tipo: "maldicao", estado: "furia_debuff", valor: 0.25, duracao: 3 }, recarga: 4,
+  },
+  controlador: {
+    nome: "Correntes de Lodo", icone: "🕸️",
+    descricao: "Retarda o time inteiro.",
+    efeito: { tipo: "maldicao", estado: "debuff_velocidade", valor: 0.3, duracao: 3 }, recarga: 4,
+  },
+  fanatico: {
+    nome: "Oferenda de Sangue", icone: "🩸",
+    descricao: "Fere o próprio corpo para desferir um golpe muito mais forte.",
+    efeito: { tipo: "sacrificio", mult: 2.2, custoHp: 0.08 }, recarga: 4,
+  },
+  agressor: {
+    nome: "Golpe Duplo", icone: "⚔️",
+    descricao: "Dois ataques seguidos, em alvos possivelmente diferentes.",
+    efeito: { tipo: "duplo", mult: 0.85, vezes: 2 }, recarga: 3,
+  },
+  suporte: {
+    nome: "Elo Vital", icone: "💚",
+    descricao: "Drena vida de um herói para si.",
+    efeito: { tipo: "drenar", mult: 1.1, roubo: 0.6 }, recarga: 3,
+  },
+  cacador: {
+    nome: "Marca do Caçador", icone: "🎯",
+    descricao: "Marca uma presa: o próximo golpe nela é muito mais forte.",
+    efeito: { tipo: "carregar", mult: 1.9, aviso: "escolhe uma presa e a encara", fixarAlvo: true }, recarga: 4,
+  },
+  covarde: {
+    nome: "Recuo Traiçoeiro", icone: "🌫️",
+    descricao: "Some na névoa: ergue a guarda e recupera um pouco de vida.",
+    efeito: { tipo: "guarda", reducao: 0.45, curaJunto: 0.06 }, recarga: 4,
+  },
+
   aleatorio: {
     nome: "Fúria Cega", icone: "💥",
     descricao: "Um ataque mais forte, sem mirar.",
@@ -160,25 +219,87 @@ export function checarViradaDeFase(c) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// REPERTÓRIO DO CHEFE
+//
+// Um chefe pode declarar as PRÓPRIAS habilidades em monsters.json, no campo
+// `habilidades`. É o que separa o Dragão Jovem do Tirano do Charco: sem isso,
+// os dois são "um comandante" e lutam igual.
+//
+// Cada habilidade declarada aceita:
+//   id         obrigatório — a chave da recarga própria
+//   fase       a partir de que fase ela entra (padrão 2)
+//   recarga    turnos de espera DELE depois de usar (padrão 3)
+//   efeito     o que ela faz (ver usarHabilidadeDeChefe no CombatSystem)
+//
+// Sem `habilidades` declaradas, o chefe usa a assinatura do arquétipo — que
+// agora existe para os doze arquétipos do jogo. Ou seja: todo chefe tem cara,
+// e quem quiser dar uma cara ainda mais própria escreve no dado.
+// ---------------------------------------------------------------------------
+
+// Fase mínima padrão: a assinatura entra quando a luta já virou uma vez.
+export const FASE_PADRAO_DA_HABILIDADE = 2;
+
+function comId(hab, idPadrao) {
+  if (!hab) return null;
+  return hab.id ? hab : { ...hab, id: idPadrao };
+}
+
+// Todo o repertório do chefe, em ordem de declaração.
+export function habilidadesDoChefe(c) {
+  if (!ehChefe(c)) return [];
+  const declaradas = Array.isArray(c.habilidadesChefe) ? c.habilidadesChefe.filter(Boolean) : [];
+  if (declaradas.length) return declaradas.map((h, i) => comId(h, `decl_${i}`));
+  const doArquetipo = HABILIDADE_DE_CHEFE[c.arquetipo] || HABILIDADE_DE_CHEFE.aleatorio;
+  return [comId(doArquetipo, c.arquetipo || "aleatorio")];
+}
+
+// A assinatura — a que representa o chefe na interface (telegrafo, revelações,
+// ficha do bestiário). É a primeira do repertório, então um chefe sem
+// declaração devolve exatamente o que devolvia antes desta mudança.
 export function habilidadeDoChefe(c) {
-  if (!ehChefe(c)) return null;
-  return HABILIDADE_DE_CHEFE[c.arquetipo] || HABILIDADE_DE_CHEFE.aleatorio;
+  return habilidadesDoChefe(c)[0] || null;
 }
 
-// O chefe pode usar a assinatura neste turno?
-export function podeUsarHabilidade(c) {
-  if (!ehChefe(c) || !c.vivo || c.atordoado) return false;
+function recargaDe(c, hab) {
+  if (!c.recargasChefe) c.recargasChefe = {};
+  return c.recargasChefe[hab.id] || 0;
+}
+
+// A habilidade que o chefe usaria AGORA, ou null. Entre as prontas, escolhe a
+// de recarga mais longa: a mais rara é a mais especial, e é ela que o jogador
+// deve ver quando as duas estão disponíveis no mesmo turno.
+export function habilidadeDisponivel(c) {
+  if (!ehChefe(c) || !c.vivo || c.atordoado) return null;
   garantirBase(c);
-  return c.faseAtual >= 2 && (c.recargaHabilidade || 0) <= 0 && !!habilidadeDoChefe(c);
+  const prontas = habilidadesDoChefe(c).filter((h) => {
+    const faseMin = h.fase ?? FASE_PADRAO_DA_HABILIDADE;
+    return c.faseAtual >= faseMin && recargaDe(c, h) <= 0;
+  });
+  if (!prontas.length) return null;
+  return prontas.slice().sort((a, b) => (b.recarga || 3) - (a.recarga || 3))[0];
 }
 
-export function marcarHabilidadeUsada(c) {
-  const hab = habilidadeDoChefe(c);
-  c.recargaHabilidade = hab ? hab.recarga : 3;
+export function podeUsarHabilidade(c) {
+  return !!habilidadeDisponivel(c);
+}
+
+export function marcarHabilidadeUsada(c, hab) {
+  const usada = hab || habilidadeDoChefe(c);
+  if (!usada) return;
+  if (!c.recargasChefe) c.recargasChefe = {};
+  c.recargasChefe[usada.id] = usada.recarga || 3;
+  // Espelho do campo antigo: a interface e os testes anteriores liam
+  // `recargaHabilidade`, e continuam lendo um número coerente.
+  c.recargaHabilidade = c.recargasChefe[usada.id];
 }
 
 export function passarTurnoDoChefe(c) {
   if (!ehChefe(c)) return;
+  if (!c.recargasChefe) c.recargasChefe = {};
+  for (const k of Object.keys(c.recargasChefe)) {
+    if (c.recargasChefe[k] > 0) c.recargasChefe[k] -= 1;
+  }
   if (c.recargaHabilidade > 0) c.recargaHabilidade -= 1;
 }
 

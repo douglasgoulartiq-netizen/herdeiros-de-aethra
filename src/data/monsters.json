@@ -536,7 +536,35 @@
     "ouroMax": 190,
     "chefe": true,
     "elemento": "fogo",
-    "arquetipo": "comandante"
+    "arquetipo": "comandante",
+    "habilidades": [
+      {
+        "id": "chamado_das_cinzas",
+        "nome": "Chamado das Cinzas",
+        "icone": "📯",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Dois golpes seguidos, um por cinza que ainda queima.",
+        "efeito": {
+          "tipo": "duplo",
+          "mult": 0.9,
+          "vezes": 2
+        }
+      },
+      {
+        "id": "pira_final",
+        "nome": "Pira Final",
+        "icone": "🩸",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Queima a própria carne para golpear com tudo.",
+        "efeito": {
+          "tipo": "sacrificio",
+          "mult": 2.3,
+          "custoHp": 0.1
+        }
+      }
+    ]
   },
   {
     "id": "rato_gigante",
@@ -1149,7 +1177,34 @@
     "chefe": true,
     "elemento": "terra",
     "arquetipo": "defensor",
-    "fala": "\"Fui rei de carne. Agora sou rei de pedra. Nenhuma lâmina muda isso.\""
+    "fala": "\"Fui rei de carne. Agora sou rei de pedra. Nenhuma lâmina muda isso.\"",
+    "habilidades": [
+      {
+        "id": "coroa_de_granito",
+        "nome": "Coroa de Granito",
+        "icone": "👑",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "A pedra fecha em volta do rei.",
+        "efeito": {
+          "tipo": "guarda",
+          "reducao": 0.55
+        }
+      },
+      {
+        "id": "julgamento_de_pedra",
+        "nome": "Julgamento de Pedra",
+        "icone": "🗿",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Ergue o martelo de pedra. O julgamento vem depois.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.1,
+          "aviso": "ergue o martelo de pedra"
+        }
+      }
+    ]
   },
   {
     "id": "senhor_das_chamas_errantes",
@@ -1169,7 +1224,35 @@
     "chefe": true,
     "elemento": "fogo",
     "arquetipo": "agressor",
-    "fala": "\"Fui general. Agora sou incêndio. Corre a mesma diferença.\""
+    "fala": "\"Fui general. Agora sou incêndio. Corre a mesma diferença.\"",
+    "habilidades": [
+      {
+        "id": "danca_das_chamas",
+        "nome": "Dança das Chamas",
+        "icone": "⚔️",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Dois golpes, cada um onde a chama quiser.",
+        "efeito": {
+          "tipo": "duplo",
+          "mult": 0.9,
+          "vezes": 2
+        }
+      },
+      {
+        "id": "erupcao_errante",
+        "nome": "Erupção Errante",
+        "icone": "🔥",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "O chão aquece. No turno seguinte, abre.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.3,
+          "aviso": "o chão sob os pés começa a aquecer"
+        }
+      }
+    ]
   },
   {
     "id": "matriarca_wyvern_das_falesias",
@@ -1189,7 +1272,35 @@
     "chefe": true,
     "elemento": "vento",
     "arquetipo": "atirador",
-    "fala": "\"Cada ninho aqui é meu. Cada penhasco é meu. Você é só de passagem.\""
+    "fala": "\"Cada ninho aqui é meu. Cada penhasco é meu. Você é só de passagem.\"",
+    "habilidades": [
+      {
+        "id": "rajada_descendente",
+        "nome": "Rajada Descendente",
+        "icone": "🌪️",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Bate as asas e joga o time contra a rocha.",
+        "efeito": {
+          "tipo": "area",
+          "mult": 0.8
+        }
+      },
+      {
+        "id": "mergulho_da_matriarca",
+        "nome": "Mergulho da Matriarca",
+        "icone": "🦅",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Sobe, escolhe a presa e mergulha no turno seguinte.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.2,
+          "aviso": "sobe alto e escolhe a presa",
+          "fixarAlvo": true
+        }
+      }
+    ]
   },
   {
     "id": "matriarca_da_bruma_eterna",
@@ -1229,7 +1340,37 @@
     "chefe": true,
     "elemento": "sombrio",
     "arquetipo": "comandante",
-    "fala": "\"Todo golem e troll aqui responde a mim. Em breve, você também vai entender por quê.\""
+    "fala": "\"Todo golem e troll aqui responde a mim. Em breve, você também vai entender por quê.\"",
+    "habilidades": [
+      {
+        "id": "manto_de_pavor",
+        "nome": "Manto de Pavor",
+        "icone": "🌑",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "O medo pesa nas pernas do time inteiro.",
+        "efeito": {
+          "tipo": "maldicao",
+          "estado": "debuff_velocidade",
+          "valor": 0.35,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "sentenca",
+        "nome": "Sentença",
+        "icone": "🗡️",
+        "fase": 3,
+        "recarga": 5,
+        "descricao": "Escolhe um herói e o condena. O golpe cai no turno seguinte.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.5,
+          "aviso": "aponta para um dos heróis",
+          "fixarAlvo": true
+        }
+      }
+    ]
   },
   {
     "id": "dragao_anciao_das_cinzas",
@@ -1249,7 +1390,34 @@
     "chefe": true,
     "elemento": "fogo",
     "arquetipo": "comandante",
-    "fala": "\"O jovem que vive na masmorra abaixo é meu filhote. Você já devia estar com medo do suficiente.\""
+    "fala": "\"O jovem que vive na masmorra abaixo é meu filhote. Você já devia estar com medo do suficiente.\"",
+    "habilidades": [
+      {
+        "id": "sopro_incandescente",
+        "nome": "Sopro Incandescente",
+        "icone": "🔥",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "Enche o peito de brasa. O sopro vem no turno seguinte.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.4,
+          "aviso": "enche o peito de brasa"
+        }
+      },
+      {
+        "id": "tempestade_de_brasas",
+        "nome": "Tempestade de Brasas",
+        "icone": "🌋",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Cobre o campo de cinza ardente.",
+        "efeito": {
+          "tipo": "area",
+          "mult": 0.85
+        }
+      }
+    ]
   },
   {
     "id": "imperador_arcano_dos_confins",
@@ -1269,7 +1437,36 @@
     "chefe": true,
     "elemento": "arcano",
     "arquetipo": "comandante",
-    "fala": "\"Aethra caiu, se ergueu e caiu de novo, e eu vi tudo do meu trono de cinzas. Você é só mais um capítulo curto.\""
+    "fala": "\"Aethra caiu, se ergueu e caiu de novo, e eu vi tudo do meu trono de cinzas. Você é só mais um capítulo curto.\"",
+    "habilidades": [
+      {
+        "id": "decreto_silencio",
+        "nome": "Decreto de Silêncio",
+        "icone": "📜",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "A ordem do Imperador enfraquece a guarda de todo o time.",
+        "efeito": {
+          "tipo": "maldicao",
+          "estado": "furia_debuff",
+          "valor": 0.3,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "juizo_dos_confins",
+        "nome": "Juízo dos Confins",
+        "icone": "⚖️",
+        "fase": 3,
+        "recarga": 5,
+        "descricao": "Ergue o cetro. No turno seguinte, a sentença cai.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.6,
+          "aviso": "ergue o cetro e o ar para de se mover"
+        }
+      }
+    ]
   },
   {
     "id": "primeira_voz",
@@ -1354,7 +1551,35 @@
     "elemento": "fogo",
     "arquetipo": "conjurador",
     "fala": "\"Eu ardo desde antes de existir lenha. Você é só combustível novo.\"",
-    "promoveDe": "senhor_da_cinza"
+    "promoveDe": "senhor_da_cinza",
+    "habilidades": [
+      {
+        "id": "fogo_que_lembra",
+        "nome": "Fogo Que Lembra",
+        "icone": "🕯️",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "Uma chama antiga que corrói a guarda de quem a vê.",
+        "efeito": {
+          "tipo": "maldicao",
+          "estado": "furia_debuff",
+          "valor": 0.28,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "reacender",
+        "nome": "Reacender",
+        "icone": "✨",
+        "fase": 3,
+        "recarga": 5,
+        "descricao": "A primeira brasa nunca apaga de vez.",
+        "efeito": {
+          "tipo": "cura",
+          "mult": 0.15
+        }
+      }
+    ]
   },
   {
     "id": "capataz_de_pedra",
@@ -1376,7 +1601,36 @@
     "elemento": "terra",
     "arquetipo": "controlador",
     "fala": "\"O turno não acabou. O turno nunca acaba.\"",
-    "promoveDe": "golem_de_pedra"
+    "promoveDe": "golem_de_pedra",
+    "habilidades": [
+      {
+        "id": "correntes_de_granito",
+        "nome": "Correntes de Granito",
+        "icone": "⛓️",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "Prende os pés do time no chão.",
+        "efeito": {
+          "tipo": "maldicao",
+          "estado": "debuff_velocidade",
+          "valor": 0.35,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "desabamento",
+        "nome": "Desabamento",
+        "icone": "🪨",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Sustenta o teto com as mãos. Quando soltar, cai tudo.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.2,
+          "aviso": "segura o teto da galeria com as duas mãos"
+        }
+      }
+    ]
   },
   {
     "id": "reflexo_afogado",
@@ -1736,7 +1990,34 @@
     "elemento": "terra",
     "arquetipo": "defensor",
     "fala": "\"Ainda bato. Devagar, mas bato. Conte as batidas que você tem.\"",
-    "promoveDe": "golem_de_pedra"
+    "promoveDe": "golem_de_pedra",
+    "habilidades": [
+      {
+        "id": "casca_viva",
+        "nome": "Casca Viva",
+        "icone": "🛡️",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "Fecha a casca e se remenda por dentro.",
+        "efeito": {
+          "tipo": "guarda",
+          "reducao": 0.55,
+          "curaJunto": 0.05
+        }
+      },
+      {
+        "id": "pulso_de_pedra",
+        "nome": "Pulso de Pedra",
+        "icone": "💓",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Uma batida que sacode o chão inteiro.",
+        "efeito": {
+          "tipo": "area",
+          "mult": 0.9
+        }
+      }
+    ]
   },
   {
     "id": "coro_dos_lamentos",
@@ -1757,7 +2038,35 @@
     "elemento": "sombrio",
     "arquetipo": "invocador",
     "fala": "\"Somos muitos. Sempre fomos. Você é que veio sozinho.\"",
-    "promoveDe": "espectro_arcano"
+    "promoveDe": "espectro_arcano",
+    "habilidades": [
+      {
+        "id": "coro_crescente",
+        "nome": "Coro Crescente",
+        "icone": "🎼",
+        "fase": 2,
+        "recarga": 4,
+        "descricao": "Cada voz que se junta devolve vida ao coro.",
+        "efeito": {
+          "tipo": "cura",
+          "mult": 0.14
+        }
+      },
+      {
+        "id": "lamento_unissono",
+        "nome": "Lamento Uníssono",
+        "icone": "😱",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Todas as vozes de uma vez. A guarda do time cede.",
+        "efeito": {
+          "tipo": "maldicao",
+          "estado": "furia_debuff",
+          "valor": 0.3,
+          "duracao": 3
+        }
+      }
+    ]
   },
   {
     "id": "wyvern_de_obsidiana",
@@ -1779,7 +2088,35 @@
     "elemento": "sombrio",
     "arquetipo": "atirador",
     "fala": "\"Do alto desta montanha eu vejo tudo que é meu. Você está em cima.\"",
-    "promoveDe": "wyvern"
+    "promoveDe": "wyvern",
+    "habilidades": [
+      {
+        "id": "estilhacos_de_obsidiana",
+        "nome": "Estilhaços de Obsidiana",
+        "icone": "🖤",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Sacode as asas e chove vidro negro.",
+        "efeito": {
+          "tipo": "area",
+          "mult": 0.85
+        }
+      },
+      {
+        "id": "mergulho_negro",
+        "nome": "Mergulho Negro",
+        "icone": "🌑",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Some na escuridão e escolhe por onde voltar.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.2,
+          "aviso": "some na escuridão acima",
+          "fixarAlvo": true
+        }
+      }
+    ]
   },
   {
     "id": "guardia_das_ilhas",
@@ -1800,7 +2137,35 @@
     "elemento": "vento",
     "arquetipo": "comandante",
     "fala": "\"Cada ilha destas tem um ninho. Adivinhe de quem.\"",
-    "promoveDe": "grifo_jovem"
+    "promoveDe": "grifo_jovem",
+    "habilidades": [
+      {
+        "id": "ordem_dos_ventos",
+        "nome": "Ordem dos Ventos",
+        "icone": "🌬️",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Dois cortes de vento, em quem estiver mais exposto.",
+        "efeito": {
+          "tipo": "duplo",
+          "mult": 0.85,
+          "vezes": 2
+        }
+      },
+      {
+        "id": "tempestade_convocada",
+        "nome": "Tempestade Convocada",
+        "icone": "⛈️",
+        "fase": 3,
+        "recarga": 5,
+        "descricao": "Chama a tempestade. Ela chega no turno seguinte.",
+        "efeito": {
+          "tipo": "carregar",
+          "mult": 2.2,
+          "aviso": "ergue os braços e o céu escurece"
+        }
+      }
+    ]
   },
   {
     "id": "o_que_olha_de_volta",
@@ -1821,6 +2186,33 @@
     "elemento": "arcano",
     "arquetipo": "conjurador",
     "fala": "\"Você veio ver o Olho. O Olho também tem curiosidade.\"",
-    "promoveDe": "espectro_arcano"
+    "promoveDe": "espectro_arcano",
+    "habilidades": [
+      {
+        "id": "olhar_que_devolve",
+        "nome": "Olhar Que Devolve",
+        "icone": "👁️",
+        "fase": 2,
+        "recarga": 3,
+        "descricao": "Drena a vida de quem o encara.",
+        "efeito": {
+          "tipo": "drenar",
+          "mult": 1.2,
+          "roubo": 0.7
+        }
+      },
+      {
+        "id": "reflexo_despedacado",
+        "nome": "Reflexo Despedaçado",
+        "icone": "🪞",
+        "fase": 3,
+        "recarga": 4,
+        "descricao": "Quebra a própria imagem em cima do time inteiro.",
+        "efeito": {
+          "tipo": "area",
+          "mult": 0.95
+        }
+      }
+    ]
   }
 ]

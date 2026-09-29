@@ -63,6 +63,17 @@ export function perfilVisual(acao = {}, ator = {}) {
 export function avisoDePlano(plano, combatente) {
   if (!plano || !combatente?.vivo) return '';
   const tipo = plano.hab?.efeito?.tipo || plano.tipo;
+  // GOLPE ANUNCIADO. É o aviso mais importante da tela: o chefe gastou o
+  // turno dele avisando, e este texto é o que transforma isso em decisão.
+  // Vem antes de tudo, inclusive de "área", porque um carregado em área é
+  // antes de mais nada um carregado.
+  if (tipo === 'carregar') {
+    if (plano.descarregar) return '';
+    return plano.alvo && plano.alvo === combatente
+      ? `⚠️ ALVO MARCADO · ${plano.hab?.nome || 'golpe'} no próximo turno`
+      : `⚠️ CARREGANDO · ${plano.hab?.nome || 'golpe'} no próximo turno`;
+  }
+  if (tipo === 'maldicao' && combatente.isPlayer) return 'MALDIÇÃO · O time inteiro';
   if (tipo === 'area' && combatente.isPlayer) return 'ÁREA · Ataque iminente';
   if (plano.alvo !== combatente) return '';
   if (/cura/.test(tipo)) return 'CURA · Alvo aliado';

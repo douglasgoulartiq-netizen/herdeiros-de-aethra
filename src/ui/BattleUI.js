@@ -247,6 +247,24 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // antes de agir de fato — ver iniciarTelegrafo()/avancarFila() abaixo.
   let filaInimigos = [];
   let telegrafo = null; // { inimigo, plano } sendo exibido no momento, ou null
+
+  // A FASE DO CHEFE PRECISA SER VISTA, NÃO LIDA.
+  //
+  // A virada de fase já existia e já era anunciada — por um selo de texto
+  // ("Fase 2 · Fúria") ao lado do nome. Um selo diz o que aconteceu; ele não
+  // FAZ a luta parecer outra. O chefe continuava exatamente com a mesma cara
+  // do primeiro turno enquanto batia 50% mais forte.
+  //
+  // Estas classes deixam o próprio combatente mudar: a fase 2 esquenta o
+  // contorno, a fase 3 acende uma aura que respira. Quem olha para o campo
+  // sabe em que pé está a luta sem ler nada. Também marcam o chefe que está
+  // com um golpe carregado, que é a informação mais cara da tela.
+  const classeDeFaseDoChefe = (c) => {
+    if (!c || !c.chefe || !c.vivo) return "";
+    const fase = c.faseAtual || 1;
+    return (fase > 1 ? ` chefe-fase-${Math.min(3, fase)}` : "") + (c.carregando ? " chefe-carregando" : "");
+  };
+
   let atacanteAtivo = null;
   let ultimoAutoAgendado = null;
 
@@ -907,7 +925,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // 1,55: o "FASE 1 · DOMÍNIO" ficava atrás do bicho. Nesse caso os selos
     // mudam de lado, para baixo do sprite. Ver batalha-layout.css.
     const porteGrande = porte >= 1.25;
-    div.className = "combatente" + (porteGrande ? " porte-grande" : "") + auraDoCard(c) + (c.defendendo ? " em-guarda" : "") + (!c.vivo ? " morto" : "") + (c.atb >= c.atbMax && c.vivo ? " pronto" : "") + (ehAtivo ? " ativo" : "") + (ehTelegrafado ? " telegrafando" + (telegrafo.inimigo.chefe ? " telegrafo-chefe" : "") : "") + (deltaHp < 0 && !flashDesligado ? " hit-flash" : "") + (deltaHp < 0 && critico && !flashDesligado ? " hit-flash-critico" : "") + (c.atordoado ? " atordoado" : "") + entrando;
+    div.className = "combatente" + (porteGrande ? " porte-grande" : "") + auraDoCard(c) + (c.defendendo ? " em-guarda" : "") + (!c.vivo ? " morto" : "") + (c.atb >= c.atbMax && c.vivo ? " pronto" : "") + (ehAtivo ? " ativo" : "") + (ehTelegrafado ? " telegrafando" + (telegrafo.inimigo.chefe ? " telegrafo-chefe" : "") : "") + (deltaHp < 0 && !flashDesligado ? " hit-flash" : "") + (deltaHp < 0 && critico && !flashDesligado ? " hit-flash-critico" : "") + (c.atordoado ? " atordoado" : "") + classeDeFaseDoChefe(c) + entrando;
     div.dataset.cid = c.id;
     div.classList.toggle('chefe-imponente', !!c.chefe);
     div.dataset.porteChefe = monstroHumanoide(c) ? 'humanoide' : 'colossal';
