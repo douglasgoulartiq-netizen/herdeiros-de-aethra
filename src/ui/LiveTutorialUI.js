@@ -68,8 +68,8 @@ export function abrirTutorialInicial(personagem, dados = {}, { oferecer = false,
       const beginner = select('#gacha-tab-iniciante');
       target = beginner && beginner.getAttribute('aria-selected') !== 'true' ? beginner : select('.btn-puxar') || button(/^Invocar heróis/) || select('#hud-hub-invocar') || button(/^Invocar$/i) || close();
     } else if (s.etapa === 'formar') {
-      text = `Escolha Companhia → Formação e companheiros. Coloque três aliados no time (${g?.timeAtivo?.length || 0}/3). O poder mostrado é o do seu grupo real; elementos e funções também importam.`;
-      target = button(/^Colocar no time$/) || button(/Formação e companheiros/) || button(/^🛡️ Formação$/) || close() || button(/^Heróis/) || select('#hud-hub-personagem') || button(/^Companhia$/i);
+      text = `Escolha Companhia → Time. Coloque três aliados no time (${g?.timeAtivo?.length || 0}/3). O poder mostrado é o do seu grupo real; elementos e funções também importam.`;
+      target = button(/^Colocar no time$/) || button(/^(?:🛡️\s*)?Time$/) || button(/Formação e companheiros/) || close() || button(/^Heróis/) || select('#hud-hub-personagem') || button(/^Companhia$/i);
     } else if (s.etapa === 'batalhas') {
       text = battleActive
         ? 'Batalha real: leia a intenção do inimigo, escolha um card e confirme o alvo. Habilidades gastam Éter; defender ajuda a sobreviver. O d20 define erro, acerto ou crítico; equipamento e atributos influenciam o dano.'

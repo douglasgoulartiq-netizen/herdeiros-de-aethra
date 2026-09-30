@@ -232,6 +232,14 @@ export function ligarTooltips(raiz, catalogo = {}) {
   // Rolar, clicar ou sair da janela some com a ficha: uma caixa flutuante
   // esquecida por cima da tela é pior que não ter tooltip nenhuma.
   raiz.addEventListener("scroll", esconder, true);
+  raiz.addEventListener("focusin", (ev) => {
+    const el = ev.target.closest('[data-tip-texto],[data-tip-item],[data-tip-hab],[data-tip-passiva]');
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    mostrarTooltip(resolver(el), { clientX: rect.right, clientY: rect.top });
+  });
+  raiz.addEventListener("focusout", esconder);
+  raiz.addEventListener("keydown", (ev) => { if (ev.key === 'Escape') esconder(); });
   raiz.addEventListener("click", esconder);
   window.addEventListener("blur", esconder);
 }

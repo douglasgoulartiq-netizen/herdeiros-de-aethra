@@ -131,7 +131,10 @@ import { membrosDoTime } from "../systems/GachaSystem.js";
 
 export function montarParty(personagem, time, dados, onMudar, estadoAnterior = null) {
   if (personagem.gacha) time = membrosDoTime(personagem);
-  const membros = [personagem, ...(time || []), ...(estadoAnterior?.aba === "ficha" ? personagem.gacha?.personagensObtidos || [] : [])]
+  // A ficha lista a coleção; ao equipar, conserva também o reserva selecionado.
+  const reservas = (personagem.gacha?.personagensObtidos || []).filter(m =>
+    estadoAnterior?.aba === "ficha" || (!estadoAnterior) || m.uid === estadoAnterior?.membroUid);
+  const membros = [personagem, ...(time || []), ...reservas]
     .filter((m, i, todos) => m && todos.findIndex((outro) => outro === m || (m.uid && outro?.uid === m.uid)) === i);
   const interfaceToque = ehMobile() || (typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
   const estado = estadoAnterior || {
@@ -139,9 +142,9 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     filtro: "todos",
     busca: "",
     uidSelecionado: null,
-    aba: "mochila",
+    aba: "ficha",
   };
-  if (!estado.aba) estado.aba = "mochila";
+  if (!estado.aba) estado.aba = "ficha";
   if (estado.membroIdx >= membros.length) estado.membroIdx = 0;
   if (estado.membroUid) {
     const indice = membros.findIndex((m) => (m.uid || (m === personagem ? 'protagonista' : null)) === estado.membroUid);
@@ -207,9 +210,9 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   palcoCompanhia.className = "companhia-palco";
   const trilhoCompanhia = document.createElement("aside");
   trilhoCompanhia.className = "companhia-trilho";
-  trilhoCompanhia.setAttribute("aria-label", estado.aba === "ficha" ? "Heróis da companhia" : "Membros da formação ativa");
+  trilhoCompanhia.setAttribute("aria-label", "Heróis da companhia");
   fileira.setAttribute("role", "radiogroup");
-  trilhoCompanhia.innerHTML = `<small>${estado.aba === "ficha" ? "HERÓIS" : "FORMAÇÃO ATIVA"}</small>`;
+  trilhoCompanhia.innerHTML = `<small>ESCOLHA UM HERÓI</small>`;
   trilhoCompanhia.appendChild(fileira);
 
   const elementoAtivo = ativo.elementoId || ativo.elemento || ativo.equipamento?.arma?.elemento || "fisico";
@@ -247,7 +250,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     </div>`;
   palcoCompanhia.append(trilhoCompanhia, vitrineCompanhia);
   vitrineCompanhia.querySelector('.companhia-arte').appendChild(vitrineCompanhia.querySelector('.companhia-equip-slots'));
-  corpo.appendChild(palcoCompanhia);
+  if (estado.aba !== "time") corpo.appendChild(palcoCompanhia);
   ligarCadeias(fileira);
   ligarCadeias(vitrineCompanhia);
   vitrineCompanhia.querySelectorAll("[data-slot-vitrine]").forEach((botao) => {
@@ -259,6 +262,12 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   });
 
   fileira.querySelectorAll(".party-card").forEach((el) => {
+    const membro = membros[Number(el.dataset.membro)];
+    const classe = (dados.classes || []).find(c => c.id === membro.classeId)?.nome || membro.classeId || 'Herói';
+    const resumo = `${membro.nome} · ${classe} · Nível ${membro.nivel || 1}\nVida ${membro.hp}/${membro.hpMax} · Éter ${membro.mp}/${membro.mpMax}\n${Object.entries(membro.atributos || {}).map(([k,v]) => `${k} ${v}`).join(' · ')}`;
+    el.dataset.tipTexto = resumo;
+    el.setAttribute('aria-label', resumo);
+    el.removeAttribute('title');
     const escolher = () => { estado.membroIdx = Number(el.dataset.membro); estado.membroUid = membros[estado.membroIdx].uid || 'protagonista'; redesenhar(); };
     el.onclick = (ev) => { if (!ev.target.closest(".party-slot")) escolher(); };
     el.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); escolher(); } };
@@ -270,8 +279,8 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     const atual = cards.indexOf(ev.target);
     const proximo = ev.key === "Home" ? 0 : ev.key === "End" ? cards.length - 1
       : (atual + (["ArrowRight", "ArrowDown"].includes(ev.key) ? 1 : -1) + cards.length) % cards.length;
+    cards.forEach((card, i) => { card.tabIndex = i === proximo ? 0 : -1; });
     cards[proximo]?.focus();
-    cards[proximo]?.click();
   };
   // Clicar num slot cheio desequipa direto — o caminho mais curto possível.
   fileira.querySelectorAll(".party-slot.cheio").forEach((el) => {
@@ -296,23 +305,21 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   // desta tela. Aqui as três coisas que se faz com o grupo ficam lado a
   // lado — ver o que cada um tem, vestir, e mandar vestir sozinho.
   const ABAS = [
-    { id: "ficha", rotulo: "Heróis", icone: "👤" },
-    { id: "mochila", rotulo: "Equipamento", icone: "🎒" },
-    { id: "time", rotulo: "Formação", icone: "🛡️" },
-    ...(estado.abrirEvolucao ? [{ id: "evolucao", rotulo: "Evolução", icone: "✨" }] : []),
+    { id: "ficha", rotulo: "Personagem", icone: "👤" },
+    { id: "time", rotulo: "Time", icone: "🛡️" },
   ];
   tela.definirAbas(ABAS, (id) => {
     if (id === "evolucao") { estado.abrirEvolucao(); return; }
     estado.aba = id; redesenhar();
-  }, estado.aba === "auto" ? "mochila" : estado.aba);
+  }, estado.aba === "time" ? "time" : "ficha");
   const ferramentas = document.createElement("nav");
   ferramentas.className = "companhia-ferramentas";
   ferramentas.setAttribute("aria-label", "Ações da companhia");
   const atalhos = estado.aba === "time"
     ? [["Coleção", "colecao"], ["Companheiros", "pets"], ["Revisar equipamentos", "auto"]]
     : estado.aba === "mochila" || estado.aba === "auto"
-      ? [...(estado.aba === "auto" ? [["Voltar ao equipamento", "mochila"]] : []), ["Otimizar · ver proposta", "auto"], ["Forja e Alquimia", "forja"]]
-      : [["Coleção e vínculos", "colecao"]];
+      ? [["← Ficha", "ficha"], ...(estado.aba === "auto" ? [["Voltar ao equipamento", "mochila"]] : [["Otimizar · ver proposta", "auto"]]), ["Forja e Alquimia", "forja"]]
+      : [];
   for (const [rotulo, id] of atalhos) {
     const botao = document.createElement("button");
     botao.type = "button"; botao.textContent = rotulo;
@@ -325,7 +332,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     };
     if (id !== "forja" || estado.abrirForja) ferramentas.appendChild(botao);
   }
-  corpo.insertBefore(ferramentas, corpo.firstChild);
+  if (ferramentas.childElementCount) corpo.insertBefore(ferramentas, corpo.firstChild);
 
   const painelMochila = document.createElement("section");
   painelMochila.className = "companhia-painel companhia-equipamento";
@@ -642,8 +649,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
     painelFicha.innerHTML = `
       <div class="ficha-acoes" aria-label="Ações rápidas de ${m.nome}">
         <button type="button" data-ficha-acao="mochila">🎒 Equipar e comparar</button>
-        <button type="button" data-ficha-acao="habilidades">🃏 Editar habilidades</button>
-        <button type="button" data-ficha-acao="evolucao">✨ Evoluir personagem</button>
+        ${estado.abrirEvolucao ? '<button type="button" data-ficha-acao="evolucao">✨ Habilidades e evolução</button>' : ''}
       </div>
       ${m.descricaoTraco || m.descricao ? `<p class="desc">${m.descricaoTraco || m.descricao}</p>` : ""}
 
@@ -669,7 +675,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
         <h4>Cards de batalha (${naMao.length})</h4>
         ${listaHab(naMao, "Nenhuma habilidade na mão.")}
       </div>
-      ${guardadas.length ? `<div class="ficha-bloco"><h4>Guardadas (${guardadas.length})</h4>${listaHab(guardadas, "")}</div>` : ""}
+      ${guardadas.length ? `<details class="ficha-bloco"><summary>Habilidades na reserva (${guardadas.length})</summary>${listaHab(guardadas, "")}</details>` : ""}
       ${passivas.length ? `<div class="ficha-bloco"><h4>Passivas</h4><div class="ficha-chips">${passivas.map((pa) => `<span class="ficha-chip" data-tip-texto="${(pa.descricao || "").replace(/"/g, "&quot;")}">${pa.icone || "◆"} ${pa.nome}</span>`).join("")}</div></div>` : ""}
       ${marcas.length ? `<div class="ficha-bloco"><h4>Marcas de classe</h4><div class="ficha-chips">${marcas.map((ma) => `<span class="ficha-chip" data-tip-texto="${(ma.descricao || "").replace(/"/g, "&quot;")}">${ma.icone || "◈"} ${ma.nome}</span>`).join("")}</div></div>` : ""}
 
