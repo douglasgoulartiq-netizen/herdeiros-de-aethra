@@ -811,6 +811,25 @@ img, canvas, svg, video { max-width: 100%; }
 .hda-ficha > div { display: flex; gap: 8px; align-items: baseline; border-bottom: 1px dashed #3a2f22; padding-bottom: 3px; }
 .hda-ficha dt { flex: 0 0 34%; margin: 0; font-size: 0.82em; color: var(--hda-muted, #c8b89a); text-transform: uppercase; letter-spacing: 0.04em; }
 .hda-ficha dd { flex: 1 1 auto; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+/* ONDE CONSEGUIR — a forja dizia o que falta e nao dizia onde achar.
+   A dica ocupa a linha inteira ABAIXO do par nome/quantidade: `dt` e uma
+   coluna de 34% em maiusculas, dimensionada para rotulo curto, e espremer
+   "cai de Sapo Venenoso, Urso Ancestral - Pantano da Bruma" ali dentro
+   deixaria uma coluna de letras. Tom apagado porque e apoio, nao o dado
+   principal da linha. */
+.hda-ficha > div.com-origem { flex-wrap: wrap; }
+.forja-origem {
+  flex: 1 1 100%;
+  margin-top: 2px;
+  font-size: 0.78em;
+  line-height: 1.35;
+  color: var(--hda-muted, #c8b89a);
+  opacity: 0.82;
+  text-transform: none;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
 .hda-ladrilho.chefe { border-color: #f5a524; }
 .hda-ladrilho.desconhecido { opacity: 0.55; }
 .hda-ladrilho .hda-ladrilho-icone { font-size: 1.5em; line-height: 1; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }

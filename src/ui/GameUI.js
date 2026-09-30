@@ -1,5 +1,6 @@
 // Telas de inventário, missões, loja, forja, diálogo e HUD (tudo em DOM/HTML).
 import { caminhoDoIcone } from "../data/itemIcons.js";
+import { origemDoItem } from "../systems/OrigemDeItem.js";
 import { RARITY_COLORS, RARITY_LABEL, equiparItem, desequiparItem, usarConsumivel, venderItem, comprarItem, comprarLote, previaVendaEmLote, venderItensEmLote, custoServicoLoja, comprarServicoLoja } from "../systems/InventorySystem.js";
 import { receitaDisponivel, craftar } from "../systems/CraftingSystem.js";
 import { itemPodeSerAprimorado, nivelAprimoramento, custoProximoNivel, podeAprimorar, aprimorarItem, MAX_NIVEL_APRIMORAMENTO,
@@ -1354,7 +1355,26 @@ export function montarForja(personagem, dados, onMudar, aba = "criar") {
       const ingredientes = r.ingredientes.map((i) => {
         const item = dados.items.itens.find((x) => x.id === i.itemId);
         const tem = personagem.inventario.filter((x) => x.id === i.itemId).length;
-        return `<div><dt>${item ? item.nome : i.itemId}</dt><dd>${tem}/${i.quantidade}${tem >= i.quantidade ? " ✓" : ""}</dd></div>`;
+        const completo = tem >= i.quantidade;
+        // ONDE CONSEGUIR — só para o que ainda falta.
+        //
+        // A forja dizia o que falta e não dizia onde achar: o jogador lia
+        // "Minério Élfico 0/2", fechava a tela e não tinha pista nenhuma do
+        // que fazer em seguida. O jogo SABE a resposta (lootTables.json e a
+        // lista de recursos de cada zona) e simplesmente não contava.
+        //
+        // Aparece só no que está faltando, de propósito: no material já
+        // completo a dica é ruído, e a lista precisa continuar legível no
+        // celular. Quando o jogo não sabe a origem, origemDoItem devolve null
+        // e nada é escrito — uma pista errada é pior que nenhuma.
+        const origem = completo ? null : origemDoItem(i.itemId, dados);
+        // A dica é irmã de dt/dd, não filha de dt: `dt` é uma coluna de 34%
+        // em maiúsculas, feita para rótulo curto. A origem ocupa a linha
+        // inteira abaixo do par (ver .forja-origem em hda-ui.css).
+        return `<div${origem ? ' class="com-origem"' : ""}>`
+          + `<dt>${item ? item.nome : i.itemId}</dt>`
+          + `<dd>${tem}/${i.quantidade}${completo ? " ✓" : ""}</dd>`
+          + `${origem ? `<span class="forja-origem">${origem.texto}</span>` : ""}</div>`;
       }).join("");
       abrirSheet({
         titulo: r.nome,
