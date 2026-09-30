@@ -252,6 +252,36 @@ const TIPOS_OFENSIVOS = ["dano_fisico", "dano_magico", "dano_fisico_des", "dano_
     de: `valeAPenaArea(area, vivos.length, ultimate)`,
     para: `valeAPenaArea(area, vivos.length, ultimate, jogador)`,
   },
+  {
+    // Remendo SEPARADO, com marca propria. Na primeira tentativa eu pendurei
+    // este import no remendo de cima, cuja `marca` e apenas
+    // `from "./EscalaDerivada.js"` — que ja estava no arquivo. O script
+    // declarou "ja aplicado" e nao adicionou nada. Marca larga demais e um
+    // falso positivo de idempotencia: ele mente dizendo que fez.
+    nome: "import do poder por turno",
+    marca: `from "./ValorDeHabilidade.js"`,
+    de: `import { multiplicadorEfetivo } from "./EscalaDerivada.js";`,
+    para: `import { multiplicadorEfetivo } from "./EscalaDerivada.js";
+import { poderAgora } from "./ValorDeHabilidade.js";`,
+  },
+  {
+    nome: "escolha de turno enxerga a escala (sort inline que faltava)",
+    marca: `poderAgora(b, jogador) - poderAgora(a, jogador)`,
+    // ESTE REMENDO FALTOU NA PRIMEIRA VERSAO e o erro era caro: `ultimate` e
+    // `melhorPorMultiplicador` foram corrigidos, mas a escolha FINAL de
+    // habilidade ofensiva e um sort inline separado, por `multiplicador` cru.
+    // Resultado: uma habilidade de escala (multiplicador nominal 1,0) nunca
+    // era lancada no turno — e quando ela ERA a ultimate, `preservarUltimate`
+    // a excluia das candidatas fora de chefe. Ou seja, ficava de fora dos
+    // dois jeitos.
+    //
+    // Aqui e `poderAgora`, e NAO `valorPorTurno`: todas as candidatas ja
+    // passaram pelo filtro de recarga e Eter, entao estao disponiveis neste
+    // turno. Descontar recarga aqui faria a IA fugir da habilidade pesada
+    // justamente no turno em que ela esta pronta.
+    de: `    const melhor = [...candidatas].sort((a, b) => (b.multiplicador || 0) - (a.multiplicador || 0))[0];`,
+    para: `    const melhor = [...candidatas].sort((a, b) => poderAgora(b, jogador) - poderAgora(a, jogador) || String(a.id).localeCompare(String(b.id)))[0];`,
+  },
 ];
 
 function aplicarRemendos(texto, lista) {

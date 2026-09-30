@@ -47,6 +47,8 @@ import { escolherAcaoAutomatica, configAutoBatalhaPadrao } from "../src/systems/
 import { arvoreDaClasse, escolherNo, pontosDisponiveis, podeEscolher } from "../src/systems/SkillTreeSystem.js";
 import { LIMITE_CARDS } from "../src/systems/LoadoutSystem.js";
 import { multiplicadorEfetivo } from "../src/systems/EscalaDerivada.js";
+import { valorPorTurno, valorDeApoioPorTurno, valorMedidoPorTurno } from "../src/systems/ValorDeHabilidade.js";
+import { opcoesDeDano } from "../src/systems/BattleForecast.js";
 
 const dataDir = new URL("../src/data/", import.meta.url);
 const dados = Object.fromEntries(readdirSync(dataDir).filter((f) => f.endsWith(".json"))
@@ -73,12 +75,48 @@ const ALVO_UNICO = ["dano_fisico", "dano_fisico_des", "dano_magico", "dano_ignor
 const AREA = ["dano_area"];
 const APOIO = ["cura", "cura_area", "buff_time", "buff_defesa", "buff_ataque"];
 
+// PREVISAO PELO MOTOR, e nao por multiplicador. Monta uma Batalha descartavel
+// contra um inimigo representativo do nivel e pergunta a `estimarFaixaDano` —
+// a mesma funcao que desenha a previa na tela — quanto cada habilidade faria.
+// Com isso "ignora defesa" (que mexe no dano E no limiar de bloqueio) e a
+// escala derivada passam a contar pelo valor real, nao por proxy.
+const DANO_UNICO = ["dano_fisico", "dano_fisico_des", "dano_ignora_defesa"];
+// Quantos alvos uma area acerta, para efeito de build. Duas e o cenario
+// medido aqui; declarado em vez de escondido numa formula.
+const ALVOS_DE_AREA = 2;
+
+function preverDe(p) {
+  const eu = criarCombatenteJogador(structuredClone(p), dados, "frente");
+  const monstro = dados.monsters.filter((m) => !m.chefe)
+    .sort((a, b) => Math.abs((a.nivel || 1) - NIVEL) - Math.abs((b.nivel || 1) - NIVEL))[0];
+  const inimigo = criarCombatenteInimigo(monstro, 0);
+  const b = new Batalha([eu], [inimigo], dados.elements, null, [], 0, null, false, dados.elementalStates, dados.elementalReactions);
+  return (h) => {
+    try {
+      if (!h) return b.estimarFaixaDano(eu, inimigo).esperado || 0;
+      if (h.tipo === "dano_magico") {
+        return b.estimarFaixaDanoMagico(eu, inimigo, { multiplicador: h.multiplicador, elementoAtacante: h.elemento }).esperado || 0;
+      }
+      if (h.tipo === "dano_area") {
+        return (b.estimarFaixaDano(eu, inimigo, { ...opcoesDeDano(h), respeitaFormacao: false }).esperado || 0) * ALVOS_DE_AREA;
+      }
+      if (!DANO_UNICO.includes(h.tipo)) return 0;
+      return b.estimarFaixaDano(eu, inimigo, opcoesDeDano(h)).esperado || 0;
+    } catch { return 0; }
+  };
+}
+
 function escolherCards(p) {
   const todas = p.habilidades || [];
   if (todas.length <= LIMITE_CARDS) { p.cards = todas.map((h) => h.id); p.cardsAjustado = true; return; }
   const vista = { ataque: ataqueBase(p, dados), atributos: atributosEfetivos(p, dados),
     defesa: defesaTotal(p, dados), hpMax: p.hpMax, hp: Math.round(p.hpMax * 0.5) };
-  const ordem = (a, b) => multiplicadorEfetivo(b, vista) - multiplicadorEfetivo(a, vista) || String(a.id).localeCompare(String(b.id));
+  // Ponto de PARTIDA da busca, nao a resposta final: poder por turno medido
+  // pelo motor (ver src/systems/ValorDeHabilidade.js). Quem decide de fato e
+  // `melhorBuild`, que mede dano simulado — ver o comentario la embaixo.
+  const prever = preverDe(p);
+  const valor = (h) => (APOIO.includes(h.tipo) ? valorDeApoioPorTurno(h, vista) : valorMedidoPorTurno(h, vista, prever));
+  const ordem = (a, b) => valor(b) - valor(a) || String(a.id).localeCompare(String(b.id));
   const escolhidas = [];
   for (const grupo of [ALVO_UNICO, AREA, APOIO]) {
     const h = todas.filter((x) => grupo.includes(x.tipo)).sort(ordem)[0];
@@ -174,12 +212,68 @@ function simular(p, amostra) {
   return { dano, turnos };
 }
 
+// PARAR DE AJUSTAR A FORMULA E MEDIR.
+//
+// A regra de build passou por tres versoes: multiplicador cru, multiplicador
+// efetivo, poder por turno, e por fim previsao do motor. Cada uma consertou
+// uma parte das classes e quebrou outra — guerreiro melhorou quando o
+// patrulheiro piorou, e vice-versa. Oscilar assim e o sintoma de estar
+// afinando um PROXY: por melhor que fique, ele nunca e o dano.
+//
+// Entao a build deixa de ser escolhida por formula. `melhorBuild` parte do
+// palpite da formula e faz uma subida de encosta trocando um card por vez,
+// medindo DANO SIMULADO de verdade a cada troca e ficando com o que rendeu
+// mais. A formula vira o chute inicial que encurta a busca, e nada mais.
+//
+// ISTO TAMBEM CONSERTA A COMPARACAO. Antes, "Couraca antes" e "Couraca
+// agora" recebiam cada um a build que o proxy achava boa — e o proxy errava
+// de formas diferentes nos dois. Agora os dois lados jogam com a MELHOR build
+// que cada um consegue montar, que e a unica comparacao que responde
+// "investir em robustez compensa?" sem depender de eu ter acertado a formula.
+//
+// O custo e tempo de CPU, e vale: a busca e a diferenca entre medir o jogo e
+// medir a minha estimativa dele.
+const CANDIDATOS_NA_BUSCA = 8;
+const AMOSTRAS_DA_BUSCA = 4;
+
+function medirBuild(p, cards, amostras) {
+  const copia = { ...p, cards: [...cards], cardsAjustado: true };
+  let total = 0;
+  for (let a = 0; a < amostras; a += 1) total += simular(copia, a).dano / amostras;
+  return total;
+}
+
+function melhorBuild(p, amostras = AMOSTRAS_DA_BUSCA) {
+  const todas = p.habilidades || [];
+  if (todas.length <= LIMITE_CARDS) return p.cards;
+  // O palpite da formula ja esta em p.cards (escolherCards rodou em montar).
+  let atual = [...p.cards];
+  let melhorDano = medirBuild(p, atual, amostras);
+  const pool = todas.map((h) => h.id).slice(0, Math.max(CANDIDATOS_NA_BUSCA, LIMITE_CARDS));
+  for (const h of todas) if (!pool.includes(h.id) && pool.length < CANDIDATOS_NA_BUSCA + LIMITE_CARDS) pool.push(h.id);
+  for (let volta = 0; volta < 3; volta += 1) {
+    let melhorou = false;
+    for (let slot = 0; slot < atual.length; slot += 1) {
+      for (const cand of pool) {
+        if (atual.includes(cand)) continue;
+        const tentativa = [...atual];
+        tentativa[slot] = cand;
+        const dano = medirBuild(p, tentativa, amostras);
+        if (dano > melhorDano * 1.005) { melhorDano = dano; atual = tentativa; melhorou = true; }
+      }
+    }
+    if (!melhorou) break;
+  }
+  return atual;
+}
+
 const linhas = [];
 try {
   for (const classe of Object.keys(dados.skillTrees)) {
     const medida = {};
     for (const build of Object.keys(BUILDS)) {
       const p = montar(classe, build);
+      p.cards = melhorBuild(p);
       let total = 0;
       for (let a = 0; a < N; a += 1) total += simular(p, a).dano / N;
       const usaEscala = (p.habilidades || []).some((h) => h.escala && (p.cards || []).includes(h.id));
@@ -193,6 +287,7 @@ try {
     antes.habilidades = (antes.habilidades || []).filter((h) => !h.escala);
     antes.cards = null; antes.cardsAjustado = false;
     escolherCards(antes);
+    antes.cards = melhorBuild(antes);
     let danoAntes = 0;
     for (let a = 0; a < N; a += 1) danoAntes += simular(antes, a).dano / N;
     medida.couracaAntes = { dano: danoAntes };

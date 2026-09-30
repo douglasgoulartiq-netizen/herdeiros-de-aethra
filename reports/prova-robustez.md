@@ -2,7 +2,7 @@
 
 O pedido era ter habilidades, em todas as classes, que escalem com vida máxima e defesa — e não só com ataque e destreza. A afirmação a provar é que **um personagem que investe em defesa e vida agora ganha poder ofensivo com isso**, o que antes era impossível por construção: nenhuma habilidade do jogo lia defesa ou vida.
 
-Personagem de nível 25, 8 amostras, 40 turnos por luta, solo contra dois alvos de vida efetivamente infinita (mede dano, não vitória). Mesmas sementes nas três colunas.
+Personagem de nível 25, 6 amostras, 40 turnos por luta, solo contra dois alvos de vida efetivamente infinita (mede dano, não vitória). Mesmas sementes nas três colunas.
 
 Três versões do MESMO personagem, mesmo orçamento de equipamento (30 pontos):
 
@@ -16,16 +16,16 @@ A coluna **razão** é Couraça(agora) ÷ Lâmina, como referência de viabilida
 
 | Classe | Lâmina | Couraça (antes) | Couraça (agora) | Ganho | Razão | Defesa | Vida | Usa escala |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| mago | 1293 | 1602 | 2290 | **143.0%** | 177.1% | 43 | 241 | sim |
-| necromante | 521 | 601 | 649 | **108.0%** | 124.6% | 44 | 245 | sim |
-| druida | 617 | 770 | 803 | **104.2%** | 130.2% | 44 | 253 | sim |
-| ladino | 2026 | 1893 | 1950 | **103.0%** | 96.2% | 43 | 245 | sim |
-| bardo | 464 | 538 | 554 | **103.0%** | 119.5% | 44 | 247 | sim |
-| paladino | 474 | 350 | 350 | **100.0%** | 73.7% | 45 | 265 | não |
-| guerreiro | 1664 | 1633 | 1596 | **97.8%** | 95.9% | 45 | 271 | sim |
-| barbaro | 1897 | 2310 | 2252 | **97.5%** | 118.7% | 45 | 279 | sim |
-| patrulheiro | 2117 | 1947 | 1866 | **95.8%** | 88.1% | 32 | 195 | sim |
-| clerigo | 416 | 1116 | 1018 | **91.2%** | 244.5% | 32 | 196 | sim |
+| mago | 2993 | 1925 | 3215 | **167.0%** | 107.4% | 43 | 241 | sim |
+| druida | 997 | 790 | 893 | **113.0%** | 89.5% | 44 | 253 | sim |
+| clerigo | 485 | 1340 | 1498 | **111.8%** | 308.7% | 32 | 196 | sim |
+| guerreiro | 1839 | 1703 | 1703 | **100.0%** | 92.6% | 45 | 271 | não |
+| ladino | 2345 | 1965 | 1965 | **100.0%** | 83.8% | 43 | 245 | não |
+| barbaro | 2530 | 2491 | 2491 | **100.0%** | 98.4% | 45 | 279 | não |
+| patrulheiro | 2445 | 2190 | 2190 | **100.0%** | 89.6% | 32 | 195 | não |
+| paladino | 501 | 463 | 463 | **100.0%** | 92.5% | 45 | 265 | não |
+| necromante | 905 | 863 | 863 | **100.0%** | 95.3% | 44 | 245 | não |
+| bardo | 589 | 632 | 613 | **97.1%** | 104.2% | 44 | 247 | sim |
 
 ## Limites
 

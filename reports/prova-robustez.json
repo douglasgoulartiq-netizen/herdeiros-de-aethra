@@ -1,207 +1,207 @@
 {
   "nivel": 25,
-  "amostras": 8,
+  "amostras": 6,
   "orcamento": 30,
   "linhas": [
     {
       "classe": "mago",
       "lamina": {
-        "dano": 1292.625,
+        "dano": 2993.333333333333,
         "defesa": 28,
         "hpMax": 181,
-        "usaEscala": false
+        "usaEscala": true
       },
       "couraca": {
-        "dano": 2289.75,
+        "dano": 3214.6666666666665,
         "defesa": 43,
         "hpMax": 241,
         "usaEscala": true
       },
       "couracaAntes": {
-        "dano": 1601.5
+        "dano": 1924.6666666666665
       },
-      "razao": 1.7713954163040324,
-      "ganho": 1.4297533562285358
-    },
-    {
-      "classe": "necromante",
-      "lamina": {
-        "dano": 520.5,
-        "defesa": 29,
-        "hpMax": 185,
-        "usaEscala": true
-      },
-      "couraca": {
-        "dano": 648.75,
-        "defesa": 44,
-        "hpMax": 245,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 600.75
-      },
-      "razao": 1.2463976945244957,
-      "ganho": 1.079900124843945
+      "razao": 1.0739420935412027,
+      "ganho": 1.6702459300311743
     },
     {
       "classe": "druida",
       "lamina": {
-        "dano": 616.5,
+        "dano": 996.8333333333333,
         "defesa": 29,
         "hpMax": 193,
         "usaEscala": true
       },
       "couraca": {
-        "dano": 802.5,
+        "dano": 892.5,
         "defesa": 44,
         "hpMax": 253,
         "usaEscala": true
       },
       "couracaAntes": {
-        "dano": 770.125
+        "dano": 789.5
       },
-      "razao": 1.3017031630170317,
-      "ganho": 1.0420386300925175
-    },
-    {
-      "classe": "ladino",
-      "lamina": {
-        "dano": 2026,
-        "defesa": 28,
-        "hpMax": 185,
-        "usaEscala": true
-      },
-      "couraca": {
-        "dano": 1949.625,
-        "defesa": 43,
-        "hpMax": 245,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 1893.125
-      },
-      "razao": 0.9623025666337611,
-      "ganho": 1.0298448332783097
-    },
-    {
-      "classe": "bardo",
-      "lamina": {
-        "dano": 463.625,
-        "defesa": 29,
-        "hpMax": 187,
-        "usaEscala": true
-      },
-      "couraca": {
-        "dano": 554.25,
-        "defesa": 44,
-        "hpMax": 247,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 538.25
-      },
-      "razao": 1.1954704772175788,
-      "ganho": 1.0297259637714817
-    },
-    {
-      "classe": "paladino",
-      "lamina": {
-        "dano": 474.375,
-        "defesa": 30,
-        "hpMax": 205,
-        "usaEscala": false
-      },
-      "couraca": {
-        "dano": 349.5,
-        "defesa": 45,
-        "hpMax": 265,
-        "usaEscala": false
-      },
-      "couracaAntes": {
-        "dano": 349.5
-      },
-      "razao": 0.7367588932806324,
-      "ganho": 1
-    },
-    {
-      "classe": "guerreiro",
-      "lamina": {
-        "dano": 1663.875,
-        "defesa": 30,
-        "hpMax": 211,
-        "usaEscala": false
-      },
-      "couraca": {
-        "dano": 1596.25,
-        "defesa": 45,
-        "hpMax": 271,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 1632.625
-      },
-      "razao": 0.9593569228457667,
-      "ganho": 0.9777199295612893
-    },
-    {
-      "classe": "barbaro",
-      "lamina": {
-        "dano": 1897.375,
-        "defesa": 30,
-        "hpMax": 219,
-        "usaEscala": false
-      },
-      "couraca": {
-        "dano": 2251.625,
-        "defesa": 45,
-        "hpMax": 279,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 2310.125
-      },
-      "razao": 1.186705316555768,
-      "ganho": 0.9746766949840376
-    },
-    {
-      "classe": "patrulheiro",
-      "lamina": {
-        "dano": 2117.375,
-        "defesa": 17,
-        "hpMax": 135,
-        "usaEscala": true
-      },
-      "couraca": {
-        "dano": 1865.75,
-        "defesa": 32,
-        "hpMax": 195,
-        "usaEscala": true
-      },
-      "couracaAntes": {
-        "dano": 1947.125
-      },
-      "razao": 0.8811618159277407,
-      "ganho": 0.9582076137895615
+      "razao": 0.8953352282227053,
+      "ganho": 1.130462317922736
     },
     {
       "classe": "clerigo",
       "lamina": {
-        "dano": 416.125,
+        "dano": 485.16666666666674,
         "defesa": 17,
         "hpMax": 136,
         "usaEscala": true
       },
       "couraca": {
-        "dano": 1017.625,
+        "dano": 1497.6666666666667,
         "defesa": 32,
         "hpMax": 196,
         "usaEscala": true
       },
       "couracaAntes": {
-        "dano": 1115.625
+        "dano": 1340
       },
-      "razao": 2.4454791228597177,
-      "ganho": 0.912156862745098
+      "razao": 3.086911714187564,
+      "ganho": 1.1176616915422886
+    },
+    {
+      "classe": "guerreiro",
+      "lamina": {
+        "dano": 1838.8333333333333,
+        "defesa": 30,
+        "hpMax": 211,
+        "usaEscala": false
+      },
+      "couraca": {
+        "dano": 1702.8333333333335,
+        "defesa": 45,
+        "hpMax": 271,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 1702.8333333333335
+      },
+      "razao": 0.9260400616332821,
+      "ganho": 1
+    },
+    {
+      "classe": "ladino",
+      "lamina": {
+        "dano": 2344.8333333333335,
+        "defesa": 28,
+        "hpMax": 185,
+        "usaEscala": true
+      },
+      "couraca": {
+        "dano": 1964.833333333333,
+        "defesa": 43,
+        "hpMax": 245,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 1964.833333333333
+      },
+      "razao": 0.8379415736726133,
+      "ganho": 1
+    },
+    {
+      "classe": "barbaro",
+      "lamina": {
+        "dano": 2530,
+        "defesa": 30,
+        "hpMax": 219,
+        "usaEscala": false
+      },
+      "couraca": {
+        "dano": 2490.5,
+        "defesa": 45,
+        "hpMax": 279,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 2490.5
+      },
+      "razao": 0.9843873517786561,
+      "ganho": 1
+    },
+    {
+      "classe": "patrulheiro",
+      "lamina": {
+        "dano": 2445.1666666666665,
+        "defesa": 17,
+        "hpMax": 135,
+        "usaEscala": true
+      },
+      "couraca": {
+        "dano": 2190,
+        "defesa": 32,
+        "hpMax": 195,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 2190
+      },
+      "razao": 0.8956444686797084,
+      "ganho": 1
+    },
+    {
+      "classe": "paladino",
+      "lamina": {
+        "dano": 500.6666666666667,
+        "defesa": 30,
+        "hpMax": 205,
+        "usaEscala": false
+      },
+      "couraca": {
+        "dano": 462.99999999999994,
+        "defesa": 45,
+        "hpMax": 265,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 462.99999999999994
+      },
+      "razao": 0.9247669773635152,
+      "ganho": 1
+    },
+    {
+      "classe": "necromante",
+      "lamina": {
+        "dano": 904.9999999999999,
+        "defesa": 29,
+        "hpMax": 185,
+        "usaEscala": false
+      },
+      "couraca": {
+        "dano": 862.6666666666666,
+        "defesa": 44,
+        "hpMax": 245,
+        "usaEscala": false
+      },
+      "couracaAntes": {
+        "dano": 862.6666666666666
+      },
+      "razao": 0.9532228360957643,
+      "ganho": 1
+    },
+    {
+      "classe": "bardo",
+      "lamina": {
+        "dano": 588.6666666666667,
+        "defesa": 29,
+        "hpMax": 187,
+        "usaEscala": true
+      },
+      "couraca": {
+        "dano": 613.1666666666666,
+        "defesa": 44,
+        "hpMax": 247,
+        "usaEscala": true
+      },
+      "couracaAntes": {
+        "dano": 631.6666666666666
+      },
+      "razao": 1.0416194790486974,
+      "ganho": 0.970712401055409
     }
   ]
 }

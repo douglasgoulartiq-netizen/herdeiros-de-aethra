@@ -55,6 +55,7 @@ import { arvoreDaClasse, escolherNo, pontosDisponiveis, podeEscolher } from '../
 import { LIMITE_CARDS } from '../src/systems/LoadoutSystem.js';
 import { ataqueBase, atributosEfetivos, defesaTotal } from '../src/systems/CharacterFactory.js';
 import { multiplicadorEfetivo } from '../src/systems/EscalaDerivada.js';
+import { valorPorTurno, valorDeApoioPorTurno } from '../src/systems/ValorDeHabilidade.js';
 
 const dataDir = new URL('../src/data/', import.meta.url);
 const dados = Object.fromEntries(readdirSync(dataDir).filter(f => f.endsWith('.json')).map(f =>
@@ -196,7 +197,13 @@ function escolherCards(p) {
   const todas = p.habilidades || [];
   if (todas.length <= LIMITE_CARDS) { p.cards = todas.map((h) => h.id); p.cardsAjustado = true; return; }
   const vista = vistaDeCombate(p);
-  const ordem = (a, b) => multiplicadorEfetivo(b, vista) - multiplicadorEfetivo(a, vista) || String(a.id).localeCompare(String(b.id));
+  // PODER POR TURNO, e nao por uso. Ver src/systems/ValorDeHabilidade.js:
+  // montar build e escolher turno sao perguntas diferentes, e usar a mesma
+  // regua nas duas foi o que fez tres classes ficarem PIORES depois de ganhar
+  // a habilidade nova — ela vencia a vaga por poder por uso e perdia a luta
+  // por poder por turno, deslocando uma habilidade de recarga 0.
+  const valor = (h) => (APOIO.includes(h.tipo) ? valorDeApoioPorTurno(h, vista) : valorPorTurno(h, vista));
+  const ordem = (a, b) => valor(b) - valor(a) || String(a.id).localeCompare(String(b.id));
   const melhor = (tipos) => todas.filter((h) => tipos.includes(h.tipo)).sort(ordem)[0];
   const escolhidas = [];
   for (const grupo of [ALVO_UNICO, AREA, APOIO]) {
