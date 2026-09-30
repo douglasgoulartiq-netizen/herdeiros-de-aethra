@@ -133,7 +133,8 @@ export function pontuarAlvo(alvo, mapa, pesoDistancia = PESO_DISTANCIA) {
 export function escolherAlvo(alvos, mapa, pesoDistancia = PESO_DISTANCIA) {
   let melhor = null;
   for (const alvo of alvos) {
-    const avaliado = pontuarAlvo(alvo, mapa, pesoDistancia);
+    const destino = alvo.patrulha ? destinoPatrulha(alvo, mapa) : alvo;
+    const avaliado = destino && pontuarAlvo(destino, mapa, pesoDistancia);
     if (!avaliado) continue;
     // Desempate estável por distância e depois por posição: dois baús
     // empatados não podem fazer o automático alternar entre eles a cada
@@ -148,6 +149,34 @@ export function escolherAlvo(alvos, mapa, pesoDistancia = PESO_DISTANCIA) {
     }
   }
   return melhor;
+}
+
+// Missões de caça precisam de passos, não de chegada a um centro de zona.
+// Mantém o waypoint até alcançá-lo e evita repetir os últimos pontos.
+export function destinoPatrulha(alvo, mapa) {
+  const estado = alvo.estadoPatrulha;
+  const { dist, largura, origem } = mapa;
+  if (!estado) return null;
+  const valido = (tile) => tile >= 0 && dist[tile] > 0 &&
+    alvo.patrulha(tile % largura, Math.floor(tile / largura));
+  if (!valido(estado.tile)) {
+    const recentes = estado.recentes || [];
+    let melhor = -1, custo = Infinity;
+    for (let tile = 0; tile < dist.length; tile++) {
+      if (tile === origem || !valido(tile)) continue;
+      const penalidade = recentes.reduce((total, anterior) => {
+        const distancia = Math.max(Math.abs(tile % largura - anterior % largura),
+          Math.abs(Math.floor(tile / largura) - Math.floor(anterior / largura)));
+        return total + Math.max(0, 6 - distancia) * 8;
+      }, 0);
+      const score = Math.abs(dist[tile] - 8) + penalidade;
+      if (score < custo) { melhor = tile; custo = score; }
+    }
+    if (melhor < 0) return null;
+    estado.tile = melhor;
+    estado.recentes = [...recentes, melhor].slice(-8);
+  }
+  return { ...alvo, x: estado.tile % largura, y: Math.floor(estado.tile / largura), exigeMesmoTile: true };
 }
 
 // Reconstrói o caminho de trás pra frente (do destino até a origem) e

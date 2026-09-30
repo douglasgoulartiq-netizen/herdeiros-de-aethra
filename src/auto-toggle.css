@@ -1,0 +1,28 @@
+#auto-fixo {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 20000;
+  min-height: 44px;
+  min-width: 144px;
+  padding: 8px 12px;
+  border: 1px solid #9eb8d6;
+  border-radius: 12px;
+  background: #152035;
+  color: #edf4ff;
+  font: 600 14px/1.2 system-ui, sans-serif;
+  box-shadow: 0 3px 12px #0006;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+#auto-fixo[aria-pressed="true"] { background: #15443c; border-color: #73ddbd; }
+#auto-fixo:focus-visible { outline: 3px solid #ffe39c; outline-offset: 3px; }
+body:has(#auto-fixo) #hud-topo { padding-right: calc(164px + env(safe-area-inset-right)); flex-wrap: wrap; }
+body:has(#auto-fixo) #modal-overlay { padding-top: max(64px, calc(env(safe-area-inset-top) + 56px)); box-sizing: border-box; }
+body:has(#screen-criacao:not(.hidden)) #auto-fixo,
+body:has(#screen-inicio:not(.hidden)) #auto-fixo { display: none; }
+/* Reserva espaço no cabeçalho da batalha; não desloca a arena. */
+#screen-batalha .bt-header { padding-right: max(164px, calc(env(safe-area-inset-right) + 156px)); min-height: 60px; }
+/* Os controles antigos continuam conectados, mas há um único botão visível. */
+body:has(#auto-fixo) #btn-auto,
+body:has(#auto-fixo) #btn-auto-batalha { display: none !important; }

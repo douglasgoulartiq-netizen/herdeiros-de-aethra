@@ -1,5 +1,6 @@
 import { carregarDados, carregarTodasImagens } from "./data/loader.js";
 import { criarMemoriaNpcAuto } from "./systems/AutoNpcMemory.js";
+import { atualizarBotaoAutoFixo } from "./ui/AutoToggleUI.js";
 import {
   TILE, SOLID_TILES, zonaNoPonto, ZONAS, OVERWORLD_W, OVERWORLD_H,
   buildDungeon, buildDungeon2, DUNGEON_W, DUNGEON_H, DUNGEON2_W, DUNGEON2_H,
@@ -145,6 +146,7 @@ function assinaturaDoTime() {
 
 function atualizarInterfacePrincipal() {
   if (!personagem) return;
+  atualizarBotaoAutoFixo(alternarModoAutomatico);
   entregarDestinoPessoal();
   atualizarHUD(personagem);
   const assinatura = assinaturaDoTime();
@@ -3244,6 +3246,7 @@ let ligadoAutoEm = null; // item 22 de 100_melhorias.md: timestamp de quando o a
 function alternarModoAutomatico() {
   if (!personagem) return;
   autoPlayState.ativo = !autoPlayState.ativo;
+  atualizarBotaoAutoFixo(alternarModoAutomatico);
   const btn = document.getElementById("btn-auto");
   if (btn) {
     btn.classList.toggle("ativo", autoPlayState.ativo);
@@ -3755,7 +3758,32 @@ function npcEObjetivoDeMissao(npcId) {
   return prioridadeMissaoNoNpc(npcId) > PRIORIDADE.npc;
 }
 
+const patrulhasAutomaticas = new WeakMap();
+
 function alvoDeUmaMissaoAutomatica(def) {
+  // Caça comum não é interação com o centro da região. Use o mesmo pool
+  // de monstros de verificarEncontroAleatorio; chefes mantêm alvo próprio.
+  const monstro = dados.monsters.find(m => m.id === def.alvo);
+  if (def.tipo === 'matar' && monstro && !monstro.chefe &&
+      !progressoDaMissao(personagem, def).pronto &&
+      mundo.mapaAtual === (def.mapaAlvo || 'overworld')) {
+    let memorias = patrulhasAutomaticas.get(personagem);
+    if (!memorias) { memorias = new Map(); patrulhasAutomaticas.set(personagem, memorias); }
+    const chave = `${mundo.mapaAtual}:${def.id}`;
+    if (!memorias.has(chave)) memorias.set(chave, {});
+    const zonaPreferida = zonaPorId(def.zonaAlvo || def.regiao);
+    const zonaValida = zonaPreferida?.monstros?.includes(def.alvo) ? zonaPreferida.id : null;
+    return {
+      tipo: 'missao', missaoId: def.id, prioridade: PRIORIDADE.missaoObjetivo,
+      pesoDistancia: 0.8, estadoPatrulha: memorias.get(chave),
+      patrulha: (x, y) => {
+        if (mundo.mapaAtual !== 'overworld') return !!MASMORRAS[mundo.mapaAtual]?.monstros?.includes(def.alvo);
+        const zona = zonaNoPonto(x, y);
+        return !!zona?.monstros?.includes(def.alvo) && (!zonaValida || zona.id === zonaValida) &&
+          (zona.perigo?.[0] || 0) <= (personagem.nivel || 1) + FOLGA_NIVEL_AUTO;
+      },
+    };
+  }
   const destino = destinoDeMissao(def);
   if (!destino || destino.mapa !== mundo.mapaAtual) return null;
   // A failed/unchanged hand-in must not keep navigation parked at that NPC.
@@ -3807,7 +3835,7 @@ function alvosDasMissoesAutomaticas() {
     if (!def) continue;
     const alvo = alvoDeUmaMissaoAutomatica(def);
     if (!alvo) continue;
-    const chave = `${alvo.x},${alvo.y}`;
+    const chave = alvo.patrulha ? `patrulha:${alvo.missaoId}` : `${alvo.x},${alvo.y}`;
     const anterior = porTile.get(chave);
     if (!anterior || alvo.prioridade > anterior.prioridade) porTile.set(chave, alvo);
   }
@@ -3888,6 +3916,7 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
     // quando o time sobe. Descanso e NPC ficam sempre (são a saída do perigo).
     const tetoDeNivel = (personagem?.nivel || 1) + FOLGA_NIVEL_AUTO;
     const perigoMinimo = (alvo) => {
+      if (alvo.patrulha) return 0; // o predicado já restringe cada tile por nível
       const z = alvo.zonaId ? ZONAS.find((zz) => zz.id === alvo.zonaId) : zonaNoPonto(alvo.x, alvo.y);
       return z && Array.isArray(z.perigo) ? z.perigo[0] : 0;
     };
@@ -3911,7 +3940,7 @@ function alvosAutoExploracao({ somenteExploracao = false } = {}) {
   // Um empurrão de 8 a 12 pontos numa régua em que o descanso vale 140 —
   // muda a ordem entre alvos parecidos, nunca passa por cima de descanso.
   alvos.forEach((alvo) => { alvo.prioridade += bonusPrioridadeAuto(personagem, alvo.tipo); });
-  return somenteExploracao ? alvos.filter((alvo) => alvo.tipo === "explorar") : alvos;
+  return somenteExploracao ? alvos.filter((alvo) => alvo.tipo === "explorar" || alvo.patrulha) : alvos;
 }
 
 // Passeio aleatório de antes — continua existindo como PLANO B, pra quando

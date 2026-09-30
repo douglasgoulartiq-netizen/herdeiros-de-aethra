@@ -21,6 +21,7 @@ import { mostrarMensagem } from "./GameUI.js";
 // e não em main.js, porque main importa esta tela — o contrário seria um ciclo.
 import { celebrarNivel, pausarCartoes, retomarCartoes } from "./CartaoUI.js";
 import { autoPlayState, registrarGanhosAuto } from "../systems/AutoPlayState.js";
+import { atualizarBotaoAutoFixo } from './AutoToggleUI.js';
 import { monstroHumanoide, imagemOficialMonstro } from "../systems/MonsterVisualSystem.js";
 import { garantirConfigAutoBatalha, escolherAcaoAutomatica, MODOS_AUTO_BATALHA, LABEL_MODO } from "../systems/AutoBattleAI.js";
 import { autoEquiparSlotsVazios, textoAcoesEquipamento } from "../systems/AutoEquipSystem.js";
@@ -676,6 +677,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
   // padrão usado em alternarModoAutomatico() (main.js), só espelhado aqui
   // pra funcionar mesmo com o HUD escondido durante a batalha.
   function sincronizarBotaoAutoBatalha() {
+    atualizarBotaoAutoFixo();
     const btn = screenEl.querySelector("#btn-auto-batalha");
     if (btn) {
       btn.classList.toggle("ativo", autoPlayState.ativo);
