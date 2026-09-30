@@ -1,5 +1,5 @@
 {
-  "amostras": 6,
+  "amostras": 8,
   "contagens": [
     1,
     2,
@@ -13,126 +13,227 @@
   ],
   "linhas": [
     {
-      "classe": "patrulheiro",
-      "nome": "Patrulheiro",
-      "porContagem": {
-        "1": {
-          "vitoria": 1,
-          "participacao": 0.6360322836978688,
-          "danoPorAcao": 105.23148148148148,
-          "fracaoBasico": 0.16666666666666666,
-          "fracaoArea": 0,
-          "turnos": 2.8333333333333335
-        },
-        "2": {
-          "vitoria": 1,
-          "participacao": 0.37029585093264056,
-          "danoPorAcao": 69.42222222222222,
-          "fracaoBasico": 0.36666666666666664,
-          "fracaoArea": 0,
-          "turnos": 7.333333333333333
-        },
-        "4": {
-          "vitoria": 1,
-          "participacao": 0.34786902344476833,
-          "danoPorAcao": 78.66168430335098,
-          "fracaoBasico": 0.17799823633156964,
-          "fracaoArea": 0.19444444444444445,
-          "turnos": 11.555555555555555
-        },
-        "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.33524956549977625,
-          "danoPorAcao": 87.77183742183743,
-          "fracaoBasico": 0.18902116402116398,
-          "fracaoArea": 0.16203703703703706,
-          "turnos": 19.27777777777778
-        }
-      },
-      "inclinacao": -0.30078271819809255,
-      "basicoEm6": 0.18902116402116398,
-      "areaEm6": 0.16203703703703706
-    },
-    {
       "classe": "ladino",
       "nome": "Ladino",
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.6539428472489894,
-          "danoPorAcao": 99.39814814814815,
-          "fracaoBasico": 0.16666666666666666,
+          "participacao": 0.7039458689254756,
+          "danoPorAcao": 100.63194444444446,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.15277777777777776,
           "fracaoArea": 0,
-          "turnos": 2.7222222222222223
+          "turnos": 2.5416666666666665
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.4239462204888473,
-          "danoPorAcao": 78.31759259259259,
-          "fracaoBasico": 0.44074074074074066,
-          "fracaoArea": 0,
-          "turnos": 7.055555555555555
+          "participacao": 0.5361019527021255,
+          "danoPorAcao": 171.69444444444446,
+          "apanhou": 0.00980392156862745,
+          "morreu": 0,
+          "vidaFinal": 0.9948717948717949,
+          "fracaoBasico": 0.21527777777777776,
+          "fracaoArea": 0.5625,
+          "turnos": 4.916666666666667
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.554207910941715,
-          "danoPorAcao": 165.93148148148148,
-          "fracaoBasico": 0.16574074074074074,
-          "fracaoArea": 0.4453703703703704,
-          "turnos": 9.055555555555555
+          "participacao": 0.5429179649221697,
+          "danoPorAcao": 285.9930555555556,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.048611111111111105,
+          "fracaoArea": 0.6527777777777778,
+          "turnos": 5.75
         },
         "6": {
           "vitoria": 1,
-          "participacao": 0.572333918101928,
-          "danoPorAcao": 162.96541005291004,
-          "fracaoBasico": 0.2796957671957672,
-          "fracaoArea": 0.3612433862433862,
-          "turnos": 14.88888888888889
+          "participacao": 0.5352880584663019,
+          "danoPorAcao": 311.87847222222223,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.16180555555555556,
+          "fracaoArea": 0.4923611111111111,
+          "turnos": 7.916666666666667
         }
       },
-      "inclinacao": -0.08160892914706142,
-      "basicoEm6": 0.2796957671957672,
-      "areaEm6": 0.3612433862433862
+      "inclinacao": -0.16865781045917372,
+      "apanhouMedio": 0.0024509803921568627,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9987179487179487,
+      "basicoEm6": 0.16180555555555556,
+      "areaEm6": 0.4923611111111111
     },
     {
-      "classe": "guerreiro",
-      "nome": "Guerreiro",
+      "classe": "patrulheiro",
+      "nome": "Patrulheiro",
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.19103013274696126,
-          "danoPorAcao": 41.666666666666664,
-          "fracaoBasico": 0.16666666666666666,
+          "participacao": 0.6775807395799284,
+          "danoPorAcao": 103.59027777777779,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.15277777777777776,
           "fracaoArea": 0,
-          "turnos": 2.7777777777777777
+          "turnos": 2.625
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.19956107925304833,
-          "danoPorAcao": 47.87962962962963,
-          "fracaoBasico": 0.17592592592592593,
-          "fracaoArea": 0,
-          "turnos": 7.222222222222222
+          "participacao": 0.5260558390710527,
+          "danoPorAcao": 158.72222222222223,
+          "apanhou": 0.00980392156862745,
+          "morreu": 0,
+          "vidaFinal": 0.9941520467836257,
+          "fracaoBasico": 0.19444444444444442,
+          "fracaoArea": 0.5,
+          "turnos": 5.208333333333333
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.2406509093694307,
-          "danoPorAcao": 69.85925925925926,
-          "fracaoBasico": 0.2888888888888889,
-          "fracaoArea": 0,
-          "turnos": 13.5
+          "participacao": 0.5531056119103285,
+          "danoPorAcao": 287.625,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.0798611111111111,
+          "fracaoArea": 0.6354166666666666,
+          "turnos": 5.875
         },
         "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.20021874615763105,
-          "danoPorAcao": 64.7462962962963,
-          "fracaoBasico": 0.34351851851851856,
-          "fracaoArea": 0,
-          "turnos": 21.333333333333332
+          "vitoria": 1,
+          "participacao": 0.5269653918252589,
+          "danoPorAcao": 329.6041666666667,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.08680555555555554,
+          "fracaoArea": 0.548611111111111,
+          "turnos": 8
         }
       },
-      "inclinacao": 0.009188613410669788,
-      "basicoEm6": 0.34351851851851856,
+      "inclinacao": -0.15061534775466945,
+      "apanhouMedio": 0.0024509803921568627,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9985380116959064,
+      "basicoEm6": 0.08680555555555554,
+      "areaEm6": 0.548611111111111
+    },
+    {
+      "classe": "clerigo",
+      "nome": "Clérigo",
+      "porContagem": {
+        "1": {
+          "vitoria": 1,
+          "participacao": 0.1023711516245105,
+          "danoPorAcao": 22.979166666666668,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.14583333333333334,
+          "fracaoArea": 0,
+          "turnos": 2.875
+        },
+        "2": {
+          "vitoria": 1,
+          "participacao": 0.15177010654062267,
+          "danoPorAcao": 35.354166666666664,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.3125,
+          "fracaoArea": 0,
+          "turnos": 5.75
+        },
+        "4": {
+          "vitoria": 1,
+          "participacao": 0.10602815602181115,
+          "danoPorAcao": 38.42361111111111,
+          "apanhou": 0.05962643678160919,
+          "morreu": 0,
+          "vidaFinal": 0.9716981132075473,
+          "fracaoBasico": 0.4236111111111111,
+          "fracaoArea": 0.013888888888888888,
+          "turnos": 9.166666666666666
+        },
+        "6": {
+          "vitoria": 1,
+          "participacao": 0.08705269213882082,
+          "danoPorAcao": 30.492361111111112,
+          "apanhou": 0.07274691358024692,
+          "morreu": 0,
+          "vidaFinal": 0.9613819913211187,
+          "fracaoBasico": 0.6013888888888889,
+          "fracaoArea": 0,
+          "turnos": 13.041666666666666
+        }
+      },
+      "inclinacao": -0.01531845948568969,
+      "apanhouMedio": 0.033093337590464025,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9832700261321665,
+      "basicoEm6": 0.6013888888888889,
+      "areaEm6": 0
+    },
+    {
+      "classe": "paladino",
+      "nome": "Paladino",
+      "porContagem": {
+        "1": {
+          "vitoria": 1,
+          "participacao": 0.0405342868194209,
+          "danoPorAcao": 10.166666666666666,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.10416666666666667,
+          "fracaoArea": 0,
+          "turnos": 3.0833333333333335
+        },
+        "2": {
+          "vitoria": 1,
+          "participacao": 0.047495011762648635,
+          "danoPorAcao": 14.645833333333334,
+          "apanhou": 0.14895833333333333,
+          "morreu": 0,
+          "vidaFinal": 0.9739359158297466,
+          "fracaoBasico": 0.10416666666666667,
+          "fracaoArea": 0,
+          "turnos": 6.25
+        },
+        "4": {
+          "vitoria": 1,
+          "participacao": 0.06238811777059333,
+          "danoPorAcao": 22.90625,
+          "apanhou": 0.23570659565568694,
+          "morreu": 0,
+          "vidaFinal": 0.8910156829763024,
+          "fracaoBasico": 0.3506944444444445,
+          "fracaoArea": 0,
+          "turnos": 10.375
+        },
+        "6": {
+          "vitoria": 0.9583333333333334,
+          "participacao": 0.05116757880441299,
+          "danoPorAcao": 24.340277777777782,
+          "apanhou": 0.33719325775609255,
+          "morreu": 0.08333333333333333,
+          "vidaFinal": 0.785382756971586,
+          "fracaoBasico": 0.23750000000000002,
+          "fracaoArea": 0,
+          "turnos": 13.958333333333334
+        }
+      },
+      "inclinacao": 0.010633291984992091,
+      "apanhouMedio": 0.1804645466862782,
+      "morreuMedio": 0.020833333333333332,
+      "vidaFinalMedia": 0.9125835889444088,
+      "basicoEm6": 0.23750000000000002,
       "areaEm6": 0
     },
     {
@@ -141,81 +242,55 @@
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.10259016551564258,
-          "danoPorAcao": 38.55555555555556,
-          "fracaoBasico": 0.16666666666666666,
+          "participacao": 0.12023538064945383,
+          "danoPorAcao": 30.8125,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.14583333333333334,
           "fracaoArea": 0,
           "turnos": 2.8333333333333335
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.22077426902005176,
-          "danoPorAcao": 57.32407407407408,
-          "fracaoBasico": 0.25925925925925924,
-          "fracaoArea": 0,
-          "turnos": 7.333333333333333
+          "participacao": 0.1730846088244061,
+          "danoPorAcao": 46.583333333333336,
+          "apanhou": 0.125,
+          "morreu": 0,
+          "vidaFinal": 0.9677540242608735,
+          "fracaoBasico": 0.2708333333333333,
+          "fracaoArea": 0.14583333333333334,
+          "turnos": 5.541666666666667
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.19625807598987144,
-          "danoPorAcao": 54.28888888888889,
-          "fracaoBasico": 0.3962962962962963,
-          "fracaoArea": 0.12962962962962962,
-          "turnos": 14.38888888888889
+          "participacao": 0.1227236251231884,
+          "danoPorAcao": 68.40277777777779,
+          "apanhou": 0.17800210800953345,
+          "morreu": 0,
+          "vidaFinal": 0.9246878842704637,
+          "fracaoBasico": 0.19444444444444442,
+          "fracaoArea": 0.40277777777777773,
+          "turnos": 8.875
         },
         "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.17986659788138182,
-          "danoPorAcao": 53.300308641975306,
-          "fracaoBasico": 0.43456790123456784,
-          "fracaoArea": 0.12962962962962962,
-          "turnos": 22.333333333333332
+          "vitoria": 0.9583333333333334,
+          "participacao": 0.13824095830815528,
+          "danoPorAcao": 106.77777777777779,
+          "apanhou": 0.3162670389698844,
+          "morreu": 0.08333333333333333,
+          "vidaFinal": 0.856608538212312,
+          "fracaoBasico": 0.19097222222222224,
+          "fracaoArea": 0.37847222222222227,
+          "turnos": 11.916666666666666
         }
       },
-      "inclinacao": 0.07727643236573924,
-      "basicoEm6": 0.43456790123456784,
-      "areaEm6": 0.12962962962962962
-    },
-    {
-      "classe": "paladino",
-      "nome": "Paladino",
-      "porContagem": {
-        "1": {
-          "vitoria": 1,
-          "participacao": 0,
-          "danoPorAcao": 0,
-          "fracaoBasico": 0,
-          "fracaoArea": 0,
-          "turnos": 3.1666666666666665
-        },
-        "2": {
-          "vitoria": 1,
-          "participacao": 0.027236248746065075,
-          "danoPorAcao": 5.333333333333334,
-          "fracaoBasico": 0.10185185185185185,
-          "fracaoArea": 0.018518518518518517,
-          "turnos": 8.722222222222221
-        },
-        "4": {
-          "vitoria": 1,
-          "participacao": 0.06561301139155928,
-          "danoPorAcao": 12.925,
-          "fracaoBasico": 0.21203703703703705,
-          "fracaoArea": 0.032407407407407406,
-          "turnos": 16.833333333333332
-        },
-        "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.07799906953519341,
-          "danoPorAcao": 20.11626984126984,
-          "fracaoBasico": 0.24325396825396822,
-          "fracaoArea": 0.03756613756613757,
-          "turnos": 26.61111111111111
-        }
-      },
-      "inclinacao": 0.07799906953519341,
-      "basicoEm6": 0.24325396825396822,
-      "areaEm6": 0.03756613756613757
+      "inclinacao": 0.01800557765870145,
+      "apanhouMedio": 0.15481728674485445,
+      "morreuMedio": 0.020833333333333332,
+      "vidaFinalMedia": 0.9372626116859123,
+      "basicoEm6": 0.19097222222222224,
+      "areaEm6": 0.37847222222222227
     },
     {
       "classe": "bardo",
@@ -223,122 +298,111 @@
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.005102040816326531,
-          "danoPorAcao": 1.25,
-          "fracaoBasico": 0,
+          "participacao": 0.014751468769325912,
+          "danoPorAcao": 6.020833333333333,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.041666666666666664,
           "fracaoArea": 0,
-          "turnos": 3.5
+          "turnos": 3.2916666666666665
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.085617583778561,
-          "danoPorAcao": 11.187830687830688,
-          "fracaoBasico": 0.10383597883597882,
+          "participacao": 0.07317027454309771,
+          "danoPorAcao": 16.77777777777778,
+          "apanhou": 0.041666666666666664,
+          "morreu": 0,
+          "vidaFinal": 0.9968905472636816,
+          "fracaoBasico": 0.1597222222222222,
           "fracaoArea": 0,
-          "turnos": 9.444444444444445
+          "turnos": 6.375
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.10989046293719247,
-          "danoPorAcao": 18.83752204585538,
-          "fracaoBasico": 0.23677248677248683,
-          "fracaoArea": 0.05753968253968253,
-          "turnos": 17.72222222222222
+          "participacao": 0.0729355642284056,
+          "danoPorAcao": 22.01805555555556,
+          "apanhou": 0.010416666666666666,
+          "morreu": 0,
+          "vidaFinal": 0.9956467661691543,
+          "fracaoBasico": 0.2986111111111111,
+          "fracaoArea": 0.013888888888888888,
+          "turnos": 9.708333333333334
         },
         "6": {
-          "vitoria": 0.8333333333333334,
-          "participacao": 0.09657965048503646,
-          "danoPorAcao": 19.357142857142858,
-          "fracaoBasico": 0.18481888481888484,
-          "fracaoArea": 0.1271978021978022,
-          "turnos": 24.944444444444443
+          "vitoria": 1,
+          "participacao": 0.05422187264925715,
+          "danoPorAcao": 24.712500000000002,
+          "apanhou": 0.027472527472527472,
+          "morreu": 0,
+          "vidaFinal": 0.9925373134328358,
+          "fracaoBasico": 0.12291666666666667,
+          "fracaoArea": 0.10069444444444443,
+          "turnos": 13.916666666666666
         }
       },
-      "inclinacao": 0.09147760966870992,
-      "basicoEm6": 0.18481888481888484,
-      "areaEm6": 0.1271978021978022
+      "inclinacao": 0.03947040387993124,
+      "apanhouMedio": 0.0198889652014652,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9962686567164178,
+      "basicoEm6": 0.12291666666666667,
+      "areaEm6": 0.10069444444444443
     },
     {
-      "classe": "clerigo",
-      "nome": "Clérigo",
+      "classe": "guerreiro",
+      "nome": "Guerreiro",
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.07450015913785898,
-          "danoPorAcao": 25.88888888888889,
+          "participacao": 0.14731948255674918,
+          "danoPorAcao": 32.895833333333336,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.14583333333333334,
+          "fracaoArea": 0,
+          "turnos": 2.7083333333333335
+        },
+        "2": {
+          "vitoria": 1,
+          "participacao": 0.18299970573052027,
+          "danoPorAcao": 50.166666666666664,
+          "apanhou": 0.08333333333333333,
+          "morreu": 0,
+          "vidaFinal": 0.9816849816849818,
           "fracaoBasico": 0.16666666666666666,
           "fracaoArea": 0,
-          "turnos": 3
-        },
-        "2": {
-          "vitoria": 1,
-          "participacao": 0.22404790627654889,
-          "danoPorAcao": 53.67592592592593,
-          "fracaoBasico": 0.3333333333333333,
-          "fracaoArea": 0,
-          "turnos": 7.666666666666667
+          "turnos": 5.458333333333333
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.17914388049356983,
-          "danoPorAcao": 51.556481481481484,
-          "fracaoBasico": 0.6194444444444445,
-          "fracaoArea": 0.011111111111111112,
-          "turnos": 13.833333333333334
+          "participacao": 0.20214264257561385,
+          "danoPorAcao": 95.5763888888889,
+          "apanhou": 0.16666666666666666,
+          "morreu": 0,
+          "vidaFinal": 0.8966474163815742,
+          "fracaoBasico": 0.3541666666666667,
+          "fracaoArea": 0.2569444444444444,
+          "turnos": 8.208333333333334
         },
         "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.1856590752269187,
-          "danoPorAcao": 56.84722222222222,
-          "fracaoBasico": 0.6018518518518516,
-          "fracaoArea": 0.011111111111111112,
-          "turnos": 23
+          "vitoria": 1,
+          "participacao": 0.2536109415597663,
+          "danoPorAcao": 225.67916666666667,
+          "apanhou": 0.1536672140120416,
+          "morreu": 0,
+          "vidaFinal": 0.9304029304029303,
+          "fracaoBasico": 0.16458333333333333,
+          "fracaoArea": 0.4444444444444444,
+          "turnos": 10.625
         }
       },
-      "inclinacao": 0.11115891608905973,
-      "basicoEm6": 0.6018518518518516,
-      "areaEm6": 0.011111111111111112
-    },
-    {
-      "classe": "druida",
-      "nome": "Druida",
-      "porContagem": {
-        "1": {
-          "vitoria": 1,
-          "participacao": 0.005249801484974255,
-          "danoPorAcao": 0.9444444444444444,
-          "fracaoBasico": 0,
-          "fracaoArea": 0,
-          "turnos": 3.7222222222222223
-        },
-        "2": {
-          "vitoria": 1,
-          "participacao": 0.08806736211552658,
-          "danoPorAcao": 12.01388888888889,
-          "fracaoBasico": 0.12037037037037036,
-          "fracaoArea": 0,
-          "turnos": 8.88888888888889
-        },
-        "4": {
-          "vitoria": 1,
-          "participacao": 0.12924650407383573,
-          "danoPorAcao": 21.769708994709,
-          "fracaoBasico": 0.1718915343915344,
-          "fracaoArea": 0.23154761904761903,
-          "turnos": 17.166666666666668
-        },
-        "6": {
-          "vitoria": 0.8333333333333334,
-          "participacao": 0.15920313342409345,
-          "danoPorAcao": 30.222354497354495,
-          "fracaoBasico": 0.18716931216931218,
-          "fracaoArea": 0.28664021164021164,
-          "turnos": 22.22222222222222
-        }
-      },
-      "inclinacao": 0.1539533319391192,
-      "basicoEm6": 0.18716931216931218,
-      "areaEm6": 0.28664021164021164
+      "inclinacao": 0.10629145900301715,
+      "apanhouMedio": 0.1009168035030104,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9521838321173716,
+      "basicoEm6": 0.16458333333333333,
+      "areaEm6": 0.4444444444444444
     },
     {
       "classe": "necromante",
@@ -346,40 +410,111 @@
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0,
-          "danoPorAcao": 0,
+          "participacao": 0.0038265306122448983,
+          "danoPorAcao": 0.9375,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
           "fracaoBasico": 0,
           "fracaoArea": 0,
-          "turnos": 3.111111111111111
+          "turnos": 3
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.04454299013259493,
-          "danoPorAcao": 9.814814814814815,
-          "fracaoBasico": 0.10185185185185185,
+          "participacao": 0.04819183655016666,
+          "danoPorAcao": 11.4375,
+          "apanhou": 0.041666666666666664,
+          "morreu": 0,
+          "vidaFinal": 0.9967948717948718,
+          "fracaoBasico": 0.041666666666666664,
           "fracaoArea": 0,
-          "turnos": 8.333333333333334
+          "turnos": 6.5
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.11218440248204795,
-          "danoPorAcao": 21.966666666666665,
-          "fracaoBasico": 0.1208994708994709,
-          "fracaoArea": 0.1347883597883598,
-          "turnos": 16.88888888888889
+          "participacao": 0.0679415237624537,
+          "danoPorAcao": 14.659722222222221,
+          "apanhou": 0.017543859649122806,
+          "morreu": 0,
+          "vidaFinal": 0.9948717948717949,
+          "fracaoBasico": 0.041666666666666664,
+          "fracaoArea": 0.14583333333333334,
+          "turnos": 9.333333333333334
         },
         "6": {
-          "vitoria": 0.8888888888888888,
-          "participacao": 0.17391895765610194,
-          "danoPorAcao": 33.57890211640211,
-          "fracaoBasico": 0.19444444444444445,
-          "fracaoArea": 0.2632936507936508,
-          "turnos": 22.055555555555557
+          "vitoria": 1,
+          "participacao": 0.11306285375610665,
+          "danoPorAcao": 27.67222222222222,
+          "apanhou": 0.025595238095238098,
+          "morreu": 0,
+          "vidaFinal": 0.9923076923076923,
+          "fracaoBasico": 0.09166666666666666,
+          "fracaoArea": 0.18541666666666667,
+          "turnos": 12.458333333333334
         }
       },
-      "inclinacao": 0.17391895765610194,
-      "basicoEm6": 0.19444444444444445,
-      "areaEm6": 0.2632936507936508
+      "inclinacao": 0.10923632314386175,
+      "apanhouMedio": 0.02120144110275689,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9959935897435898,
+      "basicoEm6": 0.09166666666666666,
+      "areaEm6": 0.18541666666666667
+    },
+    {
+      "classe": "druida",
+      "nome": "Druida",
+      "porContagem": {
+        "1": {
+          "vitoria": 1,
+          "participacao": 0.06543382019901439,
+          "danoPorAcao": 16.708333333333332,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.10416666666666667,
+          "fracaoArea": 0,
+          "turnos": 3.125
+        },
+        "2": {
+          "vitoria": 1,
+          "participacao": 0.10875420845040353,
+          "danoPorAcao": 39.854166666666664,
+          "apanhou": 0.041666666666666664,
+          "morreu": 0,
+          "vidaFinal": 0.9971461187214613,
+          "fracaoBasico": 0.125,
+          "fracaoArea": 0.25,
+          "turnos": 6.041666666666667
+        },
+        "4": {
+          "vitoria": 1,
+          "participacao": 0.15935746620170002,
+          "danoPorAcao": 71.19444444444444,
+          "apanhou": 0.016203703703703703,
+          "morreu": 0,
+          "vidaFinal": 0.9960045662100456,
+          "fracaoBasico": 0.1111111111111111,
+          "fracaoArea": 0.5555555555555556,
+          "turnos": 9.333333333333334
+        },
+        "6": {
+          "vitoria": 1,
+          "participacao": 0.1943056627352209,
+          "danoPorAcao": 115.51736111111113,
+          "apanhou": 0.025595238095238098,
+          "morreu": 0,
+          "vidaFinal": 0.9931506849315069,
+          "fracaoBasico": 0.15972222222222224,
+          "fracaoArea": 0.548611111111111,
+          "turnos": 11.5
+        }
+      },
+      "inclinacao": 0.1288718425362065,
+      "apanhouMedio": 0.020866402116402116,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.9965753424657535,
+      "basicoEm6": 0.15972222222222224,
+      "areaEm6": 0.548611111111111
     },
     {
       "classe": "mago",
@@ -387,40 +522,55 @@
       "porContagem": {
         "1": {
           "vitoria": 1,
-          "participacao": 0.1506007005318147,
-          "danoPorAcao": 20.72222222222222,
-          "fracaoBasico": 0.16666666666666666,
+          "participacao": 0.11789993547120152,
+          "danoPorAcao": 17.3125,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.14583333333333334,
           "fracaoArea": 0,
-          "turnos": 3.0555555555555554
+          "turnos": 2.9166666666666665
         },
         "2": {
           "vitoria": 1,
-          "participacao": 0.2789512185690827,
-          "danoPorAcao": 78.43518518518519,
-          "fracaoBasico": 0.17592592592592593,
-          "fracaoArea": 0,
-          "turnos": 7.555555555555555
+          "participacao": 0.1982931668128751,
+          "danoPorAcao": 67.5,
+          "apanhou": 0,
+          "morreu": 0,
+          "vidaFinal": 1,
+          "fracaoBasico": 0.08333333333333333,
+          "fracaoArea": 0.3541666666666667,
+          "turnos": 5.375
         },
         "4": {
           "vitoria": 1,
-          "participacao": 0.4164586446903697,
-          "danoPorAcao": 153.84722222222223,
-          "fracaoBasico": 0.17592592592592593,
-          "fracaoArea": 0.5925925925925926,
-          "turnos": 10.88888888888889
+          "participacao": 0.3099664771201596,
+          "danoPorAcao": 162.23611111111111,
+          "apanhou": 0.041666666666666664,
+          "morreu": 0,
+          "vidaFinal": 0.9838154269972451,
+          "fracaoBasico": 0.07638888888888888,
+          "fracaoArea": 0.7569444444444443,
+          "turnos": 6.458333333333333
         },
         "6": {
-          "vitoria": 0.9444444444444444,
-          "participacao": 0.4488005546917774,
-          "danoPorAcao": 183.30185185185186,
-          "fracaoBasico": 0.1712962962962963,
-          "fracaoArea": 0.45000000000000007,
-          "turnos": 15.555555555555555
+          "vitoria": 1,
+          "participacao": 0.32241872621697626,
+          "danoPorAcao": 260.20138888888886,
+          "apanhou": 0.05555555555555555,
+          "morreu": 0,
+          "vidaFinal": 0.991120218579235,
+          "fracaoBasico": 0.07638888888888888,
+          "fracaoArea": 0.7152777777777778,
+          "turnos": 8.125
         }
       },
-      "inclinacao": 0.29819985415996264,
-      "basicoEm6": 0.1712962962962963,
-      "areaEm6": 0.45000000000000007
+      "inclinacao": 0.20451879074577473,
+      "apanhouMedio": 0.024305555555555552,
+      "morreuMedio": 0,
+      "vidaFinalMedia": 0.99373391139412,
+      "basicoEm6": 0.07638888888888888,
+      "areaEm6": 0.7152777777777778
     }
   ]
 }
