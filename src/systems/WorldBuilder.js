@@ -1984,6 +1984,49 @@ export function construirMundo(semente) {
   const corallia = assentamentoPorIdMapa.get("cidade_de_corallia");
   if (corallia) garantirAcesso(g, alvosDeAcesso.filter(ehDoRecife), corallia);
 
+  // A INVARIANTE PASSA A SER MEDIDA, EM VEZ DE ESPERADA.
+  //
+  // O DEFEITO, MEDIDO: acrescentar UM recurso à lista de uma zona (minerio_raro
+  // em deserto_karn) deslocou o fluxo de números aleatórios e, numa das 12
+  // sementes do teste, dois nós de costa_aurora nasceram em terreno sem
+  // ligação a pé com o resto do mundo. Nada no gerador tinha piorado: o mundo
+  // saiu diferente e caiu num arranjo que as garantias acima não cobrem.
+  //
+  // A ordem aqui em cima tem um furo conhecido e inevitável: garantirAcesso
+  // abre corredores, isolarArquipelagoCoral REAFIRMA o canal logo depois, e
+  // reafirmar o canal pode cortar um corredor recém-aberto. A ordem é assim
+  // de propósito — sem a reafirmação, um corredor vira ponte acidental para a
+  // ilha. Ou seja: não dá para resolver só trocando a ordem.
+  //
+  // Então em vez de confiar que o furo nunca aparece, ele é VERIFICADO. Uma
+  // rodada extra de reparo cobre o caso comum (corredor cortado), e o que
+  // ainda sobrar sai declarado em `inalcancaveis`, onde um teste consegue ver.
+  // Um defeito que depende de sorte de semente só é gerenciável se estiver
+  // medido; do contrário ele reaparece a cada mudança de dado, sem aviso e
+  // sem culpado óbvio — foi exatamente o que aconteceu.
+  const origensDeAcesso = corallia ? [spawn, corallia] : [spawn];
+  const alcance = () => {
+    const visto = new Uint8Array(W * H);
+    const sementes = [];
+    for (const o of origensDeAcesso) {
+      const i = idx(o.x, o.y);
+      if (!visto[i]) { visto[i] = 1; sementes.push(i); }
+    }
+    return inundar(g, visto, sementes);
+  };
+  const perdidos = (visto) => alvosDeAcesso.filter((a) => a && dentro(a.x, a.y) && !visto[idx(a.x, a.y)]);
+
+  let sobraram = perdidos(alcance());
+  if (sobraram.length) {
+    // Segunda rodada: religa o que o canal cortou, e reafirma o canal de novo.
+    // Limitada a uma passada — se duas rodadas não resolvem, o arranjo é raro
+    // o bastante para merecer ser visto, não mascarado por um laço.
+    garantirAcesso(g, sobraram.filter((a) => !ehDoRecife(a)), spawn);
+    isolarArquipelagoCoral(g, posse);
+    if (corallia) garantirAcesso(g, sobraram.filter(ehDoRecife), corallia);
+    sobraram = perdidos(alcance());
+  }
+
   const alturas = gerarMapaDeAlturas(g, posse, ZONAS_MUNDO, semente, assentamentos, tracados);
 
   // Os buffers da busca de estradas só servem durante a construção. Soltos
@@ -1995,6 +2038,11 @@ export function construirMundo(semente) {
     grid: g, alturas, spawn, props,
     zonas: resumo, assentamentos, estradas, pontes, rios, pois, landmarks, masmorras,
     baus, nos, chefes, vagasNpc,
+    // Alvos que continuaram sem ligação a pé depois das duas rodadas de
+    // reparo. Deve ser sempre vazio; existe para que isso seja TESTÁVEL em
+    // vez de descoberto por acaso (ver o bloco "A INVARIANTE PASSA A SER
+    // MEDIDA" acima e scripts/test-mundo-semente.mjs).
+    inalcancaveis: sobraram.map((a) => ({ id: a.id || null, x: a.x, y: a.y })),
     ms: Date.now() - t0,
     // RELÓGIO DE PAREDE NÃO MEDE O GERADOR, MEDE A MÁQUINA.
     //
