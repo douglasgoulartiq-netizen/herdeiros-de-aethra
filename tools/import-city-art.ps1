@@ -2,8 +2,14 @@ param([Parameter(Mandatory=$true)][string]$Source, [Parameter(Mandatory=$true)][
 $ErrorActionPreference = 'Stop'
 if ($Name -notmatch '^[a-z]+$') { throw 'Invalid asset name' }
 Add-Type -AssemblyName System.Drawing
+# O nome do assembly muda conforme a edicao do PowerShell: "System.Drawing.Common"
+# so existe no PowerShell 7. Esta maquina tem apenas o Windows PowerShell 5.1,
+# onde o tipo mora em System.Drawing.dll — e o Add-Type morria com "Nao foi
+# possivel encontrar o arquivo de metadados" antes de gerar um unico pixel.
+# Referenciar o assembly ja carregado pelo CAMINHO resolve nas duas edicoes.
+$refDrawing = [System.Drawing.Bitmap].Assembly.Location
 if (-not ('CityArtBounds' -as [type])) {
-Add-Type -ReferencedAssemblies System.Drawing.Common,System.Drawing.Primitives -TypeDefinition @'
+Add-Type -ReferencedAssemblies $refDrawing -TypeDefinition @'
 using System.Drawing;
 public static class CityArtBounds {
   public static Rectangle Find(Bitmap b) {
