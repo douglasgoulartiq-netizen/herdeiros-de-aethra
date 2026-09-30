@@ -24,3 +24,8 @@ dist/
 
 # Vercel
 .vercel/
+
+# Rascunhos de mensagem de commit e arquivos de trabalho de sessao.
+# Ja acumularam 16 na raiz; o conteudo deles vive no historico do git.
+_msg-*.txt
+_hashes-*.txt
