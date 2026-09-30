@@ -16,7 +16,34 @@
 // condição da ação especial não se aplica (ex.: Suporte sem ninguém para
 // curar), o inimigo cai para um ataque básico mirado pelas regras abaixo.
 
-export function escolherAlvoPorArquetipo(timeVivo, arquetipo) {
+import { pesosDeAlvo, sortearPorPeso } from "./AmeacaSystem.js";
+
+// O ALVO DEIXOU DE SER DECIDIDO SÓ PELO INIMIGO.
+//
+// Antes, esta função aplicava a regra do arquétipo e pronto: o caçador pegava
+// o de menor defesa, o agressor o mais ferido, e o jogador não tinha nenhuma
+// influência. Medido em tests/matriz-de-nicho.mjs, o mago apanhava 18,5% do
+// dano do time — quase o mesmo que o patrulheiro (19,2%) e MAIS que o
+// paladino (18,3%), que é classe de tanque. Investir em vida e defesa não
+// comprava nada, porque não havia como atrair o golpe.
+//
+// Agora o alvo sai de um sorteio COM PESO (ver AmeacaSystem): posição,
+// robustez e provocação formam a ameaça, e a preferência do arquétipo
+// multiplica por cima. O caçador continua preferindo o frágil — a identidade
+// dele não se perdeu — mas um guerreiro provocando consegue puxá-lo.
+//
+// Sorteio e não "o maior": o tanque puxa a maioria dos ataques sem o jogo
+// virar um trilho onde o resultado é sabido de antemão.
+//
+// `aleatorio` é injetável só para teste.
+export function escolherAlvoPorArquetipo(timeVivo, arquetipo, aleatorio = Math.random) {
+  if (!timeVivo.length) return null;
+  return sortearPorPeso(timeVivo, pesosDeAlvo(timeVivo, arquetipo), aleatorio);
+}
+
+// A regra antiga, preservada para comparação e para o teste provar o que
+// mudou. Não é usada pelo jogo.
+export function escolherAlvoPorArquetipoLegado(timeVivo, arquetipo) {
   if (!timeVivo.length) return null;
   switch (arquetipo) {
     case "agressor":
