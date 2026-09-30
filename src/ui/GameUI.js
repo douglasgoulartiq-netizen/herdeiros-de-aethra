@@ -6,6 +6,7 @@ import { itemPodeSerAprimorado, nivelAprimoramento, custoProximoNivel, podeAprim
   escolherSubStatusDoMarco,
   temMarcoPendente} from "../systems/EnchantSystem.js";
 import { iniciarMissao, missaoPronta, concluirMissao, ehMissaoPrincipal, missaoRastreada, rastrearMissao, progressoDaMissao, textoObjetivoMissao } from "../systems/QuestSystem.js";
+import { ZONAS_MUNDO } from "../data/world/zones.js";
 import { missoesDiariasParaExibir, coletarRecompensaDiaria } from "../systems/DailyQuestSystem.js";
 import { ganharXP, aplicarCrescimento, cryptoId, NIVEL_MAXIMO_PERSONAGEM } from "../systems/CharacterFactory.js";
 import { temCompraDisponivel } from "../systems/SkillTreeSystem.js";
@@ -27,7 +28,8 @@ import { registrarEvento } from "../systems/TelemetrySystem.js";
 import { mostrarRolagemD20 } from "./DiceAnimation.js";
 import { personagemTemCaminhoHerdeiro } from "./TalentTreeUI.js";
 import { planejarEquipamento, aplicarPlanoEquipamento, autoEquiparSlotsVazios, garantirPrefAutoEquipar } from "../systems/AutoEquipSystem.js";
-import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, marcarNavbarAtiva, marcarInteracaoAutomatica } from "./HdaUI.js";
+import { abrirTela, fecharTela, LARGURA, criarGrade, criarSplit, abrirSheet, fecharSheet, ehMobile, montarAbas, montarNavbar, removerNavbar, marcarNavbarAtiva, marcarInteracaoAutomatica } from "./HdaUI.js";
+import { montarRodaDosSelos } from "./RodaDosSelos.js";
 import { falaAtual, reacaoPorReputacao, reacaoARaca, registrarConversa } from "../systems/NpcSystem.js";
 import { questsOferecidasPor, aceitarQuestRegional, concluirQuestRegional, progressoObjetivoRegional } from "../systems/RegionalQuestSystem.js";
 import { questRegionalPorId, PASSOS_INICIAIS } from "../data/world/regionalQuests.js";
@@ -121,39 +123,39 @@ export {
 // ativo, e um estado escondido dentro de um menu fechado não é um estado
 // visível. #btn-auto continua existindo com o mesmo id porque main.js e
 // BattleUI.js o procuram por ele.
-export const ACAO_AUTO = { acao: "auto", rotulo: "Modo Automático", icone: "▶", atalho: "P", id: "btn-auto" };
+export const ACAO_AUTO = { acao: "auto", rotulo: "Modo Automático", curto: "Automático", icone: "▶", atalho: "P", id: "btn-auto" };
 
 export const HUBS = [
   // `curto` é o rótulo do trilho, onde cabem 68px: "Personagem" virava
   // "PERSON…" e uma palavra cortada não é um rótulo. Na barra do celular e no
   // título do painel continua valendo o nome inteiro.
   { id: "personagem", icone: "🛡️", rotulo: "Companhia", curto: "Equipe", acoes: [
-    { acao: "estado", rotulo: "Heróis", icone: "👤", atalho: "K" },
-    { acao: "equipamento", rotulo: "Equipamento", icone: "🎒", atalho: "I" },
-    { acao: "arvore", rotulo: "Evolução · Habilidades", icone: "✨", atalho: "T" },
-    { acao: "caminhos", rotulo: "Caminhos do Herdeiro", icone: "🌌", atalho: "H", id: "btn-caminhos" },
+    { acao: "estado", rotulo: "Heróis", curto: "Heróis", icone: "👤", atalho: "K" },
+    { acao: "equipamento", rotulo: "Equipamento", curto: "Equipar", icone: "🎒", atalho: "I" },
+    { acao: "arvore", rotulo: "Evolução · Habilidades", curto: "Evolução", icone: "✨", atalho: "T" },
+    { acao: "caminhos", rotulo: "Caminhos do Herdeiro", curto: "Caminhos", icone: "🌌", atalho: "H", id: "btn-caminhos" },
     // "Time" saiu de dentro do painel de invocação e virou tela própria
     // (PartyUI.js). Antes, para vestir um convocado era preciso passar pelo
     // gacha — uma tela de sorteio — o que misturava duas coisas que não têm
     // nada a ver uma com a outra.
-    { acao: "party", rotulo: "Formação e companheiros", icone: "🛡️", atalho: "Y" },
+    { acao: "party", rotulo: "Formação e companheiros", curto: "Formação", icone: "🛡️", atalho: "Y" },
   ] },
   // Mapa, viagens e atlas compartilham Jornada → Mapa. Os atalhos de
   // teclado antigos continuam disponíveis sem duplicar entradas no menu.
   { id: "jornada", icone: "🧭", rotulo: "Jornada", acoes: [
     { acao: "missoes", rotulo: "Missões", icone: "📜", atalho: "M" },
-    { acao: "mapa", rotulo: "Mapa de Aethra", icone: "🗺️", atalho: "U" },
+    { acao: "mapa", rotulo: "Mapa de Aethra", curto: "Mapa", icone: "🗺️", atalho: "U" },
     { acao: "compendio", rotulo: "Códice", icone: "📚", atalho: "C" },
   ] },
   { id: "invocar", icone: "✨", rotulo: "Invocar", acoes: [
-    { acao: "gacha", rotulo: "Invocar heróis", icone: "✨", atalho: "G" },
+    { acao: "gacha", rotulo: "Invocar heróis", curto: "Invocar", icone: "✨", atalho: "G" },
   ] },
   { id: "mais", icone: "⋯", rotulo: "Menu", acoes: [
-    { acao: "tutorial", rotulo: "Tutorial e ajuda", icone: "🎓", atalho: "F1" },
+    { acao: "tutorial", rotulo: "Tutorial e ajuda", curto: "Ajuda", icone: "🎓", atalho: "F1" },
     { acao: "descansar", rotulo: "Descansar", icone: "💤", atalho: "R" },
-    { acao: "sair_masmorra", rotulo: "Sair da Masmorra", icone: "🚪" },
+    { acao: "sair_masmorra", rotulo: "Sair da Masmorra", curto: "Sair", icone: "🚪" },
     { acao: "salvar", rotulo: "Salvar", icone: "💾", atalho: "S" },
-    { acao: "acessibilidade", rotulo: "Acessibilidade", icone: "⚙️" },
+    { acao: "acessibilidade", rotulo: "Acessibilidade", curto: "Acesso", icone: "⚙️" },
   ] },
 ];
 
@@ -165,11 +167,29 @@ let eventosNavegacao = null;
 
 // Monta a navegação nos dois formatos a partir de HUBS. Chamada uma vez pelo
 // boot (main.js) e de novo em toda troca de orientação/tamanho.
+// A Roda dos Selos substitui o trilho lateral E a barra inferior por UM
+// botão que abre metade da tela com todas as ações à vista. O código antigo
+// continua abaixo, atrás desta flag, porque ele é a única coisa que prova
+// que a Roda não perdeu nenhuma ação pelo caminho: um teste monta os dois e
+// compara as listas.
+export let RODA_ATIVA = true;
+export function usarRoda(v) { RODA_ATIVA = !!v; }
+
 export function montarNavegacao(onAcao) {
   eventosNavegacao?.abort();
   eventosNavegacao = new AbortController();
   const { signal } = eventosNavegacao;
   const hud = document.getElementById("hud-buttons");
+
+  if (RODA_ATIVA && hud) {
+    montarRodaDosSelos(hud, HUBS, ACAO_AUTO, onAcao, signal);
+    // A barra inferior do celular sai junto: a Roda já é o alcance do polegar,
+    // e manter as duas seria oferecer dois caminhos para a mesma coisa — que é
+    // justamente a navegação duplicada que o briefing pediu para remover.
+    removerNavbar();
+    return;
+  }
+
   if (hud) {
     // TRILHO LATERAL (desktop). A parede de 17 botões empilhados ocupava 760
     // pixels da direita da tela — um quinto do mundo escondido atrás de um
@@ -283,8 +303,9 @@ export function montarNavegacao(onAcao) {
     document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && abertoId) fecharPainel(); }, { signal });
   }
 
-  // Barra inferior (celular). Um hub com uma única ação abre direto; os
-  // demais abrem a lista num painel — nunca mais de dois toques (item 83).
+  // Barra inferior (celular) — caminho ANTIGO, só quando a Roda está
+  // desligada. Um hub com uma única ação abre direto; os demais abrem a lista
+  // num painel — nunca mais de dois toques (item 83).
   montarNavbar(HUBS.map((h) => ({ id: h.id, icone: h.icone, rotulo: h.rotulo })), (id) => {
     const hub = HUBS.find((h) => h.id === id);
     if (!hub) return;
@@ -1529,6 +1550,16 @@ export function montarLoja(personagem, dados, onMudar, contexto = {}) {
   tela.definirAcoes([], `🪙 <b>${personagem.ouro}</b> de ouro · ${catalogo.length} itens à venda`);
 }
 
+// O campo `onde` de uma missão guarda o ID da zona, e o id estava indo CRU
+// para a tela: "Onde: posto_avancado_da_ordem". Id é chave de dado, não texto
+// de jogo — o jogador não tem como saber que aquilo é o Posto Avançado da
+// Ordem. Quando o id não estiver no mapa de zonas, o sublinhado pelo menos
+// vira espaço, em vez de aparecer como nome de variável.
+const NOME_DE_ZONA = new Map(ZONAS_MUNDO.map((z) => [z.id, z.nome]));
+function nomeDeZona(id) {
+  return NOME_DE_ZONA.get(id) || String(id).replace(/_/g, " ");
+}
+
 export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   const corpo = abrirModalBase(npc.nome);
   corpo.dataset.npcDialogo = npc.id;
@@ -1583,7 +1614,20 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
   if (npc.regiaoId) {
     questsOferecidasPor(personagem, npc.id).forEach(({ quest, estado }) => {
       const div = document.createElement("div");
-      div.className = "card";
+      // CARTÃO DE MISSÃO É COLUNA, NÃO LINHA.
+      //
+      // O DEFEITO: `.card` é `display:flex` em linha — ele foi feito para
+      // item de loja (imagem de 40px + info + botão). Este cartão tem QUATRO
+      // filhos na mesma linha: info, o texto de progresso e o botão. O
+      // `.info` tem `flex:1` com `min-width:0`, então encolhe até zero; o
+      // texto de progresso não tem regra de flex, então se recusa a encolher
+      // e fica com a largura toda. Resultado na tela: o título quebrava UMA
+      // LETRA POR LINHA ("Trê / s / dia / s") porque `.nome` tem
+      // `overflow-wrap:anywhere`, e o objetivo quebrava uma palavra por linha.
+      //
+      // Empilhar resolve na origem: o cartão passa a ter uma coluna só, e
+      // nenhum dos filhos disputa largura com os outros.
+      div.className = "card card-missao-npc";
       if (estado === "ativa") {
         // Um passo `tipo: "decisao"` não se "conclui": ele se DECIDE. O
         // rótulo do botão diz isso, e o clique abre a cena de decisão em vez
@@ -1591,7 +1635,7 @@ export function montarDialogo(npc, dados, personagem, onMudar, contexto = {}) {
         const decide = Array.isArray(quest.escolhas) && quest.escolhas.length > 0;
         const progresso = progressoObjetivoRegional(personagem, quest.id);
         div.innerHTML = `<div class="info"><div class="nome">${decide ? "⚖️ " : ""}${quest.nome}</div><div class="desc">${quest.objetivo}</div>
-          <div class="desc">Onde: ${quest.onde.join(", ")}</div></div>
+          <div class="desc">Onde: ${quest.onde.map(nomeDeZona).join(", ")}</div></div>
           <div class="desc">${progresso.texto}</div>
           <div><button class="${decide ? "primario " : ""}btn-qr-concluir" data-id="${quest.id}" ${progresso.pronto ? "" : "disabled"}>${decide ? "Decidir" : "Concluir"}</button></div>`;
       } else {

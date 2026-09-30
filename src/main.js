@@ -258,6 +258,29 @@ async function boot() {
   window.HDA_PROPS = () => propsAtivos();
   window.HDA_NPCS = () => npcsAtivos();
   window.HDA_ASSENTAMENTOS = () => (mundo.gerado?.assentamentos || []);
+  // Só de teste: a LISTA DE ALVOS que o modo automático está enxergando
+  // agora, já pontuada. Sem isto, depurar "por que o herói não sai do lugar"
+  // é adivinhação — a decisão mora dentro de uma função privada que roda
+  // dezenas de vezes por segundo.
+  window.HDA_AUTO_ALVOS = () => {
+    const alvos = alvosAutoExploracao();
+    const px = mundo.player.x; const py = mundo.player.y;
+    return alvos.map((a) => ({
+      tipo: a.tipo, x: a.x, y: a.y,
+      dist: Math.round(Math.hypot(a.x - px, a.y - py)),
+      prioridade: a.prioridade,
+      peso: a.pesoDistancia,
+      missaoId: a.missaoId || null,
+      patrulhando: !!a.patrulhando,
+    })).sort((u, v) => v.prioridade - u.prioridade);
+  };
+  window.HDA_AUTO_MISSOES = () => (personagem.missoesAtivas || []).map((m) => {
+    const def = (dados.quests || []).find((q) => q.id === m.id);
+    if (!def) return { id: m.id, def: null };
+    const d = destinoDeMissao(def);
+    return { id: m.id, tipo: def.tipo, regiao: def.regiao, mapaAlvo: def.mapaAlvo,
+      destino: d ? { x: d.x, y: d.y, mapa: d.mapa, pronto: !!d.pronto, patrulhando: !!d.patrulhando } : null };
+  });
   // Só de teste: a mesma regra de oclusão que o renderer usa, exposta para
   // um teste poder encontrar uma posição que de fato fica atrás da copa.
   window.HDA_OCLUI = (prop, jogador) => propOcluiJogador(prop, jogador);
@@ -873,8 +896,63 @@ function destinoDeMissao(def, { paraMapaMundo = false } = {}) {
   const zonaId = def.zonaAlvo || def.regiao;
   const no = def.tipo === "coletar" ? mundo.nodes.find((n) => n.disponivel && n.zonaId === zonaId) : null;
   const chefe = def.tipo === "matar" ? mundo.gerado?.chefes?.find((c) => c.zonaId === zonaId && c.monstroId === def.alvo) : null;
-  const alvo = no || chefe || (zonaPorId(zonaId) ? pontoDeChegada(zonaPorId(zonaId)) : null);
-  return alvo ? { id: def.id, x: alvo.x, y: alvo.y, mapa: "overworld", nome: def.nome, texto: textoObjetivoMissao(def) } : null;
+  const zona = zonaPorId(zonaId);
+  // CAÇAR NÃO É CHEGAR NUM LUGAR.
+  //
+  // O DEFEITO, MEDIDO: com o automático ligado numa partida nova, o herói
+  // visitou 11 tiles em 45 segundos e terminou no nível 1. O motivo é este
+  // trecho: uma missão de MATAR virava "o centro da zona", e o herói já
+  // começa dentro da zona da primeira missão. Destino a distância zero =
+  // chegou = nada mais a fazer, e o automático caía no andar aleatório, que
+  // orbita meia dúzia de casas.
+  //
+  // Mas encontro aleatório é sorteado POR PASSO DADO (EncounterSystem). Para
+  // matar dois ratos é preciso ATRAVESSAR a zona, não parar no meio dela.
+  //
+  // Então, quando o objetivo ainda não está cumprido e o herói já está na
+  // zona certa, o destino passa a ser a borda OPOSTA à posição dele. Ao
+  // chegar lá, o lado oposto inverte sozinho e o herói volta varrendo — uma
+  // patrulha de vaivém, sem sorteio novo e sem estado a guardar.
+  if (!no && !chefe && zona && def.tipo === "matar" && !progresso.pronto) {
+    const patrulha = pontoDePatrulha(zona);
+    if (patrulha) {
+      return {
+        id: def.id, x: patrulha.x, y: patrulha.y, mapa: "overworld",
+        nome: def.nome, texto: textoObjetivoMissao(def), patrulhando: true,
+      };
+    }
+  }
+  const alvo = no || chefe || (zona ? pontoDeChegada(zona) : null);
+  // `chegadaSimples` marca o destino que é só "o ponto de chegada da zona":
+  // não há nó de recurso, não há chefe, não há patrulha. Para a BÚSSOLA isso
+  // continua sendo a melhor resposta possível ("é por ali"). Para a IA do
+  // automático, não é: chegar lá não muda nada, e um destino que não muda
+  // nada a distância zero trava a lista de alvos para sempre (ver
+  // `alvoDeUmaMissaoAutomatica`). A flag deixa os dois lados lerem o mesmo
+  // destino com expectativas diferentes.
+  return alvo ? { id: def.id, x: alvo.x, y: alvo.y, mapa: "overworld", nome: def.nome,
+    texto: textoObjetivoMissao(def), chegadaSimples: !no && !chefe } : null;
+}
+
+// O ponto de patrulha: o canto da zona mais LONGE do herói, recuado da borda
+// para não escolher um tile de fronteira que pode estar em água ou em rocha.
+//
+// Só vale quando o herói já está dentro da zona. Fora dela, o destino
+// continua sendo o ponto de chegada — ir até lá já é o trabalho.
+const RECUO_PATRULHA = 3;
+function pontoDePatrulha(zona) {
+  if (zona.x0 == null || zona.x1 == null) return null;
+  const { x, y } = mundo.player;
+  const dentro = x >= zona.x0 && x <= zona.x1 && y >= zona.y0 && y <= zona.y1;
+  if (!dentro) return null;
+  const larg = zona.x1 - zona.x0; const alt = zona.y1 - zona.y0;
+  // Zona pequena demais não comporta patrulha: o vaivém viraria tremor.
+  if (larg < RECUO_PATRULHA * 3 || alt < RECUO_PATRULHA * 3) return null;
+  const meioX = (zona.x0 + zona.x1) / 2; const meioY = (zona.y0 + zona.y1) / 2;
+  return {
+    x: x <= meioX ? zona.x1 - RECUO_PATRULHA : zona.x0 + RECUO_PATRULHA,
+    y: y <= meioY ? zona.y1 - RECUO_PATRULHA : zona.y0 + RECUO_PATRULHA,
+  };
 }
 
 function atualizarGuiaMissao() {
@@ -3442,6 +3520,71 @@ function conduzirOrientacaoAutomatica() {
   autoAndar();
 }
 
+// QUEM PULA A ORIENTAÇÃO E LIGA O AUTOMÁTICO JOGAVA O JOGO INTEIRO SOZINHO.
+//
+// O DEFEITO, MEDIDO: sete minutos de automático numa partida nova em que a
+// orientação foi pulada — nível 1 → 5, cinco missões concluídas, a Masmorra
+// Antiga limpa, e `gacha.timeAtivo.length` = 0 o tempo todo. O herói fez tudo
+// isso lutando sozinho, com três slots de time vazios e as invocações grátis
+// de iniciante intocadas.
+//
+// A causa: montar o time só existia DENTRO de `conduzirOrientacaoAutomatica`,
+// que por sua vez só roda enquanto o cartão `.missao-guia` está na tela. Pular
+// a orientação apagava o cartão e, com ele, a única rotina que sabia invocar.
+//
+// Aqui a mesma sequência (invocar grátis → colocar no time → fechar o painel)
+// roda sem depender do cartão. Duas travas para não repetir o defeito que o
+// automático já teve de abrir e fechar modal em laço:
+//   - ORÇAMENTO de tentativas: sem invocação grátis sobrando, o automático
+//     desiste de vez na sessão em vez de reabrir o painel para sempre. Ele
+//     nunca gasta o ouro do jogador com isso.
+//   - o mesmo INTERVALO_ORIENTACAO_AUTO_MS da orientação, para os cliques não
+//     atropelarem a animação de abertura do painel.
+const ORCAMENTO_MONTAR_TIME = 40;
+let tentativasMontarTime = 0;
+
+function montarTimeSemOrientacao() {
+  if (!personagem || tentativasMontarTime >= ORCAMENTO_MONTAR_TIME) return false;
+  const gacha = personagem.gacha || {};
+  const heroisObtidos = (gacha.personagensObtidos || []).length;
+  const noTime = (gacha.timeAtivo || []).length;
+  if (heroisObtidos >= 3 && noTime >= 3) return false;
+
+  const agora = Date.now();
+  if (agora - ultimaAcaoOrientacao < INTERVALO_ORIENTACAO_AUTO_MS) return true;
+  const visivel = (el) => !!el && !el.hidden && !el.disabled && el.getClientRects().length > 0;
+  const agir = (el) => { tentativasMontarTime += 1; ultimaAcaoOrientacao = agora; el.click(); autoSalvarSeAutomatico(); return true; };
+  const modalAberto = !document.getElementById("modal-overlay").classList.contains("hidden");
+
+  if (heroisObtidos < 3) {
+    const puxar = [...document.querySelectorAll(".btn-puxar")].find(visivel);
+    if (puxar) return agir(puxar);
+    const abaIniciante = document.querySelector("#gacha-tab-iniciante");
+    if (visivel(abaIniciante) && !abaIniciante.classList.contains("ativa")) return agir(abaIniciante);
+    if (!visivel(abaIniciante)) { tentativasMontarTime += 1; ultimaAcaoOrientacao = agora; onHudAction("gacha"); return true; }
+    // Painel certo aberto e nenhuma invocação grátis: acabou o que era de
+    // graça. Fecha e segue jogando com quem já tem.
+    tentativasMontarTime = ORCAMENTO_MONTAR_TIME;
+    if (modalAberto) fecharModal();
+    return true;
+  }
+
+  if (noTime < 3) {
+    // `.btn-time` é a MESMA classe de "Colocar no time" e "Remover do time":
+    // filtrar pela classe tirava do time quem tinha acabado de entrar.
+    const colocar = [...document.querySelectorAll(".btn-time")]
+      .find((b) => visivel(b) && /colocar/i.test(b.textContent || ""));
+    if (colocar) return agir(colocar);
+    if (!document.querySelector(".btn-time")) { tentativasMontarTime += 1; ultimaAcaoOrientacao = agora; onHudAction("party"); return true; }
+    tentativasMontarTime = ORCAMENTO_MONTAR_TIME;
+  }
+
+  // Time pronto (ou orçamento esgotado): o painel não pode ficar por cima do
+  // mundo enquanto o automático caminha.
+  if (modalAberto) { ultimaAcaoOrientacao = agora; fecharModal(); return true; }
+  return false;
+}
+
 function tickAutoPlay() {
   if (!autoPlayState.ativo || !personagem) return;
   // Cena de história e tutorial são leitura: o automático espera o jogador
@@ -3483,6 +3626,7 @@ function tickAutoPlay() {
   // A batalha já saiu acima: durante a luta, quem joga é a IA de combate, e
   // o cartão só descreve o que está acontecendo.
   if (tutorialAberto()) return conduzirOrientacaoAutomatica();
+  if (montarTimeSemOrientacao()) return;
 
   // Os menus laterais são uma camada de configuração, não uma pausa. Enquanto
   // um deles está expandido o herói continua viajando, porém não conversa,
@@ -3534,8 +3678,39 @@ function tickAutoPlay() {
       return;
     }
 
-    const aceitar = modalRaiz.querySelector(".btn-aceitar:not([disabled]):not([data-auto-tentada]), .btn-qr-aceitar:not([disabled]):not([data-auto-tentada])");
-    if (aceitar) { aceitar.dataset.autoTentada = 'true'; aceitar.click(); autoSalvarSeAutomatico(); return; }
+    // ACEITA TUDO O QUE ESTE NPC TEM, NA MESMA VISITA.
+    //
+    // O LOOP QUE ISTO QUEBRA, medido: com o automático ligado numa partida
+    // nova, o herói ficou 45 segundos em 11 tiles, todos ao redor da praça.
+    // O mecanismo era um ciclo que se realimentava:
+    //
+    //   1. o automático abre o diálogo e aceita UMA oferta, depois `return`;
+    //   2. aceitar muda `estadoDasMissoesDoNpc` (aquela missão vai de
+    //      "oferta" para "ativa");
+    //   3. `memoriaNpcAuto` é indexada por esse estado — mudou o estado,
+    //      a visita anterior deixa de contar e o NPC volta a ser alvo;
+    //   4. o NPC está a duas casas e vence qualquer objetivo distante na
+    //      régua de pontuação (prioridade − distância), então o herói volta;
+    //   5. volta ao passo 1, com uma oferta a menos e nenhum passo dado.
+    //
+    // A Guarda Helena sozinha tinha QUATRO botões "Aceitar" abertos ao mesmo
+    // tempo: quatro voltas à praça antes de o herói poder ir a lugar nenhum.
+    //
+    // Esvaziando as ofertas de uma vez, o estado do NPC assenta numa visita
+    // só e a memória volta a valer. O laço tem teto porque cada clique
+    // remonta o diálogo: sem o limite, um botão que reaparece sempre travaria
+    // o quadro.
+    const LIMITE_OFERTAS = 12;
+    let aceitou = false;
+    for (let i = 0; i < LIMITE_OFERTAS; i += 1) {
+      const raiz = document.getElementById("modal-conteudo") || modalRaiz;
+      const aceitar = raiz.querySelector(".btn-aceitar:not([disabled]):not([data-auto-tentada]), .btn-qr-aceitar:not([disabled]):not([data-auto-tentada])");
+      if (!aceitar) break;
+      aceitar.dataset.autoTentada = "true";
+      aceitar.click();
+      aceitou = true;
+    }
+    if (aceitou) { autoSalvarSeAutomatico(); return; }
     const escolha = document.querySelector(".btn-escolha-habilidade");
     if (escolha) { escolha.click(); autoSalvarSeAutomatico(); return; }
     // Evento aleatório de exploração (melhoria pós-backlog): o modo
@@ -3758,9 +3933,61 @@ function npcEObjetivoDeMissao(npcId) {
   return prioridadeMissaoNoNpc(npcId) > PRIORIDADE.npc;
 }
 
+// UM DESTINO JÁ ALCANÇADO QUE NÃO MUDA NADA TRAVAVA A LISTA INTEIRA.
+//
+// O DEFEITO, MEDIDO: 60 segundos de automático numa partida nova, e o herói
+// visitou TRÊS tiles — 183,195 / 182,194 / 182,196. O sorteio de alvos
+// (HDA_AUTO_ALVOS) explicou por quê:
+//
+//   missao tutorial_companhia   dist 1    prioridade 132   <- vencedor eterno
+//   missao q4_mercador...       dist 91   prioridade 132
+//
+// `tutorial_companhia` é `tipo: "tutorial"` — não tem lugar nenhum no mundo.
+// Sem nó, sem chefe e sem patrulha, `destinoDeMissao` caía no último recurso
+// e devolvia o ponto de chegada da zona "vila", que é exatamente onde o herói
+// começa. Distância 1 e prioridade máxima: a régua prioridade − distância
+// elegia esse alvo em todo tick, para sempre. `q3_colar_perdido` (coletar
+// "gema" na vila, onde não há nó de gema) tinha a mesma forma.
+//
+// A CORREÇÃO NÃO É POR MISSÃO. Consertar só essas duas no JSON deixaria a
+// armadilha armada para a próxima missão que nascer com essa forma. O que se
+// conserta aqui é a regra: quando o herói CHEGA num destino de "chegada
+// simples" e o progresso da missão não mexe, aquele destino está esgotado e
+// sai da lista — até que o progresso mude.
+//
+// Por que a assinatura de progresso, e não um raio de distância: o teste de
+// distância sozinho produz vaivém. O herói larga o alvo esgotado, anda cinco
+// casas rumo ao próximo, o alvo velho volta a estar a 5 de distância com
+// prioridade 132 e vence de novo o que está a 86. Com a assinatura, o alvo
+// só reabre quando algo REAL aconteceu (um rato a menos, uma gema a mais,
+// objetivo cumprido) — e aí reabre como entrega, que é o que se quer.
+const RAIO_ALVO_ALCANCADO = 4;
+const missoesEsgotadasAuto = new Map();
+
+function assinaturaDeProgresso(def) {
+  const p = progressoDaMissao(personagem, def);
+  return `${p.atual}/${p.meta}:${p.pronto ? 1 : 0}`;
+}
+
+function missaoEsgotadaParaOAutomatico(def, destino) {
+  if (!destino?.chegadaSimples || destino.pronto) return false;
+  const assinatura = assinaturaDeProgresso(def);
+  const guardada = missoesEsgotadasAuto.get(def.id);
+  if (guardada === assinatura) return true;
+  // Mudou o progresso desde que esgotamos: o alvo volta a valer.
+  if (guardada !== undefined) missoesEsgotadasAuto.delete(def.id);
+  const perto = Math.hypot(destino.x - mundo.player.x, destino.y - mundo.player.y) <= RAIO_ALVO_ALCANCADO;
+  if (!perto) return false;
+  missoesEsgotadasAuto.set(def.id, assinatura);
+  return true;
+}
+
 const patrulhasAutomaticas = new WeakMap();
 
 function alvoDeUmaMissaoAutomatica(def) {
+  // Missão de tutorial se cumpre invocando, montando time e lutando — não
+  // andando. Ela nunca é destino de navegação.
+  if (def?.tipo === "tutorial") return null;
   // Caça comum não é interação com o centro da região. Use o mesmo pool
   // de monstros de verificarEncontroAleatorio; chefes mantêm alvo próprio.
   const monstro = dados.monsters.find(m => m.id === def.alvo);
@@ -3786,6 +4013,7 @@ function alvoDeUmaMissaoAutomatica(def) {
   }
   const destino = destinoDeMissao(def);
   if (!destino || destino.mapa !== mundo.mapaAtual) return null;
+  if (missaoEsgotadaParaOAutomatico(def, destino)) return null;
   // A failed/unchanged hand-in must not keep navigation parked at that NPC.
   if (destino.pronto && mundo.mapaAtual === 'overworld' && def?.npcId &&
       memoriaNpcAuto.visitado(personagem, def.npcId, estadoDasMissoesDoNpc(def.npcId))) return null;

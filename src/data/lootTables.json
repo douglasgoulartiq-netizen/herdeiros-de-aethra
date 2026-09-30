@@ -1555,6 +1555,10 @@
       {
         "itemId": "minerio",
         "peso": 18
+      },
+      {
+        "itemId": "minerio_raro",
+        "peso": 8
       }
     ]
   },
@@ -3057,7 +3061,7 @@
     ]
   },
   "primeira_voz": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "amuleto_da_primeira_voz",
@@ -3074,7 +3078,7 @@
     ]
   },
   "touro_da_colheita": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "chifre_da_colheita",
@@ -3091,7 +3095,7 @@
     ]
   },
   "alcateia_branca": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "presas_da_alcateia",
@@ -3108,7 +3112,7 @@
     ]
   },
   "primeira_brasa": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "cajado_da_primeira_brasa",
@@ -3125,7 +3129,7 @@
     ]
   },
   "capataz_de_pedra": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "nucleo_carmesim",
@@ -3142,7 +3146,7 @@
     ]
   },
   "reflexo_afogado": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "anel_do_reflexo",
@@ -3159,7 +3163,7 @@
     ]
   },
   "porteiro_de_casca": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "couraca_de_casca",
@@ -3176,7 +3180,7 @@
     ]
   },
   "cortador_de_cordas": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "foice_do_cortador",
@@ -3193,7 +3197,7 @@
     ]
   },
   "engrenagem_mestra": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "dente_da_engrenagem",
@@ -3210,7 +3214,7 @@
     ]
   },
   "veia_negra": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "machado_de_ferro_negro",
@@ -3227,7 +3231,7 @@
     ]
   },
   "dona_do_poco": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "anel_da_dona_do_poco",
@@ -3244,7 +3248,7 @@
     ]
   },
   "rei_sob_a_areia": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "cetro_soterrado",
@@ -3261,7 +3265,7 @@
     ]
   },
   "vigia_do_penhasco": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "arco_da_vigia",
@@ -3278,7 +3282,7 @@
     ]
   },
   "jardineira_de_perola": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "escudo_de_perola",
@@ -3295,7 +3299,7 @@
     ]
   },
   "ancora_viva": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "elo_da_ancora_viva",
@@ -3312,7 +3316,7 @@
     ]
   },
   "eco_de_seis_cores": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "prisma_de_seis_cores",
@@ -3329,7 +3333,7 @@
     ]
   },
   "sentinela_das_seis_correntes": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "lamina_prismatica",
@@ -3346,7 +3350,7 @@
     ]
   },
   "tecela_do_brejo": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "cajado_de_esporos",
@@ -3363,7 +3367,7 @@
     ]
   },
   "oficiante_do_oco": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "maca_do_oficiante",
@@ -3380,7 +3384,7 @@
     ]
   },
   "ultimo_sacerdote": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "relicario_dos_titas",
@@ -3397,7 +3401,7 @@
     ]
   },
   "campea_invicta": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "machado_da_campea",
@@ -3414,7 +3418,7 @@
     ]
   },
   "coracao_que_bate": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "placa_do_coracao",
@@ -3431,7 +3435,7 @@
     ]
   },
   "coro_dos_lamentos": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "adaga_do_coro",
@@ -3448,7 +3452,7 @@
     ]
   },
   "wyvern_de_obsidiana": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "arco_de_obsidiana",
@@ -3465,7 +3469,7 @@
     ]
   },
   "guardia_das_ilhas": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "pena_das_ilhas_altas",
@@ -3482,7 +3486,7 @@
     ]
   },
   "o_que_olha_de_volta": {
-    "chanceDrop": 1.0,
+    "chanceDrop": 1,
     "pool": [
       {
         "itemId": "grimorio_do_abismo",

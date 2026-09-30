@@ -514,6 +514,21 @@ img, canvas, svg, video { max-width: 100%; }
 .card .info { min-width: 0; }
 .card .nome { overflow-wrap: anywhere; }
 
+/* CARTÃO DE MISSÃO DE NPC — empilhado.
+   `.card` é uma LINHA, feita para item de loja: miniatura, info e botão lado
+   a lado. O cartão de missão tem quatro blocos de texto nessa mesma linha, e
+   o `.info` (que tem flex:1 e min-width:0) era espremido a zero pelo texto de
+   progresso, que não encolhe. Com `overflow-wrap:anywhere` no `.nome`, zero
+   de largura vira UMA LETRA POR LINHA — foi exatamente o que apareceu no
+   diálogo do Caçador Elric.
+   Em coluna, cada bloco tem a largura inteira e ninguém disputa espaço. */
+.card-missao-npc { flex-direction: column; align-items: stretch; gap: 6px; }
+.card-missao-npc > * { min-width: 0; width: 100%; }
+.card-missao-npc .desc { overflow-wrap: break-word; }
+/* O botão não precisa da largura toda: ele é a ação, não o texto. */
+.card-missao-npc > div:last-child { display: flex; justify-content: flex-end; }
+.card-missao-npc > div:last-child button { width: auto; }
+
 /* Botões: alvo de toque confortável no celular (item 11) sem inchar o
    desktop, onde o mouse é preciso. */
 @media (pointer: coarse) {

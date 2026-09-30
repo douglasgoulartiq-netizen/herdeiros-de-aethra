@@ -446,7 +446,7 @@ export const ZONAS_MUNDO = [
     perigo: [3, 5], forma: "floresta", centro: { x: 112, y: 120 }, peso: 1.10,
     densidadeMata: 0.68, // selva escura
     elementoDominante: "sombrio",
-    monstros: ["lobo", "goblin", "bandido", "lobo_sombrio", "aranha_gigante", "corvo_ceifador"],
+    monstros: ["lobo", "goblin", "bandido", "lobo_sombrio", "aranha_gigante", "corvo_ceifador", "javali"],
     recursos: ["madeira", "erva"], clima: "umido",
     chefe: { monstroId: "devoradora_de_sombras" },
     descricao: "Mata densa e escura onde bandidos e lobos sombrios rondam.",

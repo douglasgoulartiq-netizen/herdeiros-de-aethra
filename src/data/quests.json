@@ -16,7 +16,7 @@
     "nome": "Pragas no Celeiro",
     "tipo": "matar",
     "npcId": "npc_fazendeiro",
-    "regiao": "vila",
+    "regiao": "floresta",
     "alvo": "rato_gigante",
     "quantidade": 2,
     "descricao": "\"Dois deles, no celeiro, do tamanho de um cão. Comeram a semente de plantio, não a colheita — dá pra passar o inverno sem a colheita. Sem a semente, não tem inverno seguinte.\"",
@@ -24,7 +24,8 @@
     "recompensaOuro": 25,
     "recompensaXP": 20,
     "recompensaItemId": "pocao_vida_m",
-    "recompensaFragmentos": 50
+    "recompensaFragmentos": 50,
+    "objetivoTexto": "Cace 2 ratos gigantes na orla da Floresta Sussurrante — foi de lá que eles vieram para o celeiro."
   },
   {
     "id": "q2_lobos_da_floresta",
@@ -46,7 +47,7 @@
     "nome": "O Colar Perdido",
     "tipo": "coletar",
     "npcId": "npc_anciao",
-    "regiao": "vila",
+    "regiao": "floresta",
     "itemAlvo": "gema",
     "quantidade": 2,
     "descricao": "\"Duas gemas. Eram da minha mulher, e ela as perdeu na floresta no ano em que morreu. Faz trinta e um anos que eu procuro sem contar a ninguém.\"",
@@ -54,7 +55,8 @@
     "recompensaOuro": 30,
     "recompensaXP": 25,
     "recompensaItemId": "amuleto_vida",
-    "recompensaFragmentos": 60
+    "recompensaFragmentos": 60,
+    "objetivoTexto": "Recupere 2 gemas na Floresta Sussurrante — foi ali que ela as perdeu."
   },
   {
     "id": "q4_mercador_desaparecido",
