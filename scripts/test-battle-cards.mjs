@@ -211,17 +211,48 @@ console.log("\n[6] Sem recurso: o card fica bloqueado e nunca é recomendado");
 }
 
 // =====================================================================
-console.log("\n[7] Alvo imune ao elemento: jamais recomendado");
+console.log("\n[7] Alvo imune ao elemento: jamais recomendado (e o que NÃO é imune)");
 // =====================================================================
+//
+// ESTE BLOCO ESTAVA VERMELHO POR TESTAR UMA REGRA QUE O JOGO ABANDONOU.
+//
+// Ele usava "Lâmina Flamejante", `tipo: "dano_fisico"` com elemento fogo,
+// contra um monstro de fogo, e exigia imunidade. Isso deixou de valer de
+// propósito, e o motivo está em elementoFisicoEfetivo (ElementSystem):
+//
+//   um herói de espada de fogo encontrava um monstro de fogo. O ataque
+//   básico saía como fogo e causava 0. Toda habilidade FÍSICA dele herdava
+//   o elemento da arma e também causava 0. E o ataque do monstro, fogo,
+//   contra um herói de elemento fogo, também causava 0. Ninguém machucava
+//   ninguém, para sempre, e a única saída era fugir.
+//
+// A regra nova: um golpe físico é metal e força antes de ser encantamento.
+// Quando o encantamento não morde, o golpe vale pelo que sobra — dano
+// físico neutro. MAGIA elemental continua podendo ser anulada.
+//
+// Então o teste agora cobre os dois lados, que é o que a regra realmente diz.
 {
-  const chama = hab({ id: "chama", nome: "Lâmina Flamejante", tipo: "dano_fisico", multiplicador: 2.5, elemento: "fogo" });
-  const jogador = heroi({ habilidades: [chama] });
+  // (a) MAGIA de fogo em alvo de fogo: continua anulada, continua nunca
+  //     recomendada. É a proteção original deste bloco, intacta.
+  const bola = hab({ id: "bola", nome: "Bola de Fogo", tipo: "dano_magico", multiplicador: 2.5, elemento: "fogo" });
+  const conjurador = heroi({ habilidades: [bola] });
   const alvo = monstro({ nome: "Elemental de Chama", elemento: "fogo", hp: 30, hpMax: 200 });
-  const r = avaliar({ jogador, aliados: [jogador], inimigos: [alvo], alvo });
-  const prev = r.previsoes.get("hab_chama");
-  checar("A previsão marca imunidade", prev.dano && prev.dano.imune === true);
-  checar("O card imune tem score 0", r.avaliacoes.get("hab_chama").score === 0, String(r.avaliacoes.get("hab_chama").score));
-  checar("O card imune não é a melhor jogada", !r.avaliacoes.get("hab_chama").melhorJogada);
+  const r = avaliar({ jogador: conjurador, aliados: [conjurador], inimigos: [alvo], alvo });
+  const prev = r.previsoes.get("hab_bola");
+  checar("A previsão marca imunidade na MAGIA de mesmo elemento", prev.dano && prev.dano.imune === true, JSON.stringify(prev.dano));
+  checar("O card imune tem score 0", r.avaliacoes.get("hab_bola").score === 0, String(r.avaliacoes.get("hab_bola").score));
+  checar("O card imune não é a melhor jogada", !r.avaliacoes.get("hab_bola").melhorJogada);
+
+  // (b) GOLPE FÍSICO encantado no mesmo alvo: NÃO é anulado. Esta asserção
+  //     é a que tranca a correção do impasse — se alguém reverter a regra,
+  //     o teste cai aqui em vez de o jogador descobrir preso numa luta.
+  const lamina = hab({ id: "lamina", nome: "Lâmina Flamejante", tipo: "dano_fisico", multiplicador: 2.5, elemento: "fogo" });
+  const guerreiro = heroi({ habilidades: [lamina] });
+  const alvo2 = monstro({ nome: "Elemental de Chama", elemento: "fogo", hp: 30, hpMax: 200 });
+  const r2 = avaliar({ jogador: guerreiro, aliados: [guerreiro], inimigos: [alvo2], alvo: alvo2 });
+  const prev2 = r2.previsoes.get("hab_lamina");
+  checar("O golpe FÍSICO encantado não é anulado pelo mesmo elemento", !prev2.dano.imune && prev2.dano.esperado > 0, JSON.stringify(prev2.dano));
+  checar("E ele recua para dano físico neutro, não mantém o fogo", prev2.dano.elemento === "fisico" && prev2.dano.relacaoElemental === "neutro", JSON.stringify(prev2.dano));
 }
 
 // =====================================================================
@@ -376,7 +407,15 @@ console.log("\n[16] Identidade visual determinística dos biomas de batalha");
     ["montanha", { zonaNome: "Montanhas de Aethra" }],
     ["costa", { zonaNome: "Costa da Aurora" }],
     ["ruinas", { zonaNome: "Ruínas Esquecidas" }],
-    ["masmorra", { mapaAtual: "dungeon2", zonaNome: "Galerias Profundas" }],
+    // A masmorra genérica é a dungeon1. A dungeon2 NÃO é genérica: é o covil
+    // do Dragão das Cinzas (elementoDominante "fogo", Legião das Cinzas), e
+    // resolverCenarioId a manda para "vulcao" de propósito, para a luta final
+    // não acontecer no mesmo corredor cinza de sempre.
+    //
+    // O teste pedia "masmorra" para a dungeon2 e por isso estava vermelho.
+    // Agora ele cobre os dois: o caso genérico e a exceção deliberada.
+    ["masmorra", { mapaAtual: "dungeon1", zonaNome: "Galerias Profundas" }],
+    ["vulcao", { mapaAtual: "dungeon2", zonaNome: "Covil do Dragão" }],
     ["vila", { zonaNome: "Vila de Altaverde" }],
     ["campo", { zonaNome: "Campo Ventoso" }],
   ];
@@ -388,7 +427,7 @@ console.log("\n[16] Identidade visual determinística dos biomas de batalha");
     return primeiro;
   });
   const assinaturas = descritores.map((cenario) => JSON.stringify(cenario.paleta));
-  checar("os nove biomas têm paletas distintas", new Set(assinaturas).size === casos.length, `${new Set(assinaturas).size}/${casos.length}`);
+  checar(`os ${casos.length} biomas têm paletas distintas`, new Set(assinaturas).size === casos.length, `${new Set(assinaturas).size}/${casos.length}`);
 
   const palco = readFileSync(join(raiz, "src", "ui", "BattleStage.js"), "utf8");
   checar("o palco consome piso, neblina e silhueta do descritor",

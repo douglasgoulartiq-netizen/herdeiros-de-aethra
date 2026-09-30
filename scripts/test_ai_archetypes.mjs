@@ -143,12 +143,14 @@ function monstroBase(overrides) {
 //      invulneravel por causa de uma escolha da tela de criacao.
 {
   const dadosElementos = JSON.parse(fs.readFileSync(new URL("../src/data/elements.json", import.meta.url)));
+  const AMOSTRAS = 600;
   const conjuraEm = (personagem) => {
     const jogador = criarCombatenteJogador(personagem, {});
     const conjurador = criarCombatenteInimigo(monstroBase({ id: "conjurador2", arquetipo: "conjurador", elemento: "fogo" }), 0);
     const batalha = new Batalha([jogador], [conjurador], dadosElementos);
     let total = 0;
-    for (let i = 0; i < 120; i++) { const antes = jogador.hp; batalha.conjurarAtaque(conjurador, jogador); total += antes - jogador.hp; jogador.hp = jogador.hpMax; }
+    // 600 e nao 120: ver a nota sobre instabilidade na assercao la embaixo.
+    for (let i = 0; i < AMOSTRAS; i++) { const antes = jogador.hp; batalha.conjurarAtaque(conjurador, jogador); total += antes - jogador.hp; jogador.hp = jogador.hpMax; }
     return total;
   };
   const comArmaDeFogo = () => { const p = fakePersonagem(); p.elementoId = "agua"; p.equipamento = { ...(p.equipamento || {}), arma: { id: "esp", nome: "Espada", elemento: "fogo", dano: 5 } }; return p; };
@@ -162,8 +164,28 @@ function monstroBase(overrides) {
   check("a arma de fogo NAO torna o heroi imune a magia de fogo", danoComEspadaDeFogo > 0);
   check("a arma nao muda o que o heroi resiste (arma de fogo ~ sem arma)",
     Math.abs(danoComEspadaDeFogo - danoSemArma) < danoSemArma * 0.35);
+  // ESTA ASSERCAO ERA UM CARA-OU-COROA, E FALHAVA ~0,8% DAS VEZES.
+  //
+  // Ela comparava duas somas de 120 golpes aleatorios com um "<" cru. O
+  // efeito real e grande — medido em 40 repeticoes por tamanho de amostra:
+  //
+  //   n= 120  razao min=0,656  mediana=0,801  max=1,019   <- passa de 1
+  //   n= 600  razao min=0,756  mediana=0,814  max=0,882
+  //   n=2000  razao min=0,783  mediana=0,812  max=0,845
+  //
+  // A identidade de fogo deixa o heroi levando ~81% do dano. Mas com 120
+  // amostras o ruido chega a inverter o sinal, e ai a suite fica vermelha
+  // sem nada ter quebrado — o pior tipo de teste, porque ensina a ignorar
+  // vermelho.
+  //
+  // Duas mudancas, e as duas dizem a mesma coisa: afirme o efeito, nao o
+  // resultado de um sorteio. A amostra sobe para 600 (onde a razao nunca
+  // encostou em 1 em 40 repeticoes) e a comparacao passa a exigir MARGEM.
+  // Os 0,95 sao folga deliberada sobre os 0,88 do pior caso medido: o teste
+  // protege a regra sem travar um ajuste fino de balanceamento.
   check("a identidade de fogo REDUZ o dano de fogo, sem zerar",
-    danoIdentidadeFogo > 0 && danoIdentidadeFogo < danoSemArma);
+    danoIdentidadeFogo > 0 && danoIdentidadeFogo < danoSemArma * 0.95,
+    `razao ${(danoIdentidadeFogo / danoSemArma).toFixed(3)} (esperado < 0,95)`);
 }
 
 console.log(process.exitCode ? "=== FALHAS ENCONTRADAS ===" : "=== todos os testes passaram ===");

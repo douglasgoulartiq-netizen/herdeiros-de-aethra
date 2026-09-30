@@ -11,7 +11,7 @@
 // horários, e zona vazia é pior que zona previsível.
 import { ECOLOGIA, MIGRACOES, habitatCombina, predadoresDe } from "../data/world/ecology.js";
 import { ZONAS_MUNDO } from "../data/world/zones.js";
-import { horaDoDiaAtual, climaAtualDaZona } from "./WeatherSystem.js";
+import { horaDoDiaAtual, climaAtualDaZona, DURACAO_HORA_DIA_MS } from "./WeatherSystem.js";
 
 const ZONA = new Map(ZONAS_MUNDO.map((z) => [z.id, z]));
 
@@ -137,11 +137,39 @@ export function especiesDaRegiao(regiaoId) {
 // Diagnóstico usado pelo teste e pelo relatório: o que a zona oferece em cada
 // um dos três períodos, com o mesmo clima. Serve para provar que dia e noite
 // não devolvem a mesma lista (item 27).
+//
+// ELA ESTAVA MEDINDO A MADRUGADA TRÊS VEZES.
+//
+// Duas coisas erradas, e a segunda vinha da primeira:
+//
+//   const DUR = 4 * 60 * 1000; // DURACAO_HORA_DIA_MS
+//
+// O comentário afirma ser a constante, mas a constante vale 60 * 1000. Era
+// uma cópia manual que se desatualizou quando a duração da hora mudou, e
+// ninguém tem como perceber: o número errado não quebra nada, só desloca o
+// relógio.
+//
+// Pior que isso, o índice do período era usado como se o dia tivesse três
+// fatias iguais (`base + i * DUR`). Não tem: `horaDoDiaAtual` divide um dia
+// de 24 horas em manhã 6–11, tarde 12–19 e noite no resto. Com base = 0, as
+// três amostras caíam em 0h, 4h e 8h — duas noites e uma manhã, rotuladas
+// "manha", "tarde" e "noite".
+//
+// Ou seja: a função que existe para provar que o dia muda a fauna estava
+// comparando a madrugada com ela mesma. Era isso que derrubava o item 27 em
+// 18 de 47 zonas — não a ecologia, que funciona.
+//
+// Agora ela ancora no começo do dia a que `agora` pertence e amostra uma
+// hora DENTRO de cada faixa, usando a constante de verdade.
+const HORA_REPRESENTATIVA = { manha: 8, tarde: 14, noite: 22 };
+const HORAS_POR_DIA = 24;
+
 export function perfilDoDia(zonaId, contexto = {}) {
   const base = contexto.agora ?? Date.now();
-  const DUR = 4 * 60 * 1000; // DURACAO_HORA_DIA_MS
-  return ["manha", "tarde", "noite"].map((hora, i) => {
-    const agora = base + i * DUR;
+  const diaMs = HORAS_POR_DIA * DURACAO_HORA_DIA_MS;
+  const inicioDoDia = Math.floor(base / diaMs) * diaMs;
+  return ["manha", "tarde", "noite"].map((hora) => {
+    const agora = inicioDoDia + HORA_REPRESENTATIVA[hora] * DURACAO_HORA_DIA_MS;
     const pool = poolDaZona(zonaId, { ...contexto, agora });
     const total = pool.reduce((s, c) => s + c.peso, 0) || 1;
     return {

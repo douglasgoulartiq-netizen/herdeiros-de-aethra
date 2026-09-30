@@ -1749,6 +1749,8 @@ function garantirAcesso(g, alvos, origem) {
 // ---------------------------------------------------------------------------
 export function construirMundo(semente) {
   const t0 = Date.now();
+  // Só existe no Node; no navegador fica null e `cpuMs` também (ver o retorno).
+  const cpuInicio = typeof process !== "undefined" && process.cpuUsage ? process.cpuUsage() : null;
   const { posse } = mapaDePosse(W, H);
   const resumo = resumoDasZonas(W, H);
   const porId = new Map(resumo.map((z) => [z.id, z]));
@@ -1994,6 +1996,21 @@ export function construirMundo(semente) {
     zonas: resumo, assentamentos, estradas, pontes, rios, pois, landmarks, masmorras,
     baus, nos, chefes, vagasNpc,
     ms: Date.now() - t0,
+    // RELÓGIO DE PAREDE NÃO MEDE O GERADOR, MEDE A MÁQUINA.
+    //
+    // `ms` continua sendo o número que importa para o jogador: é quanto ele
+    // espera no boot. Mas ele é inútil como teto de regressão, porque a suíte
+    // roda com quatro processos disputando CPU — o mesmo mundo que sai em
+    // 1,4 s isolado leva 3,5 s sob contenção. O teto já foi afrouxado de 900
+    // para 4500 ms por esse motivo, e mesmo assim estourou em 5045 ms.
+    //
+    // Tempo de CPU é a medida certa para isso: sob disputa o processo recebe
+    // menos CPU por segundo de parede, mas o TRABALHO que ele precisa fazer
+    // não muda. Medido em três sementes: 1492, 2089 e 2466 ms de CPU.
+    //
+    // Fica null no navegador, onde `process` não existe — quem consome trata
+    // a ausência (ver test-mundo-etapa2).
+    cpuMs: cpuInicio ? Math.round(((c) => c.user + c.system)(process.cpuUsage(cpuInicio)) / 1000) : null,
   };
 }
 
