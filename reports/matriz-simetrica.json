@@ -1,0 +1,162 @@
+{
+  "fisico": {
+    "forteIntensa": [],
+    "forte": [],
+    "fracoIntensa": [],
+    "fraco": []
+  },
+  "agua": {
+    "forteIntensa": [
+      "fogo"
+    ],
+    "forte": [
+      "terra"
+    ],
+    "fracoIntensa": [
+      "raio"
+    ],
+    "fraco": [
+      "natureza"
+    ]
+  },
+  "fogo": {
+    "forteIntensa": [
+      "gelo"
+    ],
+    "forte": [
+      "natureza"
+    ],
+    "fracoIntensa": [
+      "agua"
+    ],
+    "fraco": [
+      "terra"
+    ]
+  },
+  "gelo": {
+    "forteIntensa": [
+      "vento"
+    ],
+    "forte": [
+      "veneno"
+    ],
+    "fracoIntensa": [
+      "fogo"
+    ],
+    "fraco": [
+      "radiante"
+    ]
+  },
+  "vento": {
+    "forteIntensa": [
+      "veneno"
+    ],
+    "forte": [
+      "sombrio"
+    ],
+    "fracoIntensa": [
+      "gelo"
+    ],
+    "fraco": [
+      "arcano"
+    ]
+  },
+  "veneno": {
+    "forteIntensa": [
+      "natureza"
+    ],
+    "forte": [
+      "radiante"
+    ],
+    "fracoIntensa": [
+      "vento"
+    ],
+    "fraco": [
+      "gelo"
+    ]
+  },
+  "natureza": {
+    "forteIntensa": [
+      "terra"
+    ],
+    "forte": [
+      "agua"
+    ],
+    "fracoIntensa": [
+      "veneno"
+    ],
+    "fraco": [
+      "fogo"
+    ]
+  },
+  "terra": {
+    "forteIntensa": [
+      "raio"
+    ],
+    "forte": [
+      "fogo"
+    ],
+    "fracoIntensa": [
+      "natureza"
+    ],
+    "fraco": [
+      "agua"
+    ]
+  },
+  "raio": {
+    "forteIntensa": [
+      "agua"
+    ],
+    "forte": [
+      "arcano"
+    ],
+    "fracoIntensa": [
+      "terra"
+    ],
+    "fraco": [
+      "sombrio"
+    ]
+  },
+  "radiante": {
+    "forteIntensa": [
+      "sombrio"
+    ],
+    "forte": [
+      "gelo"
+    ],
+    "fracoIntensa": [
+      "arcano"
+    ],
+    "fraco": [
+      "veneno"
+    ]
+  },
+  "sombrio": {
+    "forteIntensa": [
+      "arcano"
+    ],
+    "forte": [
+      "raio"
+    ],
+    "fracoIntensa": [
+      "radiante"
+    ],
+    "fraco": [
+      "vento"
+    ]
+  },
+  "arcano": {
+    "forteIntensa": [
+      "radiante"
+    ],
+    "forte": [
+      "vento"
+    ],
+    "fracoIntensa": [
+      "sombrio"
+    ],
+    "fraco": [
+      "raio"
+    ]
+  }
+}
