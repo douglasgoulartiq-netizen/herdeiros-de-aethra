@@ -52,6 +52,9 @@ import { criarPersonagem, aplicarCrescimento } from '../src/systems/CharacterFac
 import { criarCombatenteJogador, criarCombatenteInimigo, Batalha } from '../src/systems/CombatSystem.js';
 import { escolherAcaoAutomatica, configAutoBatalhaPadrao } from '../src/systems/AutoBattleAI.js';
 import { arvoreDaClasse, escolherNo, pontosDisponiveis, podeEscolher } from '../src/systems/SkillTreeSystem.js';
+import { LIMITE_CARDS } from '../src/systems/LoadoutSystem.js';
+import { ataqueBase, atributosEfetivos, defesaTotal } from '../src/systems/CharacterFactory.js';
+import { multiplicadorEfetivo } from '../src/systems/EscalaDerivada.js';
 
 const dataDir = new URL('../src/data/', import.meta.url);
 const dados = Object.fromEntries(readdirSync(dataDir).filter(f => f.endsWith('.json')).map(f =>
@@ -126,6 +129,88 @@ function comprarArvore(p) {
     }
     if (!comprouAlgo) break;
   }
+  escolherCards(p);
+}
+
+// COMPRAR A ÁRVORE NÃO BASTA — SÓ QUATRO HABILIDADES ENTRAM NA LUTA.
+//
+// DEFEITO DESTA PRÓPRIA FERRAMENTA, descoberto ao tentar medir as habilidades
+// que escalam com robustez. `criarCombatenteJogador` leva para a batalha
+// apenas `habilidadesEquipadas`, que são os 4 cards do loadout
+// (LIMITE_CARDS). Sem loadout escolhido, `garantirLoadout` pega AS QUATRO
+// PRIMEIRAS da lista — e a lista sai na ordem em que os nós aparecem no JSON.
+//
+// Ou seja: esta matriz vinha medindo "as quatro primeiras habilidades na
+// ordem do arquivo", não uma build. O sintoma foi inconfundível: doze
+// habilidades novas declaradas, compradas e presentes na ficha, e a tabela
+// inteira saiu IDÊNTICA à anterior até a primeira casa decimal, nas dez
+// classes. Um número que não se mexe quando deveria é um resultado, não um
+// empate — e foi ele que apontou para cá.
+//
+// A REGRA NOVA, e por que estas quatro vagas. Um jogador não escolhe os
+// primeiros quatro cards; ele cobre as situações da luta. As vagas são:
+//
+//   1. o melhor golpe de ALVO ÚNICO
+//   2. a melhor ÁREA
+//   3. o melhor APOIO (cura ou buff)
+//   4. a melhor restante, seja qual for
+//
+// "Melhor" é por `multiplicadorEfetivo`, que já conta o bônus de escala — a
+// mesma régua que a IA usa para decidir o turno, então a build e o uso falam
+// a mesma língua. Classe sem candidato para uma vaga cede a vaga para a
+// regra 4, e nenhuma vaga fica vazia enquanto houver habilidade.
+//
+// Continua sendo uma regra ÚNICA para as dez classes, que é o que mantém a
+// comparação honesta — só que agora é uma regra que descreve um jogador, e
+// não a ordem de um arquivo JSON.
+const ALVO_UNICO = ['dano_fisico', 'dano_fisico_des', 'dano_magico', 'dano_ignora_defesa'];
+const AREA = ['dano_area'];
+const APOIO = ['cura', 'cura_area', 'buff_time', 'buff_defesa', 'buff_ataque'];
+
+// A FICHA NÃO TEM `defesa` — SÓ O COMBATENTE TEM.
+//
+// Segundo defeito, e o que escondeu o primeiro: `p.defesa` é `undefined` num
+// personagem fora de combate (defesa é derivada, vem de `defesaTotal`).
+// Avaliando a build direto na ficha, TODA habilidade que escala com defesa
+// valia bônus zero, e as quatro que usam essa fonte — guerreiro, paladino,
+// mago, ladino — eram julgadas pelo multiplicador nu. Dois erros empilhados:
+// o segundo escondia o primeiro.
+//
+// `vidaPerdida` tem o problema inverso: com a ficha cheia ela vale zero, e a
+// habilidade do bárbaro seria descartada por ser inútil justamente no estado
+// em que ela é DESENHADA para ser inútil. A build é escolhida antes da luta,
+// pensando em como a luta vai estar — então a avaliação usa METADE da vida,
+// que é o estado em que uma habilidade de sangue decide alguma coisa. Dentro
+// da batalha a IA reavalia a cada turno com o HP real, e aí a conta é exata.
+function vistaDeCombate(p) {
+  return {
+    ataque: ataqueBase(p, dados),
+    atributos: atributosEfetivos(p, dados),
+    defesa: defesaTotal(p, dados),
+    hpMax: p.hpMax,
+    hp: Math.round(p.hpMax * 0.5),
+  };
+}
+
+function escolherCards(p) {
+  const todas = p.habilidades || [];
+  if (todas.length <= LIMITE_CARDS) { p.cards = todas.map((h) => h.id); p.cardsAjustado = true; return; }
+  const vista = vistaDeCombate(p);
+  const ordem = (a, b) => multiplicadorEfetivo(b, vista) - multiplicadorEfetivo(a, vista) || String(a.id).localeCompare(String(b.id));
+  const melhor = (tipos) => todas.filter((h) => tipos.includes(h.tipo)).sort(ordem)[0];
+  const escolhidas = [];
+  for (const grupo of [ALVO_UNICO, AREA, APOIO]) {
+    const h = melhor(grupo);
+    if (h && !escolhidas.includes(h.id)) escolhidas.push(h.id);
+  }
+  for (const h of [...todas].sort(ordem)) {
+    if (escolhidas.length >= LIMITE_CARDS) break;
+    if (!escolhidas.includes(h.id)) escolhidas.push(h.id);
+  }
+  p.cards = escolhidas;
+  // `cardsAjustado` marca a escolha como sendo do jogador — sem isto,
+  // garantirLoadout completa por cima e o trabalho acima seria descartado.
+  p.cardsAjustado = true;
 }
 
 const modelos = new Map();

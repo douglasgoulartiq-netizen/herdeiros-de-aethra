@@ -1,3 +1,31 @@
+// ⚠ NÃO RODE ESTE SCRIPT SEM LER ISTO. A PREMISSA DELE ESTÁ DESATUALIZADA.
+//
+// Quando ele foi escrito, `crescimento.CON` valia 2 para oito das dez classes
+// e eu li isso como descuido. Não era, pelo menos não inteiro: comparando o
+// classes.json de trabalho com o commitado, a outra sessão tinha ACABADO de
+// mexer nesses números de propósito, e na direção oposta à daqui —
+//
+//     mago     CON/nível 1 → 2      (ela deixou o mago MAIS robusto)
+//     ladino   CON/nível 1 → 2
+//     clérigo  CON/nível 2 → 1
+//
+// — além de criar as quatro classes novas (paladino, bardo, druida,
+// necromante) já com CON 2. Rodar este script como está derrubaria mago,
+// ladino e as quatro novas para 1, desfazendo em silêncio uma decisão de
+// desenho recente de outra pessoa. Isso é pior do que o problema que ele
+// tentava resolver.
+//
+// A MEDIÇÃO QUE O ORIGINOU CONTINUA VALENDO: no nível 25 o guerreiro tem só
+// ~6% mais defesa que o mago, e enquanto isso for verdade "robusto" é só um
+// nome. Mas o caminho escolhido depois foi outro, e não conflita com nada:
+// em vez de deixar o conjurador frágil, dar a TODAS as classes habilidades
+// que convertem vida e defesa em ação (src/systems/EscalaDerivada.js e
+// scripts/aplicar-escala-derivada.mjs). Robustez passa a render sem que
+// ninguém precise ser nerfado.
+//
+// Fica aqui como registro da medição e como opção, caso o desenho mude. Se
+// for rodado algum dia, tem de ser com a outra sessão de acordo.
+//
 // O MAGO GANHAVA CONSTITUIÇÃO NO MESMO RITMO DO BÁRBARO.
 //
 // O DEFEITO, MEDIDO
