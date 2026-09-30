@@ -1325,12 +1325,28 @@ export function montarForja(personagem, dados, onMudar, aba = "criar") {
   corpo.appendChild(grade);
   dados.recipes.forEach((r) => {
     const disponivel = receitaDisponivel(personagem, r);
+    // A FORJA MOSTRAVA O MESMO MARTELO NAS 16 RECEITAS.
+    //
+    // Cada ladrilho trazia 🔨 (ou 🔒) no lugar do item que a receita PRODUZ,
+    // então a grade inteira era uma coluna de martelos idênticos e a única
+    // forma de saber o que se estava forjando era ler o nome. Mochila, loja,
+    // aprimoramento e recompensa já mostram o ícone real do item pelo mesmo
+    // caminho (caminhoDoIcone) — a forja era a única tela fora do padrão.
+    //
+    // A borda leva a cor da raridade, como nas outras grades: a peça épica
+    // se distingue da comum antes de ler qualquer texto. O cadeado continua
+    // para receita sem material, porque ali a informação É a indisponibilidade.
+    const feito = dados.items.itens.find((x) => x.id === r.resultadoId);
+    const cor = (feito && RARITY_COLORS[feito.raridade]) || "#888";
+    const icone = feito
+      ? `<span class="hda-ladrilho-icone icon-frame" style="border-color:${cor}"><img src="${caminhoDoIcone(feito)}" alt="" /></span>`
+      : `<span class="hda-ladrilho-icone icon-frame">🔨</span>`;
     const el = document.createElement("div");
     el.className = "hda-ladrilho" + (disponivel ? "" : " indisponivel");
     el.tabIndex = 0;
     el.setAttribute("role", "button");
     el.innerHTML = `
-      <span class="hda-ladrilho-icone icon-frame">${disponivel ? "🔨" : "🔒"}</span>
+      ${disponivel ? icone : `<span class="hda-ladrilho-icone icon-frame">🔒</span>`}
       <span class="hda-ladrilho-nome hda-clamp-2">${r.nome}</span>
       <span class="hda-ladrilho-rar">${disponivel ? "pronto" : "faltam materiais"}</span>`;
     const abrir = () => {
