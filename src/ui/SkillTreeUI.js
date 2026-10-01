@@ -191,7 +191,7 @@ const CSS = `
   .arv-topo { flex-wrap:nowrap; align-items:center; gap:8px; padding:8px 10px; margin-bottom:8px; }
   .arv-pontos { font-size:1rem; }
   .arv-pontos b { font-size:1.2em; }
-  /* A frase "a árvore inteira custa 30" é boa, mas é leitura de uma vez só:
+  /* A frase "a árvore inteira custa N" é boa, mas é leitura de uma vez só:
      no celular ela sai do topo e desce para o rodapé explicativo. */
   .arv-topo .arv-sub { display:none; }
   .arv-reset { margin-left:auto; padding:7px 9px; font-size:.76em; white-space:nowrap; }
@@ -527,11 +527,17 @@ export function montarArvoreHabilidades(personagem, dados, onMudar, aba = null, 
 
   const marcas = (personagem.arvore.marcas || []).map((m) => `<div>${escapar(descreverMarca(m, personagem, null, {}).replace(/ — (ATIVA|inativa).*/, ""))} — ${escapar(m.descricao)}</div>`).join("");
 
+  // O 30 estava escrito à mão aqui. Nunca foi verdade para todo mundo: as
+  // quatro classes novas custam 27, e qualquer nó acrescentado à árvore move
+  // o número. Frase que mente sobre a economia da tela é pior do que frase
+  // nenhuma — o jogador decide onde gastar olhando justamente para ela.
+  const custoDaArvoreInteira = nos.reduce((soma, n) => soma + (n.custo || 1), 0);
+
   const painelArvore = `
     <div class="arv-topo">
       <div>
         <div class="arv-pontos"><b>${disponiveis}</b> ponto${disponiveis === 1 ? "" : "s"} disponíve${disponiveis === 1 ? "l" : "is"}</div>
-        <div class="arv-sub">${gastos} de ${total} gastos · a árvore inteira custa 30 — você nunca compra tudo</div>
+        <div class="arv-sub">${gastos} de ${total} gastos · a árvore inteira custa ${custoDaArvoreInteira} — você nunca compra tudo</div>
       </div>
       <button class="arv-reset" ${podeResetar ? "" : "disabled"} title="${gastos ? `Custa ${custoReset} de ouro (você tem ${personagem.ouro || 0})` : "Você ainda não gastou nenhum ponto"}">
         ↺ Redistribuir · ${custoReset} ouro

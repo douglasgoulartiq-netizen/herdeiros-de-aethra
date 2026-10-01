@@ -29,6 +29,7 @@ export const TIPOS_ALVO_PROPRIO = ["cura", "cura_area", "buff_time", "buff_defes
 // modificadores que a execução real usará.
 export function opcoesDeDano(habilidade) {
   const opts = { multiplicador: habilidade.multiplicador || 1, elementoAtacante: habilidade.elemento || null };
+  if (habilidade.escala) opts.escala = habilidade.escala;
   if (habilidade.atributoForcado) opts.atributoForcado = habilidade.atributoForcado;
   if (habilidade.tipo === "dano_fisico_des") opts.atributoForcado = "DES";
   if (habilidade.tipo === "dano_ignora_defesa") { opts.ignoraDefesa = 999; opts.respeitaFormacao = false; }

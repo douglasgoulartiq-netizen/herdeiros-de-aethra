@@ -89,6 +89,9 @@ export function chanceUsarHabilidade(config) {
 // (não importada de BattleUI.js) porque este módulo precisa ficar livre de
 // DOM pra ser testável puro; BattleUI.js continua sendo a única fonte de
 // verdade sobre QUAIS tipos de habilidade existem no jogo.
+import { multiplicadorEfetivo } from "./EscalaDerivada.js";
+import { poderAgora } from "./ValorDeHabilidade.js";
+
 const TIPOS_OFENSIVOS = ["dano_fisico", "dano_magico", "dano_fisico_des", "dano_ignora_defesa", "debuff_velocidade"];
 
 export function habilidadesOfensivasDisponiveis(jogador) {
@@ -102,7 +105,7 @@ export function habilidadesOfensivasDisponiveis(jogador) {
 export function habilidadeUltimate(jogador) {
   const ofensivas = habilidadesOfensivasDisponiveis(jogador);
   if (!ofensivas.length) return null;
-  return [...ofensivas].sort((a, b) => (b.multiplicador || 0) - (a.multiplicador || 0) || String(a.id).localeCompare(String(b.id)))[0];
+  return [...ofensivas].sort((a, b) => multiplicadorEfetivo(b, jogador) - multiplicadorEfetivo(a, jogador) || String(a.id).localeCompare(String(b.id)))[0];
 }
 
 function tipoFisicoDaHabilidade(h) {
@@ -176,9 +179,9 @@ export function habilidadesDisponiveis(jogador, tipos) {
   );
 }
 
-function melhorPorMultiplicador(lista) {
+function melhorPorMultiplicador(lista, jogador) {
   if (!lista.length) return null;
-  return [...lista].sort((a, b) => (b.multiplicador || 0) - (a.multiplicador || 0) || String(a.id).localeCompare(String(b.id)))[0];
+  return [...lista].sort((a, b) => multiplicadorEfetivo(b, jogador) - multiplicadorEfetivo(a, jogador) || String(a.id).localeCompare(String(b.id)))[0];
 }
 
 export function fracaoVida(c) {
@@ -230,10 +233,10 @@ export function margemDaArea(nInimigos) {
   return nInimigos <= 2 ? MARGEM_AREA_DOIS_ALVOS : MARGEM_AREA;
 }
 
-export function valeAPenaArea(habArea, nInimigos, melhorAlvoUnico) {
+export function valeAPenaArea(habArea, nInimigos, melhorAlvoUnico, jogador = null) {
   if (!habArea || nInimigos < 2) return false;
-  const ganhoArea = (habArea.multiplicador || 1) * nInimigos;
-  const ganhoUnico = (melhorAlvoUnico && melhorAlvoUnico.multiplicador) || 1;
+  const ganhoArea = (multiplicadorEfetivo(habArea, jogador) || 1) * nInimigos;
+  const ganhoUnico = (melhorAlvoUnico && multiplicadorEfetivo(melhorAlvoUnico, jogador)) || 1;
   return ganhoArea >= ganhoUnico * margemDaArea(nInimigos);
 }
 
@@ -291,7 +294,7 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   //    aliados a 30% e ele a 100% precisa agir pelo TIME — a regra antiga
   //    olhava só o HP dele e mandava atacar.
   if (config.cuidarDosAliados && aliados.length) {
-    const curaTime = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_CURA_TIME));
+    const curaTime = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_CURA_TIME), jogador);
     const feridos = aliadosFeridos(aliados, limiar);
     // Dois feridos justificam a cura de grupo; um só justifica se estiver
     // em estado crítico (metade do limiar), senão a cura de alvo único é
@@ -315,7 +318,7 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   //    contador de rodada: a condição "ninguém está reforçado" só é
   //    verdadeira no começo da luta e quando o reforço expira.
   if (config.bufarTime && aliados.length >= 2 && !timeJaReforcado(aliados)) {
-    const buff = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_BUFF_TIME));
+    const buff = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_BUFF_TIME), jogador);
     if (buff && sobraEterParaCurar(jogador, buff.custoMP || 0)) {
       return { tipo: "buff_time", habilidade: buff, alvo: jogador };
     }
@@ -332,7 +335,7 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   //    ainda estiver rápido — repetir o debuff num campo já lento é gastar
   //    o turno à toa.
   if (config.usarArea && vivos.length >= 3 && !inimigosJaLentos(vivos)) {
-    const debuff = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_DEBUFF_AREA));
+    const debuff = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_DEBUFF_AREA), jogador);
     if (debuff && sobraEterParaCurar(jogador, debuff.custoMP || 0)) {
       return { tipo: "debuff_area", habilidade: debuff, alvo: vivos[0] };
     }
@@ -348,8 +351,8 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   //    contra dois inimigos fracos um golpe forte de alvo único pode valer
   //    mais, e a área custa Éter e recarga.
   if (config.usarArea) {
-    const area = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_AREA));
-    if (area && valeAPenaArea(area, vivos.length, ultimate) && sobraEterParaCurar(jogador, area.custoMP || 0)) {
+    const area = melhorPorMultiplicador(habilidadesDisponiveis(jogador, TIPOS_AREA), jogador);
+    if (area && valeAPenaArea(area, vivos.length, ultimate, jogador) && sobraEterParaCurar(jogador, area.custoMP || 0)) {
       return { tipo: "area", habilidade: area, alvo };
     }
   }
@@ -373,7 +376,7 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   }
 
   if (Math.random() < chanceUsarHabilidade(config)) {
-    const melhor = [...candidatas].sort((a, b) => (b.multiplicador || 0) - (a.multiplicador || 0))[0];
+    const melhor = [...candidatas].sort((a, b) => poderAgora(b, jogador) - poderAgora(a, jogador) || String(a.id).localeCompare(String(b.id)))[0];
     return { tipo: "habilidade", habilidade: melhor, alvo };
   }
   return { tipo: "ataque", alvo };

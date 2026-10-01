@@ -216,7 +216,7 @@
         "id": "guerreiro_baluarte_4",
         "icone": "❤️",
         "ramo": "baluarte",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -239,7 +239,7 @@
         "id": "guerreiro_baluarte_5",
         "icone": "🛡️",
         "ramo": "baluarte",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -263,7 +263,7 @@
         "id": "guerreiro_baluarte_6",
         "icone": "🏰",
         "ramo": "baluarte",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -314,7 +314,7 @@
         "id": "guerreiro_comando_2",
         "icone": "📐",
         "ramo": "comando",
-        "tier": 2,
+        "tier": 3,
         "custo": 1,
         "nivelRequerido": 4,
         "requerRamo": 1,
@@ -330,7 +330,7 @@
         "id": "guerreiro_comando_3",
         "icone": "🧱",
         "ramo": "comando",
-        "tier": 3,
+        "tier": 4,
         "custo": 1,
         "nivelRequerido": 6,
         "requerRamo": 2,
@@ -353,7 +353,7 @@
         "id": "guerreiro_comando_4",
         "icone": "🏃",
         "ramo": "comando",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -379,7 +379,7 @@
         "id": "guerreiro_comando_5",
         "icone": "🚩",
         "ramo": "comando",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -403,7 +403,7 @@
         "id": "guerreiro_comando_6",
         "icone": "🎖️",
         "ramo": "comando",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -427,6 +427,52 @@
             "dano": 1.2,
             "defesa": 0.9
           }
+        }
+      },
+      {
+        "id": "guerreiro_represalia",
+        "icone": "⚔️",
+        "ramo": "baluarte",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Represália",
+        "descricao": "Golpe de escudo que converte a própria defesa em dano. Não custa Éter: o guerreiro não tem reserva para sustentar uma habilidade paga, e medido contra o Golpe Poderoso (de graça, toda rodada) ela perdia por isso, não por força.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "guerreiro_represalia_skill",
+          "nome": "Represália",
+          "descricao": "Golpe de escudo que converte a própria defesa em dano. Não custa Éter: o guerreiro não tem reserva para sustentar uma habilidade paga, e medido contra o Golpe Poderoso (de graça, toda rodada) ela perdia por isso, não por força.",
+          "tipo": "dano_fisico",
+          "custoMP": 0,
+          "cooldown": 0,
+          "multiplicador": 1,
+          "escala": {
+            "de": "defesa",
+            "fator": 2.85
+          }
+        }
+      },
+      {
+        "id": "guerreiro_provocar",
+        "icone": "🗯️",
+        "ramo": "comando",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Chamado do Baluarte",
+        "descricao": "Atrai para si a atenção dos inimigos por dois turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "guerreiro_provocar_skill",
+          "nome": "Chamado do Baluarte",
+          "descricao": "Atrai para si a atenção dos inimigos por dois turnos.",
+          "tipo": "provocar",
+          "custoMP": 4,
+          "cooldown": 3,
+          "duracao": 2
         }
       }
     ]
@@ -779,7 +825,7 @@
         "id": "mago_runas_4",
         "icone": "🪧",
         "ramo": "runas",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -804,7 +850,7 @@
         "id": "mago_runas_5",
         "icone": "🩸",
         "ramo": "runas",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -830,7 +876,7 @@
         "id": "mago_runas_6",
         "icone": "🪬",
         "ramo": "runas",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -852,6 +898,31 @@
           "efeito": {
             "dano": 1.18,
             "critico": 0.1
+          }
+        }
+      },
+      {
+        "id": "mago_descarga_runica",
+        "icone": "💥",
+        "ramo": "runas",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Descarga Rúnica",
+        "descricao": "Descarrega a armadura rúnica de uma vez em todos os inimigos. O dano cresce com a defesa.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "mago_descarga_runica_skill",
+          "nome": "Descarga Rúnica",
+          "descricao": "Descarrega a armadura rúnica de uma vez em todos os inimigos. O dano cresce com a defesa.",
+          "tipo": "dano_area",
+          "custoMP": 10,
+          "cooldown": 2,
+          "multiplicador": 0.85,
+          "escala": {
+            "de": "defesa",
+            "fator": 2.35
           }
         }
       }
@@ -1205,7 +1276,7 @@
         "id": "ladino_trapaca_4",
         "icone": "📍",
         "ramo": "trapaca",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -1230,7 +1301,7 @@
         "id": "ladino_trapaca_5",
         "icone": "📖",
         "ramo": "trapaca",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -1256,7 +1327,7 @@
         "id": "ladino_trapaca_6",
         "icone": "🎲",
         "ramo": "trapaca",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -1278,6 +1349,31 @@
           "efeito": {
             "critico": 0.15,
             "dano": 1.1
+          }
+        }
+      },
+      {
+        "id": "ladino_finta_couracada",
+        "icone": "🃏",
+        "ramo": "trapaca",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Finta Couraçada",
+        "descricao": "Usa a própria guarda como alavanca para um golpe único e preciso.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "ladino_finta_couracada_skill",
+          "nome": "Finta Couraçada",
+          "descricao": "Usa a própria guarda como alavanca para um golpe único e preciso.",
+          "tipo": "dano_fisico_des",
+          "custoMP": 4,
+          "cooldown": 1,
+          "multiplicador": 1,
+          "escala": {
+            "de": "defesa",
+            "fator": 3.44
           }
         }
       }
@@ -1369,7 +1465,7 @@
         "id": "clerigo_luz_4",
         "icone": "☀️",
         "ramo": "luz",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -1390,7 +1486,7 @@
         "id": "clerigo_luz_5",
         "icone": "🕊️",
         "ramo": "luz",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -1413,7 +1509,7 @@
         "id": "clerigo_luz_6",
         "icone": "✨",
         "ramo": "luz",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -1711,6 +1807,31 @@
             "dano": 1.3
           }
         }
+      },
+      {
+        "id": "clerigo_bencao_vital",
+        "icone": "💗",
+        "ramo": "luz",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Bênção Vital",
+        "descricao": "Divide a própria vitalidade com o grupo: a cura cresce com a vida máxima de quem conjura.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "clerigo_bencao_vital_skill",
+          "nome": "Bênção Vital",
+          "descricao": "Divide a própria vitalidade com o grupo: a cura cresce com a vida máxima de quem conjura.",
+          "tipo": "cura_area",
+          "custoMP": 8,
+          "cooldown": 2,
+          "multiplicador": 1,
+          "escala": {
+            "de": "vidaMaxima",
+            "fator": 0.54
+          }
+        }
       }
     ]
   },
@@ -1800,7 +1921,7 @@
         "id": "barbaro_furia_4",
         "icone": "😡",
         "ramo": "furia",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -1822,7 +1943,7 @@
         "id": "barbaro_furia_5",
         "icone": "💢",
         "ramo": "furia",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -1845,7 +1966,7 @@
         "id": "barbaro_furia_6",
         "icone": "🔥",
         "ramo": "furia",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -2138,6 +2259,31 @@
             "dano": 0.12,
             "escalonado": true,
             "maximo": 0.36
+          }
+        }
+      },
+      {
+        "id": "barbaro_sangue_fervente",
+        "icone": "♨️",
+        "ramo": "furia",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Sangue Fervente",
+        "descricao": "Cada ponto de vida já perdido vira força. Inútil inteiro; devastador quase morto.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "barbaro_sangue_fervente_skill",
+          "nome": "Sangue Fervente",
+          "descricao": "Cada ponto de vida já perdido vira força. Inútil inteiro; devastador quase morto.",
+          "tipo": "dano_fisico",
+          "custoMP": 3,
+          "cooldown": 1,
+          "multiplicador": 1,
+          "escala": {
+            "de": "vidaPerdida",
+            "fator": 0.44
           }
         }
       }
@@ -2495,7 +2641,7 @@
         "id": "patrulheiro_vinculo_4",
         "icone": "🐺",
         "ramo": "vinculo",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -2521,7 +2667,7 @@
         "id": "patrulheiro_vinculo_5",
         "icone": "🍖",
         "ramo": "vinculo",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -2547,7 +2693,7 @@
         "id": "patrulheiro_vinculo_6",
         "icone": "🌳",
         "ramo": "vinculo",
-        "tier": 6,
+        "tier": 7,
         "custo": 3,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -2570,6 +2716,31 @@
           "efeito": {
             "defesa": 0.85,
             "cura": 1.2
+          }
+        }
+      },
+      {
+        "id": "patrulheiro_arco_pesado",
+        "icone": "🏹",
+        "ramo": "vinculo",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Arco de Guerra",
+        "descricao": "Um arco que só o fôlego sustenta: o dano cresce com a vida máxima.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "patrulheiro_arco_pesado_skill",
+          "nome": "Arco de Guerra",
+          "descricao": "Um arco que só o fôlego sustenta: o dano cresce com a vida máxima.",
+          "tipo": "dano_fisico",
+          "custoMP": 4,
+          "cooldown": 1,
+          "multiplicador": 1,
+          "escala": {
+            "de": "vidaMaxima",
+            "fator": 0.56
           }
         }
       }
@@ -2828,7 +2999,7 @@
         "id": "paladino_1_5",
         "icone": "🧱",
         "ramo": "paladino_1",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -2851,7 +3022,7 @@
         "id": "paladino_1_6",
         "icone": "💗",
         "ramo": "paladino_1",
-        "tier": 6,
+        "tier": 7,
         "custo": 2,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -2942,7 +3113,7 @@
         "id": "paladino_2_4",
         "icone": "🔋",
         "ramo": "paladino_2",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -2965,7 +3136,7 @@
         "id": "paladino_2_5",
         "icone": "🧱",
         "ramo": "paladino_2",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -2988,7 +3159,7 @@
         "id": "paladino_2_6",
         "icone": "💗",
         "ramo": "paladino_2",
-        "tier": 6,
+        "tier": 7,
         "custo": 2,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -3004,6 +3175,52 @@
             "tipo": "cura_recebida",
             "valor": 1.06,
             "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_desafio",
+        "icone": "🗯️",
+        "ramo": "paladino_2",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Desafio Sagrado",
+        "descricao": "Um juramento em voz alta: os inimigos precisam responder a você.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_desafio_skill",
+          "nome": "Desafio Sagrado",
+          "descricao": "Um juramento em voz alta: os inimigos precisam responder a você.",
+          "tipo": "provocar",
+          "custoMP": 5,
+          "cooldown": 3,
+          "duracao": 3
+        }
+      },
+      {
+        "id": "paladino_martelo_votivo",
+        "icone": "🔨",
+        "ramo": "paladino_1",
+        "tier": 5,
+        "custo": 1,
+        "nivelRequerido": 10,
+        "requerRamo": 3,
+        "nome": "Martelo Votivo",
+        "descricao": "O peso do juramento cai junto com o martelo: o dano cresce com a defesa.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_martelo_votivo_skill",
+          "nome": "Martelo Votivo",
+          "descricao": "O peso do juramento cai junto com o martelo: o dano cresce com a defesa.",
+          "tipo": "dano_fisico",
+          "custoMP": 4,
+          "cooldown": 1,
+          "multiplicador": 1.1,
+          "escala": {
+            "de": "defesa",
+            "fator": 0.95
           }
         }
       }
@@ -3239,7 +3456,7 @@
         "id": "bardo_1_4",
         "icone": "🔋",
         "ramo": "bardo_1",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -3262,7 +3479,7 @@
         "id": "bardo_1_5",
         "icone": "🧱",
         "ramo": "bardo_1",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -3285,7 +3502,7 @@
         "id": "bardo_1_6",
         "icone": "💗",
         "ramo": "bardo_1",
-        "tier": 6,
+        "tier": 7,
         "custo": 2,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -3441,6 +3658,31 @@
             "tipo": "cura_recebida",
             "valor": 1.06,
             "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_canto_muralha",
+        "icone": "🛖",
+        "ramo": "bardo_1",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Canto da Muralha",
+        "descricao": "O fôlego do bardo vira fôlego do time: a cura cresce com a vida máxima dele.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_canto_muralha_skill",
+          "nome": "Canto da Muralha",
+          "descricao": "O fôlego do bardo vira fôlego do time: a cura cresce com a vida máxima dele.",
+          "tipo": "cura_area",
+          "custoMP": 9,
+          "cooldown": 3,
+          "multiplicador": 0.85,
+          "escala": {
+            "de": "vidaMaxima",
+            "fator": 0.28
           }
         }
       }
@@ -3811,7 +4053,7 @@
         "id": "druida_2_4",
         "icone": "🔋",
         "ramo": "druida_2",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -3834,7 +4076,7 @@
         "id": "druida_2_5",
         "icone": "🧱",
         "ramo": "druida_2",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -3857,7 +4099,7 @@
         "id": "druida_2_6",
         "icone": "💗",
         "ramo": "druida_2",
-        "tier": 6,
+        "tier": 7,
         "custo": 2,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -3873,6 +4115,31 @@
             "tipo": "cura_recebida",
             "valor": 1.06,
             "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_casca_carvalho",
+        "icone": "🌳",
+        "ramo": "druida_2",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Casca de Carvalho",
+        "descricao": "A vitalidade do druida vira seiva para o grupo inteiro.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_casca_carvalho_skill",
+          "nome": "Casca de Carvalho",
+          "descricao": "A vitalidade do druida vira seiva para o grupo inteiro.",
+          "tipo": "cura_area",
+          "custoMP": 9,
+          "cooldown": 3,
+          "multiplicador": 0.9,
+          "escala": {
+            "de": "vidaMaxima",
+            "fator": 0.38
           }
         }
       }
@@ -4247,7 +4514,7 @@
         "id": "necromante_2_4",
         "icone": "🔋",
         "ramo": "necromante_2",
-        "tier": 4,
+        "tier": 5,
         "custo": 2,
         "nivelRequerido": 9,
         "requerRamo": 3,
@@ -4270,7 +4537,7 @@
         "id": "necromante_2_5",
         "icone": "🧱",
         "ramo": "necromante_2",
-        "tier": 5,
+        "tier": 6,
         "custo": 2,
         "nivelRequerido": 12,
         "requerRamo": 5,
@@ -4293,7 +4560,7 @@
         "id": "necromante_2_6",
         "icone": "💗",
         "ramo": "necromante_2",
-        "tier": 6,
+        "tier": 7,
         "custo": 2,
         "nivelRequerido": 16,
         "requerRamo": 7,
@@ -4309,6 +4576,31 @@
             "tipo": "cura_recebida",
             "valor": 1.06,
             "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_pacto_carne",
+        "icone": "🦴",
+        "ramo": "necromante_2",
+        "tier": 4,
+        "custo": 1,
+        "nivelRequerido": 8,
+        "requerRamo": 2,
+        "nome": "Pacto de Carne",
+        "descricao": "Oferece a própria massa vital como combustível: o feitiço cresce com a vida máxima.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_pacto_carne_skill",
+          "nome": "Pacto de Carne",
+          "descricao": "Oferece a própria massa vital como combustível: o feitiço cresce com a vida máxima.",
+          "tipo": "dano_magico",
+          "custoMP": 7,
+          "cooldown": 0,
+          "multiplicador": 1,
+          "escala": {
+            "de": "vidaMaxima",
+            "fator": 0.16
           }
         }
       }

@@ -324,13 +324,20 @@ export const NOS_NOVOS = [
     habilidade: { tipo: "dano_fisico", custoMP: 0, cooldown: 0, multiplicador: 1.0, escala: { de: "defesa", fator: 2.85 } },
   },
   {
-    classe: "guerreiro", ramo: "baluarte", tier: 2, nivelRequerido: 4, requerRamo: 1,
+    // No ramo COMANDO, não no baluarte: as duas habilidades novas do guerreiro
+    // na mesma coluna deixariam uma coluna com oito ladrilhos ao lado de duas
+    // com seis. E a ficção prefere assim — provocar é um grito, e gritar é o
+    // que o ramo de comando faz.
+    classe: "guerreiro", ramo: "comando", tier: 2, nivelRequerido: 4, requerRamo: 1,
     id: "guerreiro_provocar", icone: "🗯️", nome: "Chamado do Baluarte",
     descricao: "Atrai para si a atenção dos inimigos por dois turnos.",
     habilidade: { tipo: "provocar", custoMP: 4, cooldown: 3, duracao: 2 },
   },
   {
-    classe: "paladino", ramo: "paladino_1", tier: 4, nivelRequerido: 8, requerRamo: 2,
+    // Pelo mesmo motivo do guerreiro, o desafio vai para a coluna da Aurora,
+    // que já é a coluna de proteger os outros — e não para a do Bastião, que
+    // fica com o Martelo Votivo.
+    classe: "paladino", ramo: "paladino_2", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "paladino_desafio", icone: "🗯️", nome: "Desafio Sagrado",
     descricao: "Um juramento em voz alta: os inimigos precisam responder a você.",
     habilidade: { tipo: "provocar", custoMP: 5, cooldown: 3, duracao: 3 },
@@ -385,7 +392,9 @@ export const NOS_NOVOS = [
   },
   {
     classe: "bardo", ramo: "bardo_1", tier: 4, nivelRequerido: 8, requerRamo: 2,
-    id: "bardo_canto_muralha", icone: "🧱", nome: "Canto da Muralha",
+    // 🧱 virou o ícone fixo do degrau Tenacidade em toda coluna das árvores
+    // novas, então colidia dentro de bardo_1. 🛖 mantém a ideia de abrigo.
+    id: "bardo_canto_muralha", icone: "🛖", nome: "Canto da Muralha",
     descricao: "O fôlego do bardo vira fôlego do time: a cura cresce com a vida máxima dele.",
     habilidade: { tipo: "cura_area", custoMP: 9, cooldown: 3, multiplicador: 0.85, escala: { de: "vidaMaxima", fator: 0.28 } },
   },
@@ -409,6 +418,20 @@ function inserirNos(arvores) {
       throw new Error(`ramo inexistente: ${d.classe}/${d.ramo} (ramos: ${(arv.ramos || []).map((r) => r.id).join(", ")})`);
     }
     if (arv.nos.some((n) => n.id === d.id)) { relato.push(`  = ${d.classe}/${d.nome}: já existe`); continue; }
+
+    // ABRIR O DEGRAU EM VEZ DE EMPILHAR EM CIMA DE OUTRO.
+    //
+    // Toda coluna do jogo já está cheia de 1 a 6. Empurrar o nó novo com o
+    // degrau que a tabela pede colocava DOIS nós no mesmo degrau, e a linha
+    // que liga os ladrilhos passava a mentir sobre a ordem — test-arvore-
+    // ladrilhos reprovava, e com razão.
+    //
+    // Então o nó entra no degrau pedido e TUDO que vinha dali pra baixo desce
+    // um. Deliberadamente não mexo em nivelRequerido nem requerRamo de quem
+    // desceu: eles já exigem mais do que o nó novo (que entra cedo, por
+    // desenho — a calibração mediu uma habilidade ALCANÇÁVEL, não um prêmio
+    // de fim de árvore), então a corrente continua subindo sozinha.
+    for (const n of arv.nos) if (n.ramo === d.ramo && (n.tier || 0) >= d.tier) n.tier = (n.tier || 0) + 1;
     arv.nos.push(montarNo(d));
     relato.push(`  + ${d.classe.padEnd(12)} ${d.nome} — ${d.habilidade.tipo}${d.habilidade.escala ? ` · escala ${d.habilidade.escala.de} x${d.habilidade.escala.fator}` : ""}`);
   }

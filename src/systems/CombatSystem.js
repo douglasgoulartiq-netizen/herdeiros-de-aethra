@@ -17,6 +17,7 @@ import { penalidadeEquipada } from "./RequisitoSystem.js";
 import { modificadoresDoTime, modificadorDe } from "./PassiveSystem.js";
 import { marcasDe, bonusDeMarcas } from "./RecursoClasseSystem.js";
 import { escalaDoMonstro, escalaDeNivel } from "./EscalaSystem.js";
+import { bonusDeEscala, seloDeEscala, criarStatusProvocar } from "./EscalaDerivada.js";
 // Barramento de eventos visuais: este arquivo é testado em Node, sem DOM, e
 // não pode importar UI. Ele ANUNCIA; quem estiver na tela desenha. Sem
 // ouvinte, cada anunciar() é um no-op — nenhum teste precisou mudar.
@@ -773,11 +774,14 @@ export class Batalha {
   // exato, virando o "min–max" exibido. Nunca deve ser chamada em nenhum
   // lugar que decida o resultado real de um golpe — só para exibição na UI
   // ANTES de confirmar a ação (ver BattleUI.js).
-  estimarFaixaDano(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, magico = false } = {}) {
+  estimarFaixaDano(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, escala = null, magico = false } = {}) {
     const alvoDef = this.defesaEfetiva(alvo);
     const atributo = atributoForcado || atacante.ataque.atributo;
     const baseAtributo = atacante.atributos[atributo] || 0;
     let base = (atacante.ataque.dano || 0) + Math.floor(baseAtributo * 0.3);
+    // mesma escala do golpe real — se a prévia não somasse, o jogador veria
+    // um número e receberia outro, que é pior do que não ter prévia.
+    base += bonusDeEscala(atacante, escala, base);
     base *= multiplicador;
     const furiaBuff = atacante.statusEffects.find((s) => s.tipo === "buff_ataque_proximo");
     if (furiaBuff) base *= 1 + furiaBuff.valor;
@@ -1014,7 +1018,7 @@ export class Batalha {
     return null;
   }
 
-  rolarAtaque(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, magico = false } = {}) {
+  rolarAtaque(atacante, alvo, { multiplicador = 1, atributoForcado = null, ignoraDefesa = 0, elementoAtacante = null, respeitaFormacao = true, escala = null, magico = false } = {}) {
     const { critico: criticoBase, erroTotal, bloqueado } = this.resolverAcaoD20(atacante, alvo);
     let critico = criticoBase;
     const alvoDef = this.defesaEfetiva(alvo);
@@ -1062,6 +1066,17 @@ export class Batalha {
     const atributo = atributoForcado || atacante.ataque.atributo;
     const baseAtributo = atacante.atributos[atributo] || 0;
     let base = (atacante.ataque.dano || 0) + Math.floor(baseAtributo * 0.3);
+    // ESCALA DERIVADA (ver EscalaDerivada.js). Entra ANTES do multiplicador,
+    // somando à base: é uma segunda fonte para a mesma habilidade, não um
+    // caminho de dano paralelo. O teto está no próprio módulo.
+    //
+    // O selo sai daqui mesmo, e não de um remendo separado: `bonusEscala` só
+    // existe nesta linha, e `selos` já nasceu acima. Um número que aparece do
+    // nada na tela é indistinguível de bug.
+    const bonusEscala = bonusDeEscala(atacante, escala, base);
+    base += bonusEscala;
+    const seloEsc = seloDeEscala(escala, bonusEscala);
+    if (seloEsc) selos.push(seloEsc);
     base *= multiplicador;
     const furiaBuff = atacante.statusEffects.find((s) => s.tipo === "buff_ataque_proximo");
     if (furiaBuff) {
@@ -1556,7 +1571,7 @@ export class Batalha {
       case "dano_fisico":
       case "dano_fisico_des": {
         const attr = habilidade.tipo === "dano_fisico_des" ? "DES" : null;
-        const r = this.rolarAtaque(atacante, alvoOuAlvos, { multiplicador: habilidade.multiplicador, atributoForcado: attr, elementoAtacante: habilidade.elemento });
+        const r = this.rolarAtaque(atacante, alvoOuAlvos, { multiplicador: habilidade.multiplicador, atributoForcado: attr, elementoAtacante: habilidade.elemento, escala: habilidade.escala });
         if (r.acertou) { this.aplicarDano(alvoOuAlvos, r.dano); this.registrarReacaoElemental(r.relacaoElemental); this.acumularQuebra(atacante, alvoOuAlvos, r.relacaoElemental); this.aplicarEstadoDeHabilidade(habilidade, alvoOuAlvos); }
         this.registrar(`${atacante.nome} usa ${habilidade.nome}${r.acertou ? ` e causa ${r.dano} de dano` : " mas erra"}!`);
         if (r.combo) this.registrar(`${r.combo.icone} Combo Elemental: ${r.combo.nome}! O golpe em equipe amplia o dano.`);
@@ -1564,7 +1579,7 @@ export class Batalha {
         break;
       }
       case "dano_ignora_defesa": {
-        const r = this.rolarAtaque(atacante, alvoOuAlvos, { multiplicador: habilidade.multiplicador, ignoraDefesa: 999, elementoAtacante: habilidade.elemento, respeitaFormacao: false });
+        const r = this.rolarAtaque(atacante, alvoOuAlvos, { multiplicador: habilidade.multiplicador, ignoraDefesa: 999, elementoAtacante: habilidade.elemento, respeitaFormacao: false, escala: habilidade.escala });
         if (r.acertou) { this.aplicarDano(alvoOuAlvos, r.dano); this.registrarReacaoElemental(r.relacaoElemental); this.acumularQuebra(atacante, alvoOuAlvos, r.relacaoElemental); this.aplicarEstadoDeHabilidade(habilidade, alvoOuAlvos); }
         this.registrar(`${atacante.nome} usa ${habilidade.nome}, ignorando parte da defesa!`);
         if (r.combo) this.registrar(`${r.combo.icone} Combo Elemental: ${r.combo.nome}! O golpe em equipe amplia o dano.`);
@@ -1578,7 +1593,10 @@ export class Batalha {
         } else if (bloqueado) {
           this.registrar(`${alvoOuAlvos.nome} se defende e bloqueia o feitiço ${habilidade.nome} de ${atacante.nome}! (seu d20 ${this.ultimaRolagem.d} não superou o limiar de defesa ${this.ultimaRolagem.limiarBloqueio})`);
         } else {
-          let dano = (atacante.atributos.INT * habilidade.multiplicador) * (0.85 + Math.random() * 0.3);
+          // escala derivada no ramo mágico — mesma regra do físico: soma na
+          // base, antes do multiplicador da habilidade.
+          const baseMagica = atacante.atributos.INT + bonusDeEscala(atacante, habilidade.escala, atacante.atributos.INT);
+          let dano = (baseMagica * habilidade.multiplicador) * (0.85 + Math.random() * 0.3);
           if (critico) dano *= 2;
           let relacao = "neutro";
           const elemAtqMagico = habilidade.elemento || atacante.elemento || "fisico";
@@ -1634,7 +1652,10 @@ export class Batalha {
         // por fé usa INT, quem cura por teimosia usa CON, e nenhuma classe
         // fica com uma habilidade decorativa.
         const atributoCura = Math.max(atacante.atributos.INT || 0, atacante.atributos.CON || 0);
-        let cura = Math.round(atributoCura * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
+        // escala derivada na cura de alvo — é isto que faz o clérigo curar
+        // mais por ser grande, e não só por ser sábio.
+        const baseCura = atributoCura + bonusDeEscala(atacante, habilidade.escala, atributoCura);
+        let cura = Math.round(baseCura * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
         cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
         cura = Math.round(cura * modificadorDe(this.passivas, atacante).cura_recebida);
         if (FLAGS.reacoesElementais) cura = Math.round(cura * modificadorCuraRecebidaEstado(atacante));
@@ -1653,6 +1674,17 @@ export class Batalha {
         }
         atacante.statusEffects.push({ tipo: "buff_defesa", duracao: habilidade.duracao + 1, valor: habilidade.valor });
         this.registrar(`${atacante.nome} usa ${habilidade.nome} e fica mais resistente!`);
+        break;
+      }
+      // PROVOCAR — a alavanca ativa de aggro. AmeacaSystem já multiplicava a
+      // ameaça de quem estivesse com este status por 6; faltava algo que o
+      // criasse. Sem isto, tankar era só ser naturalmente robusto, sem
+      // nenhuma decisão de turno envolvida.
+      case "provocar": {
+        atacante.statusEffects = atacante.statusEffects.filter((s) => s.tipo !== "provocar");
+        atacante.statusEffects.push(criarStatusProvocar(habilidade));
+        this.registrar(`${atacante.nome} usa ${habilidade.nome} e atrai a atenção dos inimigos!`);
+        eventos.push({ tipo: "status", alvo: atacante.id, valor: "provocar" });
         break;
       }
       case "buff_ataque": {
@@ -1686,6 +1718,7 @@ export class Batalha {
             atributoForcado: habilidade.atributoForcado || null,
             elementoAtacante: habilidade.elemento,
             respeitaFormacao: false,
+            escala: habilidade.escala,
           });
           if (!r.acertou) { this.registrar(`   ${alvo.nome} escapa.`); continue; }
           this.aplicarDano(alvo, r.dano);
@@ -1702,7 +1735,10 @@ export class Batalha {
         const aliados = this.timeVivo();
         let total = 0;
         for (const a of aliados) {
-          let cura = Math.round(Math.max(atacante.atributos.INT || 0, atacante.atributos.CON || 0) * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
+          // escala derivada na cura de área
+          const attrCuraArea = Math.max(atacante.atributos.INT || 0, atacante.atributos.CON || 0);
+          const baseCuraArea = attrCuraArea + bonusDeEscala(atacante, habilidade.escala, attrCuraArea);
+          let cura = Math.round(baseCuraArea * habilidade.multiplicador * (0.9 + Math.random() * 0.2));
           // Marca de quem CURA (Fé, Louvor, Elo) e passiva de quem RECEBE
           // (Mãos Cálidas) — as duas pontas, cada uma uma vez.
           cura = Math.round(cura * bonusDeMarcas(atacante, null, this.ctxMarcas(atacante)).cura);
