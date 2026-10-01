@@ -1,0 +1,237 @@
+{
+  "nivel": 25,
+  "amostras": 5,
+  "margem": 1.03,
+  "linhas": [
+    {
+      "classe": "guerreiro",
+      "nome": "Represália",
+      "tipo": "dano_fisico",
+      "fonte": "defesa",
+      "fatorOriginal": 2.85,
+      "porCenario": {
+        "1": {
+          "fator": 2.85,
+          "danoSem": 2299,
+          "danoCom": 2703.6,
+          "ganho": 1.1759895606785558,
+          "trocado": "grito_de_guerra"
+        },
+        "2": {
+          "fator": 2.85,
+          "danoSem": 1649,
+          "danoCom": 1845.2,
+          "ganho": 1.1189812007277138,
+          "trocado": "grito_de_guerra"
+        }
+      }
+    },
+    {
+      "classe": "paladino",
+      "nome": "Martelo Votivo",
+      "tipo": "dano_fisico",
+      "fonte": "defesa",
+      "fatorOriginal": 0.95,
+      "porCenario": {
+        "1": {
+          "fator": 0.95,
+          "danoSem": 649.2,
+          "danoCom": 845.3999999999999,
+          "ganho": 1.3022181146025875,
+          "trocado": "paladino_1_3_skill"
+        },
+        "2": {
+          "fator": 0.95,
+          "danoSem": 423.20000000000005,
+          "danoCom": 467.79999999999995,
+          "ganho": 1.1053875236294894,
+          "trocado": "paladino_0_3_skill"
+        }
+      }
+    },
+    {
+      "classe": "barbaro",
+      "nome": "Sangue Fervente",
+      "tipo": "dano_fisico",
+      "fonte": "vidaPerdida",
+      "fatorOriginal": 0.44,
+      "porCenario": {
+        "1": {
+          "fator": 0.44,
+          "danoSem": 2609.8,
+          "danoCom": 2837.4000000000005,
+          "ganho": 1.0872097478734004,
+          "trocado": "furia"
+        },
+        "2": {
+          "fator": 0.44,
+          "danoSem": 2658,
+          "danoCom": 2771.4,
+          "ganho": 1.042663656884876,
+          "trocado": "golpe_selvagem"
+        }
+      }
+    },
+    {
+      "classe": "clerigo",
+      "nome": "Bênção Vital",
+      "tipo": "cura_area",
+      "fonte": "vidaMaxima",
+      "fatorOriginal": 0.54,
+      "porCenario": {
+        "1": {
+          "fator": null,
+          "danoSem": 2311.2000000000003,
+          "danoCom": 2237.2000000000003,
+          "ganho": 0.967982000692281,
+          "trocado": "escudo_fe"
+        },
+        "2": {
+          "fator": 0.54,
+          "danoSem": 1329.8,
+          "danoCom": 1506,
+          "ganho": 1.1325011279891712,
+          "trocado": "circulo_luz"
+        }
+      }
+    },
+    {
+      "classe": "druida",
+      "nome": "Casca de Carvalho",
+      "tipo": "cura_area",
+      "fonte": "vidaMaxima",
+      "fatorOriginal": 0.38,
+      "porCenario": {
+        "1": {
+          "fator": 0.38,
+          "danoSem": 1100.3999999999999,
+          "danoCom": 1256.8,
+          "ganho": 1.1421301344965469,
+          "trocado": "druida_0_3_skill"
+        },
+        "2": {
+          "fator": 0.38,
+          "danoSem": 862.8,
+          "danoCom": 1102.8,
+          "ganho": 1.278164116828929,
+          "trocado": "druida_2_3_skill"
+        }
+      }
+    },
+    {
+      "classe": "necromante",
+      "nome": "Pacto de Carne",
+      "tipo": "dano_magico",
+      "fonte": "vidaMaxima",
+      "fatorOriginal": 0.16,
+      "porCenario": {
+        "1": {
+          "fator": null,
+          "danoSem": 1569.4,
+          "danoCom": 1311.6,
+          "ganho": 0.8357334012998597,
+          "trocado": "necromante_2_3_skill"
+        },
+        "2": {
+          "fator": null,
+          "danoSem": 1230.6,
+          "danoCom": 924,
+          "ganho": 0.7508532423208192,
+          "trocado": "necromante_1_1_skill"
+        }
+      }
+    },
+    {
+      "classe": "mago",
+      "nome": "Descarga Rúnica",
+      "tipo": "dano_area",
+      "fonte": "defesa",
+      "fatorOriginal": 2.35,
+      "porCenario": {
+        "1": {
+          "fator": null,
+          "danoSem": 2048.2,
+          "danoCom": 2048.2,
+          "ganho": 1,
+          "trocado": "escudo_arcano"
+        },
+        "2": {
+          "fator": 2.35,
+          "danoSem": 1613.6,
+          "danoCom": 2150.6,
+          "ganho": 1.332796232027764,
+          "trocado": "cadeia_raios"
+        }
+      }
+    },
+    {
+      "classe": "ladino",
+      "nome": "Finta Couraçada",
+      "tipo": "dano_fisico_des",
+      "fonte": "defesa",
+      "fatorOriginal": 3.44,
+      "porCenario": {
+        "1": {
+          "fator": 3.44,
+          "danoSem": 2271,
+          "danoCom": 2501,
+          "ganho": 1.1012769704975782,
+          "trocado": "ataque_furtivo"
+        },
+        "2": {
+          "fator": 3.44,
+          "danoSem": 2036.0000000000002,
+          "danoCom": 2280.8,
+          "ganho": 1.1202357563850687,
+          "trocado": "ataque_furtivo"
+        }
+      }
+    },
+    {
+      "classe": "patrulheiro",
+      "nome": "Arco de Guerra",
+      "tipo": "dano_fisico",
+      "fonte": "vidaMaxima",
+      "fatorOriginal": 0.56,
+      "porCenario": {
+        "1": {
+          "fator": 0.56,
+          "danoSem": 2893.6000000000004,
+          "danoCom": 3313.6,
+          "ganho": 1.14514791263478,
+          "trocado": "tiro_perfurante"
+        },
+        "2": {
+          "fator": null,
+          "danoSem": 2363,
+          "danoCom": 1590,
+          "ganho": 0.6728734659331358,
+          "trocado": "armadilha"
+        }
+      }
+    },
+    {
+      "classe": "bardo",
+      "nome": "Canto da Muralha",
+      "tipo": "cura_area",
+      "fonte": "vidaMaxima",
+      "fatorOriginal": 0.28,
+      "porCenario": {
+        "1": {
+          "fator": 0.28,
+          "danoSem": 758.9999999999999,
+          "danoCom": 914.2,
+          "ganho": 1.204479578392622,
+          "trocado": "bardo_0_3_skill"
+        },
+        "2": {
+          "fator": 0.28,
+          "danoSem": 599.4,
+          "danoCom": 624.6,
+          "ganho": 1.0420420420420422,
+          "trocado": "bardo_0_3_skill"
+        }
+      }
+    }
+  ]
+}

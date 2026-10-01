@@ -320,8 +320,8 @@ export const NOS_NOVOS = [
   {
     classe: "guerreiro", ramo: "baluarte", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "guerreiro_represalia", icone: "⚔️", nome: "Represália",
-    descricao: "Golpe que converte a própria defesa em dano. Quanto melhor a armadura, mais dói.",
-    habilidade: { tipo: "dano_fisico", custoMP: 4, cooldown: 1, multiplicador: 1.0, escala: { de: "defesa", fator: 1.9 } },
+    descricao: "Golpe de escudo que converte a própria defesa em dano. Não custa Éter: o guerreiro não tem reserva para sustentar uma habilidade paga, e medido contra o Golpe Poderoso (de graça, toda rodada) ela perdia por isso, não por força.",
+    habilidade: { tipo: "dano_fisico", custoMP: 0, cooldown: 0, multiplicador: 1.0, escala: { de: "defesa", fator: 2.85 } },
   },
   {
     classe: "guerreiro", ramo: "baluarte", tier: 2, nivelRequerido: 4, requerRamo: 1,
@@ -345,7 +345,7 @@ export const NOS_NOVOS = [
     classe: "barbaro", ramo: "furia", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "barbaro_sangue_fervente", icone: "♨️", nome: "Sangue Fervente",
     descricao: "Cada ponto de vida já perdido vira força. Inútil inteiro; devastador quase morto.",
-    habilidade: { tipo: "dano_fisico", custoMP: 3, cooldown: 1, multiplicador: 1.0, escala: { de: "vidaPerdida", fator: 0.35 } },
+    habilidade: { tipo: "dano_fisico", custoMP: 3, cooldown: 1, multiplicador: 1.0, escala: { de: "vidaPerdida", fator: 0.44 } },
   },
   {
     classe: "clerigo", ramo: "luz", tier: 4, nivelRequerido: 8, requerRamo: 2,
@@ -357,13 +357,13 @@ export const NOS_NOVOS = [
     classe: "druida", ramo: "druida_2", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "druida_casca_carvalho", icone: "🌳", nome: "Casca de Carvalho",
     descricao: "A vitalidade do druida vira seiva para o grupo inteiro.",
-    habilidade: { tipo: "cura_area", custoMP: 9, cooldown: 3, multiplicador: 0.9, escala: { de: "vidaMaxima", fator: 0.2 } },
+    habilidade: { tipo: "cura_area", custoMP: 9, cooldown: 3, multiplicador: 0.9, escala: { de: "vidaMaxima", fator: 0.38 } },
   },
   {
     classe: "necromante", ramo: "necromante_2", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "necromante_pacto_carne", icone: "🦴", nome: "Pacto de Carne",
     descricao: "Oferece a própria massa vital como combustível: o feitiço cresce com a vida máxima.",
-    habilidade: { tipo: "dano_magico", custoMP: 6, cooldown: 1, multiplicador: 1.0, escala: { de: "vidaMaxima", fator: 0.16 } },
+    habilidade: { tipo: "dano_magico", custoMP: 7, cooldown: 0, multiplicador: 1.0, escala: { de: "vidaMaxima", fator: 0.16 } },
   },
   {
     classe: "mago", ramo: "runas", tier: 4, nivelRequerido: 8, requerRamo: 2,
@@ -375,7 +375,7 @@ export const NOS_NOVOS = [
     classe: "ladino", ramo: "trapaca", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "ladino_finta_couracada", icone: "🃏", nome: "Finta Couraçada",
     descricao: "Usa a própria guarda como alavanca para um golpe único e preciso.",
-    habilidade: { tipo: "dano_fisico_des", custoMP: 4, cooldown: 1, multiplicador: 1.0, escala: { de: "defesa", fator: 2.75 } },
+    habilidade: { tipo: "dano_fisico_des", custoMP: 4, cooldown: 1, multiplicador: 1.0, escala: { de: "defesa", fator: 3.44 } },
   },
   {
     classe: "patrulheiro", ramo: "vinculo", tier: 4, nivelRequerido: 8, requerRamo: 2,
@@ -387,7 +387,7 @@ export const NOS_NOVOS = [
     classe: "bardo", ramo: "bardo_1", tier: 4, nivelRequerido: 8, requerRamo: 2,
     id: "bardo_canto_muralha", icone: "🧱", nome: "Canto da Muralha",
     descricao: "O fôlego do bardo vira fôlego do time: a cura cresce com a vida máxima dele.",
-    habilidade: { tipo: "cura_area", custoMP: 9, cooldown: 3, multiplicador: 0.85, escala: { de: "vidaMaxima", fator: 0.18 } },
+    habilidade: { tipo: "cura_area", custoMP: 9, cooldown: 3, multiplicador: 0.85, escala: { de: "vidaMaxima", fator: 0.28 } },
   },
 ];
 
