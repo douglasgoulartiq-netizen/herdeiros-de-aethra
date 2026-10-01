@@ -297,6 +297,8 @@ button.perigo { background: #6e2020; border-color: #b03a3a; }
 .retrato-card.ativo { opacity: 1; transform: translateY(-3px); }
 .retrato-card.ativo img, .retrato-card.ativo .retrato-vazio { border-color: var(--hda-gold); box-shadow: 0 0 6px var(--hda-gold); }
 .retrato-card.morto img, .retrato-card.morto .retrato-vazio { filter: grayscale(1) brightness(0.5); border-color: #5a4327; }
+.asset-sprite-sheet { display:inline-block; background-repeat:no-repeat; background-size:300% 400%; background-position:50% 0%; image-rendering:pixelated; }
+.retrato-card .asset-sprite-sheet { width:48px; height:48px; border-radius:50%; border:2px solid var(--hda-line); background-color:var(--hda-panel); }
 .retrato-barra { width: 44px; height: 4px; background: #241b14; border: 1px solid #5a4327; border-radius: 2px; margin-top: 3px; overflow: hidden; }
 .retrato-barra-fill { height: 100%; background: #c0392b; }
 

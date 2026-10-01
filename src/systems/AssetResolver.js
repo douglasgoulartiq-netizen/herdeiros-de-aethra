@@ -94,6 +94,14 @@ export function aplicarCadeia(img, alvo, uso = USOS.COMBATE, opcoes = {}) {
 export function imgHtml(alvo, uso = USOS.COMBATE, opcoes = {}) {
   const fila = candidatosVivos(alvo, uso, opcoes);
   if (fila.length === 0) return "";
+  // Folha oficial dos personagens jogáveis: exibe apenas o quadro frontal
+  // central da primeira linha, mantendo a mesma arte em ficha, gacha e
+  // combate sem enviar 12 poses para dentro de um retrato pequeno.
+  if (fila[0].includes("walk_v2_pc_") && uso !== USOS.MAPA) {
+    const classes = ["asset-sprite-sheet", opcoes.classe || ""].filter(Boolean).join(" ");
+    const alt = (opcoes.alt || "").replace(/"/g, "&quot;");
+    return `<span role="img" aria-label="${alt}" class="${classes}" style="background-image:url('${fila[0]}')"></span>`;
+  }
   const attrs = [
     `src="${fila[0]}"`,
     `data-cadeia="${fila.join("|")}"`,

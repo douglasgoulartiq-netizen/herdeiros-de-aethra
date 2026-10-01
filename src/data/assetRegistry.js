@@ -25,6 +25,7 @@
 import { FLAGS } from "./featureFlags.js";
 import { classArtFallback } from './classArtFallbacks.js';
 import { GACHA_FINAL_ART } from './gachaFinalArt.js';
+import { WALK_ART } from './classVisuals.js';
 
 // Onde a arte nova vai morar. Pasta separada de propósito: a arte atual
 // NUNCA é sobrescrita, então dá pra ligar e desligar a nova sem perder a
@@ -144,6 +145,13 @@ export function candidatos(alvo, uso = USOS.COMBATE, opcoes = {}) {
   if (arteProvisoria) return candidatos(arteProvisoria, uso, opcoes);
 
   if (v2) {
+    // Personagens jogáveis usam a folha direcional oficial como fonte única.
+    // As telas de retrato recortam o quadro frontal via CSS; isso evita que
+    // ficha, gacha e batalha voltem a misturar os retratos legados.
+    if (chave.startsWith("pc_") && WALK_ART[chave]) {
+      lista.push(WALK_ART[chave]);
+      return lista;
+    }
     const sufixo = SUFIXO_V2[uso] || "";
     lista.push(`${PASTA_V2}/${chave}${sufixo}.png`);
     // Se o uso específico ainda não foi desenhado (o pôster costuma ficar
