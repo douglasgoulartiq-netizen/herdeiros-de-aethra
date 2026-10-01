@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { criarCombatenteJogador } from "../src/systems/CombatSystem.js";
 import { instanciarPersonagemGacha } from "../src/systems/GachaSystem.js";
+import { GACHA_FINAL_ART } from "../src/data/gachaFinalArt.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -59,7 +60,20 @@ for (const p of roster) {
   if (!p.habilidade || !p.habilidade.id || !p.habilidade.tipo) semCampo.push(`${p.id}: habilidade incompleta`);
   if (!p.despertar || !p.despertar.nomeArma || !p.despertar.bonusAtributos) semCampo.push(`${p.id}: despertar ausente/incompleto`);
   if (!p.sprite) semCampo.push(`${p.id}: sprite ausente`);
-  else if (!fs.existsSync(path.join(ROOT, "assets/sprites", p.sprite))) semCampo.push(`${p.id}: sprite "${p.sprite}" não existe no disco`);
+  // DOIS CAMINHOS LEGÍTIMOS, não um.
+  //
+  // Esta checagem só conhecia assets/sprites, e por isso reprovava os 16
+  // convocados da segunda leva, cuja arte EXCLUSIVA vive em assets/arte_v2 e
+  // é resolvida por gachaFinalArt.js. A arte existe e aparece no jogo; era a
+  // checagem que estava desatualizada em relação ao jogo.
+  //
+  // O que ela continua cobrando — e tem de cobrar — é que todo convocado
+  // tenha arte EM ALGUM lugar que o jogo saiba encontrar. Quem não tem some
+  // da tela, e isso segue sendo falha.
+  else if (!fs.existsSync(path.join(ROOT, "assets/sprites", p.sprite))
+        && !(GACHA_FINAL_ART[p.sprite.replace(/\.png$/i, "")]
+             && fs.existsSync(path.join(ROOT, GACHA_FINAL_ART[p.sprite.replace(/\.png$/i, "")]))))
+    semCampo.push(`${p.id}: sprite "${p.sprite}" não existe nem em assets/sprites nem na arte exclusiva`);
 }
 check(`todo personagem tem racaId/classeId/facaoId válidos e campos obrigatórios completos (problemas: ${semCampo.length})`, semCampo.length === 0);
 if (semCampo.length) semCampo.slice(0, 10).forEach((s) => console.log("  - " + s));

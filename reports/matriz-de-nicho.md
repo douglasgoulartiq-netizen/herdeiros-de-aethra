@@ -6,6 +6,16 @@ O time é SEMPRE o mesmo (candidato + guerreiro, clérigo e patrulheiro humanos)
 
 **Inclinação** = participação com 6 inimigos menos participação com 1. Negativa é especialista em alvo único; positiva, em multidão; perto de zero é generalista.
 
+> ⚠ **ESTA LEITURA É UMA MÉDIA DE 3 NÍVEIS (5, 15, 25), E A COLUNA "NICHO" NÃO DEVE SER LIDA COMO IDENTIDADE DA CLASSE.**
+>
+> Cada número acima é a média de 5, 15, 25, e as classes mudam MUITO entre eles. Uma classe que é −28 no nível 5 e +25 no 25 sai daqui com média perto de zero e recebe o rótulo "generalista" — que é justamente o rótulo do defeito, aplicado pelo motivo errado. A média esconde a oscilação em vez de mostrá-la.
+>
+> Para saber o que a classe É em cada nível, rode uma leitura por nível
+> (`HDA_NIVEIS=<n> node tests/matriz-de-nicho.mjs`) e compare com
+> `scripts/comparar-nicho-por-nivel.mjs`. Esta tabela serve para comparar
+> ANTES e DEPOIS de uma mudança com a mesma semente — não para rotular classe.
+
+
 | Classe | 1 inim. | 2 inim. | 4 inim. | 6 inim. | Inclinação | Nicho | Contribuição | Cura/luta | Turnos de apoio | Apanhou | Morreu |
 |---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|
 | Ladino | 66.6% | 41.5% | 54.7% | 54.4% | -12.2 | alvo único | 54.3% | 0 | 0.0% | 0.4% | 0.0% |

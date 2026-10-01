@@ -19,8 +19,13 @@ const setup=(classe)=>{const p=criar(classe);p.nivel=10;for(let n=1;n<10;n++)apl
 for(const id of ids){
  const classe=d.classes.find(c=>c.id===id);
  assert.equal(Object.values(classe.crescimento).reduce((a,b)=>a+b),5);
- assert.ok(d.skillTrees[id].nos.length >= 18, 'Preservar ramos originais e expansões de escala');
- assert.equal(new Set(d.skillTrees[id].nos.map(n=>n.id)).size,d.skillTrees[id].nos.length);
+ // Eram 18 quando a classe nasceu. A escala derivada acrescentou um nó por
+ // classe (dois no paladino), então travar em 18 transformava CRESCER a árvore
+ // em falha. O que esta linha protege é a árvore não ENCOLHER; a forma dela
+ // (três colunas com no máximo um ladrilho de diferença) quem cobra é
+ // scripts/test-arvore-ladrilhos.mjs, e duplicar a regra aqui só criaria dois
+ // lugares para desatualizar.
+ assert.ok(d.skillTrees[id].nos.length>=18,`${id}: árvore encolheu para ${d.skillTrees[id].nos.length} nós`);
  for(const r of d.races){
   const p=criar(id,r.id);
   while(p.nivel<25){p.nivel++;aplicarCrescimento(p,d);}

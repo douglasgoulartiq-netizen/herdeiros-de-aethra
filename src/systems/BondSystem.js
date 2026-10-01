@@ -40,7 +40,7 @@ const BONUS_POR_TIER = [
 const TOM_CALOROSO = "caloroso";
 const TOM_RESERVADO = "reservado";
 
-// 6 classes x 3 tiers = 18 cenas. `texto`/`resposta` usam os placeholders
+// 10 classes x 3 tiers = 30 cenas. `texto`/`resposta` usam os placeholders
 // {nome} (convocado) e {heroi} (personagem principal), substituídos em
 // cenaVinculo() na hora de exibir — nunca guardados já resolvidos, pra não
 // precisar reprocessar nada se o jogador trocar de personagem principal
@@ -199,6 +199,121 @@ const TEMPLATES_VINCULO = {
       escolhas: [
         { id: TOM_CALOROSO, rotulo: "Dizer que pretende seguir esse caminho junto dela(e)", resposta: "{nome} assente devagar, os olhos brilhando — é uma promessa que os dois pretendem cumprir." },
         { id: TOM_RESERVADO, rotulo: "Só continuar caminhando ao lado dela(e)", resposta: "{nome} entende: algumas promessas se fazem andando, não falando — e isso já diz tudo." },
+      ],
+    },
+  ],
+  // AS QUATRO CLASSES NOVAS.
+  //
+  // Elas entraram no jogo sem nenhuma cena, e o teste de vínculo reprovava
+  // com razão: um convocado paladino chegava ao nível 3 e não acontecia nada.
+  //
+  // Cada arco de três cenas foi escrito em cima do que a classe FAZ no
+  // combate, não de um clichê de fantasia. O paladino intercepta dano pelos
+  // outros, então o arco dele é sobre o preço disso. A canção do bardo
+  // substitui a anterior, e a última cena fala exatamente disso. O druida
+  // não consegue curar enquanto está em forma animal, e o medo dele é não
+  // voltar. O necromante invoca um servo que obedece e nunca responde.
+  paladino: [
+    {
+      titulo: "O Voto em Voz Alta",
+      texto: "{nome} termina a oração da noite e percebe {heroi} esperando. \"Juramento não é promessa de vencer\", diz, guardando o escudo. \"É promessa de ficar na frente. Vencer é consequência, se vier.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Perguntar o que o voto já custou", resposta: "{nome} demora a responder, e quando responde é com uma lista curta de nomes. {heroi} entende que cada um deles continua vivo porque alguém ficou na frente — e que a pergunta, feita a sério, valeu mais do que qualquer elogio." },
+        { id: TOM_RESERVADO, rotulo: "Aceitar sem perguntar o preço", resposta: "{heroi} não pergunta, e é justamente por isso que {nome} relaxa os ombros. Nem todo voto precisa ser explicado pra ser respeitado." },
+      ],
+    },
+    {
+      titulo: "A Conta do Juramento",
+      texto: "Depois da luta, {nome} se senta longe do fogo e enfaixa o braço às pressas, com a mão que ainda treme. O corte não era pra ser dela(e) — era de quem estava atrás.",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Sentar junto e cuidar do ferimento", resposta: "{nome} tenta recusar duas vezes antes de ceder. Enquanto {heroi} aperta a faixa, admite em voz baixa que ninguém nunca tinha cuidado do lado de cá do escudo." },
+        { id: TOM_RESERVADO, rotulo: "Deixar que cuide disso sozinha(o)", resposta: "{heroi} entende que insistir seria tirar dela(e) a única coisa que o juramento devolve: a dignidade de aguentar. {nome} percebe que foi visto(a), e isso basta." },
+      ],
+    },
+    {
+      titulo: "Por Quem Se Fica",
+      texto: "\"Eu jurei por uma ordem\", diz {nome}, olhando o grupo dormindo ao redor. \"Faz tempo que não é mais por ela. É por gente que eu conheço o nome.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Dizer que o nome dela(e) também é conhecido aqui", resposta: "{nome} fecha os olhos um instante. O juramento nunca foi um peso — mas é a primeira vez que ele também é um abrigo." },
+        { id: TOM_RESERVADO, rotulo: "Ficar acordada(o) com ela(e) até o turno acabar", resposta: "Nenhum dos dois diz mais nada. De manhã, {nome} não comenta a noite — mas passa a montar guarda sempre do lado de {heroi}." },
+      ],
+    },
+  ],
+  bardo: [
+    {
+      titulo: "Uma Corda Fora do Tom",
+      texto: "{nome} afina o instrumento pela terceira vez e desiste. \"Não é a corda\", resmunga. \"Canção só funciona se quem ouve acreditar. E hoje ninguém estava acreditando em nada.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Pedir que toque mesmo assim", resposta: "{nome} hesita, toca — e {heroi} escuta até o fim sem interromper. No último acorde, ela(e) admite que bastava uma pessoa acreditando." },
+        { id: TOM_RESERVADO, rotulo: "Concordar que hoje não é dia de música", resposta: "{nome} agradece com um gesto. Músico que é bom sabe quando calar, e companheiro que é bom sabe reconhecer isso sem explicar." },
+      ],
+    },
+    {
+      titulo: "A Plateia que Foi Embora",
+      texto: "\"Já toquei pra um salão que esvaziou no meio\", conta {nome}, sem autopiedade. \"Passei anos achando que a música tinha falhado. Hoje acho que foi o salão.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Dizer que o salão é que estava errado", resposta: "{nome} ri alto, surpresa(o) com a própria reação — faz tempo que ninguém toma esse partido, e ouvir de {heroi} desfaz um nó que durou anos." },
+        { id: TOM_RESERVADO, rotulo: "Perguntar que música era", resposta: "{nome} responde com o nome e, sem perceber, começa a cantarolar o refrão. {heroi} não interrompe. O salão, dessa vez, não esvaziou." },
+      ],
+    },
+    {
+      titulo: "A Música que Fica",
+      texto: "\"Reparou que eu nunca toco duas ao mesmo tempo?\", diz {nome}, guardando o instrumento. \"Uma sempre apaga a anterior. Sempre achei isso triste. Hoje acho que é o contrário: só importa a que está tocando agora.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Pedir que a de agora seja sobre o grupo", resposta: "{nome} começa a compor ali mesmo, improvisando os nomes de cada um na métrica. É desafinado, é apressado, e é a melhor coisa que ela(e) escreveu em anos." },
+        { id: TOM_RESERVADO, rotulo: "Dizer só que ela está boa", resposta: "{nome} aceita o elogio curto como se fosse longo. De {heroi}, três palavras valem um salão cheio." },
+      ],
+    },
+  ],
+  druida: [
+    {
+      titulo: "Pelo Debaixo da Pele",
+      texto: "{nome} volta à forma de gente e leva um tempo até falar. \"A parte difícil não é virar bicho\", diz afinal, esfregando os braços. \"É lembrar das palavras na volta.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Puxar conversa até as palavras voltarem", resposta: "{heroi} fala de qualquer bobagem — o tempo, a comida, a estrada — até {nome} responder uma frase inteira. Ela(e) não agradece com palavras, mas passa a sentar mais perto." },
+        { id: TOM_RESERVADO, rotulo: "Esperar em silêncio até ela(e) voltar", resposta: "{nome} agradece o silêncio. Quem já esteve do outro lado sabe que pressa, ali, só empurra a pessoa pra mais longe." },
+      ],
+    },
+    {
+      titulo: "O Que Não Volta",
+      texto: "\"Uma vez fiquei tempo demais\", admite {nome}, e a voz some no meio. \"Três dias. Quando voltei, não lembrava o meu próprio nome. Levei uma semana pra confiar que era mesmo meu.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Prometer chamá-la(o) pelo nome toda vez", resposta: "{nome} arregala os olhos — é uma promessa pequena e é exatamente a que faltava. Desde então, é sempre a voz de {heroi} que ela(e) ouve primeiro na volta." },
+        { id: TOM_RESERVADO, rotulo: "Dizer que ela(e) voltou, e isso é o que conta", resposta: "{nome} assente devagar. Não é consolo — é constatação, e vindo de {heroi} pesa mais do que consolo pesaria." },
+      ],
+    },
+    {
+      titulo: "A Âncora",
+      texto: "\"Sabe por que eu volto rápido agora?\", pergunta {nome}, olhando a fogueira. \"Porque virou chato lá fora. Tem alguém esperando aqui.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Dizer que vai estar sempre esperando", resposta: "{nome} não responde nada. Na manhã seguinte, {heroi} encontra uma pedra de rio lisa ao lado da própria mochila — a forma que ela(e) achou de dizer a mesma coisa." },
+        { id: TOM_RESERVADO, rotulo: "Só alimentar a fogueira pra ela não apagar", resposta: "{nome} entende o gesto melhor do que entenderia a frase. Fogueira acesa é o jeito mais antigo de dizer que alguém vai voltar." },
+      ],
+    },
+  ],
+  necromante: [
+    {
+      titulo: "O Servo e o Silêncio",
+      texto: "O servo invocado se desfaz no fim da luta, obediente até o último instante. \"Ele nunca discorda\", comenta {nome}, quase pra si mesma(o). \"Durante muito tempo eu achei isso uma vantagem.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Discordar dela(e) de propósito", resposta: "{heroi} contesta a primeira coisa que {nome} diz em seguida, só pra provar o ponto. {nome} fica em silêncio um segundo — e então ri, de um jeito enferrujado de quem não ri há tempo." },
+        { id: TOM_RESERVADO, rotulo: "Ficar por perto sem dizer nada", resposta: "{nome} percebe que {heroi} continua ali mesmo sem conversa. É um tipo de companhia que ela(e) não sabia que existia." },
+      ],
+    },
+    {
+      titulo: "O Que Supõem de Mim",
+      texto: "Na última vila, atravessaram a rua pra não passar perto dela(e). {nome} conta isso sem mágoa. \"Nunca escolhi a morte\", diz. \"Foi ela que respondeu quando eu chamei. Perguntei pra todo mundo antes.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Perguntar o que ela(e) chamava antes", resposta: "A resposta é mais simples e mais triste do que {heroi} esperava: chamava por gente. Ninguém veio. {nome} nunca tinha contado isso em voz alta, e o grupo fica um pouco mais perto dela(e) a partir dali." },
+        { id: TOM_RESERVADO, rotulo: "Dizer que aqui ninguém atravessa a rua", resposta: "{nome} encara {heroi} procurando a brincadeira — e não acha nenhuma. Passa a caminhar no meio do grupo, e não mais atrás." },
+      ],
+    },
+    {
+      titulo: "Companhia Que Responde",
+      texto: "\"Reparei numa coisa\", diz {nome}, enquanto o servo se dissolve mais uma vez. \"Eu invoquei companhia a vida inteira. Vocês são a primeira que responde de volta.\"",
+      escolhas: [
+        { id: TOM_CALOROSO, rotulo: "Responder que é pra isso que o grupo serve", resposta: "{nome} guarda a frase como quem guarda um talismã. Da próxima vez que invoca o servo, dispensa ele antes do fim da luta — não precisava mais." },
+        { id: TOM_RESERVADO, rotulo: "Responder de volta, só pra provar", resposta: "{heroi} diz qualquer coisa — e {nome} responde, e {heroi} responde de novo, e a conversa boba atravessa metade da noite. Era exatamente esse o ponto." },
       ],
     },
   ],

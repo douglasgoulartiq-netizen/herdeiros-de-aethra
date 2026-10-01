@@ -1,26 +1,46 @@
 {
   "limite": 0.06,
+  "pressao": false,
+  "niveis": [
+    5,
+    15,
+    25
+  ],
   "linhas": [
     {
       "nome": "Ladino",
       "por": [
         {
           "nivel": 5,
-          "inclinacao": -0.2631937631305311
+          "inclinacao": -0.28301710682731984
         },
         {
           "nivel": 15,
-          "inclinacao": 0.03593904195652675
+          "inclinacao": 0.056716155822911285
         },
         {
           "nivel": 25,
-          "inclinacao": -0.13065162579553358
+          "inclinacao": -0.13822728180502397
         }
       ],
       "nichos": [
         "alvo único",
         "generalista",
         "alvo único"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "alvo único",
+          "depois": "generalista"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "generalista",
+          "depois": "alvo único"
+        }
       ],
       "estavel": false
     },
@@ -29,21 +49,35 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": -0.19908064689404725
+          "inclinacao": -0.2258272292573852
         },
         {
           "nivel": 15,
-          "inclinacao": 0.09080839218049291
+          "inclinacao": 0.11069908244985027
         },
         {
           "nivel": 25,
-          "inclinacao": -0.10270326932447738
+          "inclinacao": -0.19882299811755566
         }
       ],
       "nichos": [
         "alvo único",
         "multidão",
         "alvo único"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "alvo único",
+          "depois": "multidão"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "multidão",
+          "depois": "alvo único"
+        }
       ],
       "estavel": false
     },
@@ -52,21 +86,29 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": -0.05866241021736929
+          "inclinacao": -0.04460003027357001
         },
         {
           "nivel": 15,
-          "inclinacao": 0.0344405498695885
+          "inclinacao": -0.050136576528956756
         },
         {
           "nivel": 25,
-          "inclinacao": 0.06276984561312252
+          "inclinacao": 0.2045514309954821
         }
       ],
       "nichos": [
         "generalista",
         "generalista",
         "multidão"
+      ],
+      "travessias": [
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "generalista",
+          "depois": "multidão"
+        }
       ],
       "estavel": false
     },
@@ -75,21 +117,35 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": 0.05300126719269369
+          "inclinacao": 0.05357202226174679
         },
         {
           "nivel": 15,
-          "inclinacao": -0.13589222658780617
+          "inclinacao": -0.12424577329556641
         },
         {
           "nivel": 25,
-          "inclinacao": -0.03885917893095668
+          "inclinacao": -0.015606446115162301
         }
       ],
       "nichos": [
         "generalista",
         "alvo único",
         "generalista"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "generalista",
+          "depois": "alvo único"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "alvo único",
+          "depois": "generalista"
+        }
       ],
       "estavel": false
     },
@@ -98,21 +154,35 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": 0.06537455669029803
+          "inclinacao": 0.05980761500106272
         },
         {
           "nivel": 15,
-          "inclinacao": -0.18285666500839673
+          "inclinacao": -0.10203626509196109
         },
         {
           "nivel": 25,
-          "inclinacao": -0.000705423344466577
+          "inclinacao": 0.09361128192302795
         }
       ],
       "nichos": [
-        "multidão",
+        "generalista",
         "alvo único",
-        "generalista"
+        "multidão"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "generalista",
+          "depois": "alvo único"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "alvo único",
+          "depois": "multidão"
+        }
       ],
       "estavel": false
     },
@@ -121,21 +191,29 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": 0.09657368322024451
+          "inclinacao": 0.08642529285273944
         },
         {
           "nivel": 15,
-          "inclinacao": -0.08227639592768869
+          "inclinacao": -0.04753616543396123
         },
         {
           "nivel": 25,
-          "inclinacao": 0.011484369195391995
+          "inclinacao": 0.020777748869222585
         }
       ],
       "nichos": [
         "multidão",
-        "alvo único",
+        "generalista",
         "generalista"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "multidão",
+          "depois": "generalista"
+        }
       ],
       "estavel": false
     },
@@ -144,21 +222,29 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": 0.100930910125057
+          "inclinacao": 0.0918261922231644
         },
         {
           "nivel": 15,
-          "inclinacao": -0.10375946266673246
+          "inclinacao": -0.05713381409741755
         },
         {
           "nivel": 25,
-          "inclinacao": -0.007290691390759066
+          "inclinacao": -0.044102872345992375
         }
       ],
       "nichos": [
         "multidão",
-        "alvo único",
+        "generalista",
         "generalista"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "multidão",
+          "depois": "generalista"
+        }
       ],
       "estavel": false
     },
@@ -167,67 +253,103 @@
       "por": [
         {
           "nivel": 5,
-          "inclinacao": 0.1555774621715627
+          "inclinacao": 0.17290886624487328
         },
         {
           "nivel": 15,
-          "inclinacao": 0.12781465525000496
+          "inclinacao": 0.04249598682073363
         },
         {
           "nivel": 25,
-          "inclinacao": 0.1889151000803277
-        }
-      ],
-      "nichos": [
-        "multidão",
-        "multidão",
-        "multidão"
-      ],
-      "estavel": true
-    },
-    {
-      "nome": "Druida",
-      "por": [
-        {
-          "nivel": 5,
-          "inclinacao": 0.24595877815655834
-        },
-        {
-          "nivel": 15,
-          "inclinacao": 0.06833920115323741
-        },
-        {
-          "nivel": 25,
-          "inclinacao": 0.14622869435664812
-        }
-      ],
-      "nichos": [
-        "multidão",
-        "multidão",
-        "multidão"
-      ],
-      "estavel": true
-    },
-    {
-      "nome": "Necromante",
-      "por": [
-        {
-          "nivel": 5,
-          "inclinacao": 0.2515105126991212
-        },
-        {
-          "nivel": 15,
-          "inclinacao": 0.05369719173597233
-        },
-        {
-          "nivel": 25,
-          "inclinacao": 0.10396314283604066
+          "inclinacao": 0.24611302236328253
         }
       ],
       "nichos": [
         "multidão",
         "generalista",
         "multidão"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "multidão",
+          "depois": "generalista"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "generalista",
+          "depois": "multidão"
+        }
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Necromante",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.22256212933621908
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.06380220037776985
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.011863240561880076
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "multidão",
+        "generalista"
+      ],
+      "travessias": [
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "multidão",
+          "depois": "generalista"
+        }
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Druida",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.23698180337524352
+        },
+        {
+          "nivel": 15,
+          "inclinacao": -0.00899620497422235
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.11338606329298133
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "generalista",
+        "multidão"
+      ],
+      "travessias": [
+        {
+          "de": 5,
+          "ate": 15,
+          "antes": "multidão",
+          "depois": "generalista"
+        },
+        {
+          "de": 15,
+          "ate": 25,
+          "antes": "generalista",
+          "depois": "multidão"
+        }
       ],
       "estavel": false
     }
