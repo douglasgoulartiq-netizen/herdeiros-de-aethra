@@ -1,0 +1,235 @@
+{
+  "limite": 0.06,
+  "linhas": [
+    {
+      "nome": "Ladino",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": -0.2631937631305311
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.03593904195652675
+        },
+        {
+          "nivel": 25,
+          "inclinacao": -0.13065162579553358
+        }
+      ],
+      "nichos": [
+        "alvo único",
+        "generalista",
+        "alvo único"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Patrulheiro",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": -0.19908064689404725
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.09080839218049291
+        },
+        {
+          "nivel": 25,
+          "inclinacao": -0.10270326932447738
+        }
+      ],
+      "nichos": [
+        "alvo único",
+        "multidão",
+        "alvo único"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Guerreiro",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": -0.05866241021736929
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.0344405498695885
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.06276984561312252
+        }
+      ],
+      "nichos": [
+        "generalista",
+        "generalista",
+        "multidão"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Bardo",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.05300126719269369
+        },
+        {
+          "nivel": 15,
+          "inclinacao": -0.13589222658780617
+        },
+        {
+          "nivel": 25,
+          "inclinacao": -0.03885917893095668
+        }
+      ],
+      "nichos": [
+        "generalista",
+        "alvo único",
+        "generalista"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Bárbaro",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.06537455669029803
+        },
+        {
+          "nivel": 15,
+          "inclinacao": -0.18285666500839673
+        },
+        {
+          "nivel": 25,
+          "inclinacao": -0.000705423344466577
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "alvo único",
+        "generalista"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Paladino",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.09657368322024451
+        },
+        {
+          "nivel": 15,
+          "inclinacao": -0.08227639592768869
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.011484369195391995
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "alvo único",
+        "generalista"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Clérigo",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.100930910125057
+        },
+        {
+          "nivel": 15,
+          "inclinacao": -0.10375946266673246
+        },
+        {
+          "nivel": 25,
+          "inclinacao": -0.007290691390759066
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "alvo único",
+        "generalista"
+      ],
+      "estavel": false
+    },
+    {
+      "nome": "Mago",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.1555774621715627
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.12781465525000496
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.1889151000803277
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "multidão",
+        "multidão"
+      ],
+      "estavel": true
+    },
+    {
+      "nome": "Druida",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.24595877815655834
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.06833920115323741
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.14622869435664812
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "multidão",
+        "multidão"
+      ],
+      "estavel": true
+    },
+    {
+      "nome": "Necromante",
+      "por": [
+        {
+          "nivel": 5,
+          "inclinacao": 0.2515105126991212
+        },
+        {
+          "nivel": 15,
+          "inclinacao": 0.05369719173597233
+        },
+        {
+          "nivel": 25,
+          "inclinacao": 0.10396314283604066
+        }
+      ],
+      "nichos": [
+        "multidão",
+        "generalista",
+        "multidão"
+      ],
+      "estavel": false
+    }
+  ]
+}

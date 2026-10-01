@@ -1,6 +1,6 @@
 # Matriz de nicho — participação no dano do time
 
-10 classes × 4 contagens de inimigos × 3 níveis × 6 sementes = 720 batalhas do motor real.
+10 classes × 4 contagens de inimigos × 1 níveis × 6 sementes = 240 batalhas do motor real.
 
 O time é SEMPRE o mesmo (candidato + guerreiro, clérigo e patrulheiro humanos). A única coisa que muda é quantos inimigos existem. Cada número é a fração do dano do time que saiu do candidato — não vitória, que satura perto de 100% e não distingue ninguém.
 
@@ -8,23 +8,22 @@ O time é SEMPRE o mesmo (candidato + guerreiro, clérigo e patrulheiro humanos)
 
 | Classe | 1 inim. | 2 inim. | 4 inim. | 6 inim. | Inclinação | Nicho | Contribuição | Cura/luta | Turnos de apoio | Apanhou | Morreu |
 |---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|
-| Ladino | 66.2% | 38.5% | 54.8% | 53.2% | -13.1 | alvo único | 53.1% | 0 | 0.0% | 0.3% | 0.0% |
-| Patrulheiro | 62.6% | 49.3% | 55.8% | 52.4% | -10.3 | alvo único | 55.0% | 0 | 1.9% | 0.3% | 0.0% |
-| Bardo | 7.6% | 9.8% | 6.2% | 3.7% | -3.9 | ⚠ generalista | 6.9% | 1 | 37.5% | 1.3% | 0.0% |
-| Clérigo | 10.8% | 14.8% | 9.4% | 10.1% | -0.7 | ⚠ generalista | 11.3% | 1 | 0.0% | 3.6% | 0.0% |
-| Bárbaro | 13.1% | 18.8% | 11.9% | 13.0% | -0.1 | ⚠ generalista | 14.2% | 0 | 13.9% | 18.5% | 1.4% |
-| Paladino | 4.4% | 4.9% | 7.0% | 5.5% | 1.1 | ⚠ generalista | 5.4% | 0 | 13.3% | 15.4% | 1.4% |
-| Guerreiro | 18.6% | 19.7% | 20.3% | 24.9% | 6.3 | multidão | 20.9% | 0 | 0.0% | 9.3% | 0.0% |
-| Necromante | 0.5% | 6.5% | 6.6% | 10.9% | 10.4 | multidão | 6.1% | 0 | 50.6% | 1.7% | 0.0% |
-| Druida | 7.8% | 13.5% | 16.0% | 22.4% | 14.6 | multidão | 14.8% | 0 | 18.4% | 1.9% | 0.0% |
-| Mago | 15.0% | 22.6% | 31.0% | 33.9% | 18.9 | multidão | 25.6% | 0 | 0.0% | 1.9% | 0.0% |
+| Bárbaro | 22.9% | 16.1% | 6.3% | 4.6% | -18.3 | alvo único | 12.4% | 0 | 21.5% | 16.7% | 4.2% |
+| Bardo | 19.0% | 11.3% | 4.5% | 5.4% | -13.6 | alvo único | 10.3% | 2 | 15.6% | 0.0% | 0.0% |
+| Clérigo | 16.9% | 15.3% | 7.6% | 6.5% | -10.4 | alvo único | 11.7% | 4 | 0.0% | 1.8% | 0.0% |
+| Paladino | 11.6% | 7.0% | 5.8% | 3.4% | -8.2 | alvo único | 6.9% | 0 | 0.0% | 11.5% | 4.2% |
+| Guerreiro | 27.4% | 22.6% | 24.2% | 30.8% | 3.4 | ⚠ generalista | 26.2% | 0 | 0.0% | 4.2% | 0.0% |
+| Ladino | 45.6% | 44.9% | 53.7% | 49.2% | 3.6 | ⚠ generalista | 48.1% | 0 | 0.0% | 0.0% | 0.0% |
+| Necromante | 1.5% | 10.0% | 3.2% | 6.9% | 5.4 | ⚠ generalista | 5.4% | 0 | 58.0% | 0.0% | 0.0% |
+| Druida | 18.9% | 21.7% | 17.8% | 25.8% | 6.8 | multidão | 20.8% | 0 | 0.0% | 0.0% | 0.0% |
+| Patrulheiro | 39.7% | 42.3% | 52.9% | 48.8% | 9.1 | multidão | 45.9% | 0 | 0.0% | 0.0% | 0.0% |
+| Mago | 20.4% | 29.5% | 24.2% | 33.2% | 12.8 | multidão | 26.8% | 0 | 0.0% | 0.0% | 0.0% |
 
 ## Generalistas (|inclinação| < 6 pontos)
 
-- **Bardo** — -3.9: rende quase o mesmo contra 1 e contra 6 inimigos.
-- **Clérigo** — -0.7: rende quase o mesmo contra 1 e contra 6 inimigos.
-- **Bárbaro** — -0.1: rende quase o mesmo contra 1 e contra 6 inimigos.
-- **Paladino** — 1.1: rende quase o mesmo contra 1 e contra 6 inimigos.
+- **Guerreiro** — 3.4: rende quase o mesmo contra 1 e contra 6 inimigos.
+- **Ladino** — 3.6: rende quase o mesmo contra 1 e contra 6 inimigos.
+- **Necromante** — 5.4: rende quase o mesmo contra 1 e contra 6 inimigos.
 
 ## Limites
 

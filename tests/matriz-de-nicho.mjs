@@ -62,7 +62,13 @@ const dados = Object.fromEntries(readdirSync(dataDir).filter(f => f.endsWith('.j
   [f.slice(0, -5), JSON.parse(readFileSync(new URL(f, dataDir)))]));
 
 const N = Number(process.env.HDA_AMOSTRAS || 16);
-const NIVEIS = [5, 15, 25];
+// Níveis medidos. Configurável porque tudo foi calibrado no 25, e a maioria
+// das partidas acontece antes disso — um balanço que só vale no teto não é
+// balanço. HDA_NIVEIS=5,15 mede só os baixos.
+const NIVEIS = (process.env.HDA_NIVEIS || "5,15,25").split(",").map(Number);
+// Medir um nível só grava num arquivo próprio, para as três leituras
+// poderem ser comparadas lado a lado em vez de uma sobrescrever a outra.
+const SUFIXO = NIVEIS.length === 1 ? `-n${NIVEIS[0]}` : '';
 const CONTAGENS = [1, 2, 4, 6];
 const config = configAutoBatalhaPadrao();
 
@@ -256,6 +262,17 @@ function simular(def, nivel, quantos, amostra) {
   // ele está limitado por RECURSO: um mago que passa a luta no ataque básico
   // não tem problema de multiplicador, tem problema de Éter.
   const turnos = { basico: 0, alvoUnico: 0, area: 0, outro: 0 };
+  // UTILIDADE. A matriz media só dano, e por isso clérigo, bardo e druida
+  // apareciam no fim da tabela por DESENHO — o que os torna impossíveis de
+  // ajustar, porque qualquer mudança neles parecia não ter efeito.
+  //
+  // Aqui entra a outra metade do que um personagem entrega: vida devolvida
+  // ao time (cura) e turnos gastos em apoio (buff e debuff). Cura é contada
+  // pelo HP que de fato ENTROU — curar quem está cheio devolve zero, e tem de
+  // aparecer como zero, senão a métrica premia desperdício.
+  let curaTime = 0;
+  let curaCandidato = 0;
+  let turnosApoio = 0;
   for (let tick = 0; tick < 10000 && !b.terminada && acoes < 400; tick += 1) {
     for (const ator of b.avancarATB(1.6)) {
       if (b.terminada) break;
@@ -271,9 +288,16 @@ function simular(def, nivel, quantos, amostra) {
             else if (/^dano_/.test(d.habilidade.tipo || '')) turnos.alvoUnico += 1;
             else turnos.outro += 1;
           }
+          const vidaDoTimeAntes = time.reduce((s2, c) => s2 + Math.max(0, c.hp), 0);
           if (d.habilidade) b.usarHabilidade(ator, d.habilidade, ['curar', 'curar_time', 'buff_time'].includes(d.tipo) ? ator : d.alvo);
           else if (d.tipo === 'defender') { ator.defendendo = true; ator.primeiroTurno = false; }
           else if (d.alvo) b.ataqueBasico(ator, d.alvo);
+          const curou = Math.max(0, time.reduce((s2, c) => s2 + Math.max(0, c.hp), 0) - vidaDoTimeAntes);
+          curaTime += curou;
+          if (ator === time[0]) {
+            curaCandidato += curou;
+            if (d.habilidade && /^(buff|debuff)/.test(d.habilidade.tipo || '')) turnosApoio += 1;
+          }
         }
       } else {
         const vidaAntes = time.map((c) => c.hp);
@@ -308,6 +332,14 @@ function simular(def, nivel, quantos, amostra) {
     vidaFinal: time[0].hpMax > 0 ? Math.max(0, time[0].hp) / time[0].hpMax : 0,
     fracaoBasico: turnos.basico / totalTurnos,
     fracaoArea: turnos.area / totalTurnos,
+    curaCandidato,
+    // CONTRIBUIÇÃO: dano + cura do candidato sobre dano + cura do time. É a
+    // coluna que faz curandeiro e suporte serem comparáveis com atacante —
+    // não porque cura "vale o mesmo" que dano, mas porque as duas são o que
+    // o personagem põe na mesa, e medir só uma delas é declarar que a outra
+    // não conta.
+    contribuicao: (danoTime + curaTime) > 0 ? (danoCandidato + curaCandidato) / (danoTime + curaTime) : 0,
+    fracaoApoio: turnosApoio / totalTurnos,
     turnos: acoes,
   };
 }
@@ -317,7 +349,7 @@ try {
   for (const def of defs) {
     const porContagem = {};
     for (const quantos of CONTAGENS) {
-      const t = { vitoria: 0, participacao: 0, danoPorAcao: 0, apanhou: 0, morreu: 0, vidaFinal: 0, fracaoBasico: 0, fracaoArea: 0, turnos: 0 };
+      const t = { vitoria: 0, participacao: 0, danoPorAcao: 0, apanhou: 0, morreu: 0, vidaFinal: 0, fracaoBasico: 0, fracaoArea: 0, turnos: 0, curaCandidato: 0, contribuicao: 0, fracaoApoio: 0 };
       let amostras = 0;
       for (const nivel of NIVEIS) {
         for (let a = 0; a < N; a += 1) {
@@ -341,6 +373,9 @@ try {
       vidaFinalMedia: CONTAGENS.reduce((acc, q) => acc + porContagem[q].vidaFinal, 0) / CONTAGENS.length,
       basicoEm6: porContagem[6].fracaoBasico,
       areaEm6: porContagem[6].fracaoArea,
+      contribuicaoMedia: CONTAGENS.reduce((acc, q) => acc + porContagem[q].contribuicao, 0) / CONTAGENS.length,
+      curaMedia: CONTAGENS.reduce((acc, q) => acc + porContagem[q].curaCandidato, 0) / CONTAGENS.length,
+      apoioMedio: CONTAGENS.reduce((acc, q) => acc + porContagem[q].fracaoApoio, 0) / CONTAGENS.length,
     });
   }
 } finally { Math.random = randomOriginal; }
@@ -348,12 +383,12 @@ try {
 linhas.sort((a, b) => a.inclinacao - b.inclinacao);
 
 const pct = (n) => `${(100 * n).toFixed(1)}%`;
-const cab = ['| Classe | ' + CONTAGENS.map((q) => `${q} inim.`).join(' | ') + ' | Inclinação | Nicho | Apanhou | Morreu | Vida final |',
-  '|---|' + CONTAGENS.map(() => '---:').join('|') + '|---:|---|---:|---:|---:|'];
+const cab = ['| Classe | ' + CONTAGENS.map((q) => `${q} inim.`).join(' | ') + ' | Inclinação | Nicho | Contribuição | Cura/luta | Turnos de apoio | Apanhou | Morreu |',
+  '|---|' + CONTAGENS.map(() => '---:').join('|') + '|---:|---|---:|---:|---:|---:|---:|'];
 const corpo = linhas.map((l) => {
   const nicho = l.inclinacao <= -0.06 ? 'alvo único' : l.inclinacao >= 0.06 ? 'multidão' : '⚠ generalista';
   return `| ${l.nome} | ${CONTAGENS.map((q) => pct(l.porContagem[q].participacao)).join(' | ')} `
-    + `| ${(100 * l.inclinacao).toFixed(1)} | ${nicho} | ${pct(l.apanhouMedio)} | ${pct(l.morreuMedio)} | ${pct(l.vidaFinalMedia)} |`;
+    + `| ${(100 * l.inclinacao).toFixed(1)} | ${nicho} | ${pct(l.contribuicaoMedia)} | ${Math.round(l.curaMedia)} | ${pct(l.apoioMedio)} | ${pct(l.apanhouMedio)} | ${pct(l.morreuMedio)} |`;
 });
 
 const genericos = linhas.filter((l) => Math.abs(l.inclinacao) < 0.06);
@@ -373,11 +408,15 @@ ${genericos.length ? genericos.map((l) => `- **${l.nome}** — ${(100 * l.inclin
 
 ## Limites
 
-Mede participação no dano, não utilidade: curandeiro e suporte aparecem baixos por desenho, e isso não é defeito deles. Time fixo, equipamento sintético de orçamento igual, sem talentos comprados nem consumíveis. IA automática, não jogador humano. Serve para comparar ANTES e DEPOIS de uma mudança com a mesma semente, não para declarar tier list.
+**Contribuição** é dano mais cura do candidato sobre dano mais cura do time. Ela existe porque as colunas de participação medem só dano, e isso punha clérigo, bardo e druida no fim da tabela POR DESENHO — o que os tornava impossíveis de ajustar, já que qualquer mudança neles parecia não ter efeito. Cura é contada pelo HP que de fato entrou: curar quem está cheio devolve zero e aparece como zero. Isso não declara que cura vale o mesmo que dano; declara que medir só uma das duas é afirmar que a outra não conta.
+
+**A coluna de cura vem perto de zero para todo mundo, inclusive para o clérigo, e isso não é defeito da medida — é um resultado sobre o CENÁRIO.** O time termina as lutas com cerca de 99% da vida, então a cura cai em barra cheia e devolve zero de verdade. Enquanto o banco de provas não ameaçar o time, ele não consegue medir curandeiro, por melhor que a métrica seja. Medir cura exige um cenário com pressão real — mais inimigos, nível acima, ou sem os aliados fixos —, e isso é a próxima mudança da ferramenta, não deste commit.
+
+**Turnos de apoio**, por outro lado, mede bem e já diz algo: o necromante gasta metade dos turnos em debuff, o que explica sozinho a participação baixa dele no dano. Não é fraqueza de número, é escolha de ação. Time fixo, equipamento sintético de orçamento igual, sem talentos comprados nem consumíveis. IA automática, não jogador humano. Serve para comparar ANTES e DEPOIS de uma mudança com a mesma semente, não para declarar tier list.
 `;
 
 mkdirSync(new URL('../reports/', import.meta.url), { recursive: true });
-writeFileSync(new URL('../reports/matriz-de-nicho.json', import.meta.url),
+writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.json`, import.meta.url),
   JSON.stringify({ amostras: N, contagens: CONTAGENS, niveis: NIVEIS, linhas }, null, 2));
-writeFileSync(new URL('../reports/matriz-de-nicho.md', import.meta.url), relatorio);
+writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.md`, import.meta.url), relatorio);
 if (process.env.HDA_ALVO !== 'json') console.log(relatorio);
