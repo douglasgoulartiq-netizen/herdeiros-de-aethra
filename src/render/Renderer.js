@@ -1038,35 +1038,8 @@ export class Renderer {
       ctx.restore();
     } else {
       ctx.drawImage(sheet, sx, 0, TILE_SIZE, TILE_SIZE, bx, by, largura, altura);
-      if (player.dir === "cima") {
-        // As folhas originais trazem a pose frontal. Esta leitura traseira
-        // cobre rosto/peito com nuca, ombreiras e capa específicos da classe,
-        // preservando arma, animação e identidade racial do sprite-base.
-        const chave = String(player.spriteKey || "");
-        const cor = chave.includes("mago") ? "#294d87"
-          : chave.includes("clerigo") ? "#d6c7a0"
-            : chave.includes("patrulheiro") ? "#315c43"
-              : chave.includes("ladino") ? "#352b4c"
-                : chave.includes("barbaro") ? "#6f302d" : "#443e55";
-        ctx.fillStyle = "rgba(13,12,18,.82)";
-        ctx.beginPath();
-        ctx.ellipse(bx + largura * .5, by + altura * .27, largura * .14, altura * .15, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = cor;
-        ctx.beginPath();
-        ctx.moveTo(bx + largura * .31, by + altura * .37);
-        ctx.quadraticCurveTo(bx + largura * .5, by + altura * .28, bx + largura * .69, by + altura * .37);
-        ctx.lineTo(bx + largura * .64, by + altura * .73);
-        ctx.quadraticCurveTo(bx + largura * .5, by + altura * .82, bx + largura * .36, by + altura * .73);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "rgba(224,210,172,.48)";
-        ctx.lineWidth = Math.max(1, T * .018);
-        ctx.beginPath();
-        ctx.moveTo(bx + largura * .5, by + altura * .4);
-        ctx.lineTo(bx + largura * .5, by + altura * .7);
-        ctx.stroke();
-      }
+      // Folhas legadas só têm frente: conservar a arte até existir uma
+      // folha direcional, sem desenhar uma falsa silhueta sobre o herói.
     }
     const tile = this.gridAtual?.[Math.floor(player.y)]?.[Math.floor(player.x)];
     if (tile === TILE.WATER) {

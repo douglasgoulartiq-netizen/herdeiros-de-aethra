@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="../"><title>Caminhada — verificação do renderer</title>
+<style>
+body{margin:0;padding:20px;background:#101b23;color:#edf2ee;font:16px system-ui}h1{font-size:22px}nav{display:flex;flex-wrap:wrap;gap:12px;align-items:center}button,select{font:inherit;background:#203a40;color:inherit;border:1px solid #70908a;border-radius:6px;padding:8px}#gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}article{background:#263c34;border-radius:10px;padding:12px}canvas{display:block;width:100%;height:auto;image-rendering:pixelated}h2{font-size:15px;text-transform:capitalize}p{color:#c3d8d1}label{display:flex;gap:6px;align-items:center}
+</style>
+<h1>Caminhada nas quatro direções</h1>
+<p>Mesma função de desenho usada no mapa. Ordem: frente · esquerda · direita · costas.</p>
+<nav><label>Raça <select id="race"></select></label><label><input id="moving" type="checkbox" checked> Caminhar</label><label><input id="night" type="checkbox"> Noite</label><button id="validate">Validar todas as folhas</button></nav>
+<p id="status" role="status">Carregando…</p><main id="gallery"></main>
+<script type="module" src="tests/walk-preview.js"></script>
+</html>
