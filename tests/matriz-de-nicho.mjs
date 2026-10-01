@@ -74,6 +74,19 @@ const SUFIXO = variante ? `-${variante}` : (NIVEIS.length === 1 ? `-n${NIVEIS[0]
 const ordemReversa = process.env.HDA_BUILD === 'reversa';
 const pressao = Number(process.env.HDA_PRESSAO || 1);
 if (!Number.isFinite(pressao) || pressao < 1 || pressao > 5) throw new Error('Pressão deve ficar entre 1 e 5');
+// A OUTRA METADE DA PRESSÃO — e sem ela a cura continua invisível.
+//
+// Inimigo reforçado faz o time APANHAR mais, mas o time ainda entra com a
+// barra cheia: a primeira cura do clérigo cai em alguém intacto e devolve
+// zero de verdade. Por isso a coluna de cura lia zero mesmo com pressão alta.
+//
+// HDA_VIDA_INICIAL=0.6 faz o time entrar a 60% da vida, que é o estado real
+// do meio de uma masmorra — exatamente onde um curandeiro existe para servir.
+// Separado de HDA_PRESSAO de propósito: são duas perguntas diferentes
+// ("quanto dói apanhar" e "quão machucado eu chego"), e misturá-las num
+// knob só impediria medir uma sem a outra.
+const VIDA_INICIAL = Number(process.env.HDA_VIDA_INICIAL || 1);
+if (!Number.isFinite(VIDA_INICIAL) || VIDA_INICIAL <= 0 || VIDA_INICIAL > 1) throw new Error('HDA_VIDA_INICIAL deve ficar entre 0 (exclusivo) e 1');
 const CONTAGENS = [1, 2, 4, 6];
 const config = configAutoBatalhaPadrao();
 
@@ -257,6 +270,7 @@ function simular(def, nivel, quantos, amostra) {
   ];
   const tanque = ['guerreiro', 'barbaro', 'paladino'].includes(def.classe);
   const time = personagens.map((p, i) => criarCombatenteJogador(p, dados, (tanque ? i < 2 : i === 1 || i === 2) ? 'frente' : 'retaguarda'));
+  if (VIDA_INICIAL < 1) for (const c of time) c.hp = Math.max(1, Math.round(c.hpMax * VIDA_INICIAL));
   const inimigos = inimigosDef.map((m, i) => criarCombatenteInimigo(m, i));
   // Pressão existe só na bancada: não muda os monstros nem saves do jogo.
   for (const e of inimigos) {
@@ -412,9 +426,16 @@ const relatorio = `# Matriz de nicho — participação no dano do time
 
 ${defs.length} classes × ${CONTAGENS.length} contagens de inimigos × ${NIVEIS.length} níveis × ${N} sementes = ${defs.length * CONTAGENS.length * NIVEIS.length * N} batalhas do motor real.
 
-Nesta execução, o time é candidato + ${classesApoio.join(', ')} humanos. Árvore comprada em ordem ${ordemReversa ? 'reversa' : 'normal'}, loadout escolhido por função; pressão inimiga ${pressao}x. Cada número mede a fração do dano do time que saiu do candidato, não preferência humana.
+Nesta execução, o time é candidato + ${classesApoio.join(', ')} humanos. Árvore comprada em ordem ${ordemReversa ? 'reversa' : 'normal'}, loadout escolhido por função; pressão inimiga ${pressao}x, time entrando com ${Math.round(VIDA_INICIAL * 100)}% da vida. Cada número mede a fração do dano do time que saiu do candidato, não preferência humana.
 
 **Inclinação** = participação com ${CONTAGENS[CONTAGENS.length - 1]} inimigos menos participação com ${CONTAGENS[0]}. Negativa é especialista em alvo único; positiva, em multidão; perto de zero é generalista.
+${NIVEIS.length > 1 ? `
+> ⚠ **ESTA LEITURA É UMA MÉDIA DE ${NIVEIS.length} NÍVEIS (${NIVEIS.join(", ")}), E A COLUNA "NICHO" NÃO DEVE SER LIDA COMO IDENTIDADE DA CLASSE.**
+>
+> As classes mudam MUITO entre os níveis medidos. Uma que seja −28 no nível 5 e +25 no 25 sai daqui com média perto de zero e recebe o rótulo "generalista" — que é justamente o rótulo do DEFEITO, aplicado pelo motivo errado. A média esconde a oscilação em vez de mostrá-la, e essa leitura já foi usada uma vez para concluir que o nicho tinha se mantido quando as leituras por nível diziam o contrário.
+>
+> Para saber o que a classe É em cada nível, gere uma leitura por nível (HDA_NIVEIS=<n>) e compare com scripts/comparar-nicho-por-nivel.mjs. Esta tabela serve para comparar ANTES e DEPOIS de uma mudança com a mesma semente — não para rotular classe.
+` : ""}
 
 ${[...cab, ...corpo].join('\n')}
 
@@ -433,6 +454,6 @@ ${genericos.length ? genericos.map((l) => `- **${l.nome}** — ${(100 * l.inclin
 
 mkdirSync(new URL('../reports/', import.meta.url), { recursive: true });
 writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.json`, import.meta.url),
-  JSON.stringify({ amostras: N, contagens: CONTAGENS, niveis: NIVEIS, classesApoio, ordemReversa, pressao, linhas }, null, 2));
+  JSON.stringify({ amostras: N, contagens: CONTAGENS, niveis: NIVEIS, classesApoio, ordemReversa, pressao, vidaInicial: VIDA_INICIAL, linhas }, null, 2));
 writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.md`, import.meta.url), relatorio);
 if (process.env.HDA_ALVO !== 'json') console.log(relatorio);

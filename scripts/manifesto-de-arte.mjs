@@ -29,6 +29,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { classArtFallback } from "../src/data/classArtFallbacks.js";
 import { GACHA_FINAL_ART } from "../src/data/gachaFinalArt.js";
+import { WALK_ART } from "../src/data/classVisuals.js";
 
 const raiz = new URL("../", import.meta.url);
 const ler = (p) => JSON.parse(readFileSync(new URL(p, raiz)));
@@ -88,6 +89,10 @@ for (const r of racas) {
     for (const f of FAMILIAS) {
       const caminho = `${f.pasta}/${f.nome(r.id, c.id)}.png`;
       if (existe(caminho)) continue;
+      // A folha de caminhada das classes novas tem nome próprio
+      // (walk_v2_*) e está ligada por classVisuals.js. Existe e funciona —
+      // listá-la aqui mandaria redesenhar arte já aprovada.
+      if (f.id === "caminhada" && WALK_ART[`pc_${r.id}_${c.id}`] && existe(WALK_ART[`pc_${r.id}_${c.id}`])) continue;
       const alternativa = classeEmprestada ? `${f.pasta}/${f.nome(r.id, classeEmprestada)}.png` : null;
       faltando.push({
         familia: f.id, caminho, spec: f.spec, onde: f.onde,

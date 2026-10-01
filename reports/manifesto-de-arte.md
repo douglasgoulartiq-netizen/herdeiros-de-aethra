@@ -1,39 +1,8 @@
 # Manifesto de arte — o que falta desenhar
 
-**88 arquivos**, dos quais **88 já aparecem na tela** emprestando arte de outra classe, e **0 não aparecem de jeito nenhum**.
+**48 arquivos**, dos quais **48 já aparecem na tela** emprestando arte de outra classe, e **0 não aparecem de jeito nenhum**.
 
 A diferença importa para priorizar: o que empresta está errado de identidade (um paladino com cara de guerreiro); o que não empresta está errado de funcionamento.
-
-## Folha de caminhada (mapa) — 24
-
-Contrato: folha de animação, quadro de 64×64. Aparece em: o herói andando pelo mundo.
-
-| Arquivo | Assunto | Empresta de |
-|---|---|---|
-| `assets/sprites/pc_humano_paladino.png` | Humano Paladino | `assets/sprites/pc_humano_guerreiro.png` |
-| `assets/sprites/pc_humano_bardo.png` | Humano Bardo | `assets/sprites/pc_humano_ladino.png` |
-| `assets/sprites/pc_humano_druida.png` | Humano Druida | `assets/sprites/pc_humano_clerigo.png` |
-| `assets/sprites/pc_humano_necromante.png` | Humano Necromante | `assets/sprites/pc_humano_mago.png` |
-| `assets/sprites/pc_elfo_paladino.png` | Elfo Paladino | `assets/sprites/pc_elfo_guerreiro.png` |
-| `assets/sprites/pc_elfo_bardo.png` | Elfo Bardo | `assets/sprites/pc_elfo_ladino.png` |
-| `assets/sprites/pc_elfo_druida.png` | Elfo Druida | `assets/sprites/pc_elfo_clerigo.png` |
-| `assets/sprites/pc_elfo_necromante.png` | Elfo Necromante | `assets/sprites/pc_elfo_mago.png` |
-| `assets/sprites/pc_anao_paladino.png` | Anão Paladino | `assets/sprites/pc_anao_guerreiro.png` |
-| `assets/sprites/pc_anao_bardo.png` | Anão Bardo | `assets/sprites/pc_anao_ladino.png` |
-| `assets/sprites/pc_anao_druida.png` | Anão Druida | `assets/sprites/pc_anao_clerigo.png` |
-| `assets/sprites/pc_anao_necromante.png` | Anão Necromante | `assets/sprites/pc_anao_mago.png` |
-| `assets/sprites/pc_orc_paladino.png` | Orc Paladino | `assets/sprites/pc_orc_guerreiro.png` |
-| `assets/sprites/pc_orc_bardo.png` | Orc Bardo | `assets/sprites/pc_orc_ladino.png` |
-| `assets/sprites/pc_orc_druida.png` | Orc Druida | `assets/sprites/pc_orc_clerigo.png` |
-| `assets/sprites/pc_orc_necromante.png` | Orc Necromante | `assets/sprites/pc_orc_mago.png` |
-| `assets/sprites/pc_halfling_paladino.png` | Halfling Paladino | `assets/sprites/pc_halfling_guerreiro.png` |
-| `assets/sprites/pc_halfling_bardo.png` | Halfling Bardo | `assets/sprites/pc_halfling_ladino.png` |
-| `assets/sprites/pc_halfling_druida.png` | Halfling Druida | `assets/sprites/pc_halfling_clerigo.png` |
-| `assets/sprites/pc_halfling_necromante.png` | Halfling Necromante | `assets/sprites/pc_halfling_mago.png` |
-| `assets/sprites/pc_draconato_paladino.png` | Draconato Paladino | `assets/sprites/pc_draconato_guerreiro.png` |
-| `assets/sprites/pc_draconato_bardo.png` | Draconato Bardo | `assets/sprites/pc_draconato_ladino.png` |
-| `assets/sprites/pc_draconato_druida.png` | Draconato Druida | `assets/sprites/pc_draconato_clerigo.png` |
-| `assets/sprites/pc_draconato_necromante.png` | Draconato Necromante | `assets/sprites/pc_draconato_mago.png` |
 
 ## Sprite de batalha (arena) — 24
 
@@ -96,29 +65,6 @@ Contrato: 64×64. Aparece em: barra de ordem de turno, ficha e tela de time.
 | `assets/sprites_hd/retrato_draconato_bardo.png` | Draconato Bardo | `assets/sprites_hd/retrato_draconato_ladino.png` |
 | `assets/sprites_hd/retrato_draconato_druida.png` | Draconato Druida | `assets/sprites_hd/retrato_draconato_clerigo.png` |
 | `assets/sprites_hd/retrato_draconato_necromante.png` | Draconato Necromante | `assets/sprites_hd/retrato_draconato_mago.png` |
-
-## Convocados do gacha — 16
-
-Contrato: retrato de convocado. Aparece em: tela de invocação, time e batalha.
-
-| Arquivo | Assunto | Empresta de |
-|---|---|---|
-| `assets/sprites/gacha_novo_paladino_1.png` | Edran Voto de Pedra — comum · paladino | `assets/sprites/pc_humano_guerreiro.png` |
-| `assets/sprites/gacha_novo_paladino_2.png` | Maelis Luz da Vigília — incomum · paladino | `assets/sprites/pc_elfo_guerreiro.png` |
-| `assets/sprites/gacha_novo_paladino_3.png` | Brunna Escudo do Alvorecer — raro · paladino | `assets/sprites/pc_anao_guerreiro.png` |
-| `assets/sprites/gacha_novo_paladino_4.png` | Seraphis Juramento Eterno — epico · paladino | `assets/sprites/pc_draconato_guerreiro.png` |
-| `assets/sprites/gacha_novo_bardo_1.png` | Tilo Canção da Estrada — comum · bardo | `assets/sprites/pc_humano_ladino.png` |
-| `assets/sprites/gacha_novo_bardo_2.png` | Liora Voz das Marés — incomum · bardo | `assets/sprites/pc_elfo_ladino.png` |
-| `assets/sprites/gacha_novo_bardo_3.png` | Orvan Tambor da Forja — raro · bardo | `assets/sprites/pc_anao_ladino.png` |
-| `assets/sprites/gacha_novo_bardo_4.png` | Aveline Sinfonia dos Ventos — epico · bardo | `assets/sprites/pc_draconato_ladino.png` |
-| `assets/sprites/gacha_novo_druida_1.png` | Nara Folha Serena — comum · druida | `assets/sprites/pc_humano_clerigo.png` |
-| `assets/sprites/gacha_novo_druida_2.png` | Thalen Raiz Errante — incomum · druida | `assets/sprites/pc_elfo_clerigo.png` |
-| `assets/sprites/gacha_novo_druida_3.png` | Grom Musgo Ancestral — raro · druida | `assets/sprites/pc_anao_clerigo.png` |
-| `assets/sprites/gacha_novo_druida_4.png` | Ysara Coração do Bosque — epico · druida | `assets/sprites/pc_draconato_clerigo.png` |
-| `assets/sprites/gacha_novo_necromante_1.png` | Veyr Vigia das Cinzas — comum · necromante | `assets/sprites/pc_humano_mago.png` |
-| `assets/sprites/gacha_novo_necromante_2.png` | Mora Véu Silencioso — incomum · necromante | `assets/sprites/pc_elfo_mago.png` |
-| `assets/sprites/gacha_novo_necromante_3.png` | Drazek Guardião dos Ossos — raro · necromante | `assets/sprites/pc_anao_mago.png` |
-| `assets/sprites/gacha_novo_necromante_4.png` | Nerissa Memória dos Mortos — epico · necromante | `assets/sprites/pc_draconato_mago.png` |
 
 ## Como usar esta lista
 

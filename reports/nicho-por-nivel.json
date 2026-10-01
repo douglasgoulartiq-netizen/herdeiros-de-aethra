@@ -1,6 +1,5 @@
 {
   "limite": 0.06,
-  "pressao": false,
   "niveis": [
     5,
     15,

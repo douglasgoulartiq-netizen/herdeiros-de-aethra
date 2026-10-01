@@ -44,4 +44,4 @@ O passo seguinte é olhar, nos níveis da travessia, QUAL habilidade entrou no l
 
 ## Limites
 
-Time fixo, equipamento sintético de orçamento igual, IA automática. A inclinação é uma diferença entre duas médias ruidosas: perto do limite de 6 pontos, a classificação pode trocar por ruído, e por isso a leitura acima destaca as travessias, não a casa decimal.
+Time fixo, equipamento sintético de orçamento igual, IA automática, no cenário padrão. Uma leitura sob pressão (HDA_PRESSAO / HDA_VIDA_INICIAL) grava com HDA_VARIANTE e é comparada à parte. A inclinação é uma diferença entre duas médias ruidosas: perto do limite de 6 pontos, a classificação pode trocar por ruído, e por isso a leitura acima destaca as travessias, não a casa decimal.

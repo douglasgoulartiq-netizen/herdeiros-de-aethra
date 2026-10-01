@@ -27,6 +27,10 @@
 // Como gerar os relatórios (um por nível):
 //   for n in 5 9 13 17 21 25; do HDA_NIVEIS=$n node tests/matriz-de-nicho.mjs; done
 //
+// Leituras com HDA_VARIANTE (pressão, time alternativo, ordem reversa) têm
+// nome próprio e NÃO entram aqui: comparar um nível sob pressão com outro sem
+// mediria duas coisas ao mesmo tempo e atribuiria a diferença ao nível.
+//
 // O arquivo sem sufixo (matriz-de-nicho.json) é o consolidado de vários
 // níveis e NÃO entra aqui — misturá-lo com as leituras por nível somaria
 // coisas de naturezas diferentes. Ele só é lido quando nenhum arquivo por
@@ -40,16 +44,15 @@ const base = new URL("../reports/", import.meta.url);
 // Descobre as leituras por nível pelo nome do arquivo, em vez de exigir uma
 // lista fixa: acrescentar um nível novo passa a ser só rodar a matriz.
 const arquivos = readdirSync(base)
-  .map((f) => ({ f, m: /^matriz-de-nicho-n(\d+)(-pressao)?\.json$/.exec(f) }))
+  .map((f) => ({ f, m: /^matriz-de-nicho-n(\d+)\.json$/.exec(f) }))
   .filter((x) => x.m)
-  .map((x) => ({ arquivo: x.f, nivel: Number(x.m[1]), pressao: !!x.m[2] }));
+  .map((x) => ({ arquivo: x.f, nivel: Number(x.m[1]) }));
 
-const PRESSAO = process.env.HDA_PRESSAO ? true : false;
-const fontes = arquivos.filter((a) => a.pressao === PRESSAO).sort((a, b) => a.nivel - b.nivel);
+const fontes = arquivos.sort((a, b) => a.nivel - b.nivel);
 
 if (fontes.length < 2) {
   const consolidado = new URL("matriz-de-nicho.json", base);
-  console.error(`preciso de pelo menos DOIS relatórios por nível${PRESSAO ? " com pressão" : ""}; achei ${fontes.length}.`);
+  console.error(`preciso de pelo menos DOIS relatórios por nível; achei ${fontes.length}.`);
   console.error("gere com:  for n in 5 9 13 17 21 25; do HDA_NIVEIS=$n node tests/matriz-de-nicho.mjs; done");
   if (existsSync(consolidado)) console.error("(o consolidado matriz-de-nicho.json existe, mas mistura níveis e não serve aqui)");
   process.exit(1);
@@ -91,7 +94,7 @@ const passo = niveis.length > 1 ? Math.min(...niveis.slice(1).map((n, i) => n - 
 
 const md = `# O nicho se sustenta ao longo do jogo?
 
-Todo o balanceamento de nicho foi medido e calibrado no **nível 25**. A maior parte de uma partida acontece antes disso. Esta é a mesma matriz rodada em ${niveis.length} níveis${PRESSAO ? ", **com pressão**" : ""}: ${niveis.join(", ")}.
+Todo o balanceamento de nicho foi medido e calibrado no **nível 25**. A maior parte de uma partida acontece antes disso. Esta é a mesma matriz rodada em ${niveis.length} níveis: ${niveis.join(", ")}.
 
 **Inclinação** = participação no dano com 6 inimigos menos participação com 1. Negativa é especialista em alvo único, positiva em multidão, entre ${-LIMITE * 100} e ${LIMITE * 100} é generalista — que é o defeito que o trabalho de nicho existe para corrigir.
 
@@ -119,10 +122,9 @@ O passo seguinte é olhar, nos níveis da travessia, QUAL habilidade entrou no l
 
 ## Limites
 
-Time fixo, equipamento sintético de orçamento igual, IA automática${PRESSAO ? ", e o cenário com pressão (time entra a 60% da vida, inimigos reforçados)" : ""}. A inclinação é uma diferença entre duas médias ruidosas: perto do limite de ${LIMITE * 100} pontos, a classificação pode trocar por ruído, e por isso a leitura acima destaca as travessias, não a casa decimal.
+Time fixo, equipamento sintético de orçamento igual, IA automática, no cenário padrão. Uma leitura sob pressão (HDA_PRESSAO / HDA_VIDA_INICIAL) grava com HDA_VARIANTE e é comparada à parte. A inclinação é uma diferença entre duas médias ruidosas: perto do limite de ${LIMITE * 100} pontos, a classificação pode trocar por ruído, e por isso a leitura acima destaca as travessias, não a casa decimal.
 `;
 
-const sufixo = PRESSAO ? "-pressao" : "";
-writeFileSync(new URL(`nicho-por-nivel${sufixo}.md`, base), md);
-writeFileSync(new URL(`nicho-por-nivel${sufixo}.json`, base), JSON.stringify({ limite: LIMITE, pressao: PRESSAO, niveis, linhas }, null, 2));
+writeFileSync(new URL("nicho-por-nivel.md", base), md);
+writeFileSync(new URL("nicho-por-nivel.json", base), JSON.stringify({ limite: LIMITE, niveis, linhas }, null, 2));
 console.log(md);

@@ -1,15 +1,7 @@
 {
-  "total": 88,
-  "comEmprestimo": 88,
+  "total": 48,
+  "comEmprestimo": 48,
   "faltando": [
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_humano_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Humano Paladino",
-      "empresta": "assets/sprites/pc_humano_guerreiro.png"
-    },
     {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_humano_paladino.png",
@@ -25,14 +17,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Humano Paladino",
       "empresta": "assets/sprites_hd/retrato_humano_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_humano_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Humano Bardo",
-      "empresta": "assets/sprites/pc_humano_ladino.png"
     },
     {
       "familia": "batalha",
@@ -51,14 +35,6 @@
       "empresta": "assets/sprites_hd/retrato_humano_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_humano_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Humano Druida",
-      "empresta": "assets/sprites/pc_humano_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_humano_druida.png",
       "spec": "quadro único de 192×192",
@@ -73,14 +49,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Humano Druida",
       "empresta": "assets/sprites_hd/retrato_humano_clerigo.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_humano_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Humano Necromante",
-      "empresta": "assets/sprites/pc_humano_mago.png"
     },
     {
       "familia": "batalha",
@@ -99,14 +67,6 @@
       "empresta": "assets/sprites_hd/retrato_humano_mago.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_elfo_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Elfo Paladino",
-      "empresta": "assets/sprites/pc_elfo_guerreiro.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_elfo_paladino.png",
       "spec": "quadro único de 192×192",
@@ -121,14 +81,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Elfo Paladino",
       "empresta": "assets/sprites_hd/retrato_elfo_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_elfo_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Elfo Bardo",
-      "empresta": "assets/sprites/pc_elfo_ladino.png"
     },
     {
       "familia": "batalha",
@@ -147,14 +99,6 @@
       "empresta": "assets/sprites_hd/retrato_elfo_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_elfo_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Elfo Druida",
-      "empresta": "assets/sprites/pc_elfo_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_elfo_druida.png",
       "spec": "quadro único de 192×192",
@@ -169,14 +113,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Elfo Druida",
       "empresta": "assets/sprites_hd/retrato_elfo_clerigo.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_elfo_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Elfo Necromante",
-      "empresta": "assets/sprites/pc_elfo_mago.png"
     },
     {
       "familia": "batalha",
@@ -195,14 +131,6 @@
       "empresta": "assets/sprites_hd/retrato_elfo_mago.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_anao_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Anão Paladino",
-      "empresta": "assets/sprites/pc_anao_guerreiro.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_anao_paladino.png",
       "spec": "quadro único de 192×192",
@@ -217,14 +145,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Anão Paladino",
       "empresta": "assets/sprites_hd/retrato_anao_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_anao_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Anão Bardo",
-      "empresta": "assets/sprites/pc_anao_ladino.png"
     },
     {
       "familia": "batalha",
@@ -243,14 +163,6 @@
       "empresta": "assets/sprites_hd/retrato_anao_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_anao_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Anão Druida",
-      "empresta": "assets/sprites/pc_anao_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_anao_druida.png",
       "spec": "quadro único de 192×192",
@@ -265,14 +177,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Anão Druida",
       "empresta": "assets/sprites_hd/retrato_anao_clerigo.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_anao_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Anão Necromante",
-      "empresta": "assets/sprites/pc_anao_mago.png"
     },
     {
       "familia": "batalha",
@@ -291,14 +195,6 @@
       "empresta": "assets/sprites_hd/retrato_anao_mago.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_orc_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Orc Paladino",
-      "empresta": "assets/sprites/pc_orc_guerreiro.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_orc_paladino.png",
       "spec": "quadro único de 192×192",
@@ -313,14 +209,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Orc Paladino",
       "empresta": "assets/sprites_hd/retrato_orc_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_orc_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Orc Bardo",
-      "empresta": "assets/sprites/pc_orc_ladino.png"
     },
     {
       "familia": "batalha",
@@ -339,14 +227,6 @@
       "empresta": "assets/sprites_hd/retrato_orc_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_orc_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Orc Druida",
-      "empresta": "assets/sprites/pc_orc_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_orc_druida.png",
       "spec": "quadro único de 192×192",
@@ -361,14 +241,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Orc Druida",
       "empresta": "assets/sprites_hd/retrato_orc_clerigo.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_orc_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Orc Necromante",
-      "empresta": "assets/sprites/pc_orc_mago.png"
     },
     {
       "familia": "batalha",
@@ -387,14 +259,6 @@
       "empresta": "assets/sprites_hd/retrato_orc_mago.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_halfling_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Halfling Paladino",
-      "empresta": "assets/sprites/pc_halfling_guerreiro.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_halfling_paladino.png",
       "spec": "quadro único de 192×192",
@@ -409,14 +273,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Halfling Paladino",
       "empresta": "assets/sprites_hd/retrato_halfling_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_halfling_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Halfling Bardo",
-      "empresta": "assets/sprites/pc_halfling_ladino.png"
     },
     {
       "familia": "batalha",
@@ -435,14 +291,6 @@
       "empresta": "assets/sprites_hd/retrato_halfling_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_halfling_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Halfling Druida",
-      "empresta": "assets/sprites/pc_halfling_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_halfling_druida.png",
       "spec": "quadro único de 192×192",
@@ -457,14 +305,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Halfling Druida",
       "empresta": "assets/sprites_hd/retrato_halfling_clerigo.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_halfling_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Halfling Necromante",
-      "empresta": "assets/sprites/pc_halfling_mago.png"
     },
     {
       "familia": "batalha",
@@ -483,14 +323,6 @@
       "empresta": "assets/sprites_hd/retrato_halfling_mago.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_draconato_paladino.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Draconato Paladino",
-      "empresta": "assets/sprites/pc_draconato_guerreiro.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_draconato_paladino.png",
       "spec": "quadro único de 192×192",
@@ -505,14 +337,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Draconato Paladino",
       "empresta": "assets/sprites_hd/retrato_draconato_guerreiro.png"
-    },
-    {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_draconato_bardo.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Draconato Bardo",
-      "empresta": "assets/sprites/pc_draconato_ladino.png"
     },
     {
       "familia": "batalha",
@@ -531,14 +355,6 @@
       "empresta": "assets/sprites_hd/retrato_draconato_ladino.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_draconato_druida.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Draconato Druida",
-      "empresta": "assets/sprites/pc_draconato_clerigo.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_draconato_druida.png",
       "spec": "quadro único de 192×192",
@@ -555,14 +371,6 @@
       "empresta": "assets/sprites_hd/retrato_draconato_clerigo.png"
     },
     {
-      "familia": "caminhada",
-      "caminho": "assets/sprites/pc_draconato_necromante.png",
-      "spec": "folha de animação, quadro de 64×64",
-      "onde": "o herói andando pelo mundo",
-      "assunto": "Draconato Necromante",
-      "empresta": "assets/sprites/pc_draconato_mago.png"
-    },
-    {
       "familia": "batalha",
       "caminho": "assets/sprites/pcb_draconato_necromante.png",
       "spec": "quadro único de 192×192",
@@ -577,134 +385,6 @@
       "onde": "barra de ordem de turno, ficha e tela de time",
       "assunto": "Draconato Necromante",
       "empresta": "assets/sprites_hd/retrato_draconato_mago.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_paladino_1.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Edran Voto de Pedra — comum · paladino",
-      "empresta": "assets/sprites/pc_humano_guerreiro.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_paladino_2.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Maelis Luz da Vigília — incomum · paladino",
-      "empresta": "assets/sprites/pc_elfo_guerreiro.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_paladino_3.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Brunna Escudo do Alvorecer — raro · paladino",
-      "empresta": "assets/sprites/pc_anao_guerreiro.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_paladino_4.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Seraphis Juramento Eterno — epico · paladino",
-      "empresta": "assets/sprites/pc_draconato_guerreiro.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_bardo_1.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Tilo Canção da Estrada — comum · bardo",
-      "empresta": "assets/sprites/pc_humano_ladino.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_bardo_2.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Liora Voz das Marés — incomum · bardo",
-      "empresta": "assets/sprites/pc_elfo_ladino.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_bardo_3.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Orvan Tambor da Forja — raro · bardo",
-      "empresta": "assets/sprites/pc_anao_ladino.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_bardo_4.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Aveline Sinfonia dos Ventos — epico · bardo",
-      "empresta": "assets/sprites/pc_draconato_ladino.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_druida_1.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Nara Folha Serena — comum · druida",
-      "empresta": "assets/sprites/pc_humano_clerigo.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_druida_2.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Thalen Raiz Errante — incomum · druida",
-      "empresta": "assets/sprites/pc_elfo_clerigo.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_druida_3.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Grom Musgo Ancestral — raro · druida",
-      "empresta": "assets/sprites/pc_anao_clerigo.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_druida_4.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Ysara Coração do Bosque — epico · druida",
-      "empresta": "assets/sprites/pc_draconato_clerigo.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_necromante_1.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Veyr Vigia das Cinzas — comum · necromante",
-      "empresta": "assets/sprites/pc_humano_mago.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_necromante_2.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Mora Véu Silencioso — incomum · necromante",
-      "empresta": "assets/sprites/pc_elfo_mago.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_necromante_3.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Drazek Guardião dos Ossos — raro · necromante",
-      "empresta": "assets/sprites/pc_anao_mago.png"
-    },
-    {
-      "familia": "convocado",
-      "caminho": "assets/sprites/gacha_novo_necromante_4.png",
-      "spec": "retrato de convocado",
-      "onde": "tela de invocação, time e batalha",
-      "assunto": "Nerissa Memória dos Mortos — epico · necromante",
-      "empresta": "assets/sprites/pc_draconato_mago.png"
     }
   ]
 }
