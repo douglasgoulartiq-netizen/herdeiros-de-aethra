@@ -1,6 +1,8 @@
 // Regressão para task #49: expandir o roster de gacha de 24 para 100
-// personagens, mantendo a taxonomia de 5 raridades e pelo menos 10% (>=10)
-// de lendários dentro dos 100.
+// personagens, mantendo a taxonomia de 5 raridades e pelo menos 10% de
+// lendários. As quatro classes novas levaram o elenco a 132, então 100
+// virou PISO e a cota de lendários virou proporção — o que esta regressão
+// protege é o elenco não encolher, não repetir e não perder a taxonomia.
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -23,7 +25,12 @@ const classeIds = new Set(classes.map((c) => c.id));
 const racaIds = new Set(racas.map((r) => r.id));
 const facaoIds = new Set(worldState.facoes.map((f) => f.id));
 
-check(`roster tem exatamente 100 personagens (encontrado ${roster.length})`, roster.length === 100);
+// O número deixou de ser 100 exato quando as quatro classes novas trouxeram
+// 32 convocados. Travar em "exatamente 100" transformava CRESCER o elenco em
+// falha, que é o contrário do que esta regressão quer proteger: ela existe
+// para o elenco não ENCOLHER nem repetir. O piso continua 100.
+const PISO_ELENCO = 100;
+check(`roster tem pelo menos ${PISO_ELENCO} personagens (encontrado ${roster.length})`, roster.length >= PISO_ELENCO);
 
 const ids = roster.map((p) => p.id);
 check("nenhum id duplicado no roster", new Set(ids).size === ids.length);
@@ -37,7 +44,10 @@ for (const p of roster) {
   contagem[p.raridade] = (contagem[p.raridade] || 0) + 1;
 }
 console.log("Distribuição por raridade:", JSON.stringify(contagem));
-check(`pelo menos 10% (>=10) dos 100 são lendários (encontrado ${contagem.lendario})`, contagem.lendario >= 10);
+// A proporção é a regra, não o número absoluto: um elenco maior precisa de
+// mais lendários para a raridade continuar significando a mesma coisa.
+const minLendarios = Math.ceil(roster.length * 0.1);
+check(`pelo menos 10% dos ${roster.length} são lendários (>=${minLendarios}, encontrado ${contagem.lendario})`, contagem.lendario >= minLendarios);
 check("todas as 5 raridades têm pelo menos 1 personagem", RARIDADES.every((r) => contagem[r] > 0));
 
 let semCampo = [];
@@ -61,8 +71,8 @@ if (semCampo.length) semCampo.slice(0, 10).forEach((s) => console.log("  - " + s
   const contagemRaca = Object.fromEntries(RACAS.map((r) => [r, 0]));
   const contagemClasse = Object.fromEntries(CLASSES.map((c) => [c, 0]));
   roster.forEach((p) => { contagemRaca[p.racaId]++; contagemClasse[p.classeId]++; });
-  check("toda raça tem pelo menos 5 personagens no roster de 100", Object.values(contagemRaca).every((n) => n >= 5));
-  check("toda classe tem pelo menos 5 personagens no roster de 100", Object.values(contagemClasse).every((n) => n >= 5));
+  check("toda raça tem pelo menos 5 personagens no roster", Object.values(contagemRaca).every((n) => n >= 5));
+  check("toda classe tem pelo menos 5 personagens no roster", Object.values(contagemClasse).every((n) => n >= 5));
 }
 
 // --- um personagem novo funciona de ponta a ponta: gacha -> combatente ---
