@@ -7326,5 +7326,2201 @@
         }
       }
     ]
+  },
+  {
+    "id": "novo_paladino_1",
+    "nome": "Edran Voto de Pedra",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Protetor de linha de frente: reparte o risco dos aliados, sustenta a formação e pune com luz. Menos dano que o guerreiro e menos cura que o clérigo.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 3,
+      "CON": 8,
+      "INT": 5
+    },
+    "hpMax": 58,
+    "mpMax": 26,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_paladino_1.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Edran",
+      "narrativa": "Edran Voto de Pedra reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_2",
+    "nome": "Maelis Luz da Vigília",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Protetor de linha de frente: reparte o risco dos aliados, sustenta a formação e pune com luz. Menos dano que o guerreiro e menos cura que o clérigo.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 3,
+      "CON": 8,
+      "INT": 5
+    },
+    "hpMax": 58,
+    "mpMax": 26,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_2",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_2.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Maelis",
+      "narrativa": "Maelis Luz da Vigília reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_3",
+    "nome": "Brunna Escudo do Alvorecer",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Protetor de linha de frente: reparte o risco dos aliados, sustenta a formação e pune com luz. Menos dano que o guerreiro e menos cura que o clérigo.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 4,
+      "CON": 9,
+      "INT": 6
+    },
+    "hpMax": 61,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      },
+      {
+        "id": "toque_aurora",
+        "nome": "Toque da Aurora",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.7,
+        "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_3",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_3.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Brunna",
+      "narrativa": "Brunna Escudo do Alvorecer reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_4",
+    "nome": "Seraphis Juramento Eterno",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Protetor de linha de frente: reparte o risco dos aliados, sustenta a formação e pune com luz. Menos dano que o guerreiro e menos cura que o clérigo.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 4,
+      "CON": 9,
+      "INT": 6
+    },
+    "hpMax": 61,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      },
+      {
+        "id": "toque_aurora",
+        "nome": "Toque da Aurora",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.7,
+        "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON."
+      },
+      {
+        "id": "juizo_aurora",
+        "nome": "Juízo da Aurora",
+        "tipo": "dano_magico",
+        "custoMP": 7,
+        "cooldown": 2,
+        "multiplicador": 1.6,
+        "elemento": "radiante",
+        "descricao": "Causa 160% de INT em dano de luz."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_4",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_4.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Seraphis",
+      "narrativa": "Seraphis Juramento Eterno reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_1",
+    "nome": "Tilo Canção da Estrada",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Suporte tático de retaguarda: canções reforçam aliados, dissonâncias atrasam inimigos e pequenas curas sustentam o grupo. Uma canção por bardo.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 7,
+      "CON": 5,
+      "INT": 8
+    },
+    "hpMax": 40,
+    "mpMax": 40,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_bardo_1.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Tilo",
+      "narrativa": "Tilo Canção da Estrada reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_2",
+    "nome": "Liora Voz das Marés",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Suporte tático de retaguarda: canções reforçam aliados, dissonâncias atrasam inimigos e pequenas curas sustentam o grupo. Uma canção por bardo.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 7,
+      "CON": 5,
+      "INT": 8
+    },
+    "hpMax": 40,
+    "mpMax": 40,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_2",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_2.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Liora",
+      "narrativa": "Liora Voz das Marés reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_3",
+    "nome": "Orvan Tambor da Forja",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Suporte tático de retaguarda: canções reforçam aliados, dissonâncias atrasam inimigos e pequenas curas sustentam o grupo. Uma canção por bardo.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 9
+    },
+    "hpMax": 43,
+    "mpMax": 42,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      },
+      {
+        "id": "balada_refugio",
+        "nome": "Balada do Refúgio",
+        "tipo": "buff_time",
+        "custoMP": 7,
+        "cooldown": 3,
+        "alvoBuff": "defesa",
+        "valor": 0.18,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_3",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_3.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Orvan",
+      "narrativa": "Orvan Tambor da Forja reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_4",
+    "nome": "Aveline Sinfonia dos Ventos",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Suporte tático de retaguarda: canções reforçam aliados, dissonâncias atrasam inimigos e pequenas curas sustentam o grupo. Uma canção por bardo.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 9
+    },
+    "hpMax": 43,
+    "mpMax": 42,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      },
+      {
+        "id": "balada_refugio",
+        "nome": "Balada do Refúgio",
+        "tipo": "buff_time",
+        "custoMP": 7,
+        "cooldown": 3,
+        "alvoBuff": "defesa",
+        "valor": 0.18,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+      },
+      {
+        "id": "refrão_vida",
+        "nome": "Refrão da Vida",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.8,
+        "descricao": "Cura coletiva moderada baseada em INT ou CON."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_4",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_4.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Aveline",
+      "narrativa": "Aveline Sinfonia dos Ventos reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_1",
+    "nome": "Nara Folha Serena",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Versátil: cura e controla em forma natural ou assume forma animal para atacar. Transformado, não pode usar curas; o poder animal usa INT.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 8
+    },
+    "hpMax": 46,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_druida_1.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Nara",
+      "narrativa": "Nara Folha Serena reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_2",
+    "nome": "Thalen Raiz Errante",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Versátil: cura e controla em forma natural ou assume forma animal para atacar. Transformado, não pode usar curas; o poder animal usa INT.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 8
+    },
+    "hpMax": 46,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_2",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_2.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Thalen",
+      "narrativa": "Thalen Raiz Errante reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_3",
+    "nome": "Grom Musgo Ancestral",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Versátil: cura e controla em forma natural ou assume forma animal para atacar. Transformado, não pode usar curas; o poder animal usa INT.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 6,
+      "CON": 7,
+      "INT": 9
+    },
+    "hpMax": 49,
+    "mpMax": 41,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      },
+      {
+        "id": "orvalho_restaurador",
+        "nome": "Orvalho Restaurador",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "multiplicador": 0.9,
+        "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_3",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_3.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Grom",
+      "narrativa": "Grom Musgo Ancestral reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_4",
+    "nome": "Ysara Coração do Bosque",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Versátil: cura e controla em forma natural ou assume forma animal para atacar. Transformado, não pode usar curas; o poder animal usa INT.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 6,
+      "CON": 7,
+      "INT": 9
+    },
+    "hpMax": 49,
+    "mpMax": 41,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      },
+      {
+        "id": "orvalho_restaurador",
+        "nome": "Orvalho Restaurador",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "multiplicador": 0.9,
+        "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal."
+      },
+      {
+        "id": "raizes_prof",
+        "nome": "Raízes Profundas",
+        "tipo": "debuff_area",
+        "custoMP": 7,
+        "cooldown": 3,
+        "valor": 0.18,
+        "duracao": 2,
+        "descricao": "Reduz a velocidade inimiga por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_4",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_4.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Ysara",
+      "narrativa": "Ysara Coração do Bosque reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_1",
+    "nome": "Veyr Vigia das Cinzas",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Conjurador de desgaste: maldições, drenagem e um servo vinculado que age após seus ataques. O servo não ocupa vaga nem possui turno independente.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 4,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 38,
+    "mpMax": 46,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_necromante_1.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Veyr",
+      "narrativa": "Veyr Vigia das Cinzas reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_2",
+    "nome": "Mora Véu Silencioso",
+    "raridade": "incomum",
+    "racaId": "elfo",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Conjurador de desgaste: maldições, drenagem e um servo vinculado que age após seus ataques. O servo não ocupa vaga nem possui turno independente.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 4,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 38,
+    "mpMax": 46,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_2",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_2.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Mora",
+      "narrativa": "Mora Véu Silencioso reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_3",
+    "nome": "Drazek Guardião dos Ossos",
+    "raridade": "raro",
+    "racaId": "anao",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Conjurador de desgaste: maldições, drenagem e um servo vinculado que age após seus ataques. O servo não ocupa vaga nem possui turno independente.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 11
+    },
+    "hpMax": 41,
+    "mpMax": 48,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      },
+      {
+        "id": "drenar_vitalidade",
+        "nome": "Drenar Vitalidade",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "multiplicador": 1.35,
+        "elemento": "sombrio",
+        "drenagem": 0.25,
+        "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_3",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_3.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Drazek",
+      "narrativa": "Drazek Guardião dos Ossos reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_4",
+    "nome": "Nerissa Memória dos Mortos",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Conjurador de desgaste: maldições, drenagem e um servo vinculado que age após seus ataques. O servo não ocupa vaga nem possui turno independente.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 11
+    },
+    "hpMax": 41,
+    "mpMax": 48,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      },
+      {
+        "id": "drenar_vitalidade",
+        "nome": "Drenar Vitalidade",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "multiplicador": 1.35,
+        "elemento": "sombrio",
+        "drenagem": 0.25,
+        "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo."
+      },
+      {
+        "id": "peso_tumulo",
+        "nome": "Peso do Túmulo",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 4,
+        "valor": 0.2,
+        "duracao": 2,
+        "descricao": "Atrasa todos os inimigos por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_4",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_4.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Nerissa",
+      "narrativa": "Nerissa Memória dos Mortos reafirma seu compromisso com Aethra e aperfeiçoa sua técnica.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_5",
+    "nome": "Althea Farol de Prata",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Sentinela dos portões de Aethra, mantém seu escudo entre os viajantes e o perigo.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 3,
+      "CON": 8,
+      "INT": 5
+    },
+    "hpMax": 58,
+    "mpMax": 26,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "toque_aurora",
+        "nome": "Toque da Aurora",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.7,
+        "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_paladino_5.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Althea",
+      "narrativa": "Althea Farol de Prata reafirma seu compromisso: Sentinela dos portões de Aethra, mantém seu escudo entre os viajantes e o perigo.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_6",
+    "nome": "Borin Martelo da Vigília",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Antigo ferreiro que jurou proteger as caravanas. Cada marca em seu martelo lembra alguém que salvou.",
+    "atributos": {
+      "FOR": 7,
+      "DES": 3,
+      "CON": 8,
+      "INT": 5
+    },
+    "hpMax": 58,
+    "mpMax": 26,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "juizo_aurora",
+        "nome": "Juízo da Aurora",
+        "tipo": "dano_magico",
+        "custoMP": 7,
+        "cooldown": 2,
+        "multiplicador": 1.6,
+        "elemento": "radiante",
+        "descricao": "Causa 160% de INT em dano de luz."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_6",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_6.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Borin",
+      "narrativa": "Borin Martelo da Vigília reafirma seu compromisso: Antigo ferreiro que jurou proteger as caravanas. Cada marca em seu martelo lembra alguém que salvou.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_7",
+    "nome": "Kaelis Guarda da Aurora",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Vigia das estradas orientais, combina disciplina élfica com um juramento à Coroa.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 4,
+      "CON": 9,
+      "INT": 6
+    },
+    "hpMax": 61,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      },
+      {
+        "id": "juizo_aurora",
+        "nome": "Juízo da Aurora",
+        "tipo": "dano_magico",
+        "custoMP": 7,
+        "cooldown": 2,
+        "multiplicador": 1.6,
+        "elemento": "radiante",
+        "descricao": "Causa 160% de INT em dano de luz."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_7",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_7.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Kaelis",
+      "narrativa": "Kaelis Guarda da Aurora reafirma seu compromisso: Vigia das estradas orientais, combina disciplina élfica com um juramento à Coroa.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_paladino_8",
+    "nome": "Rughan Voto Inquebrável",
+    "raridade": "epico",
+    "racaId": "orc",
+    "classeId": "paladino",
+    "facaoId": "coroa_de_aethra",
+    "descricao": "Abandonou as guerras de conquista para defender quem não pode lutar. Seu voto vale mais que qualquer linhagem.",
+    "atributos": {
+      "FOR": 8,
+      "DES": 4,
+      "CON": 9,
+      "INT": 6
+    },
+    "hpMax": 61,
+    "mpMax": 28,
+    "habilidade": {
+      "id": "golpe_votivo",
+      "nome": "Golpe Votivo",
+      "tipo": "dano_fisico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "radiante",
+      "descricao": "Golpe de luz: 120% do ataque."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      },
+      {
+        "id": "toque_aurora",
+        "nome": "Toque da Aurora",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.7,
+        "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON."
+      },
+      {
+        "id": "juizo_aurora",
+        "nome": "Juízo da Aurora",
+        "tipo": "dano_magico",
+        "custoMP": 7,
+        "cooldown": 2,
+        "multiplicador": 1.6,
+        "elemento": "radiante",
+        "descricao": "Causa 160% de INT em dano de luz."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_paladino_8",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_paladino_8.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Rughan",
+      "narrativa": "Rughan Voto Inquebrável reafirma seu compromisso: Abandonou as guerras de conquista para defender quem não pode lutar. Seu voto vale mais que qualquer linhagem.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_5",
+    "nome": "Pipa Cantiga do Porto",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Aprendeu suas canções nos portos; seu alaúde sustenta a coragem de marinheiros e aventureiros.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 7,
+      "CON": 5,
+      "INT": 8
+    },
+    "hpMax": 40,
+    "mpMax": 40,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "balada_refugio",
+        "nome": "Balada do Refúgio",
+        "tipo": "buff_time",
+        "custoMP": 7,
+        "cooldown": 3,
+        "alvoBuff": "defesa",
+        "valor": 0.18,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_bardo_5.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Pipa",
+      "narrativa": "Pipa Cantiga do Porto reafirma seu compromisso: Aprendeu suas canções nos portos; seu alaúde sustenta a coragem de marinheiros e aventureiros.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_6",
+    "nome": "Soren Violino de Brasa",
+    "raridade": "incomum",
+    "racaId": "humano",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Violinista das caravanas, transforma histórias de sobrevivência em melodias que reorganizam a batalha.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 7,
+      "CON": 5,
+      "INT": 8
+    },
+    "hpMax": 40,
+    "mpMax": 40,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "refrão_vida",
+        "nome": "Refrão da Vida",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.8,
+        "descricao": "Cura coletiva moderada baseada em INT ou CON."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_6",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_6.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Soren",
+      "narrativa": "Soren Violino de Brasa reafirma seu compromisso: Violinista das caravanas, transforma histórias de sobrevivência em melodias que reorganizam a batalha.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_7",
+    "nome": "Velira Harpa da Névoa",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Recolhe canções esquecidas nas neblinas e usa a harpa para devolver esperança aos companheiros.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 9
+    },
+    "hpMax": 43,
+    "mpMax": 42,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      },
+      {
+        "id": "refrão_vida",
+        "nome": "Refrão da Vida",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.8,
+        "descricao": "Cura coletiva moderada baseada em INT ou CON."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_7",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_7.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Velira",
+      "narrativa": "Velira Harpa da Névoa reafirma seu compromisso: Recolhe canções esquecidas nas neblinas e usa a harpa para devolver esperança aos companheiros.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_bardo_8",
+    "nome": "Gorun Tambor do Horizonte",
+    "raridade": "epico",
+    "racaId": "orc",
+    "classeId": "bardo",
+    "facaoId": "cavaleiros_do_vento_uivante",
+    "descricao": "Seu tambor marca o passo de povos antes inimigos. Para Gorun, uma companhia forte aprende a ouvir.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 8,
+      "CON": 6,
+      "INT": 9
+    },
+    "hpMax": 43,
+    "mpMax": 42,
+    "habilidade": {
+      "id": "nota_cortante",
+      "nome": "Nota Cortante",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.15,
+      "elemento": "vento",
+      "descricao": "Nota de vento: 115% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      },
+      {
+        "id": "balada_refugio",
+        "nome": "Balada do Refúgio",
+        "tipo": "buff_time",
+        "custoMP": 7,
+        "cooldown": 3,
+        "alvoBuff": "defesa",
+        "valor": 0.18,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+      },
+      {
+        "id": "refrão_vida",
+        "nome": "Refrão da Vida",
+        "tipo": "cura_area",
+        "custoMP": 9,
+        "cooldown": 3,
+        "multiplicador": 0.8,
+        "descricao": "Cura coletiva moderada baseada em INT ou CON."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_bardo_8",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_bardo_8.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Gorun",
+      "narrativa": "Gorun Tambor do Horizonte reafirma seu compromisso: Seu tambor marca o passo de povos antes inimigos. Para Gorun, uma companhia forte aprende a ouvir.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_5",
+    "nome": "Mira Broto da Chuva",
+    "raridade": "comum",
+    "racaId": "halfling",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Cuida dos jardins das pequenas aldeias e leva sementes para restaurar as terras feridas.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 8
+    },
+    "hpMax": 46,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "orvalho_restaurador",
+        "nome": "Orvalho Restaurador",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "multiplicador": 0.9,
+        "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_druida_5.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Mira",
+      "narrativa": "Mira Broto da Chuva reafirma seu compromisso: Cuida dos jardins das pequenas aldeias e leva sementes para restaurar as terras feridas.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_6",
+    "nome": "Torvek Casca de Ferro",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Descobriu raízes sob as minas abandonadas e trocou o metal pela proteção do bosque.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 8
+    },
+    "hpMax": 46,
+    "mpMax": 39,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "raizes_prof",
+        "nome": "Raízes Profundas",
+        "tipo": "debuff_area",
+        "custoMP": 7,
+        "cooldown": 3,
+        "valor": 0.18,
+        "duracao": 2,
+        "descricao": "Reduz a velocidade inimiga por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_6",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_6.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Torvek",
+      "narrativa": "Torvek Casca de Ferro reafirma seu compromisso: Descobriu raízes sob as minas abandonadas e trocou o metal pela proteção do bosque.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_7",
+    "nome": "Elyndra Lua do Bosque",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Guardiã de clareiras antigas, lê os ciclos da floresta e conserva suas histórias em cajados vivos.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 6,
+      "CON": 7,
+      "INT": 9
+    },
+    "hpMax": 49,
+    "mpMax": 41,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      },
+      {
+        "id": "raizes_prof",
+        "nome": "Raízes Profundas",
+        "tipo": "debuff_area",
+        "custoMP": 7,
+        "cooldown": 3,
+        "valor": 0.18,
+        "duracao": 2,
+        "descricao": "Reduz a velocidade inimiga por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_7",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_7.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Elyndra",
+      "narrativa": "Elyndra Lua do Bosque reafirma seu compromisso: Guardiã de clareiras antigas, lê os ciclos da floresta e conserva suas histórias em cajados vivos.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_druida_8",
+    "nome": "Zarok Guardião das Raízes",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "druida",
+    "facaoId": "guardioes_da_folha",
+    "descricao": "Protege nascentes entre ruínas dracônicas. Suas escamas verdes lembram o bosque que jurou preservar.",
+    "atributos": {
+      "FOR": 5,
+      "DES": 6,
+      "CON": 7,
+      "INT": 9
+    },
+    "hpMax": 49,
+    "mpMax": 41,
+    "habilidade": {
+      "id": "espinho_vivo",
+      "nome": "Espinho Vivo",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "natureza",
+      "descricao": "Espinho de natureza: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      },
+      {
+        "id": "orvalho_restaurador",
+        "nome": "Orvalho Restaurador",
+        "tipo": "cura_area",
+        "custoMP": 8,
+        "cooldown": 3,
+        "multiplicador": 0.9,
+        "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal."
+      },
+      {
+        "id": "raizes_prof",
+        "nome": "Raízes Profundas",
+        "tipo": "debuff_area",
+        "custoMP": 7,
+        "cooldown": 3,
+        "valor": 0.18,
+        "duracao": 2,
+        "descricao": "Reduz a velocidade inimiga por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_druida_8",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_druida_8.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Zarok",
+      "narrativa": "Zarok Guardião das Raízes reafirma seu compromisso: Protege nascentes entre ruínas dracônicas. Suas escamas verdes lembram o bosque que jurou preservar.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_5",
+    "nome": "Iria Vigília das Cinzas",
+    "raridade": "comum",
+    "racaId": "humano",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Registra os nomes esquecidos nas guerras; seus vínculos impedem que essas memórias desapareçam.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 4,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 38,
+    "mpMax": 46,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "drenar_vitalidade",
+        "nome": "Drenar Vitalidade",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "multiplicador": 1.35,
+        "elemento": "sombrio",
+        "drenagem": 0.25,
+        "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo."
+      }
+    ],
+    "passivas": [],
+    "sprite": "gacha_novo_necromante_5.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Iria",
+      "narrativa": "Iria Vigília das Cinzas reafirma seu compromisso: Registra os nomes esquecidos nas guerras; seus vínculos impedem que essas memórias desapareçam.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_6",
+    "nome": "Durgan Sino do Sepulcro",
+    "raridade": "incomum",
+    "racaId": "anao",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Carrega um sino funerário para guiar ecos perdidos. Só chama os mortos que aceitam seu pacto.",
+    "atributos": {
+      "FOR": 3,
+      "DES": 4,
+      "CON": 5,
+      "INT": 10
+    },
+    "hpMax": 38,
+    "mpMax": 46,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "peso_tumulo",
+        "nome": "Peso do Túmulo",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 4,
+        "valor": 0.2,
+        "duracao": 2,
+        "descricao": "Atrasa todos os inimigos por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_6",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_6.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Durgan",
+      "narrativa": "Durgan Sino do Sepulcro reafirma seu compromisso: Carrega um sino funerário para guiar ecos perdidos. Só chama os mortos que aceitam seu pacto.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_7",
+    "nome": "Vaelis Arquivista dos Ecos",
+    "raridade": "raro",
+    "racaId": "elfo",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Arquivista das cinzas, conserva testemunhos em uma lanterna e combate com a força dessas lembranças.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 11
+    },
+    "hpMax": 41,
+    "mpMax": 48,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      },
+      {
+        "id": "peso_tumulo",
+        "nome": "Peso do Túmulo",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 4,
+        "valor": 0.2,
+        "duracao": 2,
+        "descricao": "Atrasa todos os inimigos por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_7",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_7.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Vaelis",
+      "narrativa": "Vaelis Arquivista dos Ecos reafirma seu compromisso: Arquivista das cinzas, conserva testemunhos em uma lanterna e combate com a força dessas lembranças.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
+  },
+  {
+    "id": "novo_necromante_8",
+    "nome": "Sythra Pacto da Memória",
+    "raridade": "epico",
+    "racaId": "draconato",
+    "classeId": "necromante",
+    "facaoId": "legiao_das_cinzas",
+    "descricao": "Guardiã de pactos ancestrais, liga seu destino aos ecos dracônicos sem lhes entregar a própria vontade.",
+    "atributos": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 11
+    },
+    "hpMax": 41,
+    "mpMax": 48,
+    "habilidade": {
+      "id": "toque_funebre",
+      "nome": "Toque Fúnebre",
+      "tipo": "dano_magico",
+      "custoMP": 0,
+      "cooldown": 1,
+      "multiplicador": 1.2,
+      "elemento": "sombrio",
+      "descricao": "Toque sombrio: 120% de INT."
+    },
+    "habilidadesExclusivas": [
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      },
+      {
+        "id": "drenar_vitalidade",
+        "nome": "Drenar Vitalidade",
+        "tipo": "dano_magico",
+        "custoMP": 8,
+        "cooldown": 2,
+        "multiplicador": 1.35,
+        "elemento": "sombrio",
+        "drenagem": 0.25,
+        "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo."
+      },
+      {
+        "id": "peso_tumulo",
+        "nome": "Peso do Túmulo",
+        "tipo": "debuff_area",
+        "custoMP": 8,
+        "cooldown": 4,
+        "valor": 0.2,
+        "duracao": 2,
+        "descricao": "Atrasa todos os inimigos por 2 turnos."
+      }
+    ],
+    "passivas": [
+      {
+        "id": "p_novo_necromante_8",
+        "nome": "Disciplina de Ofício",
+        "icone": "◆",
+        "descricao": "+4% de vida máxima.",
+        "efeito": {
+          "tipo": "vida_max",
+          "valor": 1.04,
+          "escopo": "proprio"
+        }
+      }
+    ],
+    "sprite": "gacha_novo_necromante_8.png",
+    "despertar": {
+      "nivelRequerido": 12,
+      "nomeArma": "Legado de Sythra",
+      "narrativa": "Sythra Pacto da Memória reafirma seu compromisso: Guardiã de pactos ancestrais, liga seu destino aos ecos dracônicos sem lhes entregar a própria vontade.",
+      "bonusAtributos": {
+        "CON": 1,
+        "INT": 1
+      },
+      "bonusHabilidadeMultiplicador": 0.1
+    }
   }
 ]

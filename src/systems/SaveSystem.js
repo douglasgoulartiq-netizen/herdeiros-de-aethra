@@ -1,3 +1,4 @@
+import { migrarEquilibrioClasse } from './ClassBalanceMigration.js';
 // Salva e carrega o progresso do jogador no localStorage do navegador.
 //
 // Versionamento e migração (task #97): antes desta task, cada sistema novo
@@ -353,6 +354,8 @@ export function migrarSave(salvo) {
     MIGRACOES[v](salvo);
   }
   salvo.saveVersion = SAVE_VERSION;
+  migrarEquilibrioClasse(salvo.personagem);
+  for (const aliado of salvo.personagem.gacha?.personagensObtidos || []) migrarEquilibrioClasse(aliado);
   return salvo;
 }
 

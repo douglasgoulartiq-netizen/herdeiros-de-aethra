@@ -1,0 +1,149 @@
+{
+  "modo": "image_gen integrado",
+  "personagens": [
+    {
+      "id": "novo_paladino_5",
+      "nome": "Althea Farol de Prata",
+      "classe": "paladino",
+      "raca": "humano",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female human paladin, dark skin, short silver hair, ivory navy armor, sun shield and sword",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-f4cbcabb-e46f-4a1d-8885-145661aac825.png",
+      "destination": "assets/arte_v2/gacha_novo_paladino_5.png"
+    },
+    {
+      "id": "novo_paladino_6",
+      "nome": "Borin Martelo da Vigília",
+      "classe": "paladino",
+      "raca": "anao",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male dwarf paladin, braided brown beard, bronze plate, crimson tabard, sacred hammer",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-680d2444-3a55-439b-b422-4f1888e79894.png",
+      "destination": "assets/arte_v2/gacha_novo_paladino_6.png"
+    },
+    {
+      "id": "novo_paladino_7",
+      "nome": "Kaelis Guarda da Aurora",
+      "classe": "paladino",
+      "raca": "elfo",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male elf paladin, long black hair, white gold teal armor, spear and small shield",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-a7bdbc8a-fa59-4c66-a383-0a53f94d523b.png",
+      "destination": "assets/arte_v2/gacha_novo_paladino_7.png"
+    },
+    {
+      "id": "novo_paladino_8",
+      "nome": "Rughan Voto Inquebrável",
+      "classe": "paladino",
+      "raca": "orc",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male orc paladin, olive skin, shaved head, silver armor blue cloak, broad shield and mace",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-82ee1e35-9195-46a6-b2bc-8e1fe0cce7f2.png",
+      "destination": "assets/arte_v2/gacha_novo_paladino_8.png"
+    },
+    {
+      "id": "novo_bardo_5",
+      "nome": "Pipa Cantiga do Porto",
+      "classe": "bardo",
+      "raca": "halfling",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female halfling bard, curly auburn hair, teal coat, ochre scarf, lute",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-948b8852-2f9e-403f-bea6-f06ddc1ddaed.png",
+      "destination": "assets/arte_v2/gacha_novo_bardo_5.png"
+    },
+    {
+      "id": "novo_bardo_6",
+      "nome": "Soren Violino de Brasa",
+      "classe": "bardo",
+      "raca": "humano",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male human bard, tan skin, tied dark hair, burgundy embroidered coat, violin and bow",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-72d8451b-bd9b-4d6e-ba21-7ca2911f6db0.png",
+      "destination": "assets/arte_v2/gacha_novo_bardo_6.png"
+    },
+    {
+      "id": "novo_bardo_7",
+      "nome": "Velira Harpa da Névoa",
+      "classe": "bardo",
+      "raca": "elfo",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female elf bard, silver braid, blue lavender robes, small gilded harp",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-75eb6787-db6f-4a4c-89ad-5ebd6ea85e1a.png",
+      "destination": "assets/arte_v2/gacha_novo_bardo_7.png"
+    },
+    {
+      "id": "novo_bardo_8",
+      "nome": "Gorun Tambor do Horizonte",
+      "classe": "bardo",
+      "raca": "orc",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male orc bard, green skin, black dreadlocks, ochre leather turquoise sash, waist drum and drumsticks",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-3e41a0d6-d9fb-475d-b8da-f06b3d22acaa.png",
+      "destination": "assets/arte_v2/gacha_novo_bardo_8.png"
+    },
+    {
+      "id": "novo_druida_5",
+      "nome": "Mira Broto da Chuva",
+      "classe": "druida",
+      "raca": "halfling",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female halfling druid, chestnut curls, moss cloak cream tunic, fern wand and seed pouch",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-335a302b-50b1-4fd6-ba3a-29227fb875b9.png",
+      "destination": "assets/arte_v2/gacha_novo_druida_5.png"
+    },
+    {
+      "id": "novo_druida_6",
+      "nome": "Torvek Casca de Ferro",
+      "classe": "druida",
+      "raca": "anao",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male dwarf druid, thick gray beard, bark shoulder armor, olive rust robes, oak staff",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-6a187042-dd7a-490f-87f2-2827454a7ec9.png",
+      "destination": "assets/arte_v2/gacha_novo_druida_6.png"
+    },
+    {
+      "id": "novo_druida_7",
+      "nome": "Elyndra Lua do Bosque",
+      "classe": "druida",
+      "raca": "elfo",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female elf druid, purple hair, pale green silver leaf robes, crescent branch staff",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-c6b4385b-5eaa-46cc-b1b6-f73e5181963e.png",
+      "destination": "assets/arte_v2/gacha_novo_druida_7.png"
+    },
+    {
+      "id": "novo_druida_8",
+      "nome": "Zarok Guardião das Raízes",
+      "classe": "druida",
+      "raca": "draconato",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male emerald dragonborn druid, scaled reptilian face, amber eyes, bark armor jade cloak, root staff",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-9c4b8da6-76fb-4a1e-a663-6235697d71b6.png",
+      "destination": "assets/arte_v2/gacha_novo_druida_8.png"
+    },
+    {
+      "id": "novo_necromante_5",
+      "nome": "Iria Vigília das Cinzas",
+      "classe": "necromante",
+      "raca": "humano",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female human necromancer, brown skin, white short hair, charcoal violet robes, bone-bound grimoire",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-0c020ade-1f82-4bce-aef2-ea406d09a7dc.png",
+      "destination": "assets/arte_v2/gacha_novo_necromante_5.png"
+    },
+    {
+      "id": "novo_necromante_6",
+      "nome": "Durgan Sino do Sepulcro",
+      "classe": "necromante",
+      "raca": "anao",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male dwarf necromancer, gray skin, black beard, plum robes, bone staff with small bronze bell",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-d0df03ad-e329-47a5-9754-6b374694b238.png",
+      "destination": "assets/arte_v2/gacha_novo_necromante_6.png"
+    },
+    {
+      "id": "novo_necromante_7",
+      "nome": "Vaelis Arquivista dos Ecos",
+      "classe": "necromante",
+      "raca": "elfo",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: male elf necromancer, pale skin, blue black hair, black teal robes, spectral blue lantern",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-02c9b2f7-c540-4222-a59c-178b25ae181e.png",
+      "destination": "assets/arte_v2/gacha_novo_necromante_7.png"
+    },
+    {
+      "id": "novo_necromante_8",
+      "nome": "Sythra Pacto da Memória",
+      "classe": "necromante",
+      "raca": "draconato",
+      "prompt": "Final production game asset: one full-body fantasy JRPG pixel art sprite, genuinely transparent background. Crisp square pixel clusters equivalent to a 192px sprite, dark outline, restrained detail, readable small, not smooth painting or 3D. Three-quarter front combat-ready stance. Entire body and weapon visible, feet grounded on same baseline, centered with 8% padding. No text, labels, frame, scenery, ground disc, aura or companions. One character only. Subject: female violet dragonborn necromancer, reptilian face silver horns, violet ivory robes, skull staff",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a061f2-5f50-7900-8cd9-05eb5596b908\\exec-3e23ed8d-241c-49ee-9b71-2670a27c05bc.png",
+      "destination": "assets/arte_v2/gacha_novo_necromante_8.png"
+    }
+  ]
+}

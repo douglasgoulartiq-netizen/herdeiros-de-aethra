@@ -140,6 +140,7 @@ function personagemAleatorioDaRaridade(roster, raridade) {
 // evoluir junto com o time.
 export function instanciarPersonagemGacha(defRoster) {
   return {
+    versaoEquilibrioClasse: 2,
     uid: "gacha_" + Math.random().toString(36).slice(2, 10),
     rosterId: defRoster.id,
     nome: defRoster.nome,

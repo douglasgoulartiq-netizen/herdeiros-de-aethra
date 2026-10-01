@@ -534,6 +534,9 @@ export class Batalha {
     // O óleo troca o elemento dos golpes enquanto vale. Como o relógio acima
     // pode tê-lo acabado de derrubar, a sincronia vem DEPOIS do filtro.
     sincronizarElemento(c);
+    if (c.isPlayer && c.vivo && ['mago','clerigo','paladino','bardo','druida','necromante'].includes(c.classeId)) {
+      c.mp = Math.min(c.mpMax, c.mp + Math.max(1, Math.floor(c.mpMax * .02)));
+    }
     // Ambiente afim (terreno/clima do elemento do herói): Éter por turno.
     if (c.ambienteAfim && c.ambienteAfim.mp && c.vivo && c.mp < c.mpMax) {
       c.mp = Math.min(c.mpMax, c.mp + c.ambienteAfim.mp);
@@ -1319,6 +1322,18 @@ export class Batalha {
   }
 
   aplicarDano(alvo, dano) {
+    // Intercessão nunca encadeia entre protetores. Apenas um voto absorve
+    // parte do dano; o protetor ainda pode cair ao cumprir o juramento.
+    if (!this.interceptando && alvo.isPlayer && dano > 0) {
+      const protetor = this.timeVivo().find(c => c !== alvo && c.statusEffects.some(s => s.tipo === 'intercessao'));
+      const voto = protetor?.statusEffects.find(s => s.tipo === 'intercessao');
+      if (voto) {
+        const parte = Math.floor(dano * Math.min(.3, voto.valor));
+        this.interceptando = true;
+        try { this.aplicarDano(protetor, parte); } finally { this.interceptando = false; }
+        dano -= parte;
+      }
+    }
     // ELETRIZADO — o estado que não fazia nada.
     //
     // `elementalStates.json` declara `propagaCentelha: true` e
@@ -1491,7 +1506,8 @@ export class Batalha {
   }
 
   ataqueBasico(atacante, alvo) {
-    const r = this.rolarAtaque(atacante, alvo);
+    const forma = atacante.statusEffects.some(s => s.tipo === 'forma_animal');
+    const r = this.rolarAtaque(atacante, alvo, forma ? { atributoForcado: 'INT', multiplicador: 1.25, elementoAtacante: 'natureza' } : {});
     if (r.acertou) {
       this.aplicarDano(alvo, r.dano);
       this.jaHouveGolpe = true;
@@ -1504,10 +1520,26 @@ export class Batalha {
     }
     atacante.primeiroTurno = false;
     atacante.atb = 0;
+    this.acionarServo(atacante, alvo);
     return r;
   }
 
+  acionarServo(atacante, alvo) {
+    const servo = atacante.statusEffects.find(s => s.tipo === 'servo_vinculado');
+    if (!servo || !atacante.vivo) return;
+    const destino = alvo?.vivo && !alvo.isPlayer ? alvo : this.inimigosVivos()[0];
+    if (!destino) return;
+    const dano = Math.max(1, Math.round(atacante.atributos.INT * servo.valor - this.defesaEfetiva(destino) * .2));
+    this.aplicarDano(destino, dano);
+    this.registrar(`${atacante.nome}: servo vinculado causa ${dano} de dano.`);
+  }
+
   usarHabilidade(atacante, habilidade, alvoOuAlvos) {
+    if (['cura', 'cura_area'].includes(habilidade.tipo) && atacante.statusEffects.some(s => s.tipo === 'forma_animal')) {
+      this.registrar('A forma animal impede curas até terminar.');
+      return { ok: false };
+    }
+    const vidaAlvoAntes = alvoOuAlvos?.hp || 0;
     if (atacante.mp < habilidade.custoMP) {
       this.registrar(`${atacante.nome} não tem mana suficiente para ${habilidade.nome}.`);
       return { ok: false };
@@ -1613,6 +1645,12 @@ export class Batalha {
         break;
       }
       case "buff_defesa": {
+        if (habilidade.formaAnimal || habilidade.servo) {
+          const tipo = habilidade.formaAnimal ? 'forma_animal' : 'servo_vinculado';
+          atacante.statusEffects = atacante.statusEffects.filter(s => s.tipo !== tipo);
+          atacante.statusEffects.push({tipo, valor: habilidade.servo || 0, duracao: habilidade.duracao + 1,
+            nome: habilidade.nome, icone: habilidade.formaAnimal ? '🐾' : '💀'});
+        }
         atacante.statusEffects.push({ tipo: "buff_defesa", duracao: habilidade.duracao + 1, valor: habilidade.valor });
         this.registrar(`${atacante.nome} usa ${habilidade.nome} e fica mais resistente!`);
         break;
@@ -1645,6 +1683,7 @@ export class Batalha {
         for (const alvo of alvos) {
           const r = this.rolarAtaque(atacante, alvo, {
             multiplicador: habilidade.multiplicador,
+            atributoForcado: habilidade.atributoForcado || null,
             elementoAtacante: habilidade.elemento,
             respeitaFormacao: false,
           });
@@ -1679,6 +1718,13 @@ export class Batalha {
         break;
       }
       case "buff_time": {
+        if (habilidade.cancao) {
+          for (const a of this.time) a.statusEffects = a.statusEffects.filter(s => s.cantor !== this.time.indexOf(atacante));
+        }
+        if (habilidade.intercessao) {
+          atacante.statusEffects = atacante.statusEffects.filter(s => s.tipo !== 'intercessao');
+          atacante.statusEffects.push({tipo:'intercessao',valor:habilidade.intercessao,duracao:habilidade.duracao+1,nome:habilidade.nome,icone:'🛡️'});
+        }
         // Um buff para o grupo inteiro. `alvoBuff` diz o que reforçar:
         // "defesa" (reduz dano recebido) ou "ataque" (amplia o próximo golpe).
         const aliados = this.timeVivo();
@@ -1689,6 +1735,7 @@ export class Batalha {
             duracao: (habilidade.duracao || 2) + 1,
             valor: habilidade.valor,
             nome: habilidade.nome,
+            ...(habilidade.cancao ? { cantor: this.time.indexOf(atacante) } : {}),
             icone: habilidade.icone || "🛡️",
           });
         }
@@ -1713,6 +1760,12 @@ export class Batalha {
       default:
         break;
     }
+    if (habilidade.drenagem && alvoOuAlvos && !alvoOuAlvos.isPlayer) {
+      const cura = Math.min(atacante.hpMax - atacante.hp, Math.round(Math.max(0, vidaAlvoAntes - alvoOuAlvos.hp) * habilidade.drenagem));
+      atacante.hp += cura;
+      eventos.push({tipo:'cura',alvo:atacante.id,valor:cura});
+    }
+    if (['dano_fisico','dano_magico','dano_area','dano_fisico_des','dano_ignora_defesa'].includes(habilidade.tipo)) this.acionarServo(atacante, alvoOuAlvos);
     atacante.primeiroTurno = false;
     atacante.atb = 0;
     return { ok: true, eventos };

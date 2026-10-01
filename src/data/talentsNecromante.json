@@ -1,0 +1,190 @@
+{
+  "talentos": [
+    {
+      "id": "t_necromante_0",
+      "nome": "Vínculo Inicial",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_1",
+      "nome": "Maldição Inicial",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_2",
+      "nome": "Vitalidade Inicial",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_3",
+      "nome": "Vínculo Avançado",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_4",
+      "nome": "Maldição Avançado",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_5",
+      "nome": "Vitalidade Avançado",
+      "icone": "💀",
+      "classeId": "necromante",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_0_0",
+      "nome": "Senhor dos Ossos 1",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_0_1",
+      "nome": "Senhor dos Ossos 2",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 15,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_0_2",
+      "nome": "Senhor dos Ossos 3",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 20,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_1_0",
+      "nome": "Ceifador de Ecos 1",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_1_1",
+      "nome": "Ceifador de Ecos 2",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 15,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_necromante_sub_1_2",
+      "nome": "Ceifador de Ecos 3",
+      "icone": "💀",
+      "classeId": "necromante",
+      "subclasseId": "necromante_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 20,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    }
+  ]
+}

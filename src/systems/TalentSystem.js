@@ -97,6 +97,10 @@ const ARQUIVO_DE_TALENTOS = {
   clerigo: "talentsClerigo",
   barbaro: "talentsBarbaro",
   patrulheiro: "talentsPatrulheiro",
+  paladino: "talentsPaladino",
+  bardo: "talentsBardo",
+  druida: "talentsDruida",
+  necromante: "talentsNecromante",
 };
 
 export function arvoreDoPersonagem(personagem, dados) {

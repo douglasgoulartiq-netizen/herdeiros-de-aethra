@@ -23,6 +23,8 @@
 // teste da tubulação não precisa subir o Chromium pra conferir uma regra
 // de caminho.
 import { FLAGS } from "./featureFlags.js";
+import { classArtFallback } from './classArtFallbacks.js';
+import { GACHA_FINAL_ART } from './gachaFinalArt.js';
 
 // Onde a arte nova vai morar. Pasta separada de propósito: a arte atual
 // NUNCA é sobrescrita, então dá pra ligar e desligar a nova sem perder a
@@ -105,11 +107,11 @@ export function chaveDe(alvo) {
   // saves antigos válidos.
   if (alvo.sprite) return String(alvo.sprite).replace(/\.png$/i, "");
 
+  // Convocados também possuem raça e classe: sua identidade exclusiva vem primeiro.
+  if (alvo.rosterId) return `gacha_${alvo.rosterId}`;
+
   // Personagem principal: a combinação raça+classe é a identidade visual.
   if (alvo.racaId && alvo.classeId) return `pc_${alvo.racaId}_${alvo.classeId}`;
-
-  // Convocado do gacha.
-  if (alvo.rosterId) return `gacha_${alvo.rosterId}`;
 
   // Último recurso: um id cru com o prefixo do tipo.
   if (alvo.id && alvo.tipo) return `${alvo.tipo}_${alvo.id}`;
@@ -132,11 +134,14 @@ export function ehChefe(alvo) {
 export function candidatos(alvo, uso = USOS.COMBATE, opcoes = {}) {
   const chave = chaveDe(alvo);
   if (!chave) return [];
+  if (GACHA_FINAL_ART[chave]) return [GACHA_FINAL_ART[chave]];
 
   // A flag pode ser forçada por chamada. É isso que permite ligar a arte
   // nova em UM encontro pra comparar, sem virar o jogo inteiro de uma vez.
   const v2 = opcoes.arteV2 === undefined ? !!FLAGS.arteV2 : !!opcoes.arteV2;
   const lista = [];
+  const arteProvisoria = classArtFallback(chave);
+  if (arteProvisoria) return candidatos(arteProvisoria, uso, opcoes);
 
   if (v2) {
     const sufixo = SUFIXO_V2[uso] || "";

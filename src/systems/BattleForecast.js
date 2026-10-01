@@ -22,13 +22,14 @@ import { FLAGS } from "../data/featureFlags.js";
 // mesmos já tratados assim em CombatSystem.usarHabilidade().
 export const TIPOS_FISICOS = ["dano_fisico", "dano_fisico_des", "dano_ignora_defesa"];
 export const TIPOS_OFENSIVOS = [...TIPOS_FISICOS, "dano_magico", "debuff_velocidade"];
-export const TIPOS_ALVO_PROPRIO = ["cura", "buff_defesa", "buff_ataque", "fuga"];
+export const TIPOS_ALVO_PROPRIO = ["cura", "cura_area", "buff_time", "buff_defesa", "buff_ataque", "fuga"];
 
 // Opções que cada tipo de habilidade passa para rolarAtaque() — cópia fiel
 // do switch de usarHabilidade(), para que a prévia use exatamente os mesmos
 // modificadores que a execução real usará.
 export function opcoesDeDano(habilidade) {
   const opts = { multiplicador: habilidade.multiplicador || 1, elementoAtacante: habilidade.elemento || null };
+  if (habilidade.atributoForcado) opts.atributoForcado = habilidade.atributoForcado;
   if (habilidade.tipo === "dano_fisico_des") opts.atributoForcado = "DES";
   if (habilidade.tipo === "dano_ignora_defesa") { opts.ignoraDefesa = 999; opts.respeitaFormacao = false; }
   return opts;
@@ -108,7 +109,7 @@ export function montarMao(jogador, contexto = {}) {
       custoMP: h.custoMP || 0,
       cooldown: h.cooldown || 0,
       cooldownAtual: h.cooldownAtual || 0,
-      alvoTipo: TIPOS_ALVO_PROPRIO.includes(h.tipo) ? "self" : "inimigo",
+      alvoTipo: TIPOS_ALVO_PROPRIO.includes(h.tipo) ? "self" : ["dano_area","debuff_area"].includes(h.tipo) ? "area_inimigos" : "inimigo",
       habilidade: h,
       ultimate: h.id === ultId,
       potencia: potenciaVisual(h),
@@ -283,6 +284,9 @@ export function preverCard(card, estado) {
         atual: jogador.mp,
         falta,
       };
+    } else if (['cura','cura_area'].includes(h.tipo) && jogador.statusEffects?.some(s => s.tipo === 'forma_animal')) {
+      previsao.disponivel = false;
+      previsao.bloqueio = { motivo:'forma', texto:'CURA INDISPONÍVEL NA FORMA ANIMAL' };
     } else if (h.requerEstadoAlvo) {
       // Gancho para habilidades condicionais (item 28). Nenhuma habilidade
       // do jogo declara isso hoje; quando declarar, o card já explica a
@@ -311,6 +315,12 @@ export function preverCard(card, estado) {
   // permite ao jogador comparar "vale esperar a recarga?").
   if (card.tipo === "ataque" || (card.tipo === "habilidade" && TIPOS_OFENSIVOS.includes(card.subtipo))) {
     if (alvo && alvo.vivo) preverOfensivo(card, previsao, estado);
+  } else if (card.tipo === "habilidade" && card.subtipo === "dano_area") {
+    const alvos = estado.inimigosVivos.map(alvo => {
+      const faixa = batalha.estimarFaixaDano(jogador, alvo, {...opcoesDeDano(h), respeitaFormacao:false});
+      return {alvo,...faixa,mata:faixa.min >= alvo.hp};
+    });
+    previsao.area = {alvos,quantidade:alvos.length,min:alvos.reduce((s,a)=>s+a.min,0),max:alvos.reduce((s,a)=>s+a.max,0),esperado:alvos.reduce((s,a)=>s+a.esperado,0),abates:alvos.filter(a=>a.mata).length,aliadosNaArea:[]};
   } else if (card.tipo === "sopro") {
     preverArea(card, previsao, estado);
   } else if (card.tipo === "habilidade" && card.subtipo === "cura") {
@@ -353,7 +363,7 @@ function preverOfensivo(card, previsao, estado) {
 
   const faixa = magico
     ? batalha.estimarFaixaDanoMagico(jogador, alvo, { multiplicador: (h && h.multiplicador) || 1, elementoAtacante: h && h.elemento })
-    : batalha.estimarFaixaDano(jogador, alvo, h ? opcoesDeDano(h) : {});
+    : batalha.estimarFaixaDano(jogador, alvo, h ? opcoesDeDano(h) : jogador.statusEffects?.some(s=>s.tipo==='forma_animal') ? {atributoForcado:'INT',multiplicador:1.25,elementoAtacante:'natureza'} : {});
 
   previsao.dano = faixa;
   previsao.chances = batalha.chancesD20(jogador, alvo, { tipoFisico: !magico, elemento });

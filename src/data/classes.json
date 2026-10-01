@@ -55,7 +55,7 @@
     "crescimento": {
       "FOR": 0,
       "DES": 1,
-      "CON": 1,
+      "CON": 2,
       "INT": 2
     },
     "vidaBase": 22,
@@ -68,7 +68,7 @@
         "custoMP": 10,
         "cooldown": 0,
         "tipo": "dano_magico",
-        "multiplicador": 2.0,
+        "multiplicador": 2,
         "elemento": "fogo"
       },
       {
@@ -98,7 +98,7 @@
     "crescimento": {
       "FOR": 1,
       "DES": 2,
-      "CON": 1,
+      "CON": 2,
       "INT": 0
     },
     "vidaBase": 26,
@@ -137,8 +137,8 @@
     },
     "crescimento": {
       "FOR": 1,
-      "DES": 0,
-      "CON": 2,
+      "DES": 1,
+      "CON": 1,
       "INT": 2
     },
     "vidaBase": 28,
@@ -179,7 +179,7 @@
     },
     "crescimento": {
       "FOR": 2,
-      "DES": 0,
+      "DES": 1,
       "CON": 2,
       "INT": 0
     },
@@ -194,7 +194,7 @@
         "cooldown": 3,
         "tipo": "buff_ataque",
         "duracao": 1,
-        "valor": 1.0
+        "valor": 1
       },
       {
         "id": "investida",
@@ -249,5 +249,183 @@
       }
     ],
     "icone": "🏹"
+  },
+  {
+    "id": "paladino",
+    "nome": "Paladino",
+    "icone": "🛡️",
+    "iconeArma": "espada",
+    "descricao": "Protetor de linha de frente: reparte o risco dos aliados, sustenta a formação e pune com luz. Menos dano que o guerreiro e menos cura que o clérigo.",
+    "atributosBase": {
+      "FOR": 7,
+      "DES": 3,
+      "CON": 8,
+      "INT": 5
+    },
+    "crescimento": {
+      "FOR": 1,
+      "DES": 1,
+      "CON": 2,
+      "INT": 1
+    },
+    "vidaBase": 34,
+    "manaBase": 16,
+    "habilidades": [
+      {
+        "id": "golpe_votivo",
+        "nome": "Golpe Votivo",
+        "tipo": "dano_fisico",
+        "custoMP": 0,
+        "cooldown": 1,
+        "multiplicador": 1.2,
+        "elemento": "radiante",
+        "descricao": "Golpe de luz: 120% do ataque."
+      },
+      {
+        "id": "voto_protecao",
+        "nome": "Voto de Proteção",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 4,
+        "alvoBuff": "defesa",
+        "valor": 0.16,
+        "duracao": 2,
+        "intercessao": 0.2,
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+      }
+    ]
+  },
+  {
+    "id": "bardo",
+    "nome": "Bardo",
+    "icone": "🎵",
+    "iconeArma": "cajado",
+    "descricao": "Suporte tático de retaguarda: canções reforçam aliados, dissonâncias atrasam inimigos e pequenas curas sustentam o grupo. Uma canção por bardo.",
+    "atributosBase": {
+      "FOR": 3,
+      "DES": 7,
+      "CON": 5,
+      "INT": 8
+    },
+    "crescimento": {
+      "FOR": 0,
+      "DES": 1,
+      "CON": 2,
+      "INT": 2
+    },
+    "vidaBase": 25,
+    "manaBase": 24,
+    "habilidades": [
+      {
+        "id": "nota_cortante",
+        "nome": "Nota Cortante",
+        "tipo": "dano_magico",
+        "custoMP": 0,
+        "cooldown": 1,
+        "multiplicador": 1.15,
+        "elemento": "vento",
+        "descricao": "Nota de vento: 115% de INT."
+      },
+      {
+        "id": "canto_coragem",
+        "nome": "Canto da Coragem",
+        "tipo": "buff_time",
+        "custoMP": 6,
+        "cooldown": 3,
+        "alvoBuff": "ataque",
+        "valor": 0.2,
+        "duracao": 2,
+        "cancao": true,
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+      }
+    ]
+  },
+  {
+    "id": "druida",
+    "nome": "Druida",
+    "icone": "🌿",
+    "iconeArma": "cajado",
+    "descricao": "Versátil: cura e controla em forma natural ou assume forma animal para atacar. Transformado, não pode usar curas; o poder animal usa INT.",
+    "atributosBase": {
+      "FOR": 4,
+      "DES": 5,
+      "CON": 6,
+      "INT": 8
+    },
+    "crescimento": {
+      "FOR": 0,
+      "DES": 1,
+      "CON": 2,
+      "INT": 2
+    },
+    "vidaBase": 28,
+    "manaBase": 23,
+    "habilidades": [
+      {
+        "id": "espinho_vivo",
+        "nome": "Espinho Vivo",
+        "tipo": "dano_magico",
+        "custoMP": 0,
+        "cooldown": 1,
+        "multiplicador": 1.2,
+        "elemento": "natureza",
+        "descricao": "Espinho de natureza: 120% de INT."
+      },
+      {
+        "id": "forma_fera",
+        "nome": "Forma da Fera",
+        "tipo": "buff_defesa",
+        "custoMP": 5,
+        "cooldown": 3,
+        "valor": 0.15,
+        "duracao": 3,
+        "formaAnimal": true,
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+      }
+    ]
+  },
+  {
+    "id": "necromante",
+    "nome": "Necromante",
+    "icone": "💀",
+    "iconeArma": "cajado",
+    "descricao": "Conjurador de desgaste: maldições, drenagem e um servo vinculado que age após seus ataques. O servo não ocupa vaga nem possui turno independente.",
+    "atributosBase": {
+      "FOR": 3,
+      "DES": 4,
+      "CON": 5,
+      "INT": 10
+    },
+    "crescimento": {
+      "FOR": 0,
+      "DES": 1,
+      "CON": 2,
+      "INT": 2
+    },
+    "vidaBase": 23,
+    "manaBase": 26,
+    "habilidades": [
+      {
+        "id": "toque_funebre",
+        "nome": "Toque Fúnebre",
+        "tipo": "dano_magico",
+        "custoMP": 0,
+        "cooldown": 1,
+        "multiplicador": 1.2,
+        "elemento": "sombrio",
+        "descricao": "Toque sombrio: 120% de INT."
+      },
+      {
+        "id": "servo_vinculado",
+        "nome": "Servo Vinculado",
+        "tipo": "buff_defesa",
+        "custoMP": 7,
+        "cooldown": 4,
+        "valor": 0.08,
+        "duracao": 3,
+        "servo": 0.35,
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+      }
+    ]
   }
 ]

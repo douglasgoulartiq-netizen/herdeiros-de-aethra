@@ -1,0 +1,190 @@
+{
+  "talentos": [
+    {
+      "id": "t_druida_0",
+      "nome": "Metamorfose Inicial",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_1",
+      "nome": "Renovação Inicial",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_2",
+      "nome": "Bosque Inicial",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 1,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_3",
+      "nome": "Metamorfose Avançado",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_4",
+      "nome": "Renovação Avançado",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 INT permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "INT",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_5",
+      "nome": "Bosque Avançado",
+      "icone": "🌿",
+      "classeId": "druida",
+      "tipoPonto": "classe",
+      "custo": 1,
+      "nivelMinimo": 6,
+      "descricao": "+1 CON permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_0_0",
+      "nome": "Guardião Selvagem 1",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_0_1",
+      "nome": "Guardião Selvagem 2",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 15,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_0_2",
+      "nome": "Guardião Selvagem 3",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_0",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 20,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_1_0",
+      "nome": "Oráculo Verde 1",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 10,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_1_1",
+      "nome": "Oráculo Verde 2",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 15,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    },
+    {
+      "id": "t_druida_sub_1_2",
+      "nome": "Oráculo Verde 3",
+      "icone": "🌿",
+      "classeId": "druida",
+      "subclasseId": "druida_especializacao_1",
+      "tipoPonto": "subclasse",
+      "custo": 1,
+      "nivelMinimo": 20,
+      "descricao": "+1 de Constituição permanente.",
+      "efeito": {
+        "tipo": "bonusAtributo",
+        "atributo": "CON",
+        "valor": 1
+      }
+    }
+  ]
+}

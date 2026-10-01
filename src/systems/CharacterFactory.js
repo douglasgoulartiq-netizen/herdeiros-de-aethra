@@ -69,6 +69,7 @@ export function criarPersonagem({
   });
 
   const personagem = {
+    versaoEquilibrioClasse: 2,
     nome,
     racaId: raca,
     classeId: classe,
@@ -295,7 +296,9 @@ export function defesaTotal(personagem, dados) {
 
 export function velocidadeTotal(personagem, dados) {
   const a = atributosEfetivos(personagem, dados);
-  let vel = a.DES;
+  // Piso de iniciativa: suportes não devem agir uma vez a cada dez ações
+  // de uma classe de DES. Destreza continua sendo a melhor iniciativa.
+  let vel = Math.round(8 + Math.max(0, a.DES) * .6);
   Object.values(personagem.equipamento).forEach((item) => {
     if (item && item.bonusVelocidade) vel += item.bonusVelocidade;
   });

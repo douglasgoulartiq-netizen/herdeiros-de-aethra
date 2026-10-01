@@ -1,6 +1,8 @@
 // Carrega todos os arquivos JSON de dados do jogo.
 import { IDS_DE_PROP } from "./propRegistry.js";
 import { ARTES_CIDADES } from "./cityArt.js";
+import { classArtFallback } from './classArtFallbacks.js';
+import { GACHA_FINAL_ART } from './gachaFinalArt.js';
 import { definirIndiceDeIcones } from "./itemIcons.js";
 
 const ARQUIVOS = [
@@ -12,6 +14,7 @@ const ARQUIVOS = [
   "subclasses", "talentsGuerreiro", "talentsMago",
   "talentsLadino", "talentsClerigo", "talentsBarbaro", "talentsPatrulheiro",
   "heritageTree",
+  "talentsPaladino", "talentsBardo", "talentsDruida", "talentsNecromante",
   // Índice id-do-item -> chave do ícone, produzido por gerar-icones.py.
   "itemIcons",
   // Elenco de companheiros de mapa (ver PetSystem.js).
@@ -164,7 +167,8 @@ export async function carregarTodasImagens(dados) {
   dados.races.forEach((r) => {
     dados.classes.forEach((c) => {
       const key = `pc_${r.id}_${c.id}`;
-      jobs.push([key, `assets/sprites/${key}.png`]);
+      const arte = classArtFallback(key) || key;
+      jobs.push([key, `assets/sprites/${arte}.png`]);
       // Sprite de BATALHA do herói, à parte da folha de caminhada. A folha tem
       // 64 px por quadro porque é desenhada no mapa, onde o tile tem 64; a
       // arena pede 192 (briefings-arte/00_CONTRATO_TECNICO.md). Usar o mesmo
@@ -173,6 +177,7 @@ export async function carregarTodasImagens(dados) {
       // carregarImagem devolve o placeholder e a BattleUI cai sozinha na folha
       // antiga — nada quebra.
       jobs.push([`pcb_${r.id}_${c.id}`, [
+        `assets/arte_intermediaria/${arte}.png`,
         `assets/arte_intermediaria/pc_${r.id}_${c.id}.png`,
         `assets/arte_v2/pc_${r.id}_${c.id}.png`,
         `assets/sprites/pcb_${r.id}_${c.id}.png`,
@@ -186,7 +191,26 @@ export async function carregarTodasImagens(dados) {
   });
   (dados.gachaRoster || []).forEach((p) => {
     const key = `gacha_${p.id}`;
-    jobs.push([key, [`assets/arte_intermediaria/${key}.png`, `assets/sprites/${key}.png`]]);
+    if (GACHA_FINAL_ART[key]) {
+      // As artes exclusivas só são decodificadas quando o canvas as solicita.
+      // A ficha DOM usa a mesma URL e aproveita o cache normal do navegador.
+      let carregando = false;
+      Object.defineProperty(cache, key, {
+        enumerable: true, configurable: true,
+        get() {
+          if (!carregando) {
+            carregando = true;
+            carregarImagemCadeia([GACHA_FINAL_ART[key]]).then((img) => {
+              Object.defineProperty(cache, key, { value: img, enumerable: true, configurable: true });
+            }).catch(() => { carregando = false; });
+          }
+          return undefined;
+        },
+      });
+      return;
+    }
+    const arte = classArtFallback(key) || key;
+    jobs.push([key, [`assets/arte_intermediaria/${arte}.png`, `assets/arte_v2/${arte}.png`, `assets/sprites/${arte}.png`]]);
   });
   (dados.npcs || []).forEach((n) => {
     if (n.sprite) jobs.push([n.id, `assets/sprites/${n.sprite}`]);

@@ -1,6 +1,12 @@
 // Criação de personagem em etapas, com identidade narrativa persistente.
 import { criarPersonagem, atributosEfetivos } from "../systems/CharacterFactory.js";
 import { infoAfinidade, descreverBonus } from "../systems/AffinitySystem.js";
+import { classArtFallback } from '../data/classArtFallbacks.js';
+
+const arteCaminhadaCriacao = (raca, classe) => {
+  const chave = `pc_${raca}_${classe}`;
+  return `assets/sprites/${classArtFallback(chave) || chave}.png`;
+};
 import {
   MOTIVACOES, INTERESSES, COMBINACOES, combinacoesDe, relacoesParaCard, habilidadeNoElemento,
   REPUTACAO_ORIGEM, ATRIBUTO_DO_EMBLEMA, SINTONIA_UNIVERSAL, CUSTO_TROCA_AFILIACAO,
@@ -48,6 +54,10 @@ const NOMES_POR_RACA = {
   halfling: ["Pippa", "Merric", "Tobber", "Wyn", "Mellow"], draconato: ["Aurexia", "Kaethrys", "Zephyrion", "Vexahl", "Ashkaris"],
 };
 const PERFIS_DE_CLASSE = {
+  paladino: { elementos:['radiante','terra'], antecedentes:['soldado','nobre'], tracos:['corajoso','resistente'], faccoes:['coroa_de_aethra'], preferencias:['diplomacia','combate'], motivacoes:['justica','redencao'] },
+  bardo: { elementos:['vento','arcano'], antecedentes:['andarilho_do_povo','nobre'], tracos:['sortudo','cauteloso'], faccoes:['caravana_de_karn'], preferencias:['historias','diplomacia'], motivacoes:['liberdade','legado'] },
+  druida: { elementos:['natureza','agua'], antecedentes:['eremita'], tracos:['resistente','cauteloso'], faccoes:['guardioes_da_folha'], preferencias:['natureza','exploracao'], motivacoes:['justica','descoberta'] },
+  necromante: { elementos:['sombrio','arcano'], antecedentes:['sabio','eremita'], tracos:['cauteloso'], faccoes:['ordem_dos_arquivistas'], preferencias:['magia','historias'], motivacoes:['descoberta','redencao'] },
   guerreiro: { elementos: ["terra", "fogo", "radiante"], antecedentes: ["soldado", "nobre"], tracos: ["corajoso", "resistente", "cauteloso"], faccoes: ["coroa_de_aethra", "forja_dos_anoes_cinzentos", "legiao_das_cinzas"], preferencias: ["combate", "artesanato", "diplomacia"], motivacoes: ["justica", "legado"] },
   mago: { elementos: ["arcano", "gelo", "raio", "sombrio"], antecedentes: ["sabio", "eremita"], tracos: ["visao_aguçada", "cauteloso", "sortudo"], faccoes: ["ordem_dos_arquivistas", "cavaleiros_do_vento_uivante"], preferencias: ["magia", "historias", "exploracao"], motivacoes: ["descoberta", "poder"] },
   ladino: { elementos: ["sombrio", "vento"], antecedentes: ["criminoso", "andarilho_do_povo"], tracos: ["sortudo", "visao_aguçada", "ganancioso"], faccoes: ["caravana_de_karn", "confraria_do_farol", "cla_dos_ventos_dourados"], preferencias: ["tesouros", "exploracao", "historias"], motivacoes: ["liberdade", "redencao"] },
@@ -271,7 +281,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
     if (estado.raca && estado.classe) {
       const racaAtual = dados.races.find((x) => x.id === estado.raca); const classeAtual = dados.classes.find((x) => x.id === estado.classe);
       const preview = document.createElement("div"); preview.className = "criacao-preview";
-      preview.innerHTML = `<span class="criacao-preview-sprite" style="background-image:url('assets/sprites/pc_${estado.raca}_${estado.classe}.png')"></span><span><small>PRÉVIA DO HERÓI</small><b>${estado.nome || "Novo herói"}</b><em>${racaAtual?.nome || ""} · ${classeAtual?.nome || ""}</em></span>`;
+      preview.innerHTML = `<span class="criacao-preview-sprite" style="background-image:url('${arteCaminhadaCriacao(estado.raca, estado.classe)}')"></span><span><small>PRÉVIA DO HERÓI</small><b>${estado.nome || "Novo herói"}</b><em>${racaAtual?.nome || ""} · ${classeAtual?.nome || ""}</em></span>`;
       painel.appendChild(preview);
     }
 
@@ -306,7 +316,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
           ],
           selecionada: estado.classe === c.id, onClick: () => { estado.classe = c.id; render(); },
         });
-        const sprite = document.createElement("span"); sprite.className = "criacao-sprite"; sprite.style.backgroundImage = `url('assets/sprites/pc_${estado.raca}_${c.id}.png')`; card.prepend(sprite); grid.appendChild(card);
+        const sprite = document.createElement("span"); sprite.className = "criacao-sprite"; sprite.style.backgroundImage = `url('${arteCaminhadaCriacao(estado.raca, c.id)}')`; card.prepend(sprite); grid.appendChild(card);
       }); navegacao(painel, () => estado.classe);
     } else if (etapa === "elemento") {
       titulo.textContent = "Escolha sua afinidade elemental";
@@ -372,7 +382,7 @@ export function montarCriacaoPersonagem(container, dados, onFinalizar) {
       // Atributos com afinidade e o que já vem vestido (anel do Nobre,
       // emblema da facção) — os números com que o herói entra em Aethra.
       const efetivos = atributosEfetivos(personagem, dados);
-      const resumo = document.createElement("div"); resumo.className = "criacao-resumo"; resumo.innerHTML = `<div class="criacao-heroi-resumo" style="background-image:url('assets/sprites/pc_${estado.raca}_${estado.classe}.png')"></div><div class="resumo-identidade"><h3>${classe.icone || ""} ${raca.nome} ${classe.nome}</h3><p>${elemento.icone} <b>${elemento.nome}</b> · ${faccao.icone || "◆"} <b>${faccao.nome}</b></p><p>${motivacao.icone} <b>${motivacao.nome}</b> · ${antecedente.nome} · ${traco.nome}</p><div class="resumo-gostos">${gostos.map((g) => `<span>${g.icone} ${g.nome}</span>`).join("")}</div></div><div class="resumo-atributos">${[["FOR", "Força"], ["DES", "Destreza"], ["CON", "Constituição"], ["INT", "Inteligência"]].map(([id, nome]) => `<div class="stat-row"><span>${nome}</span><b>${efetivos[id]}</b></div>`).join("")}<div class="stat-row"><span>HP / MP</span><b>${personagem.hpMax} / ${personagem.mpMax}</b></div><div class="stat-row"><span>Ouro</span><b>${personagem.ouro}</b></div></div>`; painel.appendChild(resumo);
+      const resumo = document.createElement("div"); resumo.className = "criacao-resumo"; resumo.innerHTML = `<div class="criacao-heroi-resumo" style="background-image:url('${arteCaminhadaCriacao(estado.raca, estado.classe)}')"></div><div class="resumo-identidade"><h3>${classe.icone || ""} ${raca.nome} ${classe.nome}</h3><p>${elemento.icone} <b>${elemento.nome}</b> · ${faccao.icone || "◆"} <b>${faccao.nome}</b></p><p>${motivacao.icone} <b>${motivacao.nome}</b> · ${antecedente.nome} · ${traco.nome}</p><div class="resumo-gostos">${gostos.map((g) => `<span>${g.icone} ${g.nome}</span>`).join("")}</div></div><div class="resumo-atributos">${[["FOR", "Força"], ["DES", "Destreza"], ["CON", "Constituição"], ["INT", "Inteligência"]].map(([id, nome]) => `<div class="stat-row"><span>${nome}</span><b>${efetivos[id]}</b></div>`).join("")}<div class="stat-row"><span>HP / MP</span><b>${personagem.hpMax} / ${personagem.mpMax}</b></div><div class="stat-row"><span>Ouro</span><b>${personagem.ouro}</b></div></div>`; painel.appendChild(resumo);
       // ONDE SUAS ESCOLHAS APARECEM: cada escolha com o que ela faz no jogo,
       // e as combinações que as escolhas atuais fecham.
       const efeitos = document.createElement("section"); efeitos.className = "criacao-efeitos-resumo"; efeitos.setAttribute("aria-label", "Onde suas escolhas aparecem");

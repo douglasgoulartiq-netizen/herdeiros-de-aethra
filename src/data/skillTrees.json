@@ -2574,5 +2574,1744 @@
         }
       }
     ]
+  },
+  "paladino": {
+    "ramos": [
+      {
+        "id": "paladino_0",
+        "nome": "Juramento",
+        "icone": "🛡️",
+        "descricao": "Especialização em Juramento."
+      },
+      {
+        "id": "paladino_1",
+        "nome": "Bastião",
+        "icone": "🛡️",
+        "descricao": "Especialização em Bastião."
+      },
+      {
+        "id": "paladino_2",
+        "nome": "Aurora",
+        "icone": "🛡️",
+        "descricao": "Especialização em Aurora."
+      }
+    ],
+    "nos": [
+      {
+        "id": "paladino_0_1",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Toque da Aurora",
+        "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_0_1_skill",
+          "nome": "Toque da Aurora",
+          "tipo": "cura_area",
+          "custoMP": 9,
+          "cooldown": 3,
+          "multiplicador": 0.7,
+          "descricao": "Restaura vida do grupo com 70% do maior entre INT e CON."
+        }
+      },
+      {
+        "id": "paladino_0_2",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Juramento · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_0_2",
+          "nome": "Juramento · Vitalidade",
+          "icone": "🛡️",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_0_3",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Juízo da Aurora Superior",
+        "descricao": "Causa 176% de INT em dano de luz.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_0_3_skill",
+          "nome": "Juízo da Aurora Superior",
+          "tipo": "dano_magico",
+          "custoMP": 7,
+          "cooldown": 2,
+          "multiplicador": 1.76,
+          "elemento": "radiante",
+          "descricao": "Causa 176% de INT em dano de luz."
+        }
+      },
+      {
+        "id": "paladino_0_4",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Juramento · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_0_4",
+          "nome": "Juramento · Reserva",
+          "icone": "🛡️",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_0_5",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Juramento · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_0_5",
+          "nome": "Juramento · Tenacidade",
+          "icone": "🛡️",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_0_6",
+        "icone": "🛡️",
+        "ramo": "paladino_0",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Juramento · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_0_6",
+          "nome": "Juramento · Renovação",
+          "icone": "🛡️",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_1_1",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Muralha Votiva",
+        "descricao": "Protege o grupo e intercepta 25% do dano por 2 turnos; substitui o voto anterior.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_1_1_skill",
+          "nome": "Muralha Votiva",
+          "tipo": "buff_time",
+          "custoMP": 10,
+          "cooldown": 5,
+          "alvoBuff": "defesa",
+          "valor": 0.23,
+          "duracao": 2,
+          "intercessao": 0.25,
+          "descricao": "Protege o grupo e intercepta 25% do dano por 2 turnos; substitui o voto anterior."
+        }
+      },
+      {
+        "id": "paladino_1_2",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Bastião · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_1_2",
+          "nome": "Bastião · Vitalidade",
+          "icone": "🛡️",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_1_3",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Golpe Votivo Superior",
+        "descricao": "Golpe de luz: 132% do ataque.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_1_3_skill",
+          "nome": "Golpe Votivo Superior",
+          "tipo": "dano_fisico",
+          "custoMP": 0,
+          "cooldown": 1,
+          "multiplicador": 1.32,
+          "elemento": "radiante",
+          "descricao": "Golpe de luz: 132% do ataque."
+        }
+      },
+      {
+        "id": "paladino_1_4",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Bastião · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_1_4",
+          "nome": "Bastião · Reserva",
+          "icone": "🛡️",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_1_5",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Bastião · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_1_5",
+          "nome": "Bastião · Tenacidade",
+          "icone": "🛡️",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_1_6",
+        "icone": "🛡️",
+        "ramo": "paladino_1",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Bastião · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_1_6",
+          "nome": "Bastião · Renovação",
+          "icone": "🛡️",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_2_1",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Voto de Proteção",
+        "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_2_1_skill",
+          "nome": "Voto de Proteção",
+          "tipo": "buff_time",
+          "custoMP": 6,
+          "cooldown": 4,
+          "alvoBuff": "defesa",
+          "valor": 0.16,
+          "duracao": 2,
+          "intercessao": 0.2,
+          "descricao": "Protege o time por 2 turnos e intercepta 20% do dano dos aliados enquanto o voto durar."
+        }
+      },
+      {
+        "id": "paladino_2_2",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Aurora · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_2_2",
+          "nome": "Aurora · Vitalidade",
+          "icone": "🛡️",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_2_3",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Toque da Aurora Superior",
+        "descricao": "Restaura vida do grupo com 77% do maior entre INT e CON.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "paladino_2_3_skill",
+          "nome": "Toque da Aurora Superior",
+          "tipo": "cura_area",
+          "custoMP": 9,
+          "cooldown": 3,
+          "multiplicador": 0.77,
+          "descricao": "Restaura vida do grupo com 77% do maior entre INT e CON."
+        }
+      },
+      {
+        "id": "paladino_2_4",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Aurora · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_2_4",
+          "nome": "Aurora · Reserva",
+          "icone": "🛡️",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_2_5",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Aurora · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_2_5",
+          "nome": "Aurora · Tenacidade",
+          "icone": "🛡️",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "paladino_2_6",
+        "icone": "🛡️",
+        "ramo": "paladino_2",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Aurora · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_paladino_2_6",
+          "nome": "Aurora · Renovação",
+          "icone": "🛡️",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      }
+    ]
+  },
+  "bardo": {
+    "ramos": [
+      {
+        "id": "bardo_0",
+        "nome": "Coragem",
+        "icone": "🎵",
+        "descricao": "Especialização em Coragem."
+      },
+      {
+        "id": "bardo_1",
+        "nome": "Harmonia",
+        "icone": "🎵",
+        "descricao": "Especialização em Harmonia."
+      },
+      {
+        "id": "bardo_2",
+        "nome": "Dissonância",
+        "icone": "🎵",
+        "descricao": "Especialização em Dissonância."
+      }
+    ],
+    "nos": [
+      {
+        "id": "bardo_0_1",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Balada do Refúgio",
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_0_1_skill",
+          "nome": "Balada do Refúgio",
+          "tipo": "buff_time",
+          "custoMP": 7,
+          "cooldown": 3,
+          "alvoBuff": "defesa",
+          "valor": 0.18,
+          "duracao": 2,
+          "cancao": true,
+          "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+        }
+      },
+      {
+        "id": "bardo_0_2",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Coragem · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_0_2",
+          "nome": "Coragem · Vitalidade",
+          "icone": "🎵",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_0_3",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Refrão da Vida Superior",
+        "descricao": "Cura coletiva moderada baseada em INT ou CON.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_0_3_skill",
+          "nome": "Refrão da Vida Superior",
+          "tipo": "cura_area",
+          "custoMP": 9,
+          "cooldown": 3,
+          "multiplicador": 0.88,
+          "descricao": "Cura coletiva moderada baseada em INT ou CON."
+        }
+      },
+      {
+        "id": "bardo_0_4",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Coragem · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_0_4",
+          "nome": "Coragem · Reserva",
+          "icone": "🎵",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_0_5",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Coragem · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_0_5",
+          "nome": "Coragem · Tenacidade",
+          "icone": "🎵",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_0_6",
+        "icone": "🎵",
+        "ramo": "bardo_0",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Coragem · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_0_6",
+          "nome": "Coragem · Renovação",
+          "icone": "🎵",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_1_1",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Dissonância",
+        "descricao": "Reduz a velocidade dos inimigos em 20% por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_1_1_skill",
+          "nome": "Dissonância",
+          "tipo": "debuff_area",
+          "custoMP": 8,
+          "cooldown": 4,
+          "valor": 0.2,
+          "duracao": 2,
+          "descricao": "Reduz a velocidade dos inimigos em 20% por 2 turnos."
+        }
+      },
+      {
+        "id": "bardo_1_2",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Harmonia · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_1_2",
+          "nome": "Harmonia · Vitalidade",
+          "icone": "🎵",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_1_3",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Nota Cortante Superior",
+        "descricao": "Nota de vento: 126% de INT.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_1_3_skill",
+          "nome": "Nota Cortante Superior",
+          "tipo": "dano_magico",
+          "custoMP": 0,
+          "cooldown": 1,
+          "multiplicador": 1.26,
+          "elemento": "vento",
+          "descricao": "Nota de vento: 126% de INT."
+        }
+      },
+      {
+        "id": "bardo_1_4",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Harmonia · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_1_4",
+          "nome": "Harmonia · Reserva",
+          "icone": "🎵",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_1_5",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Harmonia · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_1_5",
+          "nome": "Harmonia · Tenacidade",
+          "icone": "🎵",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_1_6",
+        "icone": "🎵",
+        "ramo": "bardo_1",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Harmonia · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_1_6",
+          "nome": "Harmonia · Renovação",
+          "icone": "🎵",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_2_1",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Canto da Coragem",
+        "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_2_1_skill",
+          "nome": "Canto da Coragem",
+          "tipo": "buff_time",
+          "custoMP": 6,
+          "cooldown": 3,
+          "alvoBuff": "ataque",
+          "valor": 0.2,
+          "duracao": 2,
+          "cancao": true,
+          "descricao": "Canção: reforça em 20% o próximo ataque de cada aliado. Substitui sua canção anterior."
+        }
+      },
+      {
+        "id": "bardo_2_2",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Dissonância · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_2_2",
+          "nome": "Dissonância · Vitalidade",
+          "icone": "🎵",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_2_3",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Balada do Refúgio Superior",
+        "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "bardo_2_3_skill",
+          "nome": "Balada do Refúgio Superior",
+          "tipo": "buff_time",
+          "custoMP": 7,
+          "cooldown": 3,
+          "alvoBuff": "defesa",
+          "valor": 0.18,
+          "duracao": 2,
+          "cancao": true,
+          "descricao": "Canção: protege o time por 2 turnos. Substitui sua canção anterior."
+        }
+      },
+      {
+        "id": "bardo_2_4",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Dissonância · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_2_4",
+          "nome": "Dissonância · Reserva",
+          "icone": "🎵",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_2_5",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Dissonância · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_2_5",
+          "nome": "Dissonância · Tenacidade",
+          "icone": "🎵",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "bardo_2_6",
+        "icone": "🎵",
+        "ramo": "bardo_2",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Dissonância · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_bardo_2_6",
+          "nome": "Dissonância · Renovação",
+          "icone": "🎵",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      }
+    ]
+  },
+  "druida": {
+    "ramos": [
+      {
+        "id": "druida_0",
+        "nome": "Metamorfose",
+        "icone": "🌿",
+        "descricao": "Especialização em Metamorfose."
+      },
+      {
+        "id": "druida_1",
+        "nome": "Renovação",
+        "icone": "🌿",
+        "descricao": "Especialização em Renovação."
+      },
+      {
+        "id": "druida_2",
+        "nome": "Bosque",
+        "icone": "🌿",
+        "descricao": "Especialização em Bosque."
+      }
+    ],
+    "nos": [
+      {
+        "id": "druida_0_1",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Orvalho Restaurador",
+        "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_0_1_skill",
+          "nome": "Orvalho Restaurador",
+          "tipo": "cura_area",
+          "custoMP": 8,
+          "cooldown": 3,
+          "multiplicador": 0.9,
+          "descricao": "Restaura o time com 90% de INT ou CON. Indisponível na forma animal."
+        }
+      },
+      {
+        "id": "druida_0_2",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Metamorfose · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_0_2",
+          "nome": "Metamorfose · Vitalidade",
+          "icone": "🌿",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_0_3",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Raízes Profundas Superior",
+        "descricao": "Reduz a velocidade inimiga por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_0_3_skill",
+          "nome": "Raízes Profundas Superior",
+          "tipo": "debuff_area",
+          "custoMP": 7,
+          "cooldown": 3,
+          "valor": 0.18,
+          "duracao": 2,
+          "descricao": "Reduz a velocidade inimiga por 2 turnos."
+        }
+      },
+      {
+        "id": "druida_0_4",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Metamorfose · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_0_4",
+          "nome": "Metamorfose · Reserva",
+          "icone": "🌿",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_0_5",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Metamorfose · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_0_5",
+          "nome": "Metamorfose · Tenacidade",
+          "icone": "🌿",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_0_6",
+        "icone": "🌿",
+        "ramo": "druida_0",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Metamorfose · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_0_6",
+          "nome": "Metamorfose · Renovação",
+          "icone": "🌿",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_1_1",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Tempestade de Folhas",
+        "descricao": "Atinge todos os inimigos com folhas baseadas em INT.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_1_1_skill",
+          "nome": "Tempestade de Folhas",
+          "tipo": "dano_area",
+          "custoMP": 10,
+          "cooldown": 3,
+          "multiplicador": 1.05,
+          "atributoForcado": "INT",
+          "elemento": "natureza",
+          "descricao": "Atinge todos os inimigos com folhas baseadas em INT."
+        }
+      },
+      {
+        "id": "druida_1_2",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Renovação · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_1_2",
+          "nome": "Renovação · Vitalidade",
+          "icone": "🌿",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_1_3",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Espinho Vivo Superior",
+        "descricao": "Espinho de natureza: 132% de INT.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_1_3_skill",
+          "nome": "Espinho Vivo Superior",
+          "tipo": "dano_magico",
+          "custoMP": 0,
+          "cooldown": 1,
+          "multiplicador": 1.32,
+          "elemento": "natureza",
+          "descricao": "Espinho de natureza: 132% de INT."
+        }
+      },
+      {
+        "id": "druida_1_4",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Renovação · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_1_4",
+          "nome": "Renovação · Reserva",
+          "icone": "🌿",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_1_5",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Renovação · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_1_5",
+          "nome": "Renovação · Tenacidade",
+          "icone": "🌿",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_1_6",
+        "icone": "🌿",
+        "ramo": "druida_1",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Renovação · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_1_6",
+          "nome": "Renovação · Renovação",
+          "icone": "🌿",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_2_1",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Forma da Fera",
+        "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_2_1_skill",
+          "nome": "Forma da Fera",
+          "tipo": "buff_defesa",
+          "custoMP": 5,
+          "cooldown": 3,
+          "valor": 0.15,
+          "duracao": 3,
+          "formaAnimal": true,
+          "descricao": "Assume forma animal por 3 turnos: protege o corpo e converte ataques básicos em garras baseadas em INT. Impede cura enquanto durar."
+        }
+      },
+      {
+        "id": "druida_2_2",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Bosque · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_2_2",
+          "nome": "Bosque · Vitalidade",
+          "icone": "🌿",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_2_3",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Orvalho Restaurador Superior",
+        "descricao": "Restaura o time com 99% de INT ou CON. Indisponível na forma animal.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "druida_2_3_skill",
+          "nome": "Orvalho Restaurador Superior",
+          "tipo": "cura_area",
+          "custoMP": 8,
+          "cooldown": 3,
+          "multiplicador": 0.99,
+          "descricao": "Restaura o time com 99% de INT ou CON. Indisponível na forma animal."
+        }
+      },
+      {
+        "id": "druida_2_4",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Bosque · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_2_4",
+          "nome": "Bosque · Reserva",
+          "icone": "🌿",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_2_5",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Bosque · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_2_5",
+          "nome": "Bosque · Tenacidade",
+          "icone": "🌿",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "druida_2_6",
+        "icone": "🌿",
+        "ramo": "druida_2",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Bosque · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_druida_2_6",
+          "nome": "Bosque · Renovação",
+          "icone": "🌿",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      }
+    ]
+  },
+  "necromante": {
+    "ramos": [
+      {
+        "id": "necromante_0",
+        "nome": "Vínculo",
+        "icone": "💀",
+        "descricao": "Especialização em Vínculo."
+      },
+      {
+        "id": "necromante_1",
+        "nome": "Maldição",
+        "icone": "💀",
+        "descricao": "Especialização em Maldição."
+      },
+      {
+        "id": "necromante_2",
+        "nome": "Vitalidade",
+        "icone": "💀",
+        "descricao": "Especialização em Vitalidade."
+      }
+    ],
+    "nos": [
+      {
+        "id": "necromante_0_1",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Drenar Vitalidade",
+        "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_0_1_skill",
+          "nome": "Drenar Vitalidade",
+          "tipo": "dano_magico",
+          "custoMP": 8,
+          "cooldown": 2,
+          "multiplicador": 1.35,
+          "elemento": "sombrio",
+          "drenagem": 0.25,
+          "descricao": "Dano sombrio; recupera 25% da vida efetivamente retirada do alvo."
+        }
+      },
+      {
+        "id": "necromante_0_2",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Vínculo · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_0_2",
+          "nome": "Vínculo · Vitalidade",
+          "icone": "💀",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_0_3",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Peso do Túmulo Superior",
+        "descricao": "Atrasa todos os inimigos por 2 turnos.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_0_3_skill",
+          "nome": "Peso do Túmulo Superior",
+          "tipo": "debuff_area",
+          "custoMP": 8,
+          "cooldown": 4,
+          "valor": 0.2,
+          "duracao": 2,
+          "descricao": "Atrasa todos os inimigos por 2 turnos."
+        }
+      },
+      {
+        "id": "necromante_0_4",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Vínculo · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_0_4",
+          "nome": "Vínculo · Reserva",
+          "icone": "💀",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_0_5",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Vínculo · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_0_5",
+          "nome": "Vínculo · Tenacidade",
+          "icone": "💀",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_0_6",
+        "icone": "💀",
+        "ramo": "necromante_0",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Vínculo · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_0_6",
+          "nome": "Vínculo · Renovação",
+          "icone": "💀",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_1_1",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Colheita de Cinzas",
+        "descricao": "Dano sombrio em área baseado em INT.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_1_1_skill",
+          "nome": "Colheita de Cinzas",
+          "tipo": "dano_area",
+          "custoMP": 12,
+          "cooldown": 4,
+          "multiplicador": 1.05,
+          "atributoForcado": "INT",
+          "elemento": "sombrio",
+          "descricao": "Dano sombrio em área baseado em INT."
+        }
+      },
+      {
+        "id": "necromante_1_2",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Maldição · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_1_2",
+          "nome": "Maldição · Vitalidade",
+          "icone": "💀",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_1_3",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Toque Fúnebre Superior",
+        "descricao": "Toque sombrio: 132% de INT.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_1_3_skill",
+          "nome": "Toque Fúnebre Superior",
+          "tipo": "dano_magico",
+          "custoMP": 0,
+          "cooldown": 1,
+          "multiplicador": 1.32,
+          "elemento": "sombrio",
+          "descricao": "Toque sombrio: 132% de INT."
+        }
+      },
+      {
+        "id": "necromante_1_4",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Maldição · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_1_4",
+          "nome": "Maldição · Reserva",
+          "icone": "💀",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_1_5",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Maldição · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_1_5",
+          "nome": "Maldição · Tenacidade",
+          "icone": "💀",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_1_6",
+        "icone": "💀",
+        "ramo": "necromante_1",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Maldição · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_1_6",
+          "nome": "Maldição · Renovação",
+          "icone": "💀",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_2_1",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 1,
+        "custo": 1,
+        "nivelRequerido": 2,
+        "requerRamo": 0,
+        "nome": "Servo Vinculado",
+        "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_2_1_skill",
+          "nome": "Servo Vinculado",
+          "tipo": "buff_defesa",
+          "custoMP": 7,
+          "cooldown": 4,
+          "valor": 0.08,
+          "duracao": 3,
+          "servo": 0.35,
+          "descricao": "Invoca um servo por 3 turnos: após seus ataques, causa dano adicional de 35% de INT. Apenas um servo por necromante."
+        }
+      },
+      {
+        "id": "necromante_2_2",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 2,
+        "custo": 1,
+        "nivelRequerido": 4,
+        "requerRamo": 1,
+        "nome": "Vitalidade · Vitalidade",
+        "descricao": "+4% de vida máxima.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_2_2",
+          "nome": "Vitalidade · Vitalidade",
+          "icone": "💀",
+          "descricao": "+4% de vida máxima.",
+          "efeito": {
+            "tipo": "vida_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_2_3",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 3,
+        "custo": 1,
+        "nivelRequerido": 6,
+        "requerRamo": 2,
+        "nome": "Drenar Vitalidade Superior",
+        "descricao": "Dano sombrio; recupera 149% da vida efetivamente retirada do alvo.",
+        "tipoConcedido": "ativa",
+        "habilidade": {
+          "id": "necromante_2_3_skill",
+          "nome": "Drenar Vitalidade Superior",
+          "tipo": "dano_magico",
+          "custoMP": 8,
+          "cooldown": 2,
+          "multiplicador": 1.49,
+          "elemento": "sombrio",
+          "drenagem": 0.25,
+          "descricao": "Dano sombrio; recupera 149% da vida efetivamente retirada do alvo."
+        }
+      },
+      {
+        "id": "necromante_2_4",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 4,
+        "custo": 2,
+        "nivelRequerido": 9,
+        "requerRamo": 3,
+        "nome": "Vitalidade · Reserva",
+        "descricao": "+4% de Éter máximo.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_2_4",
+          "nome": "Vitalidade · Reserva",
+          "icone": "💀",
+          "descricao": "+4% de Éter máximo.",
+          "efeito": {
+            "tipo": "eter_max",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_2_5",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 5,
+        "custo": 2,
+        "nivelRequerido": 12,
+        "requerRamo": 5,
+        "nome": "Vitalidade · Tenacidade",
+        "descricao": "+4% de defesa.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_2_5",
+          "nome": "Vitalidade · Tenacidade",
+          "icone": "💀",
+          "descricao": "+4% de defesa.",
+          "efeito": {
+            "tipo": "defesa",
+            "valor": 1.04,
+            "escopo": "proprio"
+          }
+        }
+      },
+      {
+        "id": "necromante_2_6",
+        "icone": "💀",
+        "ramo": "necromante_2",
+        "tier": 6,
+        "custo": 2,
+        "nivelRequerido": 16,
+        "requerRamo": 7,
+        "nome": "Vitalidade · Renovação",
+        "descricao": "+6% de cura recebida.",
+        "tipoConcedido": "passiva",
+        "passiva": {
+          "id": "p_necromante_2_6",
+          "nome": "Vitalidade · Renovação",
+          "icone": "💀",
+          "descricao": "+6% de cura recebida.",
+          "efeito": {
+            "tipo": "cura_recebida",
+            "valor": 1.06,
+            "escopo": "proprio"
+          }
+        }
+      }
+    ]
   }
 }

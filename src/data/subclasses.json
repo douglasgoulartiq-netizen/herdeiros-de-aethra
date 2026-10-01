@@ -144,6 +144,70 @@
       "icone": "🐾",
       "nivelRequerido": 10,
       "descricao": "Arma o cerco antes de a presa entrar nele. Prioriza armadilhas e lentidão em área sobre o golpe forte."
+    },
+    {
+      "id": "paladino_especializacao_0",
+      "classeId": "paladino",
+      "nome": "Guardião do Voto",
+      "icone": "🛡️",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Juramento."
+    },
+    {
+      "id": "paladino_especializacao_1",
+      "classeId": "paladino",
+      "nome": "Justicar",
+      "icone": "🛡️",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Bastião."
+    },
+    {
+      "id": "bardo_especializacao_0",
+      "classeId": "bardo",
+      "nome": "Cantor de Guerra",
+      "icone": "🎵",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Coragem."
+    },
+    {
+      "id": "bardo_especializacao_1",
+      "classeId": "bardo",
+      "nome": "Tecelão de Ecos",
+      "icone": "🎵",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Harmonia."
+    },
+    {
+      "id": "druida_especializacao_0",
+      "classeId": "druida",
+      "nome": "Guardião Selvagem",
+      "icone": "🌿",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Metamorfose."
+    },
+    {
+      "id": "druida_especializacao_1",
+      "classeId": "druida",
+      "nome": "Oráculo Verde",
+      "icone": "🌿",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Renovação."
+    },
+    {
+      "id": "necromante_especializacao_0",
+      "classeId": "necromante",
+      "nome": "Senhor dos Ossos",
+      "icone": "💀",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Vínculo."
+    },
+    {
+      "id": "necromante_especializacao_1",
+      "classeId": "necromante",
+      "nome": "Ceifador de Ecos",
+      "icone": "💀",
+      "nivelRequerido": 10,
+      "descricao": "Especialização em Maldição."
     }
   ]
 }

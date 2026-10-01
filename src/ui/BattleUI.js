@@ -159,6 +159,10 @@ const PAPEL_POR_CLASSE = {
   clerigo: { nome: "Curandeiro", icone: "💚" },
   barbaro: { nome: "Duelista", icone: "⚔️" },
   patrulheiro: { nome: "Controlador", icone: "🏹" },
+  paladino: { nome: "Protetor", icone: "🛡️" },
+  bardo: { nome: "Suporte", icone: "🎵" },
+  druida: { nome: "Versátil", icone: "🌿" },
+  necromante: { nome: "Conjurador", icone: "💀" },
 };
 const REPUTACAO_POR_CHEFE = 20;
 
@@ -657,7 +661,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
       // O combatente guarda a chave em `spriteKey`; o registro espera `sprite`
       // (o nome do campo no monsters.json). Traduzir aqui, num descritor
       // explícito, é mais honesto do que fazer o registro adivinhar.
-      const descritor = c.isPlayer && c.racaId && c.classeId
+      const descritor = c.isPlayer && !c.spriteKey?.startsWith('gacha_') && c.racaId && c.classeId
         ? { racaId: c.racaId, classeId: c.classeId }
         : { sprite: c.spriteKey };
       const img = imgHtml(descritor, USOS.RETRATO, { lazy: false });
@@ -712,7 +716,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // lógicos numa arena onde monstro e convocado já têm 192.
     // O `||` é a rede de segurança: numa publicação antiga, sem os arquivos
     // pcb_*, cai na folha de sempre e a batalha continua desenhando.
-    if (c.isPlayer && c.racaId && c.classeId) {
+    if (c.isPlayer && !c.spriteKey?.startsWith('gacha_') && c.racaId && c.classeId) {
       const batalha = imagens[`pcb_${c.racaId}_${c.classeId}`];
       if (batalha && batalha.width >= 96) return batalha;
     }
@@ -1618,7 +1622,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     }
     if (card.tipo === "habilidade") {
       const h = card.habilidade;
-      const destino = ["cura", "buff_defesa", "buff_ataque", "fuga"].includes(h.tipo) ? jogador : alvo;
+      const destino = ["cura", "cura_area", "buff_time", "buff_defesa", "buff_ataque", "fuga"].includes(h.tipo) ? jogador : alvo;
       resolverTurno(() => batalha.usarHabilidade(jogador, h, destino), { habilidade: h, ator: jogador, alvo: destino });
       return;
     }

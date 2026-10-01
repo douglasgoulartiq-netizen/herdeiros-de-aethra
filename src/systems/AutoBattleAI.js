@@ -171,7 +171,8 @@ const TIPOS_DEBUFF_AREA = ["debuff_area"];
 
 export function habilidadesDisponiveis(jogador, tipos) {
   return (jogador.habilidades || []).filter(
-    (h) => tipos.includes(h.tipo) && h.cooldownAtual === 0 && jogador.mp >= (h.custoMP || 0),
+    (h) => tipos.includes(h.tipo) && h.cooldownAtual === 0 && jogador.mp >= (h.custoMP || 0) &&
+      !(['cura','cura_area'].includes(h.tipo) && jogador.statusEffects?.some(s => s.tipo === 'forma_animal')),
   );
 }
 
@@ -302,7 +303,7 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   }
 
   // 2. CURA PRÓPRIA — o comportamento de sempre.
-  const cura = jogador.habilidades.find((h) => h.tipo === "cura" && h.cooldownAtual === 0 && jogador.mp >= h.custoMP);
+  const cura = habilidadesDisponiveis(jogador, ['cura'])[0];
   if (cura && fracaoVida(jogador) < limiar) {
     return { tipo: "curar", habilidade: cura };
   }
@@ -321,6 +322,10 @@ export function escolherAcaoAutomatica(jogador, inimigosVivos, config, dados, co
   }
 
   // 4. DEFENDER quando não há cura nem habilidade ofensiva possível.
+  const postura = habilidadesDisponiveis(jogador, ['buff_defesa']).find(h =>
+    (h.servo && !jogador.statusEffects.some(s => s.tipo === 'servo_vinculado')) ||
+    (h.formaAnimal && fracaoVida(jogador) > .6 && !aliadosFeridos(aliados,.6).length && !jogador.statusEffects.some(s => s.tipo === 'forma_animal')));
+  if (postura) return {tipo:'buff_time',habilidade:postura,alvo:jogador};
   if (deveDefender(jogador, config, limiar, aliados)) return { tipo: "defender" };
 
   // 5. ATRASAR A HORDA. Só com muitos inimigos e só enquanto algum deles

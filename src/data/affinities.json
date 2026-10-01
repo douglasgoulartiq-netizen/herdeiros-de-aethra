@@ -1,23 +1,24 @@
 {
   "_comentario": "Afinidade racial de classe (task #41): quando personagem.classeId está em classesAfins da raça dele, ganha 'bonus' (mesmo formato de bonusArvore em CharacterFactory.js — FOR/DES/CON/INT/hpMaxPercent/mpMaxPercent/critChance/defesaFlat), aplicado de forma aditiva nas mesmas funções que já somam o bônus da árvore de habilidades. `bonusPorClasse` (opcional) troca o bônus pela classe escolhida — usado pelo Humano, que tem afinidade com todas as classes e ganha +1 só no atributo principal de cada uma (antes eram +1 em tudo, que somado ao bônus racial dava +8 contra +5 das outras raças). Fora da combinação listada, nenhum bônus (nunca penalidade — afinidade é vantagem opcional, não restrição de escolha).",
   "humano": {
-    "classesAfins": ["guerreiro", "mago", "ladino", "clerigo", "barbaro", "patrulheiro"],
+    "classesAfins": ["guerreiro", "mago", "ladino", "clerigo", "barbaro", "patrulheiro", "paladino", "bardo", "druida", "necromante"],
     "bonus": {},
     "bonusPorClasse": {
       "guerreiro": { "FOR": 1 }, "mago": { "INT": 1 }, "ladino": { "DES": 1 },
-      "clerigo": { "INT": 1 }, "barbaro": { "FOR": 1 }, "patrulheiro": { "DES": 1 }
+      "clerigo": { "INT": 1 }, "barbaro": { "FOR": 1 }, "patrulheiro": { "DES": 1 },
+      "paladino": { "CON": 1 }, "bardo": { "INT": 1 }, "druida": { "INT": 1 }, "necromante": { "INT": 1 }
     },
     "texto": "Versatilidade Humana: afinidade leve com qualquer classe (+1 no atributo principal da classe)."
   },
   "elfo": {
-    "classesAfins": ["mago", "patrulheiro"],
+    "classesAfins": ["mago", "patrulheiro", "druida"],
     "bonus": { "DES": 1, "INT": 1, "critChance": 0.03 },
-    "texto": "Sangue Élfico: afinidade com Mago e Patrulheiro (+1 DES, +1 INT, +3% de crítico)."
+    "texto": "Sangue Élfico: afinidade com Mago, Patrulheiro e Druida (+1 DES, +1 INT, +3% de crítico)."
   },
   "anao": {
-    "classesAfins": ["guerreiro", "clerigo"],
+    "classesAfins": ["guerreiro", "clerigo", "paladino"],
     "bonus": { "CON": 2, "defesaFlat": 1 },
-    "texto": "Linhagem da Montanha: afinidade com Guerreiro e Clérigo (+2 CON, +1 de defesa)."
+    "texto": "Linhagem da Montanha: afinidade com Guerreiro, Clérigo e Paladino (+2 CON, +1 de defesa)."
   },
   "orc": {
     "classesAfins": ["barbaro", "guerreiro"],
@@ -25,13 +26,13 @@
     "texto": "Sangue de Guerra: afinidade com Bárbaro e Guerreiro (+2 FOR, +4% de HP máximo)."
   },
   "halfling": {
-    "classesAfins": ["ladino"],
+    "classesAfins": ["ladino", "bardo"],
     "bonus": { "DES": 2, "critChance": 0.05 },
-    "texto": "Dedos Leves: afinidade com Ladino (+2 DES, +5% de crítico)."
+    "texto": "Dedos Leves: afinidade com Ladino e Bardo (+2 DES, +5% de crítico)."
   },
   "draconato": {
-    "classesAfins": ["mago"],
+    "classesAfins": ["mago", "necromante"],
     "bonus": { "INT": 2, "mpMaxPercent": 0.06 },
-    "texto": "Sangue Elemental Ancestral: afinidade com Mago (+2 INT, +6% de MP máximo)."
+    "texto": "Sangue Elemental Ancestral: afinidade com Mago e Necromante (+2 INT, +6% de MP máximo)."
   }
 }
