@@ -3,6 +3,7 @@ import { IDS_DE_PROP } from "./propRegistry.js";
 import { ARTES_CIDADES } from "./cityArt.js";
 import { classArtFallback } from './classArtFallbacks.js';
 import { GACHA_FINAL_ART } from './gachaFinalArt.js';
+import { WALK_ART, CLASS_EFFECT_ART } from './classVisuals.js';
 import { definirIndiceDeIcones } from "./itemIcons.js";
 
 const ARQUIVOS = [
@@ -115,6 +116,25 @@ export async function carregarImagemCadeia(caminhos) {
 export async function carregarTodasImagens(dados) {
   const cache = {};
   const jobs = [];
+  // Folhas exclusivas não disputam o boot com o mapa: só a raça/classe usada
+  // e os efeitos efetivamente vistos geram pedidos de imagem.
+  const sobDemanda = (key, path) => {
+    let carregando = false;
+    Object.defineProperty(cache, key, {
+      enumerable: true, configurable: true,
+      get() {
+        if (!carregando) {
+          carregando = true;
+          carregarImagemCadeia([path]).then(img => {
+            Object.defineProperty(cache, key, { value: img, enumerable: true, configurable: true });
+          }).catch(() => { carregando = false; });
+        }
+        return undefined;
+      },
+    });
+  };
+  Object.entries(WALK_ART).forEach(([key, path]) => sobDemanda(`walk_${key}`, path));
+  Object.entries(CLASS_EFFECT_ART).forEach(([key, path]) => sobDemanda(`efeito_${key}`, path));
 
   jobs.push(["tileset", "assets/tiles/tileset.png"]);
   // Folha estendida (ETAPA 2): neve, gelo, lava, cinzas, brejo, calçada,

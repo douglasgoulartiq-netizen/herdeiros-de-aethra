@@ -1,5 +1,6 @@
 import { carregarDados, carregarImagemCadeia } from '../src/data/loader.js';
 import { GACHA_FINAL_ART } from '../src/data/gachaFinalArt.js';
+import { CLASS_EFFECT_ART } from '../src/data/classVisuals.js';
 import { criarPersonagem } from '../src/systems/CharacterFactory.js';
 import { instanciarPersonagemGacha, estadoGachaInicial } from '../src/systems/GachaSystem.js';
 import { montarParty } from '../src/ui/PartyUI.js';
@@ -18,9 +19,10 @@ try{
  document.querySelector('#preview-party').onclick=()=>montarParty(p,[],d,()=>{},{aba:'ficha',membroUid:p.gacha.personagensObtidos.find(g=>g.rosterId===select.value).uid,membroIdx:0,filtro:'todos',busca:'',uidSelecionado:null});
  document.querySelector('#preview-battle').onclick=async()=>{
   const selected=p.gacha.personagensObtidos.find(g=>g.rosterId===select.value);
-  const others=p.gacha.personagensObtidos.filter(g=>g.classeId!==selected.classeId);
+  const others=['druida','necromante','bardo'].filter(cl=>cl!==selected.classeId).map(cl=>p.gacha.personagensObtidos.find(g=>g.classeId===cl));
   const extras=[selected,others[0],others.find(g=>g.classeId!==others[0].classeId)];
-  const mob=d.monsters.find(m=>!m.chefe),imagens={};
+  const mob={...d.monsters.find(m=>!m.chefe),hp:400},imagens={};
+  await Promise.all(Object.entries(CLASS_EFFECT_ART).map(async ([key,path])=>{imagens['efeito_'+key]=await carregarImagemCadeia([path]);}));
   await Promise.all(extras.map(async g=>{imagens[g.spriteKey]=await carregarImagemCadeia([GACHA_FINAL_ART[g.spriteKey]]);}));
   imagens['pcb_humano_paladino']=await carregarImagemCadeia(['assets/arte_intermediaria/pc_humano_guerreiro.png']);
   imagens[mob.sprite]=await carregarImagemCadeia(['assets/arte_v2/'+mob.sprite+'.png','assets/sprites/'+mob.sprite+'.png']);

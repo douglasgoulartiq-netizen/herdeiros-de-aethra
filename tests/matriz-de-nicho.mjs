@@ -68,7 +68,12 @@ const N = Number(process.env.HDA_AMOSTRAS || 16);
 const NIVEIS = (process.env.HDA_NIVEIS || "5,15,25").split(",").map(Number);
 // Medir um nível só grava num arquivo próprio, para as três leituras
 // poderem ser comparadas lado a lado em vez de uma sobrescrever a outra.
-const SUFIXO = NIVEIS.length === 1 ? `-n${NIVEIS[0]}` : '';
+const variante = process.env.HDA_VARIANTE || '';
+if (variante && !/^[a-z0-9-]+$/.test(variante)) throw new Error('Nome de variante inválido');
+const SUFIXO = variante ? `-${variante}` : (NIVEIS.length === 1 ? `-n${NIVEIS[0]}` : '');
+const ordemReversa = process.env.HDA_BUILD === 'reversa';
+const pressao = Number(process.env.HDA_PRESSAO || 1);
+if (!Number.isFinite(pressao) || pressao < 1 || pressao > 5) throw new Error('Pressão deve ficar entre 1 e 5');
 const CONTAGENS = [1, 2, 4, 6];
 const config = configAutoBatalhaPadrao();
 
@@ -129,7 +134,9 @@ function comprarArvore(p) {
   for (let volta = 0; volta < 40; volta += 1) {
     if (pontosDisponiveis(p, dados) <= 0) break;
     let comprouAlgo = false;
-    for (const no of arvoreDaClasse(p, dados)) {
+    const nos = [...arvoreDaClasse(p, dados)];
+    if (ordemReversa) nos.reverse();
+    for (const no of nos) {
       if (pontosDisponiveis(p, dados) <= 0) break;
       if (!podeEscolher(p, dados, no)) continue;
       if (escolherNo(p, dados, no.id).ok) comprouAlgo = true;
@@ -228,7 +235,9 @@ function escolherCards(p) {
 
 const modelos = new Map();
 for (const d of defs) for (const n of NIVEIS) modelos.set(`${d.id}:${n}`, criar(d, n));
-const fixos = ['guerreiro', 'clerigo', 'patrulheiro'].map((classe) => defs.find((d) => d.classe === classe));
+const classesApoio = (process.env.HDA_TIME || 'guerreiro,clerigo,patrulheiro').split(',');
+const fixos = classesApoio.map((classe) => defs.find((d) => d.classe === classe));
+if (fixos.length !== 3 || fixos.some(d=>!d)) throw new Error('HDA_TIME deve listar três classes válidas');
 
 const encontros = {};
 for (const nivel of NIVEIS) {
@@ -248,7 +257,14 @@ function simular(def, nivel, quantos, amostra) {
   ];
   const tanque = ['guerreiro', 'barbaro', 'paladino'].includes(def.classe);
   const time = personagens.map((p, i) => criarCombatenteJogador(p, dados, (tanque ? i < 2 : i === 1 || i === 2) ? 'frente' : 'retaguarda'));
-  const b = new Batalha(time, inimigosDef.map((m, i) => criarCombatenteInimigo(m, i)), dados.elements,
+  const inimigos = inimigosDef.map((m, i) => criarCombatenteInimigo(m, i));
+  // Pressão existe só na bancada: não muda os monstros nem saves do jogo.
+  for (const e of inimigos) {
+    e.hpMax = Math.round(e.hpMax * pressao); e.hp = e.hpMax;
+    e.ataque.dano = Math.round(e.ataque.dano * pressao);
+    if (!Number.isFinite(e.ataque.dano)) throw new Error('Dano inimigo inválido na bancada');
+  }
+  const b = new Batalha(time, inimigos, dados.elements,
     null, [], 0, null, false, dados.elementalStates, dados.elementalReactions);
 
   let acoes = 0; let danoCandidato = 0; let danoTime = 0; let acoesCandidato = 0;
@@ -396,7 +412,7 @@ const relatorio = `# Matriz de nicho — participação no dano do time
 
 ${defs.length} classes × ${CONTAGENS.length} contagens de inimigos × ${NIVEIS.length} níveis × ${N} sementes = ${defs.length * CONTAGENS.length * NIVEIS.length * N} batalhas do motor real.
 
-O time é SEMPRE o mesmo (candidato + guerreiro, clérigo e patrulheiro humanos). A única coisa que muda é quantos inimigos existem. Cada número é a fração do dano do time que saiu do candidato — não vitória, que satura perto de 100% e não distingue ninguém.
+Nesta execução, o time é candidato + ${classesApoio.join(', ')} humanos. Árvore comprada em ordem ${ordemReversa ? 'reversa' : 'normal'}, loadout escolhido por função; pressão inimiga ${pressao}x. Cada número mede a fração do dano do time que saiu do candidato, não preferência humana.
 
 **Inclinação** = participação com ${CONTAGENS[CONTAGENS.length - 1]} inimigos menos participação com ${CONTAGENS[0]}. Negativa é especialista em alvo único; positiva, em multidão; perto de zero é generalista.
 
@@ -417,6 +433,6 @@ ${genericos.length ? genericos.map((l) => `- **${l.nome}** — ${(100 * l.inclin
 
 mkdirSync(new URL('../reports/', import.meta.url), { recursive: true });
 writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.json`, import.meta.url),
-  JSON.stringify({ amostras: N, contagens: CONTAGENS, niveis: NIVEIS, linhas }, null, 2));
+  JSON.stringify({ amostras: N, contagens: CONTAGENS, niveis: NIVEIS, classesApoio, ordemReversa, pressao, linhas }, null, 2));
 writeFileSync(new URL(`../reports/matriz-de-nicho${SUFIXO}.md`, import.meta.url), relatorio);
 if (process.env.HDA_ALVO !== 'json') console.log(relatorio);

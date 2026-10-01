@@ -19,7 +19,8 @@ const setup=(classe)=>{const p=criar(classe);p.nivel=10;for(let n=1;n<10;n++)apl
 for(const id of ids){
  const classe=d.classes.find(c=>c.id===id);
  assert.equal(Object.values(classe.crescimento).reduce((a,b)=>a+b),5);
- assert.equal(d.skillTrees[id].nos.length,18);
+ assert.ok(d.skillTrees[id].nos.length >= 18, 'Preservar ramos originais e expansões de escala');
+ assert.equal(new Set(d.skillTrees[id].nos.map(n=>n.id)).size,d.skillTrees[id].nos.length);
  for(const r of d.races){
   const p=criar(id,r.id);
   while(p.nivel<25){p.nivel++;aplicarCrescimento(p,d);}

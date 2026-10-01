@@ -2,10 +2,11 @@
 import { criarPersonagem, atributosEfetivos } from "../systems/CharacterFactory.js";
 import { infoAfinidade, descreverBonus } from "../systems/AffinitySystem.js";
 import { classArtFallback } from '../data/classArtFallbacks.js';
+import { WALK_ART } from '../data/classVisuals.js';
 
 const arteCaminhadaCriacao = (raca, classe) => {
   const chave = `pc_${raca}_${classe}`;
-  return `assets/sprites/${classArtFallback(chave) || chave}.png`;
+  return WALK_ART[chave] || `assets/sprites/${classArtFallback(chave) || chave}.png`;
 };
 import {
   MOTIVACOES, INTERESSES, COMBINACOES, combinacoesDe, relacoesParaCard, habilidadeNoElemento,

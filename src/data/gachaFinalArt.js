@@ -1,5 +1,7 @@
-// Artes exclusivas da segunda leva; não dependem de variantes legadas inexistentes.
+// Artes exclusivas das duas levas; carregadas sob demanda.
 export const GACHA_FINAL_ART = Object.freeze({
+  ...Object.fromEntries(['paladino','bardo','druida','necromante'].flatMap(classe =>
+    [1,2,3,4].map(n => [`gacha_novo_${classe}_${n}`, `assets/arte_v2/gacha_novo_${classe}_${n}.png`]))),
   'gacha_novo_paladino_5': 'assets/arte_v2/gacha_novo_paladino_5.png',
   'gacha_novo_paladino_6': 'assets/arte_v2/gacha_novo_paladino_6.png',
   'gacha_novo_paladino_7': 'assets/arte_v2/gacha_novo_paladino_7.png',

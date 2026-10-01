@@ -10,7 +10,7 @@ import { CUSTO_INVOCACAO } from '../src/data/economyConfig.js';
 const root=new URL('../',import.meta.url),dir=new URL('src/data/',root);
 const d=Object.fromEntries(readdirSync(dir).filter(f=>f.endsWith('.json')).map(f=>[f.slice(0,-5),JSON.parse(readFileSync(new URL(f,dir)))]));
 const novos=d.gachaRoster.filter(g=>GACHA_FINAL_ART['gacha_'+g.id]);
-assert.equal(novos.length,16);
+assert.equal(novos.length,32);
 const hashes=new Set();
 for(const g of novos){
  const key='gacha_'+g.id,p=instanciarPersonagemGacha(g),path=GACHA_FINAL_ART[key];
@@ -26,7 +26,7 @@ for(const g of novos){
  assert.ok(Number.isFinite(p.hpMax)&&Number.isFinite(p.mpMax));
  assert.equal(new Set(p.habilidades.map(h=>h.id)).size,p.habilidades.length);
 }
-assert.equal(hashes.size,16,'Cada personagem deve ter imagem própria');
+assert.equal(hashes.size,32,'Cada personagem deve ter imagem própria');
 // Exercita o sorteio real completo, sem alterar as probabilidades do jogo.
 const realRandom=Math.random;let seed=20260930;
 Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
@@ -48,4 +48,4 @@ try{
  assert.ok(cache[key]);
  assert.equal(requests.filter(url=>Object.values(GACHA_FINAL_ART).includes(url)).length,1);
 }finally{globalThis.Image=realImage;globalThis.setTimeout=realTimeout;}
-console.log('OK: 16 artes únicas com alpha, identidade exclusiva em todos os usos, progressão até 25, 20.000 invocações reais do motor e carga de arte sob demanda.');
+console.log('OK: 32 artes únicas com alpha, identidade exclusiva em todos os usos, progressão até 25, 20.000 invocações reais do motor e carga de arte sob demanda.');

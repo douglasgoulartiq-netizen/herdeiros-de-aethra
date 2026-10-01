@@ -105,3 +105,4 @@
 .criacao-combinacao span{display:block;color:#e8dcc0;font-size:.72rem}
 .acc-modo-historia{margin-top:6px}
 @media(max-width:520px){.criacao-efeitos-lista{grid-template-columns:1fr}.criacao-efeitos-resumo{padding:10px}}
+.criacao-sprite[style*="walk_v2_"],.criacao-preview-sprite[style*="walk_v2_"],.criacao-heroi-resumo[style*="walk_v2_"]{background-size:300% 400%;background-position:50% 0%;animation:none}

@@ -7,6 +7,7 @@
 import { devolverOleoAoPersonagem, sincronizarElemento } from "../systems/WeaponOilSystem.js";
 import { imgHtml, ligarCadeias } from "../systems/AssetResolver.js";
 import { USOS } from "../data/assetRegistry.js";
+import { desenharVisualDeClasse } from '../render/ClassCombatVisuals.js';
 import { aplicarBonusDePet } from "../systems/PetSystem.js";
 import { Batalha, criarCombatenteJogador, criarCombatenteInimigo, comboDoisElementos, ESTADOS_RUINS } from "../systems/CombatSystem.js";
 import { removerItem, sortearLoot, rolarQuedas } from "../systems/InventorySystem.js";
@@ -1051,6 +1052,11 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // Fonte de 192 desenha 1:1; folha de 64 sobe por fator 3 — as duas escalas
     // são inteiras, que é o que mantém o pixel nítido (regra 4 do contrato).
     if (img) ctx.drawImage(img, frame, 0, ladoQuadro, ladoQuadro, 0, 0, 192, 192);
+    const visualClasse = desenharVisualDeClasse(ctx, c, imagens, Date.now(), animacoesReduzidas());
+    if (visualClasse.fera || visualClasse.servo) {
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', `${c.nome}: ${visualClasse.fera ? 'forma animal ativa; cura indisponível' : 'servo vinculado ativo; ataca após o dono'}`);
+    }
     if (!c.isPlayer) {
       // Item 66: trocar de alvo precisa recalcular a mão inteira na hora —
       // dano, fraqueza, combo, execução e recomendação mudam todos juntos.

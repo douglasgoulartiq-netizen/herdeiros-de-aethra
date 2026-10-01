@@ -27,6 +27,7 @@
 import { TILE, TILE_SIZE, TILES_BASE, TILE_FALLBACK } from "../data/worldMap.js";
 import { PROPS, propsVisiveis, caixaDoProp } from "../data/propRegistry.js";
 import { MisturaDeTerreno } from "./TerrainBlend.js";
+import { WALK_ART, quadroCaminhada } from '../data/classVisuals.js';
 import { escalaChefeMapa, imagemOficialMonstro } from "../systems/MonsterVisualSystem.js";
 import { desenharHospedagem } from "./UrbanDetails.js";
 import { desenharEstandarte, desenharAtividade } from "./WorldVignettes.js";
@@ -912,7 +913,9 @@ export class Renderer {
   desenharJogador(player, playerPx, cam) {
     const ctx = this.ctx;
     const T = this.tilePx;
-    const sheet = this.imagens[player.spriteKey];
+    const direcional = WALK_ART[player.spriteKey] && this.imagens[`walk_${player.spriteKey}`];
+    const folhaDirecional = direcional && direcional.width > 32 ? direcional : null;
+    const sheet = folhaDirecional || this.imagens[player.spriteKey];
     if (!sheet) return;
     const frame = player.frame || 0;
     const sx = frame * TILE_SIZE;
@@ -1015,7 +1018,10 @@ export class Renderer {
     // Daqui para baixo o herói é desenhado no retângulo do CORPO (bx/by,
     // largura/altura), que já carrega subida, balanço e achatamento. A sombra
     // acima ficou com o retângulo do CHÃO, de propósito.
-    if (player.dir === "esquerda" || player.dir === "direita") {
+    if (folhaDirecional) {
+      const q = quadroCaminhada(sheet, player.dir, fase, !!anda, player.spriteKey);
+      ctx.drawImage(sheet, q.x, q.y, q.w, q.h, bx, by, largura, altura);
+    } else if (player.dir === "esquerda" || player.dir === "direita") {
       // Perfil lateral: estreita a silhueta sem reduzir a altura e espelha
       // para a esquerda. Como todas as combinações raça/classe passam por
       // este renderer, as quatro direções funcionam para o elenco inteiro.
