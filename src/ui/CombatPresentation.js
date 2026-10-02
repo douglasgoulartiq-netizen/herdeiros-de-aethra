@@ -152,7 +152,11 @@ export function criarApresentacaoCombate(arena, elementoDe) {
     arena.classList.add(acao.habilidade || acao.hab ? 'acao-habilidade' : 'acao-auto');
     arena.classList.add(perfil.suporte ? 'acao-suporte' : 'acao-ofensiva');
     if (acao.critico) arena.classList.add('acao-critica');
-    const golpes = Number(acao.habilidade?.golpes ?? acao.hab?.golpes ?? acao.golpes ?? 1);
+    // Habilidades ofensivas que ainda não possuem uma contagem explícita
+    // recebem a leitura padrão de combo em três tempos. Suporte permanece
+    // em um impacto para não transformar cura/proteção em ataque visual.
+    const golpesDeclarados = acao.habilidade?.golpes ?? acao.hab?.golpes ?? acao.golpes;
+    const golpes = Number(golpesDeclarados ?? ((acao.habilidade || acao.hab) && !perfil.suporte ? 3 : 1));
     if (Number.isFinite(golpes) && golpes >= 2) arena.classList.add('acao-combo');
     arena.classList.add(`acao-elemento-${perfil.elemento}`);
     const nodes = [];
