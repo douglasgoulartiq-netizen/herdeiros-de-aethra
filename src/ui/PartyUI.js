@@ -218,7 +218,7 @@ export function montarParty(personagem, time, dados, onMudar, estadoAnterior = n
   const elementoAtivo = ativo.elementoId || ativo.elemento || ativo.equipamento?.arma?.elemento || "fisico";
   const infoAtivo = infoElemento(elementoAtivo, dados.elements) || { nome: elementoAtivo, icone: "◆", cor: "#c9c9c9" };
   const poderAtivo = Math.min(250, Math.max(0, Math.round(poderDeCombate(ativo, dados))));
-  const alvoArte = ativo.rosterId ? { rosterId: ativo.rosterId } : { racaId: ativo.racaId, classeId: ativo.classeId };
+  const alvoArte = ativo.rosterId ? { rosterId: ativo.rosterId, racaId: ativo.racaId } : { racaId: ativo.racaId, classeId: ativo.classeId };
   const vitrineCompanhia = document.createElement("div");
   vitrineCompanhia.className = "companhia-vitrine";
   vitrineCompanhia.style.setProperty("--companhia-cor", infoAtivo.cor || "#d8b56f");

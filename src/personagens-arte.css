@@ -1,0 +1,27 @@
+/* Direção de personagens: movimento no corpo, sem deslocar barras ou nomes. */
+.combatente[data-heroi="1"] .sprite-wrap { transform-origin:50% 95%; animation:heroi-respira 3.2s ease-in-out infinite; }
+.combatente[data-heroi="1"].golpe-jogador { animation:none !important; transform:none; }
+.combatente[data-heroi="1"].golpe-jogador .sprite-wrap { animation:heroi-golpe .35s ease-out; }
+.combatente[data-heroi="1"][data-estilo-acao="magia"].golpe-jogador .sprite-wrap { animation:heroi-conjura .35s ease-out; }
+.combatente[data-heroi="1"][data-estilo-acao="distancia"].golpe-jogador .sprite-wrap { animation:heroi-dispara .35s ease-out; }
+.combatente[data-heroi="1"].hit-flash .sprite-wrap { animation:heroi-impacto .25s ease-out; }
+.combatente[data-heroi="1"].heroi-vitorioso .sprite-wrap { animation:heroi-vitora .8s ease-out both; }
+.combatente[data-heroi="1"].morto .sprite-wrap { animation:none; }
+@keyframes heroi-respira { 50% { transform:scaleY(.992); } }
+@keyframes heroi-golpe { 35% { transform:translateY(-5px) rotate(-5deg); } 65% { transform:translateY(-7px) rotate(3deg); } }
+@keyframes heroi-conjura { 50% { transform:scale(1.025); filter:brightness(1.12); } }
+@keyframes heroi-dispara { 25% { transform:rotate(-3deg); } 65% { transform:translateY(2px) rotate(1deg); } }
+@keyframes heroi-impacto { 30% { transform:translateX(-3px) rotate(-2deg); } 65% { transform:translateX(2px); } }
+@keyframes heroi-vitora { 40% { transform:scale(1.035) rotate(-2deg); } 100% { transform:scale(1.01); } }
+/* Acabamento de raridade estático: pequeno selo, sem aura que tape a arte. */
+.gacha-retrato[data-raridade="raro"]::after,
+.gacha-retrato[data-raridade="epico"]::after,
+.gacha-retrato[data-raridade="lendario"]::after { content:'◆'; position:absolute; right:3px; bottom:1px; font-size:10px; color:#71b9ec; text-shadow:0 1px 2px #000; pointer-events:none; }
+.gacha-retrato[data-raridade="epico"]::after { color:#c395ed; }
+.gacha-retrato[data-raridade="lendario"]::after { content:'✦'; color:#efcc83; }
+.party-retrato img[data-personagem], .gacha-retrato img[data-personagem] { object-fit:contain; transform:none; }
+.companhia-arte img[data-personagem] { object-fit:contain; object-position:center bottom; }
+.combatente[data-heroi="1"].combate-conforto .sprite-wrap { animation:none !important; transform:none !important; }
+@media(prefers-reduced-motion:reduce) {
+  .combatente[data-heroi="1"] .sprite-wrap { animation:none !important; transform:none !important; }
+}

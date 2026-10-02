@@ -135,7 +135,9 @@ export function ehChefe(alvo) {
 export function candidatos(alvo, uso = USOS.COMBATE, opcoes = {}) {
   const chave = chaveDe(alvo);
   if (!chave) return [];
-  if (GACHA_FINAL_ART[chave]) return [GACHA_FINAL_ART[chave]];
+  if (GACHA_FINAL_ART[chave]) return [GACHA_FINAL_ART[chave], `${PASTA_INTERMEDIARIA}/${chave}.png`, `${PASTA_ATUAL}/${chave}.png`];
+  // A arte aprovada tem precedência até sobre aliases de classes antigas.
+  if (WALK_ART[chave] && uso !== USOS.MAPA) return [WALK_ART[chave]];
 
   // A flag pode ser forçada por chamada. É isso que permite ligar a arte
   // nova em UM encontro pra comparar, sem virar o jogo inteiro de uma vez.
@@ -145,13 +147,6 @@ export function candidatos(alvo, uso = USOS.COMBATE, opcoes = {}) {
   if (arteProvisoria) return candidatos(arteProvisoria, uso, opcoes);
 
   if (v2) {
-    // Personagens jogáveis usam a folha direcional oficial como fonte única.
-    // As telas de retrato recortam o quadro frontal via CSS; isso evita que
-    // ficha, gacha e batalha voltem a misturar os retratos legados.
-    if (chave.startsWith("pc_") && WALK_ART[chave]) {
-      lista.push(WALK_ART[chave]);
-      return lista;
-    }
     const sufixo = SUFIXO_V2[uso] || "";
     lista.push(`${PASTA_V2}/${chave}${sufixo}.png`);
     // Se o uso específico ainda não foi desenhado (o pôster costuma ficar

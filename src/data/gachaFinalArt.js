@@ -1,5 +1,7 @@
 // Artes exclusivas das duas levas; carregadas sob demanda.
+import { GACHA_REFINED_ART } from './gachaRefinedArt.js';
 export const GACHA_FINAL_ART = Object.freeze({
+  ...GACHA_REFINED_ART,
   // Primeira leva de atualização dos personagens antigos: identidade
   // preservada, acabamento alinhado à direção atual.
   ...Object.fromEntries([

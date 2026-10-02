@@ -1,3 +1,5 @@
+import { WALK_ART } from '../data/classVisuals.js';
+import { artePersonagem } from '../render/CharacterArt.js';
 // Motor visual das cenas. Uma camada de tela cheia, acima de tudo (inclusive
 // do modal-overlay), que mostra um painel por vez e devolve uma Promise que
 // resolve quando a cena termina — assim quem chama simplesmente dá `await` e
@@ -99,7 +101,7 @@ function caminhoRetrato(personagem) {
   const raca = personagem && personagem.racaId;
   const classe = personagem && personagem.classeId;
   if (!raca || !classe) return null;
-  return `assets/sprites_hd/retrato_${raca}_${classe}.png`;
+  return WALK_ART[`pc_${raca}_${classe}`] || null;
 }
 
 export function cutsceneAberta() {
@@ -257,7 +259,11 @@ export function reproduzirCutscene(cena, personagem, dados = {}) {
         // falta de arte.
         if (src) {
           const img = new Image();
-          img.onload = () => { arte.style.backgroundImage = `url("${src}")`; arte.classList.add("com-imagem"); };
+          img.onload = () => {
+            if (indice !== i || finalizado) return;
+            const retrato = artePersonagem(img, { folha: true, raca: personagem.racaId });
+            arte.style.backgroundImage = `url("${retrato.toDataURL('image/png')}")`; arte.classList.add("com-imagem");
+          };
           img.src = src;
         }
       }

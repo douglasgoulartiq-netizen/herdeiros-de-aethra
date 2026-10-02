@@ -7,6 +7,7 @@
 import { devolverOleoAoPersonagem, sincronizarElemento } from "../systems/WeaponOilSystem.js";
 import { imgHtml, ligarCadeias } from "../systems/AssetResolver.js";
 import { USOS } from "../data/assetRegistry.js";
+import { artePersonagem } from '../render/CharacterArt.js';
 import { desenharVisualDeClasse } from '../render/ClassCombatVisuals.js';
 import { aplicarBonusDePet } from "../systems/PetSystem.js";
 import { Batalha, criarCombatenteJogador, criarCombatenteInimigo, comboDoisElementos, ESTADOS_RUINS } from "../systems/CombatSystem.js";
@@ -718,6 +719,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // O `||` é a rede de segurança: numa publicação antiga, sem os arquivos
     // pcb_*, cai na folha de sempre e a batalha continua desenhando.
     if (c.isPlayer && !c.spriteKey?.startsWith('gacha_') && c.racaId && c.classeId) {
+      const oficial = imagens[`walk_pc_${c.racaId}_${c.classeId}`];
+      if (oficial && oficial.width > 32) return artePersonagem(oficial, { folha: true, raca: c.racaId });
       const batalha = imagens[`pcb_${c.racaId}_${c.classeId}`];
       if (batalha && batalha.width >= 96) return batalha;
     }
@@ -934,6 +937,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     const porteGrande = porte >= 1.25;
     div.className = "combatente" + (porteGrande ? " porte-grande" : "") + auraDoCard(c) + (c.defendendo ? " em-guarda" : "") + (!c.vivo ? " morto" : "") + (c.atb >= c.atbMax && c.vivo ? " pronto" : "") + (ehAtivo ? " ativo" : "") + (ehTelegrafado ? " telegrafando" + (telegrafo.inimigo.chefe ? " telegrafo-chefe" : "") : "") + (deltaHp < 0 && !flashDesligado ? " hit-flash" : "") + (deltaHp < 0 && critico && !flashDesligado ? " hit-flash-critico" : "") + (c.atordoado ? " atordoado" : "") + classeDeFaseDoChefe(c) + entrando;
     div.dataset.cid = c.id;
+    div.dataset.heroi = c.isPlayer ? '1' : '0';
+    div.dataset.estiloAcao = ['mago','clerigo','bardo','druida','necromante'].includes(c.classeId) ? 'magia' : c.classeId === 'patrulheiro' ? 'distancia' : 'corpo';
     div.classList.toggle('chefe-imponente', !!c.chefe);
     div.dataset.porteChefe = monstroHumanoide(c) ? 'humanoide' : 'colossal';
     div.classList.toggle('alvo-confirmado', c === alvoSelecionado && !c.isPlayer);
@@ -1051,7 +1056,8 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     // borrado antes de qualquer arte nova. 192 cobre esse caso quase 1:1.
     // Fonte de 192 desenha 1:1; folha de 64 sobe por fator 3 — as duas escalas
     // são inteiras, que é o que mantém o pixel nítido (regra 4 do contrato).
-    if (img) ctx.drawImage(img, frame, 0, ladoQuadro, ladoQuadro, 0, 0, 192, 192);
+    if (img && c.isPlayer) ctx.drawImage(artePersonagem(img, { raca: c.racaId }), 0, 0, 192, 192);
+    else if (img) ctx.drawImage(img, frame, 0, ladoQuadro, ladoQuadro, 0, 0, 192, 192);
     const visualClasse = desenharVisualDeClasse(ctx, c, imagens, Date.now(), animacoesReduzidas());
     if (visualClasse.fera || visualClasse.servo) {
       canvas.setAttribute('role', 'img');
@@ -2321,6 +2327,7 @@ export function iniciarBatalha(screenEl, imagens, dados, personagem, membrosExtr
     }
 
     if (batalha.resultado === "vitoria") {
+      arena.querySelectorAll('[data-heroi="1"]:not(.morto)').forEach(el => el.classList.add('heroi-vitorioso'));
       let totalXP = 0, totalOuro = 0, totalFragmentos = 0;
       const itensGanhos = [];
       let derrotouChefeMasmorra = false;

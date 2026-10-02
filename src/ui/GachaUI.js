@@ -73,7 +73,7 @@ function retratoConvocado(rosterId, raridade, tamanho = 72) {
   const cor = RARITY_COLORS[raridade] || "#666";
   const img = rosterId ? imgHtml({ rosterId }, USOS.RETRATO) : "";
   return `
-    <div class="gacha-retrato" style="width:${tamanho}px;height:${tamanho}px;border-color:${cor};">
+    <div class="gacha-retrato" data-raridade="${raridade}" style="width:${tamanho}px;height:${tamanho}px;border-color:${cor};">
       ${img}
       <span class="gacha-retrato-vazio asset-vazio" style="display:${rosterId ? "none" : "flex"};">?</span>
     </div>`;

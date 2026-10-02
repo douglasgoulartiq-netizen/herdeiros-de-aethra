@@ -29,3 +29,6 @@ dist/
 # Ja acumularam 16 na raiz; o conteudo deles vive no historico do git.
 _msg-*.txt
 _hashes-*.txt
+
+# Matrizes locais preservadas; o jogo usa a versão WebP sem perdas.
+assets/arte_v3/*.png

@@ -65,6 +65,23 @@
 .bt-slot .combatente .status-mais { padding:0; margin:0; font-size:11px; color:#eef3f9; border:1px solid #a9b7c8; border-radius:5px; background:#15202e; }
 .bt-cena { filter:saturate(.65) brightness(.80); transition:none; }
 .combate-em-acao .bt-cena { filter:saturate(.65) brightness(.80); }
+
+/* Assinatura curta de cada ação: telegráfico discreto antes do contato,
+   sem cobrir personagens ou texto. A cor vem do próprio elemento do golpe. */
+.combate-em-acao.acao-habilidade .acao-origem .sprite-wrap { filter:drop-shadow(0 0 7px var(--acao-cor, #bba6ff)); }
+.combate-em-acao.acao-suporte .acao-origem .sprite-wrap { filter:drop-shadow(0 0 8px #8fe0b2); }
+.combate-em-acao.acao-critica .acao-origem .sprite-wrap { filter:drop-shadow(0 0 11px #ffe18a); }
+.combate-em-acao.acao-elemento-fogo { --acao-cor:#ff9d62; }
+.combate-em-acao.acao-elemento-gelo { --acao-cor:#9ddcff; }
+.combate-em-acao.acao-elemento-agua { --acao-cor:#78c9ff; }
+.combate-em-acao.acao-elemento-natureza { --acao-cor:#9ce28c; }
+.combate-em-acao.acao-elemento-vento { --acao-cor:#b4f0e3; }
+.combate-em-acao.acao-elemento-raio { --acao-cor:#f1dd72; }
+.combate-em-acao.acao-elemento-arcano { --acao-cor:#c7a8ff; }
+.combate-em-acao.acao-elemento-sombrio { --acao-cor:#9e8bc9; }
+.combate-em-acao.acao-elemento-veneno { --acao-cor:#a7dc75; }
+.combate-em-acao.acao-elemento-radiante { --acao-cor:#ffe49c; }
+.combate-em-acao.acao-elemento-fisico { --acao-cor:#e7d4b0; }
 .combate-conforto .bt-cena.shake,.combate-conforto .bt-cena.shake-forte,.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto .hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante { animation:none !important; transition:none !important; }
 .combate-conforto .combate-impacto,.combate-conforto .combate-trajeto { display:none; }
 .combate-conforto .bt-cena { filter:saturate(.78) brightness(.84); transition:none; }

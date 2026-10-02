@@ -16,3 +16,4 @@ node_modules/
 
 # Documentos de trabalho — não são servidos, só ocupariam espaço no upload
 *.md
+assets/arte_v3/*.png

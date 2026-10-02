@@ -20,7 +20,8 @@
 // tempo de vida do fato: o arquivo não vai aparecer no servidor no meio
 // da partida. Recarregar a página zera, que é o comportamento certo
 // depois de instalar a arte nova.
-import { candidatos, USOS } from "../data/assetRegistry.js";
+import { candidatos, chaveDe, USOS } from "../data/assetRegistry.js";
+import { prepararRetratoPersonagem } from '../render/CharacterArt.js';
 
 // URLs que já responderam 404 nesta sessão. Set de string, some no reload.
 const faltando = new Set();
@@ -55,6 +56,12 @@ export function aplicarCadeia(img, alvo, uso = USOS.COMBATE, opcoes = {}) {
   if (!img) return null;
   const fila = candidatosVivos(alvo, uso, opcoes);
   const placeholder = opcoes.placeholder || img.nextElementSibling;
+  if (/^(pc_|gacha_)/.test(chaveDe(alvo) || '') && uso !== USOS.MAPA) {
+    img.dataset.personagem = '1';
+    img.dataset.retrato = uso === USOS.RETRATO ? '1' : '0';
+    img.dataset.folha = fila[0]?.includes('walk_v2_pc_') ? '1' : '0';
+    delete img.dataset.artePronta;
+  }
 
   const desistir = () => {
     img.style.display = "none";
@@ -72,6 +79,7 @@ export function aplicarCadeia(img, alvo, uso = USOS.COMBATE, opcoes = {}) {
     img.onload = () => {
       existem.add(url);
       img.onerror = null;
+      prepararRetratoPersonagem(img);
       if (placeholder && placeholder.classList
         && placeholder.classList.contains("asset-vazio")) placeholder.style.display = "none";
       if (typeof opcoes.aoCarregar === "function") opcoes.aoCarregar(url);
@@ -94,14 +102,7 @@ export function aplicarCadeia(img, alvo, uso = USOS.COMBATE, opcoes = {}) {
 export function imgHtml(alvo, uso = USOS.COMBATE, opcoes = {}) {
   const fila = candidatosVivos(alvo, uso, opcoes);
   if (fila.length === 0) return "";
-  // Folha oficial dos personagens jogáveis: exibe apenas o quadro frontal
-  // central da primeira linha, mantendo a mesma arte em ficha, gacha e
-  // combate sem enviar 12 poses para dentro de um retrato pequeno.
-  if (fila[0].includes("walk_v2_pc_") && uso !== USOS.MAPA) {
-    const classes = ["asset-sprite-sheet", opcoes.classe || ""].filter(Boolean).join(" ");
-    const alt = (opcoes.alt || "").replace(/"/g, "&quot;");
-    return `<span role="img" aria-label="${alt}" class="${classes}" style="background-image:url('${fila[0]}')"></span>`;
-  }
+  const personagem = /^(pc_|gacha_)/.test(chaveDe(alvo) || '') && uso !== USOS.MAPA;
   const attrs = [
     `src="${fila[0]}"`,
     `data-cadeia="${fila.join("|")}"`,
@@ -109,6 +110,7 @@ export function imgHtml(alvo, uso = USOS.COMBATE, opcoes = {}) {
     opcoes.lazy === false ? "" : 'loading="lazy"',
     'decoding="async"',
     opcoes.classe ? `class="${opcoes.classe}"` : "",
+    personagem ? `data-personagem="1" data-raca="${String(alvo?.racaId || '').replace(/[^a-z]/g, '')}" data-folha="${fila[0].includes('walk_v2_pc_') ? 1 : 0}" data-retrato="${uso === USOS.RETRATO ? 1 : 0}" style="visibility:hidden"` : '',
   ].filter(Boolean).join(" ");
   return `<img ${attrs}>`;
 }
@@ -140,11 +142,12 @@ export function ligarCadeias(raiz) {
     // Se a imagem já carregou antes do JS rodar (cache), não há o que ligar.
     if (img.complete && img.naturalWidth > 0) {
       existem.add(img.getAttribute("src"));
+      prepararRetratoPersonagem(img);
       esconderVazio();
       return;
     }
 
-    img.onload = () => { existem.add(img.getAttribute("src")); esconderVazio(); };
+    img.onload = () => { existem.add(fila[Math.max(0, i - 1)]); prepararRetratoPersonagem(img); esconderVazio(); };
     img.onerror = () => {
       faltando.add(img.getAttribute("src"));
       if (i < fila.length) { img.src = fila[i]; i += 1; return; }

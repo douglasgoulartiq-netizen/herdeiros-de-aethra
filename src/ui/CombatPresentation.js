@@ -146,6 +146,13 @@ export function criarApresentacaoCombate(arena, elementoDe) {
     const reduzido = animacoesReduzidas();
     arena.classList.toggle('combate-conforto', reduzido);
     arena.classList.add('combate-em-acao');
+    // Marca a intenção visual da ação para que cada habilidade possa ter uma
+    // leitura própria sem criar uma animação por personagem. A classe é
+    // removida no finally, portanto nunca fica presa no próximo turno.
+    arena.classList.add(acao.habilidade || acao.hab ? 'acao-habilidade' : 'acao-auto');
+    arena.classList.add(perfil.suporte ? 'acao-suporte' : 'acao-ofensiva');
+    if (acao.critico) arena.classList.add('acao-critica');
+    arena.classList.add(`acao-elemento-${perfil.elemento}`);
     const nodes = [];
     const atacante = elementoDe(ator);
     arena.querySelector('.combate-estado-detalhe')?.remove();
@@ -279,7 +286,7 @@ export function criarApresentacaoCombate(arena, elementoDe) {
       nodes.forEach(n => n.remove());
       animacoes.forEach(a => a.cancel()); animacoes.clear();
       arena.querySelectorAll('.acao-origem,.acao-destino,.acao-beneficio').forEach(el => el.classList.remove('acao-origem','acao-destino','acao-beneficio'));
-      arena.classList.remove('combate-em-acao'); pular.hidden = true;
+      arena.classList.remove('combate-em-acao','acao-habilidade','acao-auto','acao-suporte','acao-ofensiva','acao-critica',`acao-elemento-${perfil.elemento}`); pular.hidden = true;
     }
   }
   return { executar };

@@ -220,7 +220,7 @@ export async function carregarTodasImagens(dados) {
         get() {
           if (!carregando) {
             carregando = true;
-            carregarImagemCadeia([GACHA_FINAL_ART[key]]).then((img) => {
+            carregarImagemCadeia([GACHA_FINAL_ART[key], `assets/arte_intermediaria/${key}.png`, `assets/sprites/${key}.png`]).then((img) => {
               Object.defineProperty(cache, key, { value: img, enumerable: true, configurable: true });
             }).catch(() => { carregando = false; });
           }

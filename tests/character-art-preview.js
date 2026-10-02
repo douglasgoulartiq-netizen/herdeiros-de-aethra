@@ -1,0 +1,13 @@
+import {imgHtml,ligarCadeias} from '../src/systems/AssetResolver.js';
+import {USOS,candidatos} from '../src/data/assetRegistry.js';
+const roster=await fetch('src/data/gachaRoster.json').then(r=>r.json());
+const main=document.querySelector('#gallery'), status=document.querySelector('#status');
+const heroes=['guerreiro','mago','ladino','clerigo','barbaro','patrulheiro','paladino','bardo','druida','necromante'].map(classeId=>({nome:`Humano · ${classeId}`,racaId:'humano',classeId,descricao:'Criação: o rosto e o corpo devem ser a mesma pessoa da folha de caminhada.'}));
+const all=[...heroes,...roster.map(p=>({...p,rosterId:p.id}))]; let page=0;
+function states(){main.classList.toggle('silhouette',document.querySelector('#silhouette').checked);for(const el of main.children){el.className='combatente '+document.querySelector('#pose').value+(document.querySelector('#reduce').checked?' combate-conforto':'');}}
+function render(){main.innerHTML=all.slice(page*12,page*12+12).map(p=>`<article data-heroi="1" data-estilo-acao="${['mago','clerigo','bardo','druida','necromante'].includes(p.classeId)?'magia':p.classeId==='patrulheiro'?'distancia':'corpo'}"><h2>${p.nome}</h2><p>${p.racaId} · ${p.classeId} · ${p.raridade||'protagonista'}</p><div class="body"><div class="sprite-wrap">${imgHtml(p,USOS.COMBATE,{alt:p.nome,lazy:false})}</div></div><div class="portraits">${imgHtml(p,USOS.RETRATO,{alt:'Retrato '+p.nome,lazy:false})}<small>Rosto e ombros<br>48 e 72 px</small>${imgHtml(p,USOS.RETRATO,{alt:'Retrato maior '+p.nome,lazy:false})}</div><p>${p.descricao||''}</p></article>`).join('');for(const row of main.querySelectorAll('.portraits')){row.firstElementChild.style.width=row.firstElementChild.style.height='48px';row.lastElementChild.style.width=row.lastElementChild.style.height='72px';}ligarCadeias(main);states();status.textContent=`${page*12+1}–${Math.min(all.length,page*12+12)} de ${all.length}. Nenhum save alterado.`;}
+document.querySelector('#previous').onclick=()=>{page=Math.max(0,page-1);render();};
+document.querySelector('#next').onclick=()=>{page=Math.min(Math.ceil(all.length/12)-1,page+1);render();};
+for(const id of ['silhouette','reduce','pose']) document.querySelector('#'+id).onchange=states;
+document.querySelector('#validate').onclick=async()=>{let ok=0;const failures=[];for(const p of all){const url=candidatos(p,USOS.COMBATE)[0];const im=new Image();im.src=url;try{await im.decode();ok++;}catch{failures.push(p.nome);}status.textContent=`Validação: ${ok} imagens carregadas; ${failures.length} falhas.`;}status.textContent=`${ok}/${all.length} imagens válidas. ${failures.length?'Falhas: '+failures.join(', '):'Todas carregaram.'}`;};
+render();
