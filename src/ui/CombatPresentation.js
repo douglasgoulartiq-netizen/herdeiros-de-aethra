@@ -152,6 +152,8 @@ export function criarApresentacaoCombate(arena, elementoDe) {
     arena.classList.add(acao.habilidade || acao.hab ? 'acao-habilidade' : 'acao-auto');
     arena.classList.add(perfil.suporte ? 'acao-suporte' : 'acao-ofensiva');
     if (acao.critico) arena.classList.add('acao-critica');
+    const golpes = Number(acao.habilidade?.golpes ?? acao.hab?.golpes ?? acao.golpes ?? 1);
+    if (Number.isFinite(golpes) && golpes >= 2) arena.classList.add('acao-combo');
     arena.classList.add(`acao-elemento-${perfil.elemento}`);
     const nodes = [];
     const atacante = elementoDe(ator);
@@ -286,7 +288,7 @@ export function criarApresentacaoCombate(arena, elementoDe) {
       nodes.forEach(n => n.remove());
       animacoes.forEach(a => a.cancel()); animacoes.clear();
       arena.querySelectorAll('.acao-origem,.acao-destino,.acao-beneficio').forEach(el => el.classList.remove('acao-origem','acao-destino','acao-beneficio'));
-      arena.classList.remove('combate-em-acao','acao-habilidade','acao-auto','acao-suporte','acao-ofensiva','acao-critica',`acao-elemento-${perfil.elemento}`); pular.hidden = true;
+      arena.classList.remove('combate-em-acao','acao-habilidade','acao-auto','acao-suporte','acao-ofensiva','acao-critica','acao-combo',`acao-elemento-${perfil.elemento}`); pular.hidden = true;
     }
   }
   return { executar };
