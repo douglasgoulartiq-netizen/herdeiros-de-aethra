@@ -1,0 +1,199 @@
+/* SISTEMA DE CONTROLES — botões, caixas e, principalmente, ESTADOS.
+ *
+ * POR QUE ESTE ARQUIVO EXISTE
+ * ---------------------------
+ * Uma auditoria das 14 telas contou 275 botões em 42 espécies diferentes, com
+ * 19 alturas distintas (de 22 px a 169 px) e 14 formatos de caixa, dos quais 11
+ * aparecem uma única vez. Mas o achado que mais pesa não é a variedade:
+ *
+ *   GameUI.js   (inventário, loja, forja, missões, viagem)   0 estados
+ *   PartyUI.js  (companhia, time)                            0 estados
+ *   BattleUI.js                                              1
+ *   GachaUI.js                                               1
+ *   SkillTreeUI.js                                          13
+ *
+ * As telas que o jogador mais usa não davam NENHUM retorno ao toque. Ele
+ * aperta e não sabe se apertou. É isso que faz uma interface parecer morta
+ * mesmo estando bonita parada — e nenhuma captura de tela mostra, porque é um
+ * estado, não um quadro.
+ *
+ * O QUE ESTE ARQUIVO FAZ, E O QUE NÃO FAZ
+ * ---------------------------------------
+ * NÃO renomeia as 42 espécies. Reescrever 275 botões de uma vez é a mudança
+ * mais arriscada possível, e nada garante que o resultado seja melhor. Em vez
+ * disso ele trabalha por baixo:
+ *
+ *   1. dá os quatro estados a TUDO que é clicável dentro das telas;
+ *   2. põe piso de 44 px no alvo de toque;
+ *   3. iguala a altura das linhas nas grades de ladrilho;
+ *   4. oferece três espécies nomeadas, para o trabalho novo parar de inventar.
+ *
+ * Os tokens seguem o prefixo --hda- que o projeto já usa (são 132 deles). Isto
+ * é continuação, não sistema paralelo.
+ *
+ * ESCOPO DELIBERADO: quase tudo aqui vale dentro de .hda-modal-corpo e dos
+ * contêineres de tela. O HUD e a barra de batalha ficam de fora porque são
+ * densos POR DESENHO — forçar 44 px ali quebraria o enquadramento do combate,
+ * que foi medido e resolvido à parte.
+ */
+
+:root {
+  /* Uma régua de três degraus no lugar das 19 alturas encontradas. */
+  --hda-ctrl-alt-compacto: 36px;  /* só onde o dedo não precisa alcançar */
+  --hda-ctrl-alt: 44px;           /* padrão: o mínimo que um dedo acerta */
+  --hda-ctrl-alt-primario: 48px;  /* a ação principal da tela */
+
+  --hda-ctrl-raio: 8px;
+  --hda-ctrl-raio-grande: 12px;
+
+  /* Estados. Luz por cima para o toque, sombra por dentro para o apertado:
+   * o controle afunda quando pressionado, que é o retorno que o dedo espera. */
+  --hda-ctrl-realce: rgba(255, 255, 255, .07);
+  --hda-ctrl-afunda: rgba(0, 0, 0, .28);
+  --hda-ctrl-foco: var(--hda-gold, #f5a524);
+}
+
+/* ------------------------------------------------------------------ ESTADOS
+ * A parte que faltava. Vale para botão de verdade e para div com role=button,
+ * porque o jogo usa os dois e o jogador não sabe a diferença.
+ */
+.hda-modal-corpo button,
+.hda-modal-corpo [role="button"],
+.hda-modal-corpo .hda-ladrilho,
+#screen-criacao button,
+#screen-criacao [role="button"] {
+  cursor: pointer;
+  /* A transição é curta de propósito: retorno de toque lento parece atraso,
+   * não elegância. */
+  transition: filter .12s ease, box-shadow .12s ease, transform .06s ease;
+}
+
+@media (hover: hover) {
+  .hda-modal-corpo button:not(:disabled):hover,
+  .hda-modal-corpo [role="button"]:not([aria-disabled="true"]):hover,
+  .hda-modal-corpo .hda-ladrilho:not(.indisponivel):hover,
+  #screen-criacao button:not(:disabled):hover {
+    filter: brightness(1.14);
+    box-shadow: inset 0 0 0 999px var(--hda-ctrl-realce);
+  }
+}
+
+.hda-modal-corpo button:not(:disabled):active,
+.hda-modal-corpo [role="button"]:not([aria-disabled="true"]):active,
+.hda-modal-corpo .hda-ladrilho:not(.indisponivel):active,
+#screen-criacao button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 6px var(--hda-ctrl-afunda);
+  filter: brightness(.96);
+}
+
+/* Foco de teclado. :focus-visible e não :focus — senão o anel aparece no
+ * clique de mouse também, e aí vira sujeira em vez de ajuda. */
+.hda-modal-corpo button:focus-visible,
+.hda-modal-corpo [role="button"]:focus-visible,
+.hda-modal-corpo .hda-ladrilho:focus-visible,
+#screen-criacao button:focus-visible,
+.arvore-caminhos button:focus-visible,
+.arv-topo button:focus-visible,
+.arv-filtros button:focus-visible {
+  outline: 2px solid var(--hda-ctrl-foco);
+  outline-offset: 2px;
+}
+
+/* Desabilitado tem de PARECER desabilitado antes de o jogador tentar. */
+.hda-modal-corpo button:disabled,
+.hda-modal-corpo [role="button"][aria-disabled="true"],
+.hda-modal-corpo .hda-ladrilho.indisponivel {
+  cursor: not-allowed;
+  opacity: .45;
+  filter: saturate(.5);
+}
+
+/* --------------------------------------------------- PISO DO ALVO DE TOQUE
+ * 42 botões estavam abaixo de 44 px, e 17 deles (no Atlas) tinham 22 px —
+ * metade do mínimo. O piso resolve os 42 de uma vez.
+ *
+ * `min-height` e não `height`: quem já é maior continua como está. O objetivo
+ * é levantar o chão, não achatar o teto.
+ */
+.hda-modal-corpo button,
+.hda-modal-corpo [role="button"],
+#screen-criacao button,
+/* As telas de árvore (Habilidades e Caminhos) não vivem dentro de
+ * .hda-modal-corpo — têm contêiner próprio. Sem estas duas linhas o piso
+ * passava longe justamente das duas telas com mais botões pequenos:
+ * o "Redistribuir" tinha 30 px e os filtros de ramo, 42. */
+.arvore-caminhos button,
+.arv-topo button,
+.arv-filtros button {
+  min-height: var(--hda-ctrl-alt);
+}
+
+/* O X de fechar e os controles de canto já são quadrados de 44: não precisam
+ * de largura mínima, e forçá-la os deformaria. */
+.hda-modal-corpo button.hda-modal-fechar,
+.hda-modal-corpo button[class*="fechar"] { min-width: var(--hda-ctrl-alt); }
+
+/* ------------------------------------------------------- GRADE DE LADRILHOS
+ * Na loja, "Minério de Ferro ×5" e "Erva Rara Luminosa ×2" caem na mesma linha
+ * com alturas diferentes, porque um nome quebra em duas linhas e o outro em
+ * três. A linha fica torta e a grade inteira parece desalinhada.
+ *
+ * `grid-auto-rows: 1fr` faz toda a linha adotar a altura do item mais alto —
+ * é o conserto correto, porque o problema nunca foi o item, foi a linha.
+ */
+.hda-grid { grid-auto-rows: 1fr; }
+.hda-grid > * { height: 100%; }
+
+/* ------------------------------------------------- AS TRÊS ESPÉCIES NOMEADAS
+ * Para o trabalho NOVO parar de inventar a 43ª espécie. Nada existente é
+ * obrigado a migrar — a migração acontece quando a tela for mexida de qualquer
+ * jeito, que é quando ela sai de graça.
+ *
+ * Uma ação principal por tela. Se duas disputam, uma delas não é principal.
+ */
+.hda-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--hda-ctrl-alt);
+  padding: 0 16px;
+  border-radius: var(--hda-ctrl-raio);
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  line-height: 1.2; text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.hda-btn--primario {
+  min-height: var(--hda-ctrl-alt-primario);
+  background: linear-gradient(180deg, #f5b94a, #d08a18);
+  border-color: #ffd978;
+  color: #2a1a06;
+  font-weight: 700;
+}
+
+.hda-btn--secundario {
+  background: transparent;
+  border-color: var(--hda-line, #4a3a26);
+  color: var(--hda-muted, #c8b89a);
+}
+
+.hda-btn--discreto {
+  background: none; border-color: transparent;
+  color: var(--hda-muted, #c8b89a);
+  padding: 0 10px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ REDUZIR MOVIMENTO
+ * Quem pediu menos movimento continua tendo o retorno — só não ganha o
+ * deslocamento. Retirar o estado inteiro seria trocar um problema por outro.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hda-modal-corpo button,
+  .hda-modal-corpo [role="button"],
+  .hda-modal-corpo .hda-ladrilho,
+  #screen-criacao button { transition: none; }
+  .hda-modal-corpo button:not(:disabled):active,
+  .hda-modal-corpo [role="button"]:not([aria-disabled="true"]):active,
+  #screen-criacao button:not(:disabled):active { transform: none; }
+}

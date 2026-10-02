@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>HDA — bancada de auditoria de UI</title>
+<link rel="stylesheet" href="../src/style.css" />
+<link rel="stylesheet" href="../src/hda-ui.css" />
+<link rel="stylesheet" href="../src/mobile-premium.css" />
+<link rel="stylesheet" href="../src/battle-cards.css" />
+<link rel="stylesheet" href="../src/revelacoes.css" />
+<link rel="stylesheet" href="../src/efeitos-combate.css" />
+<link rel="stylesheet" href="../src/batalha-layout.css" />
+<link rel="stylesheet" href="../src/animacoes-polimento.css" />
+<link rel="stylesheet" href="../src/combate-conforto.css" />
+<link rel="stylesheet" href="../src/aethra-monumental.css" />
+<!-- Mesma ordem do index.html: o sistema de controles entra por último. Se a
+     bancada carregasse numa ordem diferente, ela mostraria uma tela que o jogo
+     não tem, e a foto deixaria de ser prova. -->
+<link rel="stylesheet" href="../src/sistema-controles.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="game-canvas" width="960" height="640"></canvas>
+  <div id="hud" class="hidden">
+    <div id="hud-bars">
+      <div class="barra-wrap"><span class="barra-label">HP</span><div class="barra"><div id="hud-hp" class="barra-fill hp"></div></div></div>
+      <div class="barra-wrap"><span class="barra-label">MP</span><div class="barra"><div id="hud-mp" class="barra-fill mp"></div></div></div>
+      <div class="barra-wrap"><span class="barra-label">XP</span><div class="barra"><div id="hud-xp" class="barra-fill xp"></div></div></div>
+    </div>
+    <div id="hud-info"></div>
+    <div id="hud-clima"></div>
+    <div id="hud-salvo" class="hidden"></div>
+    <div id="hud-buttons"></div>
+  </div>
+  <div id="mensagem-topo" class="hidden"></div>
+  <div id="screen-batalha" class="tela hidden"></div>
+  <div id="screen-criacao" class="tela hidden"></div>
+  <div id="modal-overlay" class="hidden"><div id="modal-conteudo"></div></div>
+</div>
+
+<script type="module">
+// Bancada de AUDITORIA DE UI: abre cada tela do jogo sob demanda, com dados
+// e personagem reais, para que o teste automatizado
+// (scripts/test-ui-responsivo.mjs) possa medir enquadramento, overflow e
+// visibilidade dos elementos críticos em várias resoluções.
+//
+// Não faz parte do jogo: nada em src/ importa este arquivo.
+const erros = [];
+window.addEventListener("error", (e) => erros.push(`${e.message} @ ${e.filename}:${e.lineno}`));
+window.addEventListener("unhandledrejection", (e) => erros.push(`promise: ${(e.reason && e.reason.stack) || e.reason}`));
+window.__ERROS__ = erros;
+
+const baseFetch = window.fetch.bind(window);
+window.fetch = (url, ...r) => baseFetch(String(url).startsWith("./src/") ? `.${url}` : url, ...r);
+
+const { carregarDados, carregarTodasImagens } = await import("../src/data/loader.js");
+const { criarPersonagem, ganharXP, aplicarCrescimento } = await import("../src/systems/CharacterFactory.js");
+const { concederPontosPorNivel, concederPontoHeranca } = await import("../src/systems/TalentSystem.js");
+const { adicionarFragmentos, membrosDoTime } = await import("../src/systems/GachaSystem.js");
+const { cryptoId } = await import("../src/systems/CharacterFactory.js");
+const GameUI = await import("../src/ui/GameUI.js");
+const { montarGacha } = await import("../src/ui/GachaUI.js");
+const { montarArvoreHabilidades } = await import("../src/ui/SkillTreeUI.js");
+const { montarCaminhoHerdeiro } = await import("../src/ui/TalentTreeUI.js");
+const { montarCompendio } = await import("../src/ui/CompendiumUI.js");
+const { montarAtlas } = await import("../src/ui/AtlasUI.js");
+const { montarAcessibilidade } = await import("../src/ui/AccessibilityUI.js");
+const { montarDiarioDeDecisoes } = await import("../src/ui/DecisionJournalUI.js");
+const { montarCriacaoPersonagem } = await import("../src/ui/CharacterCreationUI.js");
+const { montarParty } = await import("../src/ui/PartyUI.js");
+const { mostrarAmeaca, mostrarDesafioAmeaca } = await import("../src/ui/ThreatUI.js");
+const { mostrarMercadorItinerante } = await import("../src/ui/TravelingMerchantUI.js");
+const { iniciarBatalha } = await import("../src/ui/BattleUI.js");
+const { ZONAS } = await import("../src/data/worldMap.js");
+const { mundoDaSemente } = await import("../src/systems/WorldBuilder.js");
+const MUNDO = mundoDaSemente(4242);
+
+const dados = await carregarDados();
+
+// A bancada roda de /scripts/, então "assets/sprites/x.png" apontaria para
+// /scripts/assets/. Sem corrigir isso, a auditoria de batalha media uma arena
+// SEM NENHUM SPRITE — e foi exatamente essa cegueira que deixou 119 peças de
+// arte faltando passarem por todas as auditorias de UI anteriores sem que
+// nada reclamasse. Agora a bancada carrega a arte de verdade.
+const ImagemOriginal = window.Image;
+const descritorSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+window.Image = function ImagemDaBancada() {
+  const img = new ImagemOriginal();
+  Object.defineProperty(img, "src", {
+    set(v) { descritorSrc.set.call(img, String(v).startsWith("assets/") ? `../${v}` : v); },
+    get() { return descritorSrc.get.call(img); },
+    configurable: true,
+  });
+  return img;
+};
+const imagens = await carregarTodasImagens(dados);
+window.Image = ImagemOriginal;
+
+// Personagem "cheio": nível alto, inventário variado, pontos para gastar,
+// fragmentos para invocar — é assim que as telas ficam mais densas, que é
+// justamente o pior caso para enquadramento.
+const personagem = criarPersonagem({ nome: "Aric Valdrenn", raca: "humano", classe: "guerreiro", antecedente: dados.backgrounds[0].id, traco: dados.traits[0].id }, dados);
+for (let i = 0; i < 12; i += 1) {
+  const { subiuNivel } = ganharXP(personagem, 900);
+  subiuNivel.forEach((n) => { aplicarCrescimento(personagem, dados); concederPontosPorNivel(personagem, n); });
+}
+concederPontoHeranca(personagem, { tipo: "teste" });
+concederPontoHeranca(personagem, { tipo: "teste" });
+adicionarFragmentos(personagem, 12000);
+personagem.ouro = 9999;
+// Um item de cada tipo, incluindo nomes longos de propósito (item 53/54).
+const tipos = ["arma", "armadura", "acessorio", "consumivel", "material"];
+tipos.forEach((tipo) => {
+  dados.items.itens.filter((i) => i.tipo === tipo).slice(0, 6).forEach((i) => personagem.inventario.push({ ...i, uid: cryptoId() }));
+});
+personagem.inventario.push({ ...dados.items.itens[0], uid: cryptoId(), nome: "Lâmina Cerimonial dos Herdeiros Esquecidos de Aethra Setentrional" });
+
+const TELAS = {
+  // Com `contexto` de propósito: é o que faz o painel de equipamento
+  // automático aparecer na aba "Equipado" — se ele estourar o layout em
+  // 375px, é aqui que a auditoria pega.
+  inventario: () => GameUI.montarInventario(personagem, () => {}, personagem, null, null, { dados, time: [personagem, ...membrosDoTime(personagem)] }),
+  missoes: () => GameUI.montarMissoes(personagem, dados),
+  forja: () => GameUI.montarForja(personagem, dados, () => {}),
+  loja: () => GameUI.montarLoja(personagem, dados, () => {}),
+  // ETAPA 2: a viagem rápida deixou de listar ZONAS e passou a listar LUGARES
+  // (cidade, porto, posto). A bancada monta os pontos do mundo de verdade —
+  // passar as 48 zonas aqui reprovava a tela por rolagem excessiva medindo
+  // uma coisa que o jogo não mostra.
+  viagem: () => GameUI.montarViagemRapida(
+    personagem,
+    MUNDO.assentamentos.filter((a) => a.viagemRapida),
+    "vila",
+    () => {},
+    3,
+  ),
+  gacha: () => montarGacha(personagem, dados, () => {}),
+  // "Time e Mochila" nunca esteve na bancada, apesar de ser a tela mais densa
+  // do jogo — quatro abas, a fileira do grupo e a grade de itens. É onde a
+  // aba "Montar time" passou a morar (antes vivia dentro de Invocação).
+  party: () => montarParty(personagem, [personagem, ...membrosDoTime(personagem)], dados, () => {}),
+  gacha_roster: () => montarGacha(personagem, dados, () => {}, "roster"),
+  habilidades: () => montarArvoreHabilidades(personagem, dados, () => {}),
+  caminhos: () => montarCaminhoHerdeiro(personagem, dados, () => {}),
+  compendio: () => montarCompendio(personagem, dados),
+  atlas: () => montarAtlas(personagem, ZONAS, ZONAS[0].id, () => {}),
+  acessibilidade: () => montarAcessibilidade(),
+  diario: () => montarDiarioDeDecisoes(personagem, dados),
+  ameaca: () => mostrarAmeaca(dados.monsters.slice(0, 3), [personagem], dados, () => {}, () => {}, "fogo", 0),
+  desafio: () => {
+    // Resultado estável (15) para a captura visual sempre chegar à escolha
+    // Lutar/Fugir depois da animação, sem depender de sorte no teste.
+    const aleatorioOriginal = Math.random;
+    Math.random = () => 0.7;
+    const promessa = mostrarDesafioAmeaca(dados.monsters.slice(0, 3), [personagem], dados, () => {}, () => {}, "fogo", 0);
+    Math.random = aleatorioOriginal;
+    return promessa;
+  },
+  mercador: () => mostrarMercadorItinerante(dados.items.itens.slice(0, 5).map((i) => ({ ...i, precoFinal: 100 })), personagem, dados, null, () => {}),
+  criacao: () => {
+    document.getElementById("screen-criacao").classList.remove("hidden");
+    montarCriacaoPersonagem(document.getElementById("screen-criacao"), dados, () => {});
+  },
+  batalha: () => {
+    const chefe = dados.monsters.find((m) => m.chefe) || dados.monsters[0];
+    const comum = dados.monsters.find((m) => !m.chefe) || dados.monsters[0];
+    const mago = criarPersonagem({ nome: "Lirael", raca: "elfo", classe: "mago", antecedente: dados.backgrounds[0].id, traco: dados.traits[0].id }, dados);
+    mago.uid = "lirael";
+    // A alça devolvida por iniciarBatalha só é usada pelo teste de layout
+    // shift (scripts/test-batalha-layout.mjs) — o jogo ignora o retorno.
+    window.__BATALHA__ = iniciarBatalha(document.getElementById("screen-batalha"), imagens, dados, personagem, [mago], [chefe, comum, comum], "fogo", "gelo", null, [], () => {},
+      { mapaAtual: "overworld", zonaId: "deserto_karn", zonaNome: "Deserto de Karn", zonaDescricao: "Dunas que engolem pegadas em minutos.", tile: 8, climaNome: "Vento Forte", climaIcone: "🌬️" });
+  },
+  hud: () => {
+    document.getElementById("hud").classList.remove("hidden");
+    GameUI.atualizarHUD(personagem);
+  },
+};
+
+window.__TELAS__ = Object.keys(TELAS);
+window.__ABRIR__ = (nome) => {
+  // Fecha tudo antes de abrir a próxima.
+  GameUI.fecharModal();
+  document.getElementById("screen-batalha").classList.add("hidden");
+  document.getElementById("screen-batalha").innerHTML = "";
+  document.getElementById("screen-criacao").classList.add("hidden");
+  document.getElementById("screen-criacao").innerHTML = "";
+  document.getElementById("hud").classList.add("hidden");
+  erros.length = 0;
+  try { TELAS[nome](); } catch (e) { erros.push(`abrir(${nome}): ${e.stack || e}`); }
+  return erros.slice();
+};
+window.__TROCAR_ATIVO__ = () => window.__BATALHA__ && window.__BATALHA__.trocarAtivo();
+window.__MATAR__ = (i) => window.__BATALHA__ && window.__BATALHA__.matarInimigo(i);
+window.__LOG__ = (n) => window.__BATALHA__ && window.__BATALHA__.encherLog(n);
+window.__PERSONAGEM__ = personagem;
+window.__DADOS__ = dados;
+window.__PRONTO__ = true;
+const telaInicial = new URLSearchParams(location.search).get('tela');
+if (telaInicial && TELAS[telaInicial]) window.__ABRIR__(telaInicial);
+</script>
+</body>
+</html>
