@@ -38,6 +38,13 @@
 .combate-impacto.elemento-defesa { border-radius:15% 15% 50% 50%; }
 .combate-impacto.elemento-radiante { border-style:dashed; border-width:3px; }
 .combate-impacto.elemento-sombrio { border-width:0 5px 0 2px; }
+.combate-impacto::before,.combate-impacto::after { content:""; position:absolute; inset:7px; border:1px solid color-mix(in srgb,var(--fx-cor) 72%,white); border-radius:inherit; opacity:.7; }
+.combate-impacto::after { inset:-9px; border-color:color-mix(in srgb,var(--fx-cor) 55%,transparent); opacity:.42; }
+.combate-impacto.impacto-forte { width:68px; height:68px; margin:-34px; border-width:3px; filter:drop-shadow(0 0 8px var(--fx-cor)); }
+.combate-impacto.impacto-forte::before { animation:impacto-pulso .38s ease-out both; }
+.combate-impacto.impacto-forte::after { animation:impacto-onda .52s ease-out both; }
+@keyframes impacto-pulso { from { transform:scale(.55); opacity:.9; } to { transform:scale(1.25); opacity:0; } }
+@keyframes impacto-onda { from { transform:scale(.25); opacity:.8; } to { transform:scale(1.25); opacity:0; } }
 .bt-slot .combatente.porte-grande .sprite-wrap { transform:scale(var(--porte, 1)); }
 .bt-row-herois .combatente .sprite-wrap { transform:scale(var(--porte, 1)); }
 .bt-slot .combatente .nome-c { position:relative; z-index:6; }
@@ -71,6 +78,10 @@
 .combate-em-acao.acao-habilidade .acao-origem .sprite-wrap { filter:drop-shadow(0 0 7px var(--acao-cor, #bba6ff)); }
 .combate-em-acao.acao-suporte .acao-origem .sprite-wrap { filter:drop-shadow(0 0 8px #8fe0b2); }
 .combate-em-acao.acao-critica .acao-origem .sprite-wrap { filter:drop-shadow(0 0 11px #ffe18a); }
+.combate-em-acao.acao-habilidade .acao-origem::after { content:""; position:absolute; inset:13% 18% 9%; border-radius:50%; pointer-events:none; background:radial-gradient(ellipse, color-mix(in srgb,var(--acao-cor,#bba6ff) 32%,transparent), transparent 68%); animation:habilidade-carga .55s ease-out both; }
+.combate-em-acao.acao-critica .acao-origem::after { background:radial-gradient(ellipse,#ffe18a55,transparent 68%); animation:critico-brilho .42s ease-out both; }
+@keyframes habilidade-carga { 0% { opacity:0; transform:scale(.55); } 58% { opacity:.9; transform:scale(1.06); } 100% { opacity:.15; transform:scale(1.18); } }
+@keyframes critico-brilho { 0% { opacity:0; transform:scale(.45); } 45% { opacity:1; transform:scale(1.18); } 100% { opacity:.2; transform:scale(1.3); } }
 .combate-em-acao.acao-elemento-fogo { --acao-cor:#ff9d62; }
 .combate-em-acao.acao-elemento-gelo { --acao-cor:#9ddcff; }
 .combate-em-acao.acao-elemento-agua { --acao-cor:#78c9ff; }
@@ -86,9 +97,9 @@
 .combate-em-acao.acao-combo .acao-origem .sprite-canvas { animation: origem-combo .52s ease-out both; }
 @keyframes alvo-combo {
   0%,100% { transform:translateX(0) rotate(0); filter:brightness(1); }
-  24% { transform:translateX(-4px) rotate(-2deg); filter:brightness(1.3); }
-  48% { transform:translateX(4px) rotate(2deg); filter:brightness(1.08); }
-  72% { transform:translateX(-3px) rotate(-1deg); filter:brightness(1.22); }
+  20% { transform:translateX(-7px) rotate(-3deg) scale(1.02); filter:brightness(1.45) saturate(1.25); }
+  43% { transform:translateX(8px) rotate(3deg) scale(.98); filter:brightness(1.12) saturate(1.12); }
+  68% { transform:translateX(-6px) rotate(-2deg) scale(1.01); filter:brightness(1.38) saturate(1.2); }
 }
 @keyframes origem-combo {
   0%,100% { transform:translateX(0); }
@@ -100,7 +111,7 @@
   .combate-em-acao.acao-habilidade .acao-origem .sprite-wrap { filter:drop-shadow(0 0 4px var(--acao-cor,#bba6ff)); }
   .combate-em-acao.acao-combo .acao-destino .sprite-canvas { animation-duration:.38s; }
 }
-.combate-conforto .bt-cena.shake,.combate-conforto .bt-cena.shake-forte,.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto .hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante { animation:none !important; transition:none !important; }
+.combate-conforto .bt-cena.shake,.combate-conforto .bt-cena.shake-forte,.combate-conforto .sprite-wrap,.combate-conforto .sprite-wrap::before,.combate-conforto .sprite-wrap::after,.combate-conforto .hit-flash,.combate-conforto .status-icone,.combate-conforto .dano-flutuante,.combate-conforto .acao-origem::after,.combate-conforto .combate-impacto::before,.combate-conforto .combate-impacto::after { animation:none !important; transition:none !important; }
 .combate-conforto .combate-impacto,.combate-conforto .combate-trajeto { display:none; }
 .combate-conforto .bt-cena { filter:saturate(.78) brightness(.84); transition:none; }
 @media(prefers-reduced-motion:reduce) { .bt-cena { transition:none; } .bt-cena.shake,.bt-cena.shake-forte,.bt-field.hit-stop,.bt-slot .combatente,.bt-slot .sprite-wrap { animation:none !important; } .combate-impacto,.combate-trajeto { display:none; } }

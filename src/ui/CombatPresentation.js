@@ -275,7 +275,7 @@ export function criarApresentacaoCombate(arena, elementoDe) {
         const atingido = resultadoAlvo ? resultadoAlvo.dano > 0 : !acao.erro && !acao.bloqueado;
         if (dest && (atingido || perfil.suporte)) {
           const anel = document.createElement('span');
-          anel.className = `combate-impacto elemento-${perfil.elemento}`;
+          anel.className = `combate-impacto elemento-${perfil.elemento}${acao.critico || golpes >= 2 ? ' impacto-forte' : ''}`;
           anel.setAttribute('aria-hidden', 'true');
           anel.style.cssText = `left:${dest.x}px;top:${dest.y}px;--fx-cor:${perfil.cor}`;
           arena.append(anel); nodes.push(anel);
